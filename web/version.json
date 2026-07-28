@@ -1,5 +1,5 @@
 {
-  "site": "2.8.0",
+  "site": "2.8.1",
   "updated": "2026-07-28",
   "apps": {
     "cronometro": "0.3.0",
@@ -7,7 +7,7 @@
     "remote-config": "1.2.0",
     "ninco": "1.0.0",
     "chron02": "1.1.0",
-    "o2-bootloader": "1.2.0",
+    "o2-bootloader": "1.2.1",
     "ds200-ds300": "1.5.2",
     "esp32-installer": "0.9.0",
     "guida-oxigen": "1.2.0"

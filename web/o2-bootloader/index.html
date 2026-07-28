@@ -79,6 +79,7 @@
       </select>
       <button id="btnBoot" class="sec needc" data-i18n="btnEnterBoot" disabled>Entra in boot</button>
       <button id="btnStop" class="sec needc" data-i18n="btnExitBoot" disabled>Esci (STOPBOOT)</button>
+      <p class="note" id="bootHint" hidden></p>
       <span id="bootSt" class="pill"></span>
     </div>
     <div class="mutbox" data-i18n-html="bootHint"></div>
@@ -89,8 +90,8 @@
   <div class="card">
     <p class="cardtitle" data-i18n="titleInfo">Info dispositivo (sola lettura)</p>
     <div class="row">
-      <button id="btnFw" class="sec needc" data-i18n="btnFw" disabled>Versione firmware</button>
-      <button id="btnMac" class="sec needc" data-i18n="btnMac" disabled>Leggi MAC (dongle)</button>
+      <button id="btnFw" class="sec needc needboot" data-i18n="btnFw" disabled>Versione firmware</button>
+      <button id="btnMac" class="sec needc needboot" data-i18n="btnMac" disabled>Leggi MAC (dongle)</button>
     </div>
     <div id="infoOut" class="kv"></div>
     <div class="mutbox" data-i18n-html="infoNote"></div>
@@ -109,12 +110,12 @@
       </select>
       <label id="lbLen" data-i18n="lblLen">byte da leggere</label>
       <input id="regL" type="number" min="1" max="16" value="2" style="width:70px">
-      <button id="btnRead" class="sec needc" data-i18n="btnReadReg" disabled>Leggi</button>
+      <button id="btnRead" class="sec needc needboot" data-i18n="btnReadReg" disabled>Leggi</button>
     </div>
     <div class="row">
       <label id="lbVal" data-i18n="lblVal">valore (hex)</label>
       <input id="regV" size="12" data-i18n-attr="placeholder:phVal" placeholder="es. 04 0e" style="width:150px">
-      <button id="btnWrite" class="sec needc" data-i18n="btnWriteReg" disabled>Scrivi</button>
+      <button id="btnWrite" class="sec needc needboot" data-i18n="btnWriteReg" disabled>Scrivi</button>
       <span class="expchip" data-i18n="expLabel">sperimentale</span>
     </div>
     <div class="row">
@@ -410,7 +411,16 @@ window.I18N_STRINGS = {
   bootStOn:{it:"in boot",en:"in boot",es:"en boot"},
   bootStOff:{it:"non in boot",en:"not in boot",es:"fuera de boot"},
   dtResponse:{it:"risposta",en:"reply",es:"respuesta"},
-  dtEmpty:{it:"(vuota)",en:"(empty)",es:"(vacía)"},
+  dtEmpty:{
+    it:"nessuna risposta — il dongle non ha detto niente entro il tempo d'attesa",
+    en:"no answer — the dongle said nothing within the wait window",
+    es:"sin respuesta — el dongle no ha dicho nada dentro del tiempo de espera"
+  },
+  needBootMsg:{
+    it:"⚠️ Prima entra in boot. Fuori dalla sessione di boot il dongle è in modalità gara e a questi comandi non risponde: il frame parte e non torna niente. Scegli il dispositivo qui sopra e premi «Entra in boot» — quando risponde BOOTOK, i comandi si accendono.",
+    en:"⚠️ Enter boot first. Outside a boot session the dongle is in race mode and does not answer these commands: the frame goes out and nothing comes back. Pick the device above and press “Enter boot” — the commands light up when it replies BOOTOK.",
+    es:"⚠️ Entra primero en boot. Fuera de la sesión de boot el dongle está en modo carrera y no responde a estos comandos: la trama sale y no vuelve nada. Elige el dispositivo arriba y pulsa «Entrar en boot» — los comandos se activan cuando responde BOOTOK."
+  },
   fwOut:{it:"versione firmware",en:"firmware version",es:"versión de firmware"},
   macOut:{it:"MAC",en:"MAC",es:"MAC"},
   macOnlyDongle:{
@@ -448,7 +458,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="o2-bootloader",APP_VERSION="1.2.0";
+const APP="o2-bootloader",APP_VERSION="1.2.1";
 const VID=0x1fee,PID=0x0002;
 /* Il programma ufficiale apre la COM a 9600 8N1 (visto nelle catture USB). Sul
    dongle è una COM virtuale, quindi il valore è nominale — ma se un giorno in
@@ -485,10 +495,23 @@ const tgt=()=>$("tgt").value;
 function renderStatus(){const on=connState;$("st").textContent=on?I18N.t("stConnected"):I18N.t("stDisconnected");$("st").className="pill"+(on?" on":"");}
 function renderBootPill(){const p=$("bootSt");if(!connState){p.textContent="";p.className="pill";return;}
   p.textContent=inBoot?(I18N.t("bootStOn")+(bootTarget?" · "+bootTarget:"")):I18N.t("bootStOff");
-  p.className="pill"+(inBoot?" on":"");}
+  p.className="pill"+(inBoot?" on":"");
+  syncBoot();}
 function setConn(on){connState=on;if(!on){inBoot=false;bootTarget=null;}renderStatus();renderBootPill();
   $("btnConn").disabled=on;
-  document.querySelectorAll(".needc").forEach(b=>b.disabled=!on);}
+  document.querySelectorAll(".needc").forEach(b=>b.disabled=!on);
+  syncBoot();}
+
+/* I comandi a registri hanno senso solo DENTRO una sessione di boot: fuori, il
+   dongle è in modalità gara e non risponde. Prima erano attivi appena connessi
+   e sparavano nel vuoto — l'utente vedeva partire il frame e tornare il nulla,
+   senza capire che gli mancava un passaggio. Ora sono spenti finché non arriva
+   BOOTOK, e la riga qui sotto dice perché. */
+function syncBoot(){
+  const pronto=connState&&inBoot;
+  document.querySelectorAll(".needboot").forEach(b=>b.disabled=!pronto);
+  const n=$("bootHint"); if(n){n.hidden=!connState||inBoot; if(!n.hidden)n.textContent=I18N.t("needBootMsg");}
+}
 
 async function connect(){
   if(!navigator.serial){$("nobt").style.display="block";return;}

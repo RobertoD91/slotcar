@@ -65,6 +65,17 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   await page.waitForTimeout(200);
   ok((await txt('#st')).length > 0, 'stato connessione mostrato: ' + await txt('#st'));
 
+  /* Fuori da una sessione di boot il dongle è in modalità gara e a questi
+     comandi non risponde: il frame parte e non torna niente. Erano attivi
+     appena connessi, e chi li premeva vedeva solo una risposta vuota senza
+     capire che mancava un passaggio. */
+  console.log('\n== I COMANDI A REGISTRI RICHIEDONO IL BOOT ==');
+  for (const id of ['#btnFw', '#btnMac', '#btnRead', '#btnWrite']) {
+    ok(await page.locator(id).isDisabled(), `${id} spento finché non si entra in boot`);
+  }
+  ok(await page.locator('#bootHint').isVisible(), 'ed è scritto perché: ' +
+     (await txt('#bootHint')).slice(0, 60) + '…');
+
   // ---- boot: il byte dopo BOOT sceglie il dispositivo ----
   console.log('\n== BOOT ==');
   const bootAnd = async (target, atteso, pushAt, total) => {
@@ -75,6 +86,10 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   };
   await bootAnd('dongle', ['42 4f 4f 54 05', '42 4f 4f 54 0c'], 300, 500);
   ok(/boot/.test(await txt('#bootSt')), 'targhetta boot dopo BOOTOK: ' + await txt('#bootSt'));
+  for (const id of ['#btnFw', '#btnMac', '#btnRead', '#btnWrite']) {
+    ok(!(await page.locator(id).isDisabled()), `${id} acceso dopo BOOTOK`);
+  }
+  ok(!(await page.locator('#bootHint').isVisible()), 'e l\'avviso sparisce');
   await bootAnd('chip', ['42 4f 4f 54 09'], 100, 600);
   await bootAnd('controller', ['42 4f 4f 54 0a'], 100, 600);
 

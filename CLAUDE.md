@@ -245,6 +245,11 @@ sistema solo se li accetta.
   livello numerico, sparisce proprio quando serve vederla.
 - **`git reset --hard` in un test** butta via anche le modifiche ai file tracciati che
   stavi preparando.
+- **Un pulsante attivo promette che funzionerà.** Nel configuratore dongle i comandi a
+  registri erano abilitati appena connessi, ma hanno senso solo dentro una sessione di
+  boot: fuori, il frame parte e non torna niente. Chi li premeva vedeva una risposta vuota
+  e nessun indizio sul passaggio mancante. Se un'azione ha una precondizione, il pulsante
+  resta spento e **dice quale**: vale qui come per i comandi di gara col DS200.
 - ⭐ **`requestPort({filters:[…]})` non suggerisce: IMPONE.** Il browser mostra soltanto le
   porte che combaciano, e se il dispositivo si presenta con un VID/PID diverso — un
   adattatore seriale in mezzo, un bootloader diverso, un'altra generazione di dongle — la
