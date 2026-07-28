@@ -50,8 +50,10 @@ Chiavi **condivise** già pronte: `disclaimer`, `updateAvail` / `updateBtn` (ban
 aggiornamento), `noBt` (browser senza Web Bluetooth), `noSerial` (browser senza Web Serial).
 
 > `ds200/` **non** usa questo motore: ha un `i18n.js` proprio con cinque lingue
-> (it/en/es/fr/de) perché arriva da un progetto separato ed è autonoma. Se aggiungi una
-> stringa lì, aggiornala nel suo dizionario.
+> (it/en/es/fr/de) perché arriva da un progetto separato ed è autonoma — è anche l'unica
+> cartella qui dentro che sia una **copia**. Se aggiungi una stringa lì, aggiornala nel suo
+> dizionario, e ricorda che il prossimo allineamento sovrascrive quei file: le modifiche
+> vanno messe come patch in `tools/apply-local-patches.py`.
 
 ## Cache e versioni
 

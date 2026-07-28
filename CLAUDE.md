@@ -1,7 +1,8 @@
 # CLAUDE.md — memoria di progetto (slotcar)
 
 Repo **pubblica** con le web app per slot car digitali, pubblicate su GitHub Pages.
-Le app nascono in due repo private e qui vengono **copiate** (vedi *Sincronizzazione*).
+**Questa repo è la sorgente**: le app si modificano qui. L'unica cosa ancora copiata da
+fuori è il contagiri DS200/DS300 con il suo firmware ESP32 (vedi *Sincronizzazione*).
 L'utente è italiano: **rispondere in italiano**.
 
 ---
@@ -22,9 +23,10 @@ L'utente è italiano: **rispondere in italiano**.
       danneggia, ci vuole un MAX3232.
 
 ### Da fare nel codice
-- [ ] **Migrare col tempo tutte le web app in questa repo pubblica** (richiesta utente):
-      oggi sono copie sincronizzate da altre repo; l'obiettivo è che
-      questa diventi la sorgente e le patch locali spariscano.
+- [ ] **Migrare anche il contagiri DS200** (`web/ds200/` + `esp32/`): è l'ultima cosa
+      copiata da fuori. Non è immediato — la repo di sviluppo ha un suo sito Pages che
+      pubblica `webapp/`, una sua CI, il CLI Python e la regola dei tre parser da tenere
+      allineati. Da decidere insieme all'utente.
 - [ ] **`flash.html` è solo in italiano** — non è passato per `i18n.js` come il resto.
 - [ ] **Dipendenza esterna da unpkg** in `ds200/flash.html` (esp-web-tools). Per un sito
       100% autonomo va incorporata: serve un bundler, è un modulo ES con dipendenze sue.
@@ -47,12 +49,13 @@ L'utente è italiano: **rispondere in italiano**.
 - **Branch: `master`.** Richiesta esplicita dell'utente, niente branch inutili.
 - **`web/` è il sito.** Il workflow `pages.yml` la pubblica tal quale ad ogni push su
   `master`. Percorsi **sempre relativi**: il sito sta in un sottopercorso.
-- **Non modificare a mano i file sincronizzati.** `web/{car-config,remote-config,modes,
-  chron02,o2-bootloader}`, `web/ds200/` ed `esp32/` arrivano da monte: ogni modifica va
-  messa come patch in `tools/apply-local-patches.py`, altrimenti il prossimo sync la
-  cancella. `web/index.html`, `web/version.json`, `web/ninco/`, `docs/` e `tools/` sono
-  invece **di questa repo**.
-- **Quando una patch entra a monte, va TOLTA da qui**, o verrebbe applicata due volte.
+- **Quasi tutto è sorgente: si modifica qui.** App oXigen (`car-config`, `remote-config`,
+  `modes`, `chron02`, `o2-bootloader`), contagiri Ninco, indice, `i18n.js`, `sw.js`, tool
+  e documentazione: file di questa repo, si toccano direttamente.
+- **Le uniche copie sono `web/ds200/` ed `esp32/`**, che arrivano dalla repo del progetto
+  DS200: lì ogni modifica va messa come patch in `tools/apply-local-patches.py`, altrimenti
+  il prossimo sync la cancella. Se una patch entra a monte (o il file smette di essere una
+  copia) va **tolta**, o verrebbe applicata due volte.
 - **Segreti**: hook `pre-commit`/`pre-push` + Action. Attivali con
   `./tools/install-hooks.sh` (una volta per clone). I valori personali **non** vanno nel
   codice: `tools/secrets-denylist.local.txt` (git-ignored) e il secret `SECRET_SCAN_EXTRA`.
@@ -86,15 +89,19 @@ node tools/smoke-test.js                      # tutte le app: link, i18n, errori
 node tools/test-ninco-ui.js                   # contagiri Ninco con seriale simulata
 ```
 
-## Sincronizzazione da monte
+## Sincronizzazione (solo DS200)
 
 ```bash
-cp tools/sync.local.conf.example tools/sync.local.conf   # prima volta: indica i percorsi
+cp tools/sync.local.conf.example tools/sync.local.conf   # prima volta: indica il percorso
 ./tools/sync-from-upstream.sh                            # --dry-run per vedere cosa farebbe
 ```
-I percorsi delle repo di sviluppo **non stanno nel codice** (repo pubblica): sono in
-`tools/sync.local.conf`, git-ignored. Lo script ricopia, riapplica le patch e rilancia i
-controlli; il round-trip deve lasciare l'albero **identico byte-per-byte**.
+Riallinea **solo** `web/ds200/` ed `esp32/` alla repo del progetto DS200. Il percorso
+**non sta nel codice** (repo pubblica): è in `tools/sync.local.conf`, git-ignored. Lo
+script ricopia, riapplica le 7 patch e rilancia i controlli; il round-trip deve lasciare
+l'albero **identico byte-per-byte**.
+
+> Le app oXigen non sono più copie: sono state tolte dalla repo privata, che ora tiene
+> solo lo studio dei protocolli, i firmware e i tool. Con loro sono sparite 9 patch.
 
 ## Protocolli — dove sono documentati
 

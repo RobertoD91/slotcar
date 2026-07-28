@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Riapplica le modifiche LOCALI di questa repo alle app copiate da monte.
+"""Riapplica le modifiche LOCALI di questa repo ai file copiati da monte.
 
-Le app arrivano da altre due repo (vedi sync-from-upstream.sh) e qui servono
-qualche ritocco: il link di ritorno punta all'indice di QUESTA repo, e il
-disclaimer condiviso deve nominare anche DS Electronic (di là c'era solo Slot.it).
+Restano copiati da un'altra repo solo il contagiri DS200/DS300 (`web/ds200/`) e il
+firmware `esp32/`. Le app oXigen NON sono piu' copie: vivono qui e si modificano
+direttamente, quindi non hanno piu' nessuna patch.
+
+Le patch servono perche' qui i file stanno in posti diversi rispetto alla repo di
+origine (l'app DS200 passa da `webapp/` a `web/ds200/`, e `esp32/` sta fuori da
+`web/` perche' non va pubblicato), piu' qualche ritocco d'interfaccia.
 
 Ogni patch e' IDEMPOTENTE: se e' gia' applicata non fa nulla. Se invece non trova
 il testo a cui agganciarsi esce con errore, cosi' un cambiamento a monte che
@@ -18,48 +22,13 @@ import io
 import os
 import sys
 
-WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "web")
-WEB = os.path.normpath(WEB)
+ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir))
+WEB = os.path.join(ROOT, "web")
 
-OXIGEN_APPS = ["car-config", "remote-config", "modes", "chron02", "o2-bootloader"]
-
-# (file, testo_da_sostituire, testo_nuovo) — "done" = testo_nuovo gia' presente.
+# (file, testo_da_sostituire, testo_nuovo, etichetta)
 PATCHES = []
 
-# 1. Link di ritorno delle app oXigen: l'indice ora si chiama "Slot Car Web Tools".
-for _app in OXIGEN_APPS:
-    PATCHES.append((
-        os.path.join(WEB, _app, "index.html"),
-        "← oXigen Web Tools",
-        "← Slot Car Web Tools",
-        "back-link %s" % _app,
-    ))
-
-# 2. Disclaimer condiviso: nominare anche DS Electronic (qui ci sono anche i DS200/DS300).
-_I18N = os.path.join(WEB, "i18n.js")
-PATCHES += [
-    (_I18N,
-     '"sponsorizzata né supportata da Slot.it / Galileo Engineering</b>. '
-     '«Slot.it» e «oXigen» sono marchi dei " +',
-     '"sponsorizzata né supportata da Slot.it / Galileo Engineering, DS Electronic o Ninco</b>. '
-     '«Slot.it», «oXigen», " +\n        "«DS Electronic», «DS200», «DS300» e «Ninco» sono marchi dei " +',
-     "disclaimer IT"),
-    (_I18N,
-     '"supported by Slot.it / Galileo Engineering</b>. '
-     '\\"Slot.it\\" and \\"oXigen\\" are trademarks of their " +',
-     '"supported by Slot.it / Galileo Engineering, DS Electronic or Ninco</b>. '
-     '\\"Slot.it\\", \\"oXigen\\", \\"DS Electronic\\", " +\n        '
-     '"\\"DS200\\", \\"DS300\\" and \\"Ninco\\" are trademarks of their " +',
-     "disclaimer EN"),
-    (_I18N,
-     '"patrocinada ni respaldada por Slot.it / Galileo Engineering</b>. '
-     '«Slot.it» y «oXigen» son marcas de sus " +',
-     '"patrocinada ni respaldada por Slot.it / Galileo Engineering, DS Electronic o Ninco</b>. '
-     '«Slot.it», «oXigen», " +\n        "«DS Electronic», «DS200», «DS300» y «Ninco» son marcas de sus " +',
-     "disclaimer ES"),
-]
-
-# 3. Link di ritorno dentro l'app DS200 (di suo non sa di stare in un indice).
+# 1. Link di ritorno dentro l'app DS200: di suo non sa di stare in un indice.
 PATCHES += [
     (os.path.join(WEB, "ds200", "index.html"),
      '<span><a href="flash.html">⚡ Flash ESP32</a>',
@@ -81,7 +50,7 @@ PATCHES += [
      "link esp32/README"),
 ]
 
-# 3-bis. Menu del baud. Due cose insieme:
+# 2. Menu del baud. Due cose insieme:
 #    - le voci dicono a quale apparecchio corrispondono: "4800" da solo non aiuta
 #      chi non e' tecnico, "DS 200 — 4800" si'. Prima il DS 300, poi il DS 200, poi
 #      gli altri valori marcati come prove.
@@ -111,27 +80,9 @@ PATCHES += [
      "baud: voci per apparecchio"),
 ]
 
-# NB: la patch "dongle-debug: stato tradotto" e' stata RIMOSSA da qui perche' la
-#     correzione e' stata fatta a monte (lo stato mostrava la chiave i18n invece del
-#     testo al primo caricamento). Tenerla avrebbe applicato la correzione due volte
-#     al prossimo sync. Regola generale: quando una patch entra a monte, si toglie —
-#     e --check lo segnala da solo, perche' il testo di aggancio non c'e' piu'.
-
-# 4. Via i rimandi a documenti che esistono solo nelle repo di sviluppo: qui sarebbero
-#    riferimenti morti (questa repo non ha una cartella docs/).
-PATCHES += [
-    (os.path.join(WEB, "remote-config", "index.html"),
-     "// registri leggibili di config/info del controller "
-     "(docs/REPORT-ble-controller-scp3.md) — 2° elem = chiave i18n del nome",
-     "// registri leggibili di config/info del controller "
-     "— 2° elem = chiave i18n del nome",
-     "no rimando a docs/ privati"),
-]
-
-# 5. esp32/README.md: a monte l'app sta in webapp/, qui in web/ds200/. Senza questa
+# 3. esp32/README.md: a monte l'app sta in webapp/, qui in web/ds200/. Senza questa
 #    patch il comando di merge scriverebbe il firmware nel posto sbagliato.
-_ESP32_README = os.path.normpath(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "esp32", "README.md"))
+_ESP32_README = os.path.join(ROOT, "esp32", "README.md")
 PATCHES += [
     (_ESP32_README,
      "La pagina [`webapp/flash.html`](../webapp/flash.html) usa",
@@ -146,6 +97,14 @@ PATCHES += [
      "# poi servi la cartella web/ via https o localhost e apri ds200/flash.html",
      "esp32/README nota serve"),
 ]
+
+# NB — patch RIMOSSE, e perche':
+#  * i link di ritorno delle app oXigen, i tre disclaimer di i18n.js e il rimando a
+#    un documento privato in remote-config: quei file ora vivono QUI, non sono piu'
+#    copie, quindi le modifiche stanno gia' nei file e non c'e' niente da riapplicare.
+#  * "dongle-debug: stato tradotto": correzione entrata a monte, e l'app poi rimossa.
+# Regola: quando una modifica smette di essere una copia (o entra a monte), la patch
+# va tolta — altrimenti verrebbe applicata due volte o fallirebbe a vuoto.
 
 
 def main():

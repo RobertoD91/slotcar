@@ -182,6 +182,30 @@ I due parser (`web/ds200/ds200.js` e `esp32/src/ds200.h`) devono restare **equiv
 se cambi il protocollo, aggiornali entrambi insieme ai test. Li verifica la CI
 ([`ci.yml`](.github/workflows/ci.yml)).
 
+### Questa repo è la sorgente (tranne il DS200)
+
+Le app **si modificano qui**: non sono copie di niente. L'unica eccezione è il contagiri
+DS200/DS300 (`web/ds200/`) con il suo firmware (`esp32/`), che arriva dal progetto DS200.
+La prima volta indica dove si trova — il file è git-ignored, quindi il percorso resta
+sulla tua macchina:
+
+```bash
+cp tools/sync.local.conf.example tools/sync.local.conf
+$EDITOR tools/sync.local.conf
+./tools/sync-from-upstream.sh          # --dry-run per vedere cosa farebbe
+```
+
+Lo script ricopia solo quelle due cartelle, riapplica le modifiche locali e rilancia i
+controlli. Le modifiche locali stanno in
+[`tools/apply-local-patches.py`](tools/apply-local-patches.py): sono **idempotenti** e, se
+a monte cambia il testo su cui si agganciano, lo script **fallisce** invece di lasciar
+passare la cosa in silenzio. Servono perché lì i file stanno in posti diversi rispetto
+alla repo di origine (l'app passa da `webapp/` a `web/ds200/`, ed `esp32/` resta fuori da
+`web/` perché non va pubblicato su Pages), più le voci del menu del baud.
+
+⚠️ Quindi: **`web/ds200/` ed `esp32/` non vanno modificati a mano**, o il prossimo
+allineamento cancella tutto. Ogni altro file di questa repo sì.
+
 ### Versioni e cache
 
 - `web/sw.js` è **network-first**: ogni ricarica prende l'ultima versione dalla rete e

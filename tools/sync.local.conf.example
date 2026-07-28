@@ -1,13 +1,13 @@
-# Percorsi LOCALI delle repo di sviluppo da cui arrivano le web app.
+# Percorso LOCALE della repo di sviluppo del contagiri DS200/DS300, l'unica cosa
+# che questa repo ancora copia da fuori (webapp/ ed esp32/).
 #
 #   cp tools/sync.local.conf.example tools/sync.local.conf
 #
-# tools/sync.local.conf e' git-ignored apposta: questa repo e' pubblica e i
-# percorsi/nomi delle repo di sviluppo restano solo sulla tua macchina.
-
-# Repo che contiene le app oXigen, cioe' una cartella web/ con dentro
-# car-config/ remote-config/ modes/ chron02/ o2-bootloader/ i18n.js sw.js
-OXIGEN_REPO="$HOME/percorso/della/repo-oxigen"
+# tools/sync.local.conf e' git-ignored apposta: questa repo e' pubblica e il
+# percorso/nome della repo di sviluppo resta solo sulla tua macchina.
+#
+# Tutto il resto — app oXigen, contagiri Ninco, indice, tool, documentazione —
+# vive QUI e si modifica direttamente: non serve nessun percorso.
 
 # Repo del contagiri DS200/DS300, con dentro webapp/ ed esp32/
 DS200_REPO="$HOME/percorso/della/repo-ds200"
