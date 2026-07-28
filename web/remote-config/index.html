@@ -39,12 +39,15 @@
   #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
   #upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
   #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
+  .broken{background:rgba(224,168,0,.12);border:1px solid #e0a800;border-radius:10px;padding:11px 14px;margin:10px 0 14px;font-size:13px;line-height:1.55}
+  .broken b{color:#e0a800}
 </style>
 </head>
 <body>
   <div id="nobt" data-i18n-html="noBt"></div>
   <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
+  <div class="broken" data-i18n-html="oxigenBroken"></div>
   <h1><span data-i18n="ctrlHeading"></span> <span id="st" class="pill"></span></h1>
   <p class="sub" data-i18n-html="sub"></p>
 

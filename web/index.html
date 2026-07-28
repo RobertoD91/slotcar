@@ -37,6 +37,7 @@
   .card p{margin:0;color:var(--mut);font-size:13px}
   .badge{float:right;font-size:11px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut)}
   .badge.on{color:var(--ok);border-color:var(--ok)}
+  .badge.bad{color:var(--err);border-color:var(--err)}
   .tech{margin-top:8px;font-size:11px;color:var(--mut)}
   .tech span{display:inline-block;border:1px solid var(--bd);border-radius:6px;padding:1px 7px;margin:2px 4px 0 0}
   footer{color:var(--mut);font-size:12px;margin-top:24px;border-top:1px solid var(--bd);padding-top:12px}
@@ -85,28 +86,28 @@
   <h2 data-i18n-html="secOxigen"></h2>
   <div class="grid">
     <a class="card" href="car-config/">
-      <span class="badge on" data-i18n="badgeActive"></span>
+      <span class="badge bad" data-i18n="badgeBroken"></span>
       <div class="ico">🚗</div>
       <h3 data-i18n="carTitle"></h3>
       <p data-i18n="carDesc"></p>
       <div class="tech"><span>Web Bluetooth</span></div>
     </a>
     <a class="card" href="remote-config/">
-      <span class="badge on" data-i18n="badgeActive"></span>
+      <span class="badge bad" data-i18n="badgeBroken"></span>
       <div class="ico">🎮</div>
       <h3 data-i18n="ctrlTitle"></h3>
       <p data-i18n="ctrlDesc"></p>
       <div class="tech"><span>Web Bluetooth</span></div>
     </a>
     <a class="card" href="chron02/">
-      <span class="badge on" data-i18n="badgeActive"></span>
+      <span class="badge bad" data-i18n="badgeBroken"></span>
       <div class="ico">🏁</div>
       <h3 data-i18n="lapsTitle"></h3>
       <p data-i18n-html="lapsDesc"></p>
       <div class="tech"><span>Web Serial</span></div>
     </a>
     <a class="card" href="o2-bootloader/">
-      <span class="badge on" data-i18n="badgeActive"></span>
+      <span class="badge bad" data-i18n="badgeBroken"></span>
       <div class="ico">🔧</div>
       <h3 data-i18n="bootTitle"></h3>
       <p data-i18n-html="bootDesc"></p>
@@ -210,6 +211,7 @@ window.I18N_STRINGS = {
   },
   badgeActive:{it:"attivo",en:"active",es:"activo"},
   badgeWip:{it:"in sviluppo",en:"in progress",es:"en desarrollo"},
+  badgeBroken:{it:"non funzionante",en:"not working",es:"no funciona"},
   badgeAlpha:{it:"molto acerbo",en:"very rough",es:"muy verde"},
   chronoTitle:{it:"Cronometro web",en:"Web lap timer",es:"Cronómetro web"},
   chronoDesc:{
@@ -273,7 +275,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.0.1";
+const SITE_VERSION="2.1.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto
