@@ -43,6 +43,25 @@ ricopiare i colori: linka `ui.css`.
 `guida-oxigen/` era già una riga piccola e smorzata. Se riusi un nome per un'altra cosa,
 azzeralo per intero (sfondo, bordo, padding) o te lo porti dietro.
 
+## Targhette di stato — la convenzione
+
+Il colore risponde a **una domanda sola: quanto ci si può fidare?** Le classi
+stanno in `web/ui.css`, non ricopiarle.
+
+| classe | colore | significa |
+|---|---|---|
+| `ok` | verde | provata su hardware vero, **funziona** |
+| `partial` | giallo | provata: qualcosa va, qualcosa no |
+| `untested` | giallo | **mai** provata su hardware: non lo sappiamo |
+| `broken` | rosso | provata, e **non** funziona |
+| `wip` | blu | in costruzione, ci stiamo lavorando adesso |
+| `rough` | grigio | esiste ma è appena abbozzata |
+| *(nessuna)* | — | pagina statica: non ha uno stato da dichiarare |
+
+⚠️ **Il rosso è riservato a «provato e non va».** «Non lo sappiamo» è giallo:
+sono due informazioni diverse, e dipingerle uguali toglie a chi legge l'unica
+cosa che gli serve — se vale la pena provarci.
+
 ## Percorsi relativi (importante)
 
 Il sito è servito da un sottopercorso (`https://<user>.github.io/slotcar/`), quindi ogni

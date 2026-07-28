@@ -142,6 +142,18 @@
 
 <script>
 window.I18N_STRINGS = {
+  portNoId:{it:"porta senza identificativo USB",en:"port with no USB id",es:"puerto sin identificador USB"},
+  portOk:{
+    it:"Porta {id}: è il dongle oXigen atteso.",
+    en:"Port {id}: this is the expected oXigen dongle.",
+    es:"Puerto {id}: es el dongle oXigen esperado."
+  },
+  portOther:{
+    it:"⚠️ Porta {id}: non è il VID/PID del dongle oXigen (1fee/0002). Provo lo stesso — potrebbe essere un adattatore seriale in mezzo, o un dongle diverso. Se non risponde a BOOT, hai scelto la porta sbagliata.",
+    en:"⚠️ Port {id}: this is not the oXigen dongle VID/PID (1fee/0002). Trying anyway — it may be a serial adapter in between, or a different dongle. If it does not answer BOOT, you picked the wrong port.",
+    es:"⚠️ Puerto {id}: no es el VID/PID del dongle oXigen (1fee/0002). Lo intento igualmente — puede ser un adaptador serie por medio, o un dongle distinto. Si no responde a BOOT, has elegido el puerto equivocado."
+  },
+
   sub:{
     it:"Contagiri e gestione gara oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002). Comandi gara <code>race_status</code>, telemetria e classifica live da <code>rf_data_x</code>. <b>Solo su hardware tuo.</b>",
     en:"oXigen lap counter and race manager over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002). Race commands <code>race_status</code>, live telemetry and leaderboard from <code>rf_data_x</code>. <b>Only on your own hardware.</b>",
@@ -221,7 +233,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="chron02",APP_VERSION="1.0.0";
+const APP="chron02",APP_VERSION="1.1.0";
 const VID=0x1fee,PID=0x0002;
 
 /* stati race_status[0] = 0x60 | enum (1=stop,3=run,4=pause,5=flag) */
@@ -251,12 +263,26 @@ function setConn(on){connState=on;renderStatus();
 async function connect(){
   if(!navigator.serial){$("nobt").style.display="block";return;}
   try{
-    port=await navigator.serial.requestPort({filters:[{usbVendorId:VID,usbProductId:PID}]});
+    /* ⚠️ NIENTE filtro sul selettore delle porte.
+       `requestPort({filters:[…]})` non "suggerisce" il dispositivo giusto: lo
+       IMPONE, e il browser mostra soltanto chi combacia. Basta che il dongle
+       si presenti con un VID/PID diverso — un adattatore seriale in mezzo, un
+       bootloader diverso, un dongle di un'altra generazione — e la finestra
+       esce VUOTA, senza spiegare niente. È il difetto per cui l'utente vedeva
+       il dispositivo su altri siti (che non filtrano) e non qui.
+       Quindi: mostriamo tutte le porte, e dopo diciamo se quella scelta ha
+       l'aria giusta — un avviso, non un divieto. */
+    port=await navigator.serial.requestPort();
     await port.open({baudRate:115200});
     writer=port.writable.getWriter();
     const i=port.getInfo?port.getInfo():{};
-    $("devname").textContent=(i.usbVendorId?("VID "+i.usbVendorId.toString(16)+"/PID "+i.usbProductId.toString(16)):"dongle");
+    const atteso=(i.usbVendorId===VID&&i.usbProductId===PID);
+    const idtxt=i.usbVendorId!=null
+      ?("VID "+i.usbVendorId.toString(16).padStart(4,"0")+"/PID "+i.usbProductId.toString(16).padStart(4,"0"))
+      :I18N.t("portNoId");
+    $("devname").textContent=idtxt;
     setConn(true);log(I18N.t("logConnected"));
+    log(atteso?I18N.t("portOk",{id:idtxt}):I18N.t("portOther",{id:idtxt}));
     startTimers();readLoop();
   }catch(e){log("["+I18N.t("errWord")+": "+e+"]");}
 }

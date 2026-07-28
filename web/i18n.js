@@ -121,10 +121,18 @@
     for (k in p) DICT[k] = p[k]; // la pagina può sovrascrivere le condivise
   }
 
-  function t(key) {
+  /* t("chiave") oppure t("chiave", {id: "…"}), che sostituisce i {segnaposto}.
+     Senza sostituzione l'unica alternativa era spezzare la frase in pezzi e
+     concatenarli in JS — e una frase spezzata non si traduce, perché l'ordine
+     delle parole cambia da lingua a lingua. */
+  function t(key, params) {
     var e = DICT[key];
     if (!e) return key;
-    return e[lang] || e.en || e.it || key;
+    var s = e[lang] || e.en || e.it || key;
+    if (params) s = s.replace(/\{(\w+)\}/g, function (m, k) {
+      return params[k] != null ? params[k] : m;
+    });
+    return s;
   }
 
   function apply() {

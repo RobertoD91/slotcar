@@ -41,12 +41,7 @@
               margin-right:.32em;vertical-align:-.09em;background:currentColor;
               -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 7 L17 17 L12 22 V2 L17 7 L7 17' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
               mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 7 L17 17 L12 22 V2 L17 7 L7 17' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
-  .badge{float:right;font-size:11px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut)}
-  .badge.on{color:var(--ok);border-color:var(--ok)}
-  .badge.bad{color:var(--err);border-color:var(--err)}
-  .badge.part{color:var(--warn);border-color:var(--warn)}
-  .badge.untested{color:var(--warn);border-color:var(--warn)}
-  .badge.untested.hard{color:var(--err);border-color:var(--err)}
+  .badge{float:right}
   .tech{margin-top:8px;font-size:11px;color:var(--mut)}
   .tech span{display:inline-block;border:1px solid var(--bd);border-radius:6px;padding:1px 7px;margin:2px 4px 0 0}
   footer{color:var(--mut);font-size:12px;margin-top:24px;border-top:1px solid var(--bd);padding-top:12px}
@@ -85,7 +80,7 @@
   <!-- L'app che conta. Sta in cima apposta: tutto il resto qui sotto è roba di
        servizio e diagnostica. -->
   <a class="hero" href="cronometro/">
-    <span class="badge" data-i18n="badgeWip"></span>
+    <span class="badge wip" data-i18n="badgeWip"></span>
     <div class="ico">⏱️</div>
     <h3 data-i18n="chronoTitle"></h3>
     <p data-i18n-html="chronoDesc"></p>
@@ -103,21 +98,21 @@
       <div class="tech"><span>Web Bluetooth</span></div>
     </a>
     <a class="card" href="remote-config/">
-      <span class="badge part" data-i18n="badgePartial"></span>
+      <span class="badge partial" data-i18n="badgePartial"></span>
       <div class="ico">🎮</div>
       <h3 class="bt" data-i18n="ctrlTitle"></h3>
       <p data-i18n-html="ctrlDesc"></p>
       <div class="tech"><span>Web Bluetooth</span></div>
     </a>
     <a class="card" href="chron02/">
-      <span class="badge bad" data-i18n="badgeBroken"></span>
+      <span class="badge broken" data-i18n="badgeBroken"></span>
       <div class="ico">🏁</div>
       <h3 data-i18n="lapsTitle"></h3>
       <p data-i18n-html="lapsDesc"></p>
       <div class="tech"><span>Web Serial</span></div>
     </a>
     <a class="card" href="o2-bootloader/">
-      <span class="badge bad" data-i18n="badgeBroken"></span>
+      <span class="badge broken" data-i18n="badgeBroken"></span>
       <div class="ico">🔧</div>
       <h3 data-i18n="bootTitle"></h3>
       <p data-i18n-html="bootDesc"></p>
@@ -134,14 +129,14 @@
   <h2 data-i18n-html="secDs"></h2>
   <div class="grid">
     <a class="card" href="ds200-ds300/">
-      <span class="badge on" data-i18n="badgeActive"></span>
+      <span class="badge ok" data-i18n="badgeActive"></span>
       <div class="ico">⏱️</div>
       <h3 data-i18n="dsTitle"></h3>
       <p data-i18n-html="dsDesc"></p>
       <div class="tech"><span>Web Serial</span><span data-i18n="techPwa"></span></div>
     </a>
     <a class="card" href="esp32-installer/">
-      <span class="badge" data-i18n="badgeAlpha"></span>
+      <span class="badge rough" data-i18n="badgeAlpha"></span>
       <div class="ico">⚡</div>
       <h3 data-i18n="dsFlashTitle"></h3>
       <p data-i18n-html="dsFlashDesc"></p>
@@ -152,7 +147,7 @@
   <h2 data-i18n-html="secNinco"></h2>
   <div class="grid">
     <a class="card" href="ninco/">
-      <span class="badge untested hard" data-i18n="badgeUntested"></span>
+      <span class="badge untested" data-i18n="badgeUntested"></span>
       <div class="ico">🏎️</div>
       <h3 data-i18n="ncTitle"></h3>
       <p data-i18n-html="ncDesc"></p>
@@ -287,7 +282,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.7.0";
+const SITE_VERSION="2.8.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto

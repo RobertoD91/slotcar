@@ -92,6 +92,25 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   protocollo*, *studio*, *ipotesi da confermare*. Vale anche per il metodo JS `.reverse()`,
   che ovviamente resta: è codice, non prosa.
 
+## Targhette di stato — la convenzione
+
+Il colore risponde a **una domanda sola: quanto ci si può fidare?** Le classi
+stanno in `web/ui.css`, non ricopiarle.
+
+| classe | colore | significa |
+|---|---|---|
+| `ok` | verde | provata su hardware vero, **funziona** |
+| `partial` | giallo | provata: qualcosa va, qualcosa no |
+| `untested` | giallo | **mai** provata su hardware: non lo sappiamo |
+| `broken` | rosso | provata, e **non** funziona |
+| `wip` | blu | in costruzione, ci stiamo lavorando adesso |
+| `rough` | grigio | esiste ma è appena abbozzata |
+| *(nessuna)* | — | pagina statica: non ha uno stato da dichiarare |
+
+⚠️ **Il rosso è riservato a «provato e non va».** «Non lo sappiamo» è giallo:
+sono due informazioni diverse, e dipingerle uguali toglie a chi legge l'unica
+cosa che gli serve — se vale la pena provarci.
+
 ## Controlli (nessun hardware)
 
 ```bash
@@ -226,6 +245,14 @@ sistema solo se li accetta.
   livello numerico, sparisce proprio quando serve vederla.
 - **`git reset --hard` in un test** butta via anche le modifiche ai file tracciati che
   stavi preparando.
+- ⭐ **`requestPort({filters:[…]})` non suggerisce: IMPONE.** Il browser mostra soltanto le
+  porte che combaciano, e se il dispositivo si presenta con un VID/PID diverso — un
+  adattatore seriale in mezzo, un bootloader diverso, un'altra generazione di dongle — la
+  finestra esce **vuota** senza spiegare niente. È il difetto per cui il dongle si vedeva
+  su altri siti (che non filtrano) e non nelle nostre app. Regola: **mostra tutte le
+  porte**, e dopo l'apertura confronta `port.getInfo()` con il VID/PID atteso e **avvisa**.
+  Un avviso, non un divieto. Lo stesso vale per Web Bluetooth (`acceptAllDevices` contro
+  `filters`), con l'aggravante che lì i filtri servono anche a limitare i permessi.
 - **Un tag che si mangia il precedente**: inserire `<script>…</script>` cercando
   `</script>\n</body>` sostituisce **anche** la chiusura del blocco che c'era prima, e il
   nuovo tag finisce dentro quello vecchio → `SyntaxError: Unexpected token '<'`. L'ha beccato

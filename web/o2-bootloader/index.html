@@ -51,6 +51,7 @@
 </head>
 <body>
   <div id="nobt" data-i18n-html="noSerial"></div>
+  <p class="note" id="portWarn" hidden></p>
   <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
   <div class="broken" data-i18n-html="oxigenBroken"></div>
@@ -193,6 +194,18 @@
 
 <script>
 window.I18N_STRINGS = {
+  portNoId:{it:"porta senza identificativo USB",en:"port with no USB id",es:"puerto sin identificador USB"},
+  portOk:{
+    it:"Porta {id}: è il dongle oXigen atteso.",
+    en:"Port {id}: this is the expected oXigen dongle.",
+    es:"Puerto {id}: es el dongle oXigen esperado."
+  },
+  portOther:{
+    it:"⚠️ Porta {id}: non è il VID/PID del dongle oXigen (1fee/0002). Provo lo stesso — potrebbe essere un adattatore seriale in mezzo, o un dongle diverso. Se non risponde a BOOT, hai scelto la porta sbagliata.",
+    en:"⚠️ Port {id}: this is not the oXigen dongle VID/PID (1fee/0002). Trying anyway — it may be a serial adapter in between, or a different dongle. If it does not answer BOOT, you picked the wrong port.",
+    es:"⚠️ Puerto {id}: no es el VID/PID del dongle oXigen (1fee/0002). Lo intento igualmente — puede ser un adaptador serie por medio, o un dongle distinto. Si no responde a BOOT, has elegido el puerto equivocado."
+  },
+
   sub:{
     it:"Riprende una parte delle funzioni di <b>configurazione</b> del programma ufficiale per Windows: parla col dongle oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002), sceglie il dispositivo (dongle, chip auto, controller), entra in modalità boot e legge informazioni e registri. <b>Non aggiorna il firmware</b> e non tocca l'attivazione. <b>Solo su hardware tuo.</b>",
     en:"Covers part of the <b>configuration</b> features of the official Windows program: it talks to the oXigen dongle over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002), picks the device (dongle, car chip, controller), enters boot mode and reads information and registers. <b>It does not update firmware</b> and does not touch activation. <b>Only on your own hardware.</b>",
@@ -435,7 +448,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="o2-bootloader",APP_VERSION="1.1.0";
+const APP="o2-bootloader",APP_VERSION="1.2.0";
 const VID=0x1fee,PID=0x0002;
 /* Il programma ufficiale apre la COM a 9600 8N1 (visto nelle catture USB). Sul
    dongle è una COM virtuale, quindi il valore è nominale — ma se un giorno in
@@ -480,12 +493,28 @@ function setConn(on){connState=on;if(!on){inBoot=false;bootTarget=null;}renderSt
 async function connect(){
   if(!navigator.serial){$("nobt").style.display="block";return;}
   try{
-    port=await navigator.serial.requestPort({filters:[{usbVendorId:VID,usbProductId:PID}]});
+    /* ⚠️ NIENTE filtro sul selettore delle porte.
+       `requestPort({filters:[…]})` non "suggerisce" il dispositivo giusto: lo
+       IMPONE, e il browser mostra soltanto chi combacia. Basta che il dongle
+       si presenti con un VID/PID diverso — un adattatore seriale in mezzo, un
+       bootloader diverso, un dongle di un'altra generazione — e la finestra
+       esce VUOTA, senza spiegare niente. È il difetto per cui l'utente vedeva
+       il dispositivo su altri siti (che non filtrano) e non qui.
+       Quindi: mostriamo tutte le porte, e dopo diciamo se quella scelta ha
+       l'aria giusta — un avviso, non un divieto. */
+    port=await navigator.serial.requestPort();
     await port.open({baudRate:BAUD});
     writer=port.writable.getWriter();
     const i=port.getInfo?port.getInfo():{};
-    $("devname").textContent=(i.usbVendorId?("VID "+i.usbVendorId.toString(16)+"/PID "+i.usbProductId.toString(16)+" · "+BAUD+" 8N1"):"dongle");
-    setConn(true);log(I18N.t("logConnected"));readLoop();
+    const atteso=(i.usbVendorId===VID&&i.usbProductId===PID);
+    const idtxt=i.usbVendorId!=null
+      ?("VID "+i.usbVendorId.toString(16).padStart(4,"0")+"/PID "+i.usbProductId.toString(16).padStart(4,"0"))
+      :I18N.t("portNoId");
+    $("devname").textContent=idtxt+" · "+BAUD+" 8N1";
+    setConn(true);log(I18N.t("logConnected"));
+    log(atteso?I18N.t("portOk",{id:idtxt}):I18N.t("portOther",{id:idtxt}));
+    $("portWarn").hidden=atteso; if(!atteso)$("portWarn").textContent=I18N.t("portOther",{id:idtxt});
+    readLoop();
   }catch(e){log("["+I18N.t("errWord")+": "+e+"]");}
 }
 async function disconnect(){try{reading=false;if(reader){await reader.cancel().catch(()=>{});}

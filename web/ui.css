@@ -48,11 +48,31 @@ a{color:var(--acc)}
 .back{display:inline-block;text-decoration:none;font-size:13px;color:var(--mut)}
 .back:hover{color:var(--acc)}
 
-/* Targhette di stato (attivo / in sviluppo / non funzionante…). */
+/* ---- Targhette di stato: la convenzione ---------------------------------
+ *
+ * Il colore risponde a UNA domanda sola: quanto ci possiamo fidare?
+ *
+ *   verde   `ok`        provata su hardware vero, funziona
+ *   giallo  `partial`   provata: qualcosa va, qualcosa no
+ *   giallo  `untested`  MAI provata su hardware: non lo sappiamo
+ *   rosso   `broken`    provata, e NON funziona
+ *   blu     `wip`       in costruzione, ci stiamo lavorando adesso
+ *   grigio  `rough`     esiste ma è appena abbozzata
+ *   (niente)            pagina statica: non ha uno stato da dichiarare
+ *
+ * ⚠️ Il rosso è riservato a «lo abbiamo provato e non va». «Non lo sappiamo»
+ * è giallo, non rosso: sono due informazioni diverse, e dipingerle uguali
+ * toglie a chi legge l'unica cosa che gli serve — se vale la pena provarci.
+ * Per lo stesso motivo `partial` e `untested` condividono il giallo: dicono
+ * entrambe «guarda con attenzione», e cambia solo quanto ne sappiamo.
+ */
 .badge{font-size:11px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut)}
-.badge.on{color:var(--ok);border-color:var(--ok)}
-.badge.bad{color:var(--err);border-color:var(--err)}
-.badge.part{color:var(--acc);border-color:var(--acc)}
+.badge.ok{color:var(--ok);border-color:var(--ok)}
+.badge.partial,
+.badge.untested{color:var(--warn);border-color:var(--warn)}
+.badge.broken{color:var(--err);border-color:var(--err)}
+.badge.wip{color:var(--acc);border-color:var(--acc)}
+.badge.rough{color:var(--mut);border-color:var(--bd)}
 
 /* Avvisi e note in piccolo. */
 .note{background:rgba(224,168,0,.12);border:1px solid var(--warn);border-radius:10px;
