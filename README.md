@@ -80,6 +80,21 @@ Poi il sito è su `https://robertod91.github.io/slotcar/`.
 > ⚠️ **Finché la repo è privata**, GitHub Pages richiede un piano a pagamento (Pro/Team).
 > Quando la repo diventa pubblica, Pages è gratuito e non serve toccare il workflow.
 
+### ⚠️ Serve HTTPS, sempre
+
+Web Bluetooth e Web Serial esistono **solo in contesto sicuro**: su `http://` il browser
+non le espone proprio, e le app non riescono a collegarsi a niente. Peggio, senza le API
+il messaggio che compare è «browser non supportato», che è fuorviante: il browser va
+benissimo, è la connessione a non andare.
+
+Quindi in *Settings → Pages* va tenuto attivo **Enforce HTTPS**. Se il sito usa un dominio
+personalizzato, la casella sta sulle impostazioni del dominio: finché è spenta, `http://`
+resta raggiungibile e chi ci arriva trova tutti gli strumenti inutilizzabili.
+
+L'indice si difende da solo — se viene aperto in `http` passa da sé a `https`, e se
+proprio resta in chiaro lo dice esplicitamente invece di incolpare il browser — ma è un
+cerotto: la casella nelle impostazioni copre anche i link diretti alle singole app.
+
 Lo stesso workflow compila anche il **firmware ESP32** del contagiri DS200 e lo mette
 accanto al flasher. Quello step è **volutamente non bloccante**: se il firmware non
 compila, il sito viene pubblicato lo stesso e solo `flash.html` resta indietro (lo

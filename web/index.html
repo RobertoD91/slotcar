@@ -52,6 +52,7 @@
 </head>
 <body>
   <div class="ghribbon"><a href="https://github.com/RobertoD91/slotcar" target="_blank" rel="noopener">Fork me on GitHub</a></div>
+  <div id="nossl" class="compat" data-i18n-html="noSsl"></div>
   <div id="nobt" class="compat" data-i18n-html="noBt"></div>
   <div id="noser" class="compat" data-i18n-html="noSerial"></div>
   <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
@@ -133,6 +134,17 @@ window.I18N_STRINGS = {
     it:"Strumenti web per slot car digitali: <b>oXigen</b> (Slot.it) e cronometri <b>DS Electronic</b>.<br>Girano nel browser, senza installare nulla. Usare Chrome/Edge desktop o Chrome Android.",
     en:"Web tools for digital slot cars: <b>oXigen</b> (Slot.it) and <b>DS Electronic</b> lap timers.<br>They run in the browser, nothing to install. Use Chrome/Edge on desktop or Chrome on Android.",
     es:"Herramientas web para slot cars digitales: <b>oXigen</b> (Slot.it) y cronómetros <b>DS Electronic</b>.<br>Funcionan en el navegador, sin instalar nada. Usa Chrome/Edge en escritorio o Chrome en Android."
+  },
+  noSsl:{
+    it:"🔒 Questa pagina è aperta in <b>http</b>, non in <b>https</b>. Web Bluetooth e Web Serial " +
+       "funzionano <b>solo su connessione sicura</b>: da qui nessuno strumento riuscirà a collegarsi. " +
+       "Riapri il sito con <b>https://</b>",
+    en:"🔒 This page was opened over <b>http</b>, not <b>https</b>. Web Bluetooth and Web Serial only " +
+       "work on a <b>secure connection</b>: from here no tool will be able to connect. " +
+       "Reopen the site using <b>https://</b>",
+    es:"🔒 Esta página se ha abierto por <b>http</b>, no por <b>https</b>. Web Bluetooth y Web Serial " +
+       "solo funcionan con <b>conexión segura</b>: desde aquí ninguna herramienta podrá conectarse. " +
+       "Vuelve a abrir el sitio con <b>https://</b>"
   },
   devWarn:{
     it:"⚠️ <b>Versioni di sviluppo.</b> Questi strumenti nascono per chi programma e sperimenta: " +
@@ -217,7 +229,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="1.1.0";
+const SITE_VERSION="1.1.1";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto
@@ -232,9 +244,25 @@ function placeLang(){
 addEventListener("resize",placeLang);
 addEventListener("load",placeLang);
 setTimeout(placeLang,0);
-// Banner di compatibilità: le app BLE e quelle seriali hanno requisiti diversi.
-if(!navigator.bluetooth)document.getElementById("nobt").style.display="block";
-if(!navigator.serial)document.getElementById("noser").style.display="block";
+// Web Bluetooth e Web Serial esistono SOLO in contesto sicuro (https, o localhost).
+// Su http il browser non le espone affatto, e i banner direbbero "browser non
+// supportato": falso, e manda fuori strada. Quindi prima proviamo a passare a https,
+// e se restiamo in chiaro lo diciamo esplicitamente invece di incolpare il browser.
+(function(){
+  const h=location.hostname;
+  const dev = h==="localhost"||h==="127.0.0.1"||h==="[::1]"||h.endsWith(".local")
+           || /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h);
+  if(location.protocol==="http:" && !dev){
+    location.replace("https://"+location.host+location.pathname+location.search+location.hash);
+    return;
+  }
+  if(!window.isSecureContext && !dev){
+    document.getElementById("nossl").style.display="block";
+    return;
+  }
+  if(!navigator.bluetooth)document.getElementById("nobt").style.display="block";
+  if(!navigator.serial)document.getElementById("noser").style.display="block";
+})();
 // service worker network-first: sempre l'ultima versione (fix cache)
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 // versione sito + prompt aggiornamento
