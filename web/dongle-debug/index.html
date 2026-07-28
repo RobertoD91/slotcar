@@ -342,9 +342,12 @@ renderStatus();
 
 /* ri-render del dinamico al cambio lingua */
 document.addEventListener("i18n:changed",()=>{renderStatus();renderInfo();});
-// il dizionario i18n esiste solo da DOMContentLoaded in poi: senza questo, al
-// primo caricamento si vedeva la chiave grezza al posto del testo tradotto.
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{renderStatus();renderInfo();});
+/* i18n.js costruisce il dizionario su DOMContentLoaded: le renderStatus()/renderInfo()
+   qui sopra girano mentre il documento e' ancora in parsing, quindi I18N.t() restituisce
+   la CHIAVE. Senza questo ri-render, al primo caricamento la pillola di stato mostrava
+   "stDisconnected" invece di "non connesso" (si sistemava solo cambiando lingua). */
+if(document.readyState==="loading")
+  document.addEventListener("DOMContentLoaded",()=>{renderStatus();renderInfo();});
 else{renderStatus();renderInfo();}
 
 /* compat + sw + versione */

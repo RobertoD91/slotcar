@@ -111,22 +111,11 @@ PATCHES += [
      "baud: voci per apparecchio"),
 ]
 
-# 3-ter. dongle-debug mostrava "stDisconnected" (la CHIAVE, non il testo) al primo
-#    caricamento: renderStatus() gira mentre il documento e' ancora in parsing, ma
-#    i18n.js costruisce il dizionario su DOMContentLoaded, quindi I18N.t() restituiva
-#    la chiave. Si ri-renderizzava solo al cambio lingua, e nessuno cambia lingua per
-#    vedere lo stato. Bug presente anche a monte: andrebbe corretto anche li'.
-PATCHES += [
-    (os.path.join(WEB, "dongle-debug", "index.html"),
-     'document.addEventListener("i18n:changed",()=>{renderStatus();renderInfo();});',
-     'document.addEventListener("i18n:changed",()=>{renderStatus();renderInfo();});\n'
-     '// il dizionario i18n esiste solo da DOMContentLoaded in poi: senza questo, al\n'
-     '// primo caricamento si vedeva la chiave grezza al posto del testo tradotto.\n'
-     'if(document.readyState==="loading")'
-     'document.addEventListener("DOMContentLoaded",()=>{renderStatus();renderInfo();});\n'
-     'else{renderStatus();renderInfo();}',
-     "dongle-debug: stato tradotto"),
-]
+# NB: la patch "dongle-debug: stato tradotto" e' stata RIMOSSA da qui perche' la
+#     correzione e' stata fatta a monte (lo stato mostrava la chiave i18n invece del
+#     testo al primo caricamento). Tenerla avrebbe applicato la correzione due volte
+#     al prossimo sync. Regola generale: quando una patch entra a monte, si toglie —
+#     e --check lo segnala da solo, perche' il testo di aggancio non c'e' piu'.
 
 # 4. Via i rimandi a documenti che esistono solo nelle repo di sviluppo: qui sarebbero
 #    riferimenti morti (questa repo non ha una cartella docs/).
