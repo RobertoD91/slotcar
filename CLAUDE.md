@@ -111,6 +111,7 @@ cd web && python3 -m http.server 8099 &
 node tools/smoke-test.js                      # tutte le app: link, i18n, errori JS
 node tools/test-cronometro.js                 # una gara simulata dentro il cronometro
 node tools/test-ninco-ui.js                   # contagiri Ninco con seriale simulata
+node tools/test-o2bootloader.js               # configuratore dongle: frame e blocchi di sicurezza
 ```
 
 ## Da dove viene questa roba (storia, per capire il presente)

@@ -199,6 +199,7 @@ tools/
   smoke-test.js            apre tutte le app in un browser headless
   test-cronometro.js       fa correre una gara simulata nel cronometro
   test-ninco-ui.js         contagiri Ninco con una seriale simulata
+  test-o2bootloader.js     configuratore dongle con una seriale simulata
 ```
 
 ## Sviluppo locale
@@ -235,6 +236,7 @@ cd web && python3 -m http.server 8099 &
 node tools/smoke-test.js         # tutte le app: link, i18n, errori JS
 node tools/test-cronometro.js    # una gara simulata dentro il cronometro
 node tools/test-ninco-ui.js      # contagiri Ninco con seriale simulata
+node tools/test-o2bootloader.js  # configuratore dongle: frame e blocchi di sicurezza
 ```
 
 ### Questa repo è la sorgente di tutto
