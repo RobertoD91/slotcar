@@ -1,18 +1,29 @@
 # Slotcar - web tools ed esperimenti vari
 
-> ## ⚠️ Versioni di sviluppo
->
-> Questi strumenti nascono **per chi programma e sperimenta**: **non sono (ancora)
+> ## **🇬🇧English** — Mixed tools for slot cars
+> SCP-3 controller configuration over Web Bluetooth, oXigen dongle debugging over Web
+> Serial, and a DS200/DS300 lap-timer monitor (RS-232) with an ESP32 flasher. Everything
+> is static and runs client-side; the UI is available in Italian, English and Spanish
+> (the DS200 app adds French and German).
+> 
+> *Development builds — made for developers and tinkerers, not (yet) for end users.
+> Some tools write to the devices and can leave them unusable. Use at your own risk,
+> on your own hardware only.*
+
+ ## ⚠️🤖 AI slop 🤖⚠️!
+ Questi strumenti sono dei rapidi test realizzati con IA!
+ Sono solo MVP/prototipi! Non utilizzare se non si sa dove mettere le mani!
+
+> ## ✋ Versioni di sviluppo! 
+> Sono solo MVP/prototipi
+> nascono **per chi programma e sperimenta**: **non sono (ancora)
 > pensati per l'utente finale**. Aspettati interfacce grezze, funzioni incomplete e
 > qualche errore. Alcune app **scrivono** sui dispositivi (configurazione, indirizzo
 > MAC, reset, DFU) e possono renderli temporaneamente inutilizzabili.
 >
 > Usale **solo su hardware tuo** e solo se sai cosa stai facendo. Nessuna garanzia,
 > nessuna assistenza: vedi [Licenza e avvertenze](#licenza-e-avvertenze).
->
-> *Development builds — made for developers and tinkerers, not (yet) for end users.
-> Some tools write to the devices and can leave them unusable. Use at your own risk,
-> on your own hardware only.*
+
 
 Raccolta di **web app che girano nel browser**, senza installare niente, per tre
 famiglie di prodotti da slot car:
@@ -26,12 +37,6 @@ famiglie di prodotti da slot car:
 
 Tutte le app sono **statiche**: nessun backend, nessun account, **nessun dato lascia il
 dispositivo**. Sono pubblicate su GitHub Pages da una GitHub Action.
-
-> **English** — Browser-based tools for digital slot cars: Slot.it/oXigen car-chip and
-> SCP-3 controller configuration over Web Bluetooth, oXigen dongle debugging over Web
-> Serial, and a DS200/DS300 lap-timer monitor (RS-232) with an ESP32 flasher. Everything
-> is static and runs client-side; the UI is available in Italian, English and Spanish
-> (the DS200 app adds French and German).
 
 ## Le app
 
