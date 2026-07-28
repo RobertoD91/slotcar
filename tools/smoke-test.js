@@ -20,9 +20,9 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok((await page.locator('h1').innerText()) === 'Slot Car Web Tools', 'h1 corretto');
 
   const cards = await page.locator('.card').count();
-  ok(cards === 9, `card totali = ${cards} (attese 9)`);
+  ok(cards === 8, `card totali = ${cards} (attese 8)`);
   const links = await page.locator('a.card').count();
-  ok(links === 7, `card cliccabili = ${links} (attese 7)`);
+  ok(links === 8, `card cliccabili = ${links} (attese 8, tutte attive)`);
 
   // i18n: nessuna chiave grezza rimasta a video
   const body = await page.locator('body').innerText();
@@ -96,7 +96,8 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   const apps = [
     ['car-config/', 'Slot Car Web Tools'],
     ['remote-config/', 'Slot Car Web Tools'],
-    ['dongle-debug/', 'Slot Car Web Tools'],
+    ['chron02/', 'Slot Car Web Tools'],
+    ['o2-bootloader/', 'Slot Car Web Tools'],
     ['modes/', 'Slot Car Web Tools'],
     ['ds200/', 'Slot Car Web Tools'],
     ['ds200/flash.html', 'Slot Car Web Tools'],

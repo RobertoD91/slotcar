@@ -6,7 +6,7 @@
 # percorsi/nomi delle repo di sviluppo restano solo sulla tua macchina.
 
 # Repo che contiene le app oXigen, cioe' una cartella web/ con dentro
-# car-config/ remote-config/ dongle-debug/ modes/ i18n.js sw.js
+# car-config/ remote-config/ modes/ chron02/ o2-bootloader/ i18n.js sw.js
 OXIGEN_REPO="$HOME/percorso/della/repo-oxigen"
 
 # Repo del contagiri DS200/DS300, con dentro webapp/ ed esp32/

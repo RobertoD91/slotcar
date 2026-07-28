@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<title>Contagiri oXigen (chron02)</title>
+<style>
+  :root{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--acc:#5db0ff;--ok:#4ec36b;--err:#ff6b6b;--warn:#e6b34a;--card:#171a21;--bd:#2a2f3a;--accfg:#04121f}
+  @media (prefers-color-scheme:light){:root{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}}
+  :root[data-theme="dark"]{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--card:#171a21;--bd:#2a2f3a}
+  :root[data-theme="light"]{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:920px;margin:0 auto}
+  a.back{color:var(--mut);text-decoration:none;font-size:13px}
+  h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
+  .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+  button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:8px 13px;font-weight:600;cursor:pointer;font-size:14px}
+  button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+  button.warn{background:var(--err);color:#180404}
+  button:disabled{opacity:.45;cursor:default}
+  input,select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;font:inherit}
+  input[type=range]{padding:0;accent-color:var(--acc)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  label{color:var(--mut);font-size:13px;min-width:120px}
+  .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut);vertical-align:middle}
+  .pill.on,.pill.run{color:var(--ok);border-color:var(--ok)}
+  .pill.pause,.pill.flag{color:var(--warn);border-color:var(--warn)}
+  .pill.stop{color:var(--err);border-color:var(--err)}
+  .val{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:13px}
+  .kv{font-family:ui-monospace,Menlo,monospace;font-size:13px}
+  code{font-family:ui-monospace,Menlo,monospace}
+  .timer{font-family:ui-monospace,Menlo,monospace;font-size:30px;font-weight:700;letter-spacing:1px}
+  .tableWrap{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:560px}
+  td,th{border-bottom:1px solid var(--bd);padding:5px 7px;text-align:left;white-space:nowrap}
+  th{color:var(--mut)}
+  td.num,th.num{text-align:right;font-family:ui-monospace,Menlo,monospace}
+  .tbar{display:inline-block;width:70px;height:9px;background:var(--bd);border-radius:5px;overflow:hidden;vertical-align:middle;margin-right:6px}
+  .tbar>span{display:block;height:100%;background:var(--acc)}
+  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:200px;overflow:auto;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px}
+  .warnbox{color:var(--warn);font-size:13px;margin-top:8px}
+  .empty{color:var(--mut);font-size:13px;padding:6px 2px}
+  #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
+  #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+  #upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
+  .ok{color:var(--ok)}.bad{color:var(--err)}
+</style>
+</head>
+<body>
+  <div id="nobt" data-i18n-html="noSerial"></div>
+  <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
+  <a class="back" href="../">← Slot Car Web Tools</a>
+  <h1><span data-i18n="h1title"></span> <span id="st" class="pill"></span></h1>
+  <p class="sub" data-i18n-html="sub"></p>
+
+  <div class="card"><div class="row">
+    <button id="btnConn" data-i18n="btnConnectDongle"></button>
+    <button id="btnDisc" class="sec" data-i18n="btnDisconnect" disabled></button>
+    <span id="devname" class="val"></span>
+  </div></div>
+
+  <!-- ===== Controllo gara ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleRaceCtrl"></p>
+    <div class="row">
+      <button class="rs" data-st="run" data-i18n="rsStart" disabled></button>
+      <button class="sec rs" data-st="pause" data-i18n="rsPause" disabled></button>
+      <button class="warn rs" data-st="stop" data-i18n="rsStop" disabled></button>
+      <button class="sec rs" data-st="flag" data-i18n="rsFlag" disabled></button>
+      <span id="stateP" class="pill"></span>
+    </div>
+    <div class="row">
+      <span class="timer" id="timerVal">00:00.00</span>
+      <span class="val" data-i18n="lblTimer"></span>
+    </div>
+    <div class="row"><label data-i18n="lblMaxSpeed"></label>
+      <input id="rsMax" type="range" min="0" max="255" value="255" style="flex:1;min-width:150px">
+      <span id="rsMaxV" class="val">255</span></div>
+    <div class="row"><span class="val"><span data-i18n="txLabel"></span> <code id="txHex">–</code></span></div>
+  </div>
+
+  <!-- ===== Comandi per-auto ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleCarCmd"></p>
+    <div class="row">
+      <label style="min-width:60px" data-i18n="lblCarId"></label>
+      <input id="ccId" type="number" min="0" max="39" value="1" style="width:70px">
+      <label style="min-width:80px" data-i18n="lblArg"></label>
+      <input id="ccArg" type="number" min="0" max="255" value="0" style="width:80px">
+    </div>
+    <div class="row">
+      <button class="sec cc" data-cmd="1" data-i18n="actPit" disabled></button>
+      <button class="sec cc" data-cmd="2" data-i18n="actMaxSpeed" disabled></button>
+      <button class="sec cc" data-cmd="5" data-i18n="actMaxBrake" disabled></button>
+      <button class="sec cc" data-cmd="3" data-i18n="actMinSpeed" disabled></button>
+    </div>
+    <div class="warnbox" data-i18n="carCmdHint"></div>
+  </div>
+
+  <!-- ===== Classifica live ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleBoard"></p>
+    <div class="row"><button id="btnReset" class="sec" data-i18n="btnResetData"></button></div>
+    <div class="tableWrap">
+      <table><thead><tr>
+        <th class="num">#</th><th>ID</th>
+        <th class="num" data-i18n="thLaps"></th>
+        <th class="num" data-i18n="thLastLap"></th>
+        <th class="num" data-i18n="thBestLap"></th>
+        <th data-i18n="thTrigger"></th>
+        <th data-i18n="thPit"></th>
+        <th>↑↓○</th>
+        <th data-i18n="thVer"></th>
+        <th data-i18n="thUpdate"></th>
+      </tr></thead><tbody id="boardRows"></tbody></table>
+    </div>
+    <div id="boardEmpty" class="empty" data-i18n="boardEmpty"></div>
+    <div class="warnbox" data-i18n-html="noteHint"></div>
+  </div>
+
+  <!-- ===== Log giri ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleLapLog"></p>
+    <div class="tableWrap">
+      <table><thead><tr>
+        <th data-i18n="llWhen"></th><th>ID</th>
+        <th class="num" data-i18n="llLapN"></th>
+        <th class="num" data-i18n="llTime"></th>
+      </tr></thead><tbody id="lapRows"></tbody></table>
+    </div>
+    <div id="lapEmpty" class="empty" data-i18n="lapLogEmpty"></div>
+  </div>
+
+  <!-- ===== Raw / Log ===== -->
+  <div class="card">
+    <details><summary style="cursor:pointer;color:var(--mut)" data-i18n="sumRawLog"></summary>
+      <div id="log" style="margin-top:8px"></div>
+    </details>
+  </div>
+
+<script>
+window.I18N_STRINGS = {
+  sub:{
+    it:"Contagiri e gestione gara oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002). Comandi gara <code>race_status</code>, telemetria e classifica live da <code>rf_data_x</code>. <b>Solo su hardware tuo.</b>",
+    en:"oXigen lap counter and race manager over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002). Race commands <code>race_status</code>, live telemetry and leaderboard from <code>rf_data_x</code>. <b>Only on your own hardware.</b>",
+    es:"Cuentavueltas y gestor de carrera oXigen por <b>USB serie</b> (Web Serial, VID 1FEE/PID 0002). Comandos de carrera <code>race_status</code>, telemetría y clasificación en vivo desde <code>rf_data_x</code>. <b>Solo en tu propio hardware.</b>"
+  },
+  h1title:{it:"Contagiri / gestione gara",en:"Lap counter / race manager",es:"Cuentavueltas / gestor de carrera"},
+  btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle"},
+  btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
+
+  titleRaceCtrl:{it:"Controllo gara — race_status",en:"Race control — race_status",es:"Control de carrera — race_status"},
+  rsStart:{it:"▶ Avvia",en:"▶ Start",es:"▶ Iniciar"},
+  rsPause:{it:"⏸ Pausa",en:"⏸ Pause",es:"⏸ Pausa"},
+  rsStop:{it:"⏹ Stop (ferma auto)",en:"⏹ Stop (halt cars)",es:"⏹ Stop (parar coches)"},
+  rsFlag:{it:"🚩 Bandiera",en:"🚩 Flag",es:"🚩 Bandera"},
+  lblTimer:{it:"Cronometro",en:"Race timer",es:"Cronómetro"},
+  lblMaxSpeed:{it:"Velocità max globale",en:"Global max speed",es:"Velocidad máx. global"},
+  txLabel:{it:"ultimo race_status:",en:"last race_status:",es:"último race_status:"},
+
+  titleCarCmd:{it:"Comandi per-auto — race_status[5]",en:"Per-car commands — race_status[5]",es:"Comandos por coche — race_status[5]"},
+  lblCarId:{it:"ID auto",en:"Car ID",es:"ID coche"},
+  lblArg:{it:"argomento",en:"argument",es:"argumento"},
+  actPit:{it:"Velocità pit-lane",en:"Pit lane speed",es:"Velocidad pit-lane"},
+  actMaxSpeed:{it:"Velocità massima",en:"Maximum speed",es:"Velocidad máxima"},
+  actMaxBrake:{it:"Freno massimo",en:"Maximum brake",es:"Freno máximo"},
+  actMinSpeed:{it:"Penalità (vel. minima)",en:"Penalty (minimum speed)",es:"Penalización (vel. mínima)"},
+  carCmdHint:{
+    it:"Imposta ID + argomento, poi premi un comando: viene inviato all'auto (raffica breve).",
+    en:"Set ID + argument, then press a command: it's sent to the car (short burst).",
+    es:"Ajusta ID + argumento, luego pulsa un comando: se envía al coche (ráfaga breve)."
+  },
+
+  titleBoard:{it:"Classifica live",en:"Live leaderboard",es:"Clasificación en vivo"},
+  btnResetData:{it:"Azzera dati",en:"Reset data",es:"Restablecer datos"},
+  thLaps:{it:"giri",en:"laps",es:"vueltas"},
+  thLastLap:{it:"ultimo giro (s)",en:"last lap (s)",es:"última vuelta (s)"},
+  thBestLap:{it:"miglior giro (s)",en:"best lap (s)",es:"mejor vuelta (s)"},
+  thTrigger:{it:"grilletto",en:"trigger",es:"gatillo"},
+  thPit:{it:"pit",en:"pit",es:"pit"},
+  thVer:{it:"versione",en:"version",es:"versión"},
+  thUpdate:{it:"aggiorn.",en:"updated",es:"actualiz."},
+  boardEmpty:{
+    it:"Nessun controller/auto ancora. Accendi un controller (o premi il grilletto) e premi Avvia.",
+    en:"No controller/car yet. Turn on a controller (or pull the trigger) and press Start.",
+    es:"Aún no hay mando/coche. Enciende un mando (o aprieta el gatillo) y pulsa Iniciar."
+  },
+  noteHint:{
+    it:"⚠️ Da banco (senza auto in pista) i <b>giri</b> restano 0, ma il <b>grilletto</b> <code>[7]</code> si muove: è normale, la telemetria è comunque live.",
+    en:"⚠️ On the bench (no car on track) the <b>laps</b> stay 0, but the <b>trigger</b> <code>[7]</code> moves: that's normal, telemetry is still live.",
+    es:"⚠️ En banco (sin coche en pista) las <b>vueltas</b> quedan en 0, pero el <b>gatillo</b> <code>[7]</code> se mueve: es normal, la telemetría sigue en vivo."
+  },
+
+  titleLapLog:{it:"Log giri",en:"Lap log",es:"Registro de vueltas"},
+  llWhen:{it:"orario",en:"time",es:"hora"},
+  llLapN:{it:"giro n°",en:"lap #",es:"vuelta n.º"},
+  llTime:{it:"tempo (s)",en:"time (s)",es:"tiempo (s)"},
+  lapLogEmpty:{it:"Nessun giro registrato.",en:"No laps recorded.",es:"Ninguna vuelta registrada."},
+
+  sumRawLog:{it:"Raw & log",en:"Raw & log",es:"Datos crudos y registro"},
+
+  /* ---- stringhe dinamiche (JS) ---- */
+  stConnected:{it:"connesso",en:"connected",es:"conectado"},
+  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
+  logConnected:{it:"[connesso]",en:"[connected]",es:"[conectado]"},
+  logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]"},
+  errWord:{it:"errore",en:"error",es:"error"},
+  noSerialLog:{
+    it:"[!] Web Serial non supportato: usa Chrome/Edge su computer.",
+    en:"[!] Web Serial not supported: use Chrome/Edge on a computer.",
+    es:"[!] Web Serial no compatible: usa Chrome/Edge en un ordenador."
+  },
+  stIdle:{it:"in attesa",en:"idle",es:"en espera"},
+  stRunning:{it:"in gara",en:"running",es:"en carrera"},
+  stPaused:{it:"in pausa",en:"paused",es:"en pausa"},
+  stStopped:{it:"ferma",en:"stopped",es:"parada"},
+  stFlagged:{it:"bandiera",en:"flagged",es:"bandera"}
+};
+</script>
+<script src="../i18n.js"></script>
+<script>
+const APP="chron02",APP_VERSION="1.0.0";
+const VID=0x1fee,PID=0x0002;
+
+/* stati race_status[0] = 0x60 | enum (1=stop,3=run,4=pause,5=flag) */
+const S_STOP=0x61, S_RUN=0x63, S_PAUSE=0x64, S_FLAG=0x65;
+
+let port,writer,reader,acc=[],reading=false;
+let connState=false, txActive=false, txTimer=null, tickTimer=null, boardTimer=null, boardDirty=false;
+let raceState=null;                 // null = in attesa (idle)
+let raceCs=0, lastTickMs=0;         // cronometro locale, centisecondi
+let pending=null;                   // {id,cmd,arg,left}  comando car-specifico in raffica
+const cars={};                      // id -> stato classifica
+let lapLog=[];                      // {id,lapNum,timeCs,at}
+
+const $=id=>document.getElementById(id);
+const hx=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join(" ");
+const log=s=>{const l=$("log");l.textContent+=s+"\n";if(l.textContent.length>16000)l.textContent=l.textContent.slice(-8000);l.scrollTop=l.scrollHeight;};
+const pad2=n=>String(n).padStart(2,"0");
+const csToSec=cs=>cs/99.25;
+const fmtSec=cs=>cs>0?csToSec(cs).toFixed(2):"–";
+
+/* ---------- connessione ---------- */
+function renderStatus(){const on=connState;$("st").textContent=on?I18N.t("stConnected"):I18N.t("stDisconnected");$("st").className="pill"+(on?" on":"");}
+function setConn(on){connState=on;renderStatus();
+  $("btnConn").disabled=on;$("btnDisc").disabled=!on;
+  document.querySelectorAll(".rs,.cc").forEach(b=>b.disabled=!on);}
+
+async function connect(){
+  if(!navigator.serial){$("nobt").style.display="block";return;}
+  try{
+    port=await navigator.serial.requestPort({filters:[{usbVendorId:VID,usbProductId:PID}]});
+    await port.open({baudRate:115200});
+    writer=port.writable.getWriter();
+    const i=port.getInfo?port.getInfo():{};
+    $("devname").textContent=(i.usbVendorId?("VID "+i.usbVendorId.toString(16)+"/PID "+i.usbProductId.toString(16)):"dongle");
+    setConn(true);log(I18N.t("logConnected"));
+    startTimers();readLoop();
+  }catch(e){log("["+I18N.t("errWord")+": "+e+"]");}
+}
+async function disconnect(){
+  try{reading=false;txActive=false;stopTimers();
+    if(reader){await reader.cancel().catch(()=>{});}
+    if(writer){writer.releaseLock();}
+    await port.close();
+  }catch(e){}
+  setConn(false);raceState=null;renderRaceState();$("devname").textContent="";log(I18N.t("logDisconnected"));
+}
+async function readLoop(){reading=true;
+  while(reading&&port.readable){reader=port.readable.getReader();
+    try{while(true){const{value,done}=await reader.read();if(done)break;
+      for(const b of value)acc.push(b);if(acc.length>4000)acc=acc.slice(-2000);
+      parseRx();}}
+    catch(e){}finally{try{reader.releaseLock();}catch(e){}}}
+}
+async function write(bytes){if(!writer)return;await writer.write(new Uint8Array(bytes));}
+
+/* ---------- timer TX + cronometro ---------- */
+function startTimers(){
+  lastTickMs=Date.now();
+  txTimer=setInterval(()=>{if(txActive&&connState)sendRaceStatus();},200);   // TX periodico ~200 ms
+  tickTimer=setInterval(tickClock,100);                                       // cronometro locale
+  boardTimer=setInterval(()=>{if(boardDirty){boardDirty=false;renderBoard();}},250);
+}
+function stopTimers(){[txTimer,tickTimer,boardTimer].forEach(t=>t&&clearInterval(t));txTimer=tickTimer=boardTimer=null;}
+function tickClock(){const now=Date.now();const dt=now-lastTickMs;lastTickMs=now;
+  if(raceState===S_RUN||raceState===S_FLAG)raceCs+=dt/10;
+  $("timerVal").textContent=fmtCs(raceCs);}
+function fmtCs(cs){cs=Math.floor(cs);const c=cs%100,s=Math.floor(cs/100)%60,m=Math.floor(cs/6000);return pad2(m)+":"+pad2(s)+"."+pad2(c);}
+
+/* ---------- TX: race_status = 11 byte RAW ---------- */
+function buildRaceStatus(){
+  const b=new Array(11).fill(0);
+  b[0]=(raceState==null?S_STOP:raceState);         // [0] stato = 0x60|enum
+  b[1]=+$("rsMax").value&0xff;                      // [1] velocità max globale
+  if(pending&&pending.left>0){                      // [2]/[5]/[6] comando car-specifico (raffica)
+    b[2]=pending.id&0xff;
+    b[5]=0x80|(pending.cmd&0x7f);
+    b[6]=pending.arg&0xff;
+    if(--pending.left<=0)pending=null;
+  }
+  b[7]=0;                                           // [7] = 0
+  const cs=Math.min(Math.floor(raceCs),0xffffff);   // [8..10] race timer cs, big-endian
+  b[8]=(cs>>16)&0xff;b[9]=(cs>>8)&0xff;b[10]=cs&0xff;
+  return b;
+}
+async function sendRaceStatus(){const b=buildRaceStatus();$("txHex").textContent=hx(b);await write(b);log("-> "+hx(b));}
+
+function setRaceState(kind){
+  if(kind==="run"){if(raceState==null||raceState===S_STOP)raceCs=0;raceState=S_RUN;}
+  else if(kind==="pause")raceState=S_PAUSE;
+  else if(kind==="stop")raceState=S_STOP;           // ferma le auto (inviato in continuo)
+  else if(kind==="flag")raceState=S_FLAG;
+  txActive=true;renderRaceState();sendRaceStatus();
+}
+function renderRaceState(){
+  const p=$("stateP");let k="stIdle",cls="";
+  if(raceState===S_RUN){k="stRunning";cls=" run";}
+  else if(raceState===S_PAUSE){k="stPaused";cls=" pause";}
+  else if(raceState===S_STOP){k="stStopped";cls=" stop";}
+  else if(raceState===S_FLAG){k="stFlagged";cls=" flag";}
+  p.textContent=I18N.t(k);p.className="pill"+cls;
+}
+function queueCarCmd(cmd){
+  const id=Math.max(0,Math.min(0x27,+$("ccId").value||0));
+  const arg=Math.max(0,Math.min(255,+$("ccArg").value||0));
+  pending={id,cmd,arg,left:6};                       // raffica breve
+  txActive=true;
+  sendRaceStatus();                                  // invio immediato
+}
+
+/* ---------- RX: rf_data_x = 13 byte ---------- */
+function parseRx(){
+  let i=0;
+  while(i+13<=acc.length){
+    if((acc[i]&0x80)&&acc[i+1]<=0x27){                // sync: bit7=1 + ID<=0x27
+      handleFrame(acc.slice(i,i+13));
+      i+=13;
+    }else i++;
+  }
+  acc=acc.slice(i);                                   // conserva la coda parziale
+}
+function handleFrame(f){
+  const id=f[1];
+  const lapCs=f[2]*256+f[3];
+  const laps=f[6]*256+f[5];
+  const pit=(f[0]>>4)&1, carReset=f[0]&1, linkRe=(f[0]>>1)&1;
+  const power=f[7]&0x7f, onTrack=(f[7]>>7)&1;
+  const ver=f[8]&0x7f, isCar=(f[8]>>7)&1;
+  const batt=(f[9]>>2)&1, trackCall=(f[9]>>3)&1, up=(f[9]>>5)&1, dn=(f[9]>>6)&1, ro=(f[9]>>7)&1;
+  const raceT=f[10]*65536+f[11]*256+f[12];
+
+  let c=cars[id];
+  if(!c){c={id,laps:undefined,lastLapCs:0,bestCs:undefined,ctrlVer:null,carVer:null};cars[id]=c;}
+  // giro = quando il campo giri di quell'ID AUMENTA → registro il tempo [2][3]
+  if(c.laps!==undefined && laps>c.laps){
+    lapLog.push({id,lapNum:laps,timeCs:lapCs,at:Date.now()});
+    if(lapLog.length>300)lapLog=lapLog.slice(-300);
+    if(lapCs>0 && (c.bestCs===undefined||lapCs<c.bestCs))c.bestCs=lapCs;
+    renderLapLog();
+  }
+  c.laps=laps;
+  if(lapCs>0)c.lastLapCs=lapCs;
+  c.power=power;c.onTrack=onTrack;c.pit=pit;c.batt=batt;c.trackCall=trackCall;
+  c.up=up;c.dn=dn;c.ro=ro;c.raceT=raceT;c.carReset=carReset;c.linkRe=linkRe;
+  if(isCar)c.carVer=ver;else c.ctrlVer=ver;
+  c.at=Date.now();
+  boardDirty=true;
+}
+
+/* ---------- render classifica / log ---------- */
+function verCell(c){let s="";
+  if(c.ctrlVer!=null)s+="🎮0x"+c.ctrlVer.toString(16).padStart(2,"0");
+  if(c.carVer!=null)s+=(s?" ":"")+"🚗0x"+c.carVer.toString(16).padStart(2,"0");
+  return s||"–";}
+function btnCell(c){return (c.up?"↑":"")+(c.dn?"↓":"")+(c.ro?"○":"")+(c.trackCall?" 🏳️":"")+(c.batt?" 🔋":"");}
+function renderBoard(){
+  const ids=Object.keys(cars);
+  $("boardEmpty").style.display=ids.length?"none":"block";
+  const arr=ids.map(k=>cars[k]).sort((a,b)=>{
+    const la=a.laps||0,lb=b.laps||0;if(lb!==la)return lb-la;
+    const ba=a.bestCs===undefined?Infinity:a.bestCs, bb=b.bestCs===undefined?Infinity:b.bestCs;
+    return ba-bb || a.id-b.id;});
+  const tb=$("boardRows");tb.innerHTML="";
+  arr.forEach((c,idx)=>{
+    const tr=document.createElement("tr");
+    const pw=Math.round(c.power/127*100);
+    const d=new Date(c.at);const ut=pad2(d.getHours())+":"+pad2(d.getMinutes())+":"+pad2(d.getSeconds());
+    tr.innerHTML=
+      `<td class="num">${idx+1}</td>`+
+      `<td>${c.id}</td>`+
+      `<td class="num">${c.laps||0}</td>`+
+      `<td class="num">${fmtSec(c.lastLapCs)}</td>`+
+      `<td class="num">${c.bestCs===undefined?"–":csToSec(c.bestCs).toFixed(2)}</td>`+
+      `<td><span class="tbar"><span style="width:${pw}%"></span></span>${c.power}</td>`+
+      `<td>${c.pit?"🅿️":""}</td>`+
+      `<td>${btnCell(c)}</td>`+
+      `<td class="kv">${verCell(c)}</td>`+
+      `<td class="val">${ut}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function renderLapLog(){
+  const tb=$("lapRows");tb.innerHTML="";
+  $("lapEmpty").style.display=lapLog.length?"none":"block";
+  lapLog.slice(-60).reverse().forEach(e=>{
+    const d=new Date(e.at);const t=pad2(d.getHours())+":"+pad2(d.getMinutes())+":"+pad2(d.getSeconds());
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="val">${t}</td><td>${e.id}</td><td class="num">${e.lapNum}</td><td class="num">${fmtSec(e.timeCs)}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function resetData(){for(const k in cars)delete cars[k];lapLog=[];raceCs=0;$("timerVal").textContent=fmtCs(0);renderBoard();renderLapLog();}
+
+/* ---------- wiring ---------- */
+$("btnConn").onclick=connect;$("btnDisc").onclick=disconnect;
+document.querySelectorAll(".rs").forEach(b=>b.onclick=()=>setRaceState(b.dataset.st));
+document.querySelectorAll(".cc").forEach(b=>b.onclick=()=>queueCarCmd(+b.dataset.cmd));
+$("rsMax").oninput=e=>{$("rsMaxV").textContent=e.target.value;};
+$("btnReset").onclick=resetData;
+
+/* ri-render del dinamico al cambio lingua */
+document.addEventListener("i18n:changed",()=>{renderStatus();renderRaceState();renderBoard();renderLapLog();});
+function boot(){renderStatus();renderRaceState();renderBoard();renderLapLog();$("timerVal").textContent=fmtCs(0);}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
+
+/* compat + sw + versione */
+if(!navigator.serial){$("nobt").style.display="block";$("btnConn").disabled=true;log(I18N.t("noSerialLog"));}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
+function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
+fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
+  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+</script>
+</body>
+</html>

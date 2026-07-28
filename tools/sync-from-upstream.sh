@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Riallinea le web app di questa repo alle repo di sviluppo, che restano private.
 #
-#   <OXIGEN_REPO>/web/{car-config,remote-config,dongle-debug,modes,i18n.js,sw.js}
+#   <OXIGEN_REPO>/web/{car-config,remote-config,modes,chron02,o2-bootloader,i18n.js,sw.js}
 #        -> web/
 #   <DS200_REPO>/webapp/  -> web/ds200/
 #   <DS200_REPO>/esp32/   -> esp32/
@@ -70,7 +70,7 @@ echo "Destinazione: $HERE"
 echo
 
 echo "1. app oXigen + asset condivisi"
-for app in car-config remote-config dongle-debug modes; do
+for app in car-config remote-config modes chron02 o2-bootloader; do
   [ -d "$OXIGEN_REPO/web/$app" ] || die "manca $OXIGEN_REPO/web/$app"
   run rm -rf "$HERE/web/$app"
   run cp -r "$OXIGEN_REPO/web/$app" "$HERE/web/$app"

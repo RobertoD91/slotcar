@@ -11,7 +11,8 @@ sw.js             service worker network-first (root)
 version.json      versione del sito e delle singole app
 car-config/       chip auto oXigen — Web Bluetooth
 remote-config/    controller SCP-3 oXigen — Web Bluetooth
-dongle-debug/     dongle oXigen — Web Serial
+chron02/          contagiri e gestione gara oXigen — Web Serial
+o2-bootloader/    configuratore oXigen (boot, info, registri) — Web Serial
 modes/            riferimento tasti/LED/pairing — pagina statica
 ds200/            contagiri DS200/DS300 — Web Serial, PWA autonoma
 ```

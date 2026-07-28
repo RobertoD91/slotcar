@@ -76,11 +76,18 @@
       <p data-i18n="ctrlDesc"></p>
       <div class="tech"><span>Web Bluetooth</span></div>
     </a>
-    <a class="card" href="dongle-debug/">
+    <a class="card" href="chron02/">
+      <span class="badge on" data-i18n="badgeActive"></span>
+      <div class="ico">🏁</div>
+      <h3 data-i18n="lapsTitle"></h3>
+      <p data-i18n-html="lapsDesc"></p>
+      <div class="tech"><span>Web Serial</span></div>
+    </a>
+    <a class="card" href="o2-bootloader/">
       <span class="badge on" data-i18n="badgeActive"></span>
       <div class="ico">🔧</div>
-      <h3 data-i18n="dongleTitle"></h3>
-      <p data-i18n-html="dongleDesc"></p>
+      <h3 data-i18n="bootTitle"></h3>
+      <p data-i18n-html="bootDesc"></p>
       <div class="tech"><span>Web Serial</span></div>
     </a>
     <a class="card" href="modes/">
@@ -90,20 +97,6 @@
       <p data-i18n="modesDesc"></p>
       <div class="tech"><span data-i18n="techStatic"></span></div>
     </a>
-    <div class="card soon">
-      <span class="badge" data-i18n="badgeSoon"></span>
-      <div class="ico">🏁</div>
-      <h3 data-i18n="lapsTitle"></h3>
-      <p data-i18n-html="lapsDesc"></p>
-      <div class="tech"><span>Web Serial</span></div>
-    </div>
-    <div class="card soon">
-      <span class="badge" data-i18n="badgeSoon"></span>
-      <div class="ico">🔄</div>
-      <h3 data-i18n="bootTitle"></h3>
-      <p data-i18n="bootDesc"></p>
-      <div class="tech"><span>Web Serial</span></div>
-    </div>
   </div>
 
   <h2 data-i18n-html="secDs"></h2>
@@ -203,12 +196,6 @@ window.I18N_STRINGS = {
     en:"Reads/writes the chip's registers over BLE: name, ID, mode, speed, brake, limits, MAC clone, motor/lights/hall test.",
     es:"Lee/escribe los registros del chip por BLE: nombre, ID, modo, velocidad, freno, límites, clon MAC, prueba de motor/luces/hall."
   },
-  dongleTitle:{it:"Debug dongle",en:"Dongle debug",es:"Depuración del dongle"},
-  dongleDesc:{
-    it:"Prova le funzioni del dongle via USB seriale: info/licenza (letture), comandi gara <code>race_status</code>, telemetria <code>rf_data_x</code>.",
-    en:"Try the dongle's features over USB serial: info/license (reads), race commands <code>race_status</code>, telemetry <code>rf_data_x</code>.",
-    es:"Prueba las funciones del dongle por USB serie: info/licencia (lecturas), comandos de carrera <code>race_status</code>, telemetría <code>rf_data_x</code>."
-  },
   ctrlTitle:{it:"Configuratore controller",en:"Controller configurator",es:"Configurador del mando"},
   ctrlDesc:{
     it:"Config del controller SCP-3 via BLE: nome, brake setting (Default/Lineare), ID, clone MAC; legge firmware/versione/data attivazione.",
@@ -221,17 +208,17 @@ window.I18N_STRINGS = {
     en:"Reference: all button/power-on sequences (standard/APP/DFU), the LEDs and pairing of controller and car chip, from the manuals.",
     es:"Referencia: todas las secuencias de botones/encendido (estándar/APP/DFU), los LED y el emparejamiento del mando y el chip del coche, según los manuales."
   },
-  lapsTitle:{it:"Contagiri oXigen (chron02)",en:"oXigen lap counter (chron02)",es:"Cuentavueltas oXigen (chron02)"},
+  lapsTitle:{it:"Contagiri gara (chron02)",en:"Race lap counter (chron02)",es:"Cuentavueltas de carrera (chron02)"},
   lapsDesc:{
-    it:"Replica del contagiri/gestione gara ufficiale via dongle: giri, tempi, pit e comandi gara (telemetria <code>rf_data_x</code> + <code>race_status</code>).",
-    en:"Replica of the official lap counter/race manager via dongle: laps, times, pit and race commands (telemetry <code>rf_data_x</code> + <code>race_status</code>).",
-    es:"Réplica del cuentavueltas/gestor de carrera oficial vía dongle: vueltas, tiempos, pit y comandos de carrera (telemetría <code>rf_data_x</code> + <code>race_status</code>)."
+    it:"Gestione gara via dongle: classifica live, giri, tempi e pit dalla telemetria <code>rf_data_x</code>; start/pausa/stop e comandi per singola auto con <code>race_status</code>.",
+    en:"Race management over the dongle: live standings, laps, times and pit from <code>rf_data_x</code> telemetry; start/pause/stop and per-car commands with <code>race_status</code>.",
+    es:"Gestión de carrera vía dongle: clasificación en vivo, vueltas, tiempos y pit desde la telemetría <code>rf_data_x</code>; start/pausa/stop y comandos por coche con <code>race_status</code>."
   },
-  bootTitle:{it:"Bootloader O2",en:"O2 Bootloader",es:"Bootloader O2"},
+  bootTitle:{it:"Configuratore O2",en:"O2 configurator",es:"Configurador O2"},
   bootDesc:{
-    it:"Replica dell'aggiornatore firmware ufficiale: programma/aggiorna tutti i pezzi oXigen (controller, chip, dongle) via dongle, e configura i pulsanti.",
-    en:"Replica of the official firmware updater: programs/updates all oXigen parts (controller, chip, dongle) via dongle, and configures the buttons.",
-    es:"Réplica del actualizador de firmware oficial: programa/actualiza todas las piezas oXigen (mando, chip, dongle) vía dongle, y configura los botones."
+    it:"Entra in modalità boot su dongle, chip auto o controller e ne legge le info (versione firmware, MAC). Include una console a registri <b>sperimentale</b> per leggere e scrivere la configurazione.",
+    en:"Puts the dongle, car chip or controller into boot mode and reads their info (firmware version, MAC). Includes an <b>experimental</b> register console to read and write settings.",
+    es:"Pone el dongle, el chip del coche o el mando en modo boot y lee su información (versión de firmware, MAC). Incluye una consola de registros <b>experimental</b> para leer y escribir la configuración."
   },
   dsTitle:{it:"Contagiri DS200 / DS300",en:"DS200 / DS300 lap counter",es:"Cuentavueltas DS200 / DS300"},
   dsDesc:{
@@ -251,7 +238,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="1.3.0";
+const SITE_VERSION="1.4.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto

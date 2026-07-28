@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<title>Bootloader O2 / Configuratore (USB serial)</title>
+<style>
+  :root{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--acc:#5db0ff;--ok:#4ec36b;--err:#ff6b6b;--warn:#ffb454;--card:#171a21;--bd:#2a2f3a;--accfg:#04121f}
+  @media (prefers-color-scheme:light){:root{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}}
+  :root[data-theme="dark"]{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--card:#171a21;--bd:#2a2f3a}
+  :root[data-theme="light"]{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:880px;margin:0 auto}
+  a.back{color:var(--mut);text-decoration:none;font-size:13px}
+  h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
+  .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+  button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:8px 13px;font-weight:600;cursor:pointer;font-size:14px}
+  button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+  button:disabled{opacity:.45;cursor:default}
+  input,select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;font:inherit}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  label{color:var(--mut);font-size:13px}
+  .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut);vertical-align:middle}
+  .pill.on{color:var(--ok);border-color:var(--ok)}
+  .pill.bad{color:var(--err);border-color:var(--err)}
+  .val{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:13px}
+  .kv{font-family:ui-monospace,Menlo,monospace;font-size:13px;word-break:break-all}
+  code{font-family:ui-monospace,Menlo,monospace}
+  .tblwrap{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:520px}
+  td,th{border-bottom:1px solid var(--bd);padding:5px 7px;text-align:left;vertical-align:top}th{color:var(--mut)}
+  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:220px;overflow:auto;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px}
+  .warnbox{color:var(--warn);font-size:13px;margin-top:6px}
+  .expbox{color:var(--err);font-size:12.5px;margin-top:6px}
+  #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
+  #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+  #upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
+  .ok{color:var(--ok)}.bad{color:var(--err)}.expchip{display:inline-block;font-size:11px;color:var(--err);border:1px solid var(--err);border-radius:20px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <div id="nobt" data-i18n-html="noSerial"></div>
+  <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
+  <a class="back" href="../">← Slot Car Web Tools</a>
+  <h1><span data-i18n="h1title">Bootloader O2</span> <span id="st" class="pill"></span></h1>
+  <p class="sub" data-i18n-html="sub"></p>
+
+  <div class="card"><div class="row">
+    <button id="btnConn" data-i18n="btnConnectDongle">🔌 Connetti dongle</button>
+    <button id="btnDisc" class="sec needc" data-i18n="btnDisconnect" disabled>Disconnetti</button>
+    <span id="devname" class="val"></span>
+  </div></div>
+
+  <!-- ===== Selezione target + boot ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleTarget">Target & boot</p>
+    <div class="row">
+      <label data-i18n="lblTarget">Dispositivo</label>
+      <select id="tgt">
+        <option value="dongle" data-i18n="optDongle">Dongle</option>
+        <option value="chip" data-i18n="optChip">Chip auto</option>
+        <option value="controller" data-i18n="optController">Controller SCP-3</option>
+      </select>
+      <button id="btnBoot" class="sec needc" data-i18n="btnEnterBoot" disabled>Entra in boot</button>
+      <button id="btnStop" class="sec needc" data-i18n="btnExitBoot" disabled>Esci (STOPBOOT)</button>
+      <span id="bootSt" class="pill"></span>
+    </div>
+    <div class="warnbox" data-i18n-html="bootHint"></div>
+  </div>
+
+  <!-- ===== Info dongle (sola lettura) ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleInfo">Info dongle (sola lettura)</p>
+    <div class="row">
+      <button class="sec tk needc" data-t="READFWVRS" data-i18n="tkFw" disabled>Versione FW</button>
+      <button class="sec tk needc" data-t="READMACVL" data-i18n="tkMac" disabled>Leggi MAC</button>
+    </div>
+    <div id="infoOut" class="kv"></div>
+    <div class="warnbox" data-i18n-html="infoNote"></div>
+  </div>
+
+  <!-- ===== Console registri ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleReg">Console registri <span class="expchip" data-i18n="expLabel">sperimentale</span></p>
+    <p class="val" data-i18n-html="regTargetHint"></p>
+    <div class="row">
+      <label data-i18n="lblReg">reg (hex)</label><input id="regA" size="4" value="80" style="width:70px">
+      <label data-i18n="lblLen">len</label><input id="regL" type="number" min="1" max="16" value="2" style="width:70px">
+      <button id="btnRead" class="sec needc" data-i18n="btnReadReg" disabled>Leggi registro</button>
+    </div>
+    <div class="row">
+      <label data-i18n="lblVal">valore (hex)</label><input id="regV" size="12" data-i18n-attr="placeholder:phVal" placeholder="cc / 04 0e" style="width:150px">
+      <button id="btnWrite" class="sec needc" data-i18n="btnWriteReg" disabled>Scrivi registro</button>
+      <span class="expchip" data-i18n="expLabel">sperimentale</span>
+    </div>
+    <div id="regOut" class="kv"></div>
+    <div class="expbox" data-i18n-html="regWriteWarn"></div>
+
+    <p class="cardtitle" style="margin-top:16px" data-i18n="titleRegTable">Registri noti</p>
+    <p class="expbox" data-i18n-html="regTableWarn"></p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr>
+          <th data-i18n="thReg">reg</th><th data-i18n="thTarget">target</th>
+          <th data-i18n="thRead">letto</th><th data-i18n="thGuess">ipotesi (da confermare)</th>
+        </tr></thead>
+        <tbody>
+          <tr><td><code>0x00 / 0x80</code></td><td><code>0x09</code> chip</td><td><code>04 12</code></td><td data-i18n="rgFwChip"></td></tr>
+          <tr><td><code>0x80</code></td><td><code>0x0a</code> ctrl</td><td><code>04 0c</code></td><td data-i18n="rgFwCtrl"></td></tr>
+          <tr><td><code>0x11</code></td><td><code>0x0c</code> dongle</td><td><code>04 0e</code></td><td data-i18n="rgFwDongle"></td></tr>
+          <tr><td><code>0x02</code></td><td><code>0x09</code> chip</td><td><code>00→04→05</code></td><td data-i18n="rg02Chip"></td></tr>
+          <tr><td><code>0x02</code></td><td><code>0x0a</code> ctrl</td><td><code>04 / 05</code></td><td data-i18n="rg02Ctrl"></td></tr>
+          <tr><td><code>0x40</code></td><td><code>0x09</code> chip</td><td><code>ff ff</code></td><td data-i18n="rg40Chip"></td></tr>
+          <tr><td><code>0x10</code></td><td><code>0x09</code> chip</td><td><code>ff/cc/1a/03</code></td><td data-i18n="rg10Chip"></td></tr>
+          <tr><td><code>0x16</code></td><td><code>0x0a</code> ctrl</td><td><code>00/02/03/04</code></td><td data-i18n="rg16Ctrl"></td></tr>
+          <tr><td><code>0x20</code></td><td><code>0x09 / 0x0a</code></td><td><code>5B (RRR/SSS)</code></td><td data-i18n="rg20Both"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== Raw / Log ===== -->
+  <div class="card">
+    <details><summary style="cursor:pointer;color:var(--mut)" data-i18n="sumRawLog">Raw & log</summary>
+      <div class="row" style="margin-top:8px"><label data-i18n="lblSendRaw">Invia (hex o testo)</label>
+        <input id="rawIn" size="24" placeholder="READFWVRS  /  09 12 00 80 02">
+        <button id="btnRaw" class="sec needc" data-i18n="btnSend" disabled>Invia</button></div>
+      <div id="log"></div>
+    </details>
+  </div>
+
+<script>
+window.I18N_STRINGS = {
+  sub:{
+    it:"Replica parziale del programma <b>O2 Bootloader</b> di Slot.it: configuratore a <b>registri</b> che parla col dongle oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002). Seleziona il target (dongle/chip/controller), entra in boot, leggi info e registri. <b>Solo su hardware tuo.</b>",
+    en:"Partial replica of Slot.it's <b>O2 Bootloader</b> program: a <b>register</b> configurator that talks to the oXigen dongle over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002). Pick the target (dongle/chip/controller), enter boot, read info and registers. <b>Only on your own hardware.</b>",
+    es:"Réplica parcial del programa <b>O2 Bootloader</b> de Slot.it: un configurador de <b>registros</b> que habla con el dongle oXigen por <b>USB serie</b> (Web Serial, VID 1FEE/PID 0002). Elige el destino (dongle/chip/mando), entra en boot, lee info y registros. <b>Solo en tu propio hardware.</b>"
+  },
+  h1title:{it:"Bootloader O2",en:"O2 Bootloader",es:"Bootloader O2"},
+  btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle"},
+  btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
+
+  titleTarget:{it:"Target & boot",en:"Target & boot",es:"Destino y boot"},
+  lblTarget:{it:"Dispositivo",en:"Device",es:"Dispositivo"},
+  optDongle:{it:"Dongle",en:"Dongle",es:"Dongle"},
+  optChip:{it:"Chip auto",en:"Car chip",es:"Chip del coche"},
+  optController:{it:"Controller SCP-3",en:"SCP-3 controller",es:"Mando SCP-3"},
+  btnEnterBoot:{it:"Entra in boot",en:"Enter boot",es:"Entrar en boot"},
+  btnExitBoot:{it:"Esci (STOPBOOT)",en:"Exit (STOPBOOT)",es:"Salir (STOPBOOT)"},
+  bootHint:{
+    it:"«Entra in boot» manda i comandi <code>BOOT</code> giusti per il target (dongle=<code>BOOT 05</code>+<code>BOOT 0c</code>, chip=<code>BOOT 09</code>, controller=<code>BOOT 0a</code>) e attende <code>BOOTOK</code>. «Esci» manda <code>STOPBOOT</code>: il dongle si <b>resetta</b> e la porta USB può cadere (normale, riconnetti).",
+    en:"\"Enter boot\" sends the right <code>BOOT</code> commands for the target (dongle=<code>BOOT 05</code>+<code>BOOT 0c</code>, chip=<code>BOOT 09</code>, controller=<code>BOOT 0a</code>) and waits for <code>BOOTOK</code>. \"Exit\" sends <code>STOPBOOT</code>: the dongle <b>resets</b> and the USB port may drop (normal, reconnect).",
+    es:"«Entrar en boot» envía los comandos <code>BOOT</code> correctos para el destino (dongle=<code>BOOT 05</code>+<code>BOOT 0c</code>, chip=<code>BOOT 09</code>, mando=<code>BOOT 0a</code>) y espera <code>BOOTOK</code>. «Salir» envía <code>STOPBOOT</code>: el dongle se <b>reinicia</b> y el puerto USB puede caerse (normal, reconecta)."
+  },
+
+  titleInfo:{it:"Info dongle (sola lettura)",en:"Dongle info (read-only)",es:"Info del dongle (solo lectura)"},
+  tkFw:{it:"Versione FW",en:"FW version",es:"Versión FW"},
+  tkMac:{it:"Leggi MAC",en:"Read MAC",es:"Leer MAC"},
+  infoNote:{
+    it:"<b>Solo letture</b>: versione firmware e MAC. Niente scritture, niente comandi che cambiano lo stato del dongle.",
+    en:"<b>Reads only</b>: firmware version and MAC. No writes, no commands that change the dongle's state.",
+    es:"<b>Solo lecturas</b>: versión de firmware y MAC. Sin escrituras ni comandos que cambien el estado del dongle."
+  },
+
+  titleReg:{it:"Console registri",en:"Register console",es:"Consola de registros"},
+  expLabel:{it:"sperimentale",en:"experimental",es:"experimental"},
+  regTargetHint:{
+    it:"Il target usato è quello selezionato sopra: <b>chip</b>→prefisso <code>0x09</code>, <b>controller</b>→<code>0x0a</code>, <b>dongle</b>→frame <code>0x0c</code>. Entra prima in boot sul target.",
+    en:"The target used is the one selected above: <b>chip</b>→prefix <code>0x09</code>, <b>controller</b>→<code>0x0a</code>, <b>dongle</b>→<code>0x0c</code> frame. Enter boot on the target first.",
+    es:"El destino usado es el seleccionado arriba: <b>chip</b>→prefijo <code>0x09</code>, <b>mando</b>→<code>0x0a</code>, <b>dongle</b>→trama <code>0x0c</code>. Entra primero en boot en el destino."
+  },
+  lblReg:{it:"reg (hex)",en:"reg (hex)",es:"reg (hex)"},
+  lblLen:{it:"len",en:"len",es:"len"},
+  lblVal:{it:"valore (hex)",en:"value (hex)",es:"valor (hex)"},
+  phVal:{it:"es. cc / 04 0e",en:"e.g. cc / 04 0e",es:"p. ej. cc / 04 0e"},
+  btnReadReg:{it:"Leggi registro",en:"Read register",es:"Leer registro"},
+  btnWriteReg:{it:"Scrivi registro",en:"Write register",es:"Escribir registro"},
+  regWriteWarn:{
+    it:"⚠️ <b>Scrittura sperimentale.</b> Il formato esatto (lunghezza/checksum) del frame di scrittura <b>non è ancora del tutto chiaro</b>: i valori possono essere interpretati male dal dispositivo. Usa con cautela, solo su hardware tuo.",
+    en:"⚠️ <b>Experimental write.</b> The exact format (length/checksum) of the write frame is <b>not yet fully understood</b>: values may be misinterpreted by the device. Use with care, only on your own hardware.",
+    es:"⚠️ <b>Escritura experimental.</b> El formato exacto (longitud/checksum) de la trama de escritura <b>aún no se comprende del todo</b>: el dispositivo puede malinterpretar los valores. Úsalo con cuidado, solo en tu propio hardware."
+  },
+  titleRegTable:{it:"Registri noti",en:"Known registers",es:"Registros conocidos"},
+  regTableWarn:{
+    it:"⚠️ <b>Analisi in corso — sperimentale, non affidabile.</b> Le righe qui sotto sono appunti grezzi dalle catture USB: le <b>ipotesi</b> (es. che <code>0x02</code> sia l'ID) <b>non sono confermate</b>. Solo le versioni firmware sono lette con certezza.",
+    en:"⚠️ <b>Analysis in progress — experimental, unreliable.</b> The rows below are rough notes from USB captures: the <b>hypotheses</b> (e.g. that <code>0x02</code> is the ID) are <b>not confirmed</b>. Only the firmware versions are read with certainty.",
+    es:"⚠️ <b>Análisis en curso — experimental, no fiable.</b> Las filas de abajo son notas en bruto de las capturas USB: las <b>hipótesis</b> (p. ej. que <code>0x02</code> sea el ID) <b>no están confirmadas</b>. Solo las versiones de firmware se leen con certeza."
+  },
+  thReg:{it:"reg",en:"reg",es:"reg"},
+  thTarget:{it:"target",en:"target",es:"destino"},
+  thRead:{it:"letto",en:"read",es:"leído"},
+  thGuess:{it:"ipotesi (da confermare)",en:"hypothesis (to confirm)",es:"hipótesis (por confirmar)"},
+  rgFwChip:{it:"versione firmware chip (sola lettura) 🟢",en:"chip firmware version (read-only) 🟢",es:"versión de firmware del chip (solo lectura) 🟢"},
+  rgFwCtrl:{it:"versione firmware controller (sola lettura) 🟢",en:"controller firmware version (read-only) 🟢",es:"versión de firmware del mando (solo lectura) 🟢"},
+  rgFwDongle:{it:"versione firmware dongle, v4.14 (sola lettura) 🟢",en:"dongle firmware version, v4.14 (read-only) 🟢",es:"versión de firmware del dongle, v4.14 (solo lectura) 🟢"},
+  rg02Chip:{it:"campo numerico del chip che cambia: ID auto o n° lampeggi LED? (indistinguibili — DA CONFERMARE)",en:"a changing chip numeric field: car ID or LED blink count? (indistinguishable — TO CONFIRM)",es:"campo numérico del chip que cambia: ¿ID del coche o n.º de parpadeos LED? (indistinguibles — POR CONFIRMAR)"},
+  rg02Ctrl:{it:"campo numerico del controller (ID? — DA CONFERMARE)",en:"controller numeric field (ID? — TO CONFIRM)",es:"campo numérico del mando (¿ID? — POR CONFIRMAR)"},
+  rg40Chip:{it:"MAC (2 byte)? — DA CONFERMARE",en:"MAC (2 bytes)? — TO CONFIRM",es:"¿MAC (2 bytes)? — POR CONFIRMAR"},
+  rg10Chip:{it:"campo 1 byte scrivibile ciclato (byte del MAC? LED? — DA CONFERMARE)",en:"writable 1-byte field, cycled (MAC byte? LED? — TO CONFIRM)",es:"campo de 1 byte escribible y ciclado (¿byte del MAC? ¿LED? — POR CONFIRMAR)"},
+  rg16Ctrl:{it:"enum del controller scrivibile (freno/freq/RCS? — DA CONFERMARE)",en:"writable controller enum (brake/freq/RCS? — TO CONFIRM)",es:"enum escribible del mando (¿freno/freq/RCS? — POR CONFIRMAR)"},
+  rg20Both:{it:"blocco config multi-byte (nome/freq?), framing RRR/SSS — DA CONFERMARE",en:"multi-byte config block (name/freq?), RRR/SSS framing — TO CONFIRM",es:"bloque de config multibyte (¿nombre/freq?), framing RRR/SSS — POR CONFIRMAR"},
+
+  sumRawLog:{it:"Raw & log",en:"Raw & log",es:"Datos crudos y registro"},
+  lblSendRaw:{it:"Invia (hex o testo)",en:"Send (hex or text)",es:"Enviar (hex o texto)"},
+  btnSend:{it:"Invia",en:"Send",es:"Enviar"},
+
+  /* ---- stringhe dinamiche (JS) ---- */
+  stConnected:{it:"connesso",en:"connected",es:"conectado"},
+  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
+  logConnected:{it:"[connesso]",en:"[connected]",es:"[conectado]"},
+  logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]"},
+  logLost:{
+    it:"[porta USB persa — probabile reset del dongle (STOPBOOT/boot). Riconnetti.]",
+    en:"[USB port lost — likely a dongle reset (STOPBOOT/boot). Reconnect.]",
+    es:"[puerto USB perdido — probable reinicio del dongle (STOPBOOT/boot). Reconecta.]"
+  },
+  errWord:{it:"errore",en:"error",es:"error"},
+  noSerialLog:{
+    it:"[!] Web Serial non supportato: usa Chrome/Edge su computer.",
+    en:"[!] Web Serial not supported: use Chrome/Edge on a computer.",
+    es:"[!] Web Serial no compatible: usa Chrome/Edge en un ordenador."
+  },
+  bootLabel:{it:"boot",en:"boot",es:"boot"},
+  bootOkMsg:{it:"BOOTOK ricevuto — in boot su",en:"BOOTOK received — in boot on",es:"BOOTOK recibido — en boot en"},
+  bootNoOkMsg:{it:"nessun BOOTOK (risposta:",en:"no BOOTOK (response:",es:"sin BOOTOK (respuesta:"},
+  bootExitMsg:{it:"[STOPBOOT inviato — il dongle si resetta, la porta può cadere]",en:"[STOPBOOT sent — the dongle resets, the port may drop]",es:"[STOPBOOT enviado — el dongle se reinicia, el puerto puede caerse]"},
+  bootStOn:{it:"in boot",en:"in boot",es:"en boot"},
+  bootStOff:{it:"non in boot",en:"not in boot",es:"fuera de boot"},
+  dtResponse:{it:"risposta",en:"response",es:"respuesta"},
+  dtEmpty:{it:"(vuota)",en:"(empty)",es:"(vacía)"},
+  regReadOut:{it:"lettura",en:"read",es:"lectura"},
+  regWriteOut:{it:"scrittura",en:"write",es:"escritura"},
+  regAckDo:{it:"ack DO ✓",en:"DO ack ✓",es:"ack DO ✓"},
+  regAckFf:{it:"ack 0xff ✓",en:"0xff ack ✓",es:"ack 0xff ✓"},
+  regNoResp:{it:"nessuna risposta",en:"no response",es:"sin respuesta"},
+  badHex:{it:"valore hex non valido",en:"invalid hex value",es:"valor hex no válido"},
+  confirmWrite:{
+    it:"Scrittura SPERIMENTALE su registro. Il formato non è certo: potresti alterare il dispositivo. Procedo?",
+    en:"EXPERIMENTAL register write. The format is uncertain: you might alter the device. Proceed?",
+    es:"Escritura EXPERIMENTAL en registro. El formato no es seguro: podrías alterar el dispositivo. ¿Continuar?"
+  }
+};
+</script>
+<script src="../i18n.js"></script>
+<script>
+const APP="o2-bootloader",APP_VERSION="1.0.0";
+const VID=0x1fee,PID=0x0002;
+let port,writer,reader,acc=[],reading=false;
+let connState=false,inBoot=false,bootTarget=null,lastTok=null,lastResp=null;
+const $=id=>document.getElementById(id);
+const hx=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join(" ");
+const asc=b=>[...b].map(x=>x>=32&&x<127?String.fromCharCode(x):".").join("");
+const log=s=>{const l=$("log");l.textContent+=s+"\n";l.scrollTop=l.scrollHeight;};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const enc=s=>[...new TextEncoder().encode(s)];
+const parseHex=s=>{s=(s||"").trim();if(!s)return[];if(!/^[0-9a-f ]+$/i.test(s))return null;
+  const c=s.replace(/ /g,"");if(c.length%2)return null;return[...c.matchAll(/../g)].map(m=>parseInt(m[0],16));};
+
+/* ---------- connessione ---------- */
+function renderStatus(){const on=connState;$("st").textContent=on?I18N.t("stConnected"):I18N.t("stDisconnected");$("st").className="pill"+(on?" on":"");}
+function renderBootPill(){const p=$("bootSt");if(!connState){p.textContent="";p.className="pill";return;}
+  p.textContent=inBoot?(I18N.t("bootStOn")+(bootTarget?" · "+bootTarget:"")):I18N.t("bootStOff");
+  p.className="pill"+(inBoot?" on":"");}
+function setConn(on){connState=on;if(!on){inBoot=false;bootTarget=null;}renderStatus();renderBootPill();
+  $("btnConn").disabled=on;
+  document.querySelectorAll(".needc").forEach(b=>b.disabled=!on);}
+
+async function connect(){
+  if(!navigator.serial){$("nobt").style.display="block";return;}
+  try{
+    port=await navigator.serial.requestPort({filters:[{usbVendorId:VID,usbProductId:PID}]});
+    await port.open({baudRate:115200});
+    writer=port.writable.getWriter();
+    const i=port.getInfo?port.getInfo():{};
+    $("devname").textContent=(i.usbVendorId?("VID "+i.usbVendorId.toString(16)+"/PID "+i.usbProductId.toString(16)):"dongle");
+    setConn(true);log(I18N.t("logConnected"));readLoop();
+  }catch(e){log("["+I18N.t("errWord")+": "+e+"]");}
+}
+async function disconnect(){try{reading=false;if(reader){await reader.cancel().catch(()=>{});}
+  if(writer){writer.releaseLock();}await port.close();}catch(e){}setConn(false);$("devname").textContent="";log(I18N.t("logDisconnected"));}
+async function readLoop(){reading=true;
+  while(reading&&port.readable){reader=port.readable.getReader();
+    try{while(true){const{value,done}=await reader.read();if(done)break;
+      for(const b of value)acc.push(b);if(acc.length>20000)acc=acc.slice(-8000);
+      log("<- "+hx(value)+"  |"+asc(value)+"|");}}
+    catch(e){}finally{try{reader.releaseLock();}catch(e){}}}
+  // uscita non richiesta dal loop = porta caduta (reset del dongle)
+  if(connState){setConn(false);$("devname").textContent="";log(I18N.t("logLost"));}
+}
+async function write(bytes){await writer.write(new Uint8Array(bytes));log("-> "+hx(bytes)+"  |"+asc(bytes)+"|");}
+async function sendCollect(bytes,ms=400){const start=acc.length;await write(bytes);await sleep(ms);return acc.slice(start);}
+
+/* ---------- boot ---------- */
+async function enterBoot(){
+  const t=$("tgt").value;acc=[];
+  let r;
+  if(t==="dongle"){await sendCollect([...enc("BOOT"),0x05],200);r=await sendCollect([...enc("BOOT"),0x0c],500);}
+  else if(t==="chip"){r=await sendCollect([...enc("BOOT"),0x09],500);}
+  else{r=await sendCollect([...enc("BOOT"),0x0a],500);}
+  if(asc(r).includes("BOOTOK")){inBoot=true;bootTarget=t;log("["+I18N.t("bootOkMsg")+" "+t+"]");}
+  else{inBoot=false;bootTarget=null;log("["+I18N.t("bootNoOkMsg")+" "+(r.length?hx(r):"—")+")]");}
+  renderBootPill();
+}
+async function exitBoot(){
+  await write(enc("STOPBOOT"));log(I18N.t("bootExitMsg"));
+  inBoot=false;bootTarget=null;renderBootPill();
+}
+
+/* ---------- info dongle (sola lettura) ---------- */
+function decodeToken(tok,r){
+  const s=asc(r);
+  if(tok==="READFWVRS"&&r.length>=2)return"FW v"+r[0]+"."+r[1]+"  ("+hx(r.slice(0,2))+")";
+  if(tok==="READMACVL"&&r.length>=6){const mac=[...r.slice(0,6)].reverse();
+    return"MAC = "+mac.map(b=>b.toString(16).padStart(2,"0").toUpperCase()).join(":");}
+  return I18N.t("dtResponse")+": "+(r.length?hx(r):I18N.t("dtEmpty"))+(s.match(/[ -~]/)?"  |"+asc(r)+"|":"");
+}
+function renderInfo(){if(lastTok!=null)$("infoOut").innerHTML="<b>"+lastTok+"</b> → "+decodeToken(lastTok,lastResp);}
+async function token(tok){const r=await sendCollect(enc(tok),400);lastTok=tok;lastResp=r;renderInfo();}
+
+/* ---------- console registri ---------- */
+function buildReadFrame(t,reg,len){
+  if(t==="dongle")return[0x0c,reg,0x00,0x00,0x02];          // 0c <reg> 00 00 02 (op 02 = read)
+  const pfx=t==="chip"?0x09:0x0a;
+  return[pfx,0x12,0x00,reg,len];                            // <pfx> 12 00 <reg> <len>
+}
+function buildWriteFrame(t,reg,vals){
+  if(t==="dongle")return[0x0c,reg,vals[0]||0,vals[1]||0,0x01]; // 0c <reg> <hi> <lo> 01 (op 01 = set)
+  const pfx=t==="chip"?0x09:0x0a;
+  return[pfx,0x02,0x00,reg,vals.length,...vals];            // <pfx> 02 00 <reg> <len> <val…>
+}
+async function readReg(){
+  const t=$("tgt").value,reg=parseInt($("regA").value.trim(),16)&0xff,len=Math.max(1,Math.min(16,+$("regL").value||1));
+  const r=await sendCollect(buildReadFrame(t,reg,len),400);
+  $("regOut").innerHTML="<b>"+I18N.t("regReadOut")+"</b> reg 0x"+reg.toString(16).padStart(2,"0")+" ["+t+"] → "+
+    (r.length?hx(r)+"  |"+asc(r)+"|":I18N.t("regNoResp"));
+}
+async function writeReg(){
+  const vals=parseHex($("regV").value);
+  if(vals===null||!vals.length){$("regOut").innerHTML='<span class="bad">'+I18N.t("badHex")+"</span>";return;}
+  if(!confirm(I18N.t("confirmWrite")))return;
+  const t=$("tgt").value,reg=parseInt($("regA").value.trim(),16)&0xff;
+  const r=await sendCollect(buildWriteFrame(t,reg,vals),400);
+  const s=asc(r);let ack="";
+  if(s.includes("DO"))ack=' <span class="ok">'+I18N.t("regAckDo")+"</span>";
+  else if(r.includes(0xff))ack=' <span class="ok">'+I18N.t("regAckFf")+"</span>";
+  $("regOut").innerHTML="<b>"+I18N.t("regWriteOut")+"</b> reg 0x"+reg.toString(16).padStart(2,"0")+" ["+t+"] → "+
+    (r.length?hx(r)+"  |"+asc(r)+"|":I18N.t("regNoResp"))+ack;
+}
+
+/* ---------- wiring ---------- */
+$("btnConn").onclick=connect;$("btnDisc").onclick=disconnect;
+$("btnBoot").onclick=enterBoot;$("btnStop").onclick=exitBoot;
+document.querySelectorAll(".tk").forEach(b=>b.onclick=()=>token(b.dataset.t));
+$("btnRead").onclick=readReg;$("btnWrite").onclick=writeReg;
+$("btnRaw").onclick=async()=>{const s=$("rawIn").value.trim();if(!s)return;
+  const b=/^[0-9a-f ]+$/i.test(s)&&s.replace(/ /g,"").length%2===0?parseHex(s):enc(s);
+  await write(b);};
+renderStatus();renderBootPill();
+
+/* ri-render del dinamico al cambio lingua */
+document.addEventListener("i18n:changed",()=>{renderStatus();renderBootPill();renderInfo();});
+if(document.readyState==="loading")
+  document.addEventListener("DOMContentLoaded",()=>{renderStatus();renderBootPill();renderInfo();});
+else{renderStatus();renderBootPill();renderInfo();}
+
+/* compat + sw + versione */
+if(!navigator.serial){$("nobt").style.display="block";$("btnConn").disabled=true;log(I18N.t("noSerialLog"));}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
+function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
+fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
+  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+</script>
+</body>
+</html>

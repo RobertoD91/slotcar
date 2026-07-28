@@ -46,14 +46,14 @@ La pagina iniziale (`web/index.html`) è un **indice** che porta a tutte le app.
 |---|---|---|
 | [`car-config/`](web/car-config/) | Configuratore del **chip auto** oXigen: nome, ID, modalità, velocità, freno, limiti, clone MAC, test motore/luci/sensore hall | Web Bluetooth |
 | [`remote-config/`](web/remote-config/) | Configuratore del **controller SCP-3**: nome, brake setting, ID, clone MAC; legge firmware e data di attivazione | Web Bluetooth |
-| [`dongle-debug/`](web/dongle-debug/) | Console di **debug del dongle** oXigen: letture info/licenza, comandi gara `race_status[10]`, telemetria `rf_data_x[13]` | Web Serial |
+| [`chron02/`](web/chron02/) | **Contagiri e gestione gara** oXigen via dongle: classifica live, giri, tempi e pit dalla telemetria `rf_data_x[13]`; start/pausa/stop e comandi per singola auto con `race_status[10]` | Web Serial |
+| [`o2-bootloader/`](web/o2-bootloader/) | **Configuratore oXigen** via dongle: modalità boot su dongle/chip/controller, lettura info (versione firmware, MAC) e console a registri sperimentale | Web Serial |
 | [`modes/`](web/modes/) | Riferimento (dai manuali) di **sequenze tasti, LED, pairing e DFU** di controller e chip | niente, è statica |
 | [`ds200/`](web/ds200/) | **Contagiri DS200 / DS300**: giri, tempi, classifica live, giro veloce, annunci vocali, export CSV. Installabile come PWA, funziona offline | Web Serial |
 | [`ds200/flash.html`](web/ds200/flash.html) | **Flasher ESP32** del ponte DS200 → WiFi/MQTT, con configurazione della rete dal browser | Web Serial |
 | [`ninco/`](web/ninco/) | **Contagiri Ninco N-Digital**: posizioni, giri, benzina e riserva, modalità amatore/professionale, tempi sul giro (firmware ≥ 1.08), dati grezzi esportabili | Web Serial |
 
-In arrivo (card "prossimamente" nell'indice): **chron02** (contagiri/gestione gara oXigen
-via dongle) e **O2 Bootloader** (configurazione oXigen via dongle).
+Tutte le card dell'indice sono ora attive: non c'è più niente marcato «prossimamente».
 
 ### Ninco N-Digital: cosa si può fare e cosa no
 
@@ -81,7 +81,7 @@ Le API usate esistono solo su browser basati su Chromium:
 
 - **Web Bluetooth** (`car-config`, `remote-config`): Chrome/Edge su desktop, Chrome su
   Android. **Non** su Safari/iOS né Firefox.
-- **Web Serial** (`dongle-debug`, `ds200`, `flash.html`): Chrome/Edge/Opera **solo su
+- **Web Serial** (`chron02`, `o2-bootloader`, `ds200`, `ninco`, `flash.html`): Chrome/Edge/Opera **solo su
   desktop**. Non su Android né iOS. (Android potrebbe esser supportato in futuro, per iOS serve un esp32 "ponte")
 
 Ogni pagina mostra un avviso se il browser non ha l'API che le serve.
@@ -131,7 +131,8 @@ web/                  → è QUESTA cartella che finisce su GitHub Pages
   i18n.js               motore multilingua condiviso (IT/EN/ES) + disclaimer
   sw.js                 service worker network-first (evita le versioni vecchie in cache)
   version.json          versione del sito e delle singole app
-  car-config/ remote-config/ dongle-debug/ modes/    app oXigen
+  car-config/ remote-config/ modes/                  app oXigen (Web Bluetooth + riferimento)
+  chron02/ o2-bootloader/                            app oXigen via dongle (Web Serial)
   ds200/                contagiri DS200/DS300 (PWA autonoma, i18n e sw propri)
   ninco/                contagiri Ninco N-Digital (parser + test propri)
 docs/                 documentazione dei protocolli (non pubblicata su Pages)

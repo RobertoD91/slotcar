@@ -21,7 +21,7 @@ import sys
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "web")
 WEB = os.path.normpath(WEB)
 
-OXIGEN_APPS = ["car-config", "dongle-debug", "remote-config", "modes"]
+OXIGEN_APPS = ["car-config", "remote-config", "modes", "chron02", "o2-bootloader"]
 
 # (file, testo_da_sostituire, testo_nuovo) — "done" = testo_nuovo gia' presente.
 PATCHES = []

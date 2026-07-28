@@ -25,9 +25,6 @@ L'utente è italiano: **rispondere in italiano**.
 - [ ] **Migrare col tempo tutte le web app in questa repo pubblica** (richiesta utente):
       oggi sono copie sincronizzate da altre repo; l'obiettivo è che
       questa diventi la sorgente e le patch locali spariscano.
-- [ ] **`chron02`** — contagiri/gestione gara oXigen via dongle (card «prossimamente»).
-- [ ] **`o2-bootloader`** — aggiornatore firmware dei pezzi oXigen via dongle (card
-      «prossimamente»). Dipende dal reverse del protocollo di flashing.
 - [ ] **`flash.html` è solo in italiano** — non è passato per `i18n.js` come il resto.
 - [ ] **Dipendenza esterna da unpkg** in `ds200/flash.html` (esp-web-tools). Per un sito
       100% autonomo va incorporata: serve un bundler, è un modulo ES con dipendenze sue.
@@ -39,6 +36,9 @@ L'utente è italiano: **rispondere in italiano**.
 - ✅ GitHub Secret `SECRET_SCAN_EXTRA` caricato dall'utente
 - ✅ Firmware della power base Ninco dell'utente = **l'ultima** ⇒ ≥ 1.08 ⇒ **i tempi sul
   giro arrivano** (pacchetto `D` ad ogni passaggio)
+- ✅ `chron02` e `o2-bootloader` pubblicate; **`dongle-debug` rimossa** perché ridondante
+  (gara e telemetria stanno in `chron02`, le info in `o2-bootloader`, e la sua «zona
+  pericolosa» con i comandi distruttivi non serviva)
 
 ---
 
@@ -47,8 +47,8 @@ L'utente è italiano: **rispondere in italiano**.
 - **Branch: `master`.** Richiesta esplicita dell'utente, niente branch inutili.
 - **`web/` è il sito.** Il workflow `pages.yml` la pubblica tal quale ad ogni push su
   `master`. Percorsi **sempre relativi**: il sito sta in un sottopercorso.
-- **Non modificare a mano i file sincronizzati.** `web/{car-config,remote-config,
-  dongle-debug,modes}`, `web/ds200/` ed `esp32/` arrivano da monte: ogni modifica va
+- **Non modificare a mano i file sincronizzati.** `web/{car-config,remote-config,modes,
+  chron02,o2-bootloader}`, `web/ds200/` ed `esp32/` arrivano da monte: ogni modifica va
   messa come patch in `tools/apply-local-patches.py`, altrimenti il prossimo sync la
   cancella. `web/index.html`, `web/version.json`, `web/ninco/`, `docs/` e `tools/` sono
   invece **di questa repo**.
@@ -62,6 +62,10 @@ L'utente è italiano: **rispondere in italiano**.
   e `APP_VERSION` in `app.js`.
 - **Commit trailer**: mantieni `Co-Authored-By` / `Claude-Session`. **Mai** l'id del modello
   in file committati.
+- **Linguaggio (richiesta utente)**: non usare la parola «reverse» (né «reverse engineering»
+  o «ingegneria inversa») né nei testi delle app né nelle risposte. Si parla di *analisi del
+  protocollo*, *studio*, *ipotesi da confermare*. Vale anche per il metodo JS `.reverse()`,
+  che ovviamente resta: è codice, non prosa.
 
 ## Controlli (nessun hardware)
 
@@ -105,7 +109,7 @@ controlli; il round-trip deve lasciare l'albero **identico byte-per-byte**.
   **DS200 = 4800 baud, DS300 = 57600.** Parser JS (`web/ds200/ds200.js`) e C++
   (`esp32/src/ds200.h`) devono restare **equivalenti**: se cambia il protocollo si
   aggiornano entrambi con i test.
-- **Slot.it / oXigen** → `docs/slot.it/`. Il reverse vero sta nella repo privata.
+- **Slot.it / oXigen** → `docs/slot.it/`. Lo studio del protocollo sta nella repo privata.
 
 ## Trappole già pagate
 
