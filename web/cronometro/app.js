@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "0.2.0";
+  var APP_VERSION = "0.3.0";
   var LS = { nomi: "cronometro.nomi", cfg: "cronometro.cfg" };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -17,7 +17,8 @@
     lang: $("lang"), tts: $("tts"),
     sys: $("sys"), sysDesc: $("sysDesc"), mode: $("mode"), laps: $("laps"),
     lapsFld: $("lapsFld"), connect: $("connect"), sysOpts: $("sysOpts"),
-    roster: $("roster"), addDriver: $("addDriver"),
+    roster: $("roster"), addDriver: $("addDriver"), slotNote: $("slotNote"),
+    ctrlNote: $("ctrlNote"), raceNote: $("raceNote"),
     clock: $("clock"), stateVal: $("stateVal"), bestVal: $("bestVal"), targetVal: $("targetVal"),
     start: $("start"), pause: $("pause"), stop: $("stop"), reset: $("reset"), csv: $("csv"),
     board: $("board"), boardEmpty: $("boardEmpty"),
@@ -172,6 +173,7 @@
       row.appendChild(num); row.appendChild(inp); row.appendChild(del);
       els.roster.appendChild(row);
     });
+    renderLimite();
   }
 
   function salvaSlots() {
@@ -180,6 +182,7 @@
   }
 
   els.addDriver.addEventListener("click", function () {
+    if (race.guidatori.length >= limitePosti()) return;
     var n = 1;
     while (race.bySlot[n]) n++;
     race.guidatore(n);
@@ -259,11 +262,35 @@
 
     var inGara = race.state === "running";
     var inPausa = race.state === "paused";
-    els.start.disabled = inGara || inPausa;
-    els.pause.disabled = !inGara && !inPausa;
+
+    /* Quando comanda la centralina (DS200/DS300) i pulsanti di gara sono una
+       bugia: l'app non puo' far partire niente, e premerli servirebbe solo a
+       raccontare una storia diversa da quella che si vede in pista. Restano
+       spenti, con scritto perche'. "Azzera" resta acceso: e' locale, e serve
+       anche a tirarsi fuori se la centralina non annuncia mai la fine. */
+    var comandaSistema = race.authority === "sistema";
+    els.start.disabled = comandaSistema || inGara || inPausa;
+    els.pause.disabled = comandaSistema || (!inGara && !inPausa);
     els.pause.textContent = inPausa ? t("btn.resume") : t("btn.pause");
-    els.stop.disabled = !inGara && !inPausa;
+    els.stop.disabled = comandaSistema || (!inGara && !inPausa);
     els.csv.disabled = race.guidatori.length === 0;
+    els.ctrlNote.hidden = !comandaSistema;
+    if (comandaSistema) els.ctrlNote.textContent = t("ctrl.systemRuns");
+  }
+
+  /* Quanti posti gestisce la pista collegata: 2 corsie sul DS200, 8 sul DS300 e
+     sulla Ninco, 20 auto su oXigen. Il limite non cancella niente — i nomi che
+     hai scritto sono roba tua — ma spegne "aggiungi" e segnala chi resta fuori. */
+  function limitePosti() { return caps && caps.slots > 0 ? caps.slots : 99; }
+
+  function renderLimite() {
+    var max = limitePosti();
+    var n = race.guidatori.length;
+    els.addDriver.disabled = n >= max;
+    var eccesso = race.guidatori.slice(max).map(function (g) { return g.slot; });
+    els.slotNote.hidden = n < max;
+    if (n > max) els.slotNote.textContent = t("setup.tooMany", { n: max, extra: eccesso.join(", ") });
+    else if (n === max) els.slotNote.textContent = t("setup.atMax", { n: max });
   }
 
   function renderClock() {
@@ -340,6 +367,37 @@
     }
   }
 
+  /* ---- programma di gara letto dalla pista --------------------------------- */
+  /* Il DS200 annuncia com'e' programmata la gara (a giri, a tempo…) e con che
+     numero. Se la centralina lo sa, e' inutile fartelo riscrivere: l'app si
+     adegua e te lo dice. La regola di fine gara resta comunque sua. */
+  function programmaGara(ev) {
+    if (ev.kind === "laps" || ev.kind === "lapsTotal") {
+      if (ev.value > 0) {
+        race.mode = "gp";
+        race.targetLaps = ev.value;
+        els.mode.value = "gp";
+        els.laps.value = ev.value;
+        els.lapsFld.hidden = false;
+        cfg.mode = "gp"; cfg.laps = ev.value; save(LS.cfg, cfg);
+        nota(t("prog.laps", { n: ev.value }));
+      }
+    } else {
+      // a tempo o F1: non abbiamo ancora quelle modalita', e mentirei a fingere
+      nota(t("prog.other"));
+    }
+    renderBoard(); renderState();
+  }
+
+  /* Riga di avviso sopra la barra dei numeri: sparisce da sola. */
+  var notaTimer = null;
+  function nota(testo) {
+    els.raceNote.textContent = testo;
+    els.raceNote.hidden = !testo;
+    if (notaTimer) clearTimeout(notaTimer);
+    if (testo) notaTimer = setTimeout(function () { els.raceNote.hidden = true; }, 12000);
+  }
+
   /* ---- collegamento del sistema -------------------------------------------- */
 
   async function connetti() {
@@ -355,8 +413,21 @@
     caps = sistema.caps;
     document.body.classList.toggle("has-fuel", !!caps.fuel);
 
-    sistema.on("event", function (ev) { race.feed(ev); });
+    /* Chi comanda: col DS200 la gara la fa partire la centralina, e il motore
+       non deve nemmeno chiudere la gara per conto suo. Vedi registry.authority. */
+    race.authority = SISTEMI.authority(caps);
+
+    sistema.on("event", function (ev) {
+      if (ev.type === "programme") return programmaGara(ev);
+      race.feed(ev);
+    });
     sistema.on("raw", function (s) { logga(s); });
+    sistema.on("caps", function (c) {
+      caps = c;
+      document.body.classList.toggle("has-fuel", !!caps.fuel);
+      race.authority = SISTEMI.authority(caps);
+      renderRoster(); renderBoard(); renderState();
+    });
     sistema.on("status", function (s) {
       logga("[" + s.state + "]" + (s.detail ? " " + s.detail : ""));
       if (s.state === SISTEMI.STATUS.ERROR) {

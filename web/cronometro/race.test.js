@@ -202,6 +202,93 @@ eq(RACE.formatClock(3661500), '1:01:01.50', 'oltre l\'ora compaiono le ore');
   eq(r.guidatore(1).laps, 1, 'i giri fatti restano nella classifica finale');
 }
 
+/* ---------- il semaforo di RIPRESA non azzera la gara ----------------------
+   Riproduce la sequenza vera del DS200 (catturata in pista): dopo la pausa la
+   centralina rimanda le fasi 2 e 3, cioe' rifa' il semaforo. Il difetto stava
+   qui: entrare in countdown azzerava tutto e la classifica spariva. */
+{
+  const r = newRace({ mode: 'gp', targetLaps: 25, guidatori: [{ slot: 1 }, { slot: 2 }] });
+  const c = r._clock;
+  r.feed({ type: 'state', state: 'newrace' });     // fase 1: gara nuova
+  r.feed({ type: 'state', state: 'countdown' });   // fase 2
+  r.feed({ type: 'state', state: 'running' });     // fase 3: via
+  c.adv(5039); r.feed({ type: 'lap', slot: 1, laps: 1, lapMs: null });
+  c.adv(5039); r.feed({ type: 'lap', slot: 1, laps: 2, lapMs: 5039 });
+  eq(r.guidatore(1).laps, 2);
+
+  c.adv(1000);
+  r.feed({ type: 'state', state: 'paused' });      // A5
+  c.adv(30000);                                    // 30 s di pausa
+  r.feed({ type: 'state', state: 'running' });     // A6 fine pausa
+  r.feed({ type: 'state', state: 'countdown' });   // A2 ← il semaforo di ripresa
+  eq(r.guidatore(1).laps, 2, 'la classifica sopravvive al semaforo di ripresa');
+  const fermo = r.elapsedMs();
+  c.adv(2000);
+  eq(r.elapsedMs(), fermo, 'e durante il semaforo il cronometro sta fermo');
+
+  r.feed({ type: 'state', state: 'running' });     // A3
+  c.adv(4000); r.feed({ type: 'lap', slot: 1, laps: 3, lapMs: 22197 });
+  eq(r.guidatore(1).laps, 3, 'i giri riprendono da dove erano');
+  eq(r.guidatore(1).bestLapMs, 5039, 'e il giro veloce non si perde');
+  eq(r.elapsedMs(), 5039 + 5039 + 1000 + 4000, 'pausa e semaforo restano fuori dal tempo');
+}
+
+/* ---------- la fase 1 invece azzera davvero (gara nuova) ---------- */
+{
+  const r = newRace({ mode: 'gp', targetLaps: 5, guidatori: [{ slot: 1 }] });
+  r.feed({ type: 'state', state: 'running' });
+  r.feed({ type: 'lap', slot: 1, laps: 4, lapMs: 7000 });
+  eq(r.guidatore(1).laps, 4);
+  r.feed({ type: 'state', state: 'newrace' });
+  eq(r.guidatore(1).laps, 0, 'la fase 1 apre una gara nuova');
+  eq(r.state, RACE.STATE.COUNTDOWN);
+  eq(r.elapsedMs(), 0);
+}
+
+/* ---------- rete di sicurezza: i giri non tornano indietro ---------- */
+{
+  const r = newRace({ guidatori: [{ slot: 1 }, { slot: 2 }] });
+  const c = r._clock;
+  r.command('start');
+  c.adv(7000); r.feed({ type: 'lap', slot: 1, laps: 8, lapMs: 7000 });
+  c.adv(7000); r.feed({ type: 'lap', slot: 2, laps: 7, lapMs: 7000 });
+  let riavvii = 0;
+  r.on('restart', () => riavvii++);
+  // la pista ricomincia a contare: o siamo entrati a gara iniziata, o ne è partita una nuova
+  c.adv(7000); r.feed({ type: 'lap', slot: 1, laps: 1, lapMs: null });
+  eq(riavvii, 1, 'un giro che torna indietro = la pista ha ricominciato');
+  eq(r.guidatore(1).laps, 1);
+  eq(r.guidatore(2).laps, 0, 'azzerati tutti, non solo chi ha mandato l\'evento');
+  eq(r.elapsedMs(), 0, 'e il cronometro riparte da zero');
+}
+
+/* ---------- quando comanda il sistema, il motore non chiude la gara ---------- */
+{
+  const r = newRace({ mode: 'gp', targetLaps: 3, authority: 'sistema', guidatori: [{ slot: 1 }] });
+  const c = r._clock;
+  r.feed({ type: 'state', state: 'running' });
+  for (let l = 1; l <= 5; l++) { c.adv(7000); r.feed({ type: 'lap', slot: 1, laps: l, lapMs: 7000 }); }
+  eq(r.state, RACE.STATE.RUNNING, 'oltre il traguardo si continua: la bandiera la dà la centralina');
+  eq(r.guidatore(1).laps, 5);
+  r.feed({ type: 'state', state: 'finished' });
+  eq(r.state, RACE.STATE.FINISHED);
+
+  const a = newRace({ mode: 'gp', targetLaps: 3, guidatori: [{ slot: 1 }] });
+  a.command('start');
+  for (let l = 1; l <= 3; l++) { a._clock.adv(7000); a.feed({ type: 'lap', slot: 1, laps: l, lapMs: 7000 }); }
+  eq(a.state, RACE.STATE.FINISHED, 'con l\'autorità all\'app il traguardo chiude la gara');
+}
+
+/* ---------- chi comanda: la formula ---------- */
+{
+  const A = SISTEMI.authority;
+  eq(A({ control: true, raceState: true }), 'app', 'se accetta comandi, comanda l\'app');
+  eq(A({ control: false, raceState: true }), 'sistema', 'annuncia ma non obbedisce: comanda lui');
+  eq(A({ control: false, raceState: false }), 'app', 'né l\'uno né l\'altro: comanda l\'app');
+  eq(A(null), 'app');
+  eq(A(SISTEMI.get('sim').caps), 'app', 'il simulatore obbedisce');
+}
+
 /* ---------- azzeramento ---------- */
 {
   const r = newRace({ guidatori: [{ slot: 1, name: 'Roberto' }] });

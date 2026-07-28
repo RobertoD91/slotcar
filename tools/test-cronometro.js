@@ -123,31 +123,38 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok(stateBefore.length > 0, 'stato iniziale: ' + stateBefore);
 
   // -------------------------------------------------------------------------
-  // Sistema DS200/DS300 con una seriale finta: gli stessi frame che manda la
-  // centralina vera, costruiti qui secondo la specifica.
+  // Sistema DS200/DS300, con una seriale finta alimentata da una CATTURA VERA.
+  //
+  // I byte qui sotto sono esattamente quelli usciti da un DS200 in pista
+  // (registro dell'app, gara a 25 giri con una pausa in mezzo). Usare la
+  // cattura invece di frame inventati è il motivo per cui questo test becca
+  // cose che non avrei saputo simulare: che il frame di partenza porta il
+  // programma di gara, e che dopo la pausa la centralina rifà il semaforo.
   // -------------------------------------------------------------------------
-  console.log('\n== SISTEMA DS200 (seriale simulata) ==');
+  console.log('\n== SISTEMA DS200 (cattura reale) ==');
 
-  const bcd2 = n => ((Math.floor(n / 10) % 10) << 4) | (n % 10);
-  const bcd4 = n => { const s = String(n).padStart(4, '0'); return [(+s[0] << 4) | +s[1], (+s[2] << 4) | +s[3]]; };
-  /* 21 byte, start E0, end EB, numeri in BCD; il checksum (idx 18) è
-     (somma idx 1..17 + idx 19) & 0xFF. Corsie DS200: LSB-first. */
-  function frame(o) {
-    const f = new Array(21).fill(0);
-    f[0] = 0xe0; f[1] = o.tx || 1; f[2] = 21; f[3] = 0x02;
-    f[7] = o.type; f[8] = o.func || 0; f[9] = o.ident || 0;
-    f[10] = o.lane ? (1 << (o.lane - 1)) : 0;
-    const [lh, ll] = bcd4(o.laps || 0); f[11] = lh; f[12] = ll;
-    if (o.noTime) { f[13] = 0; f[14] = f[15] = f[16] = f[17] = 0xaa; }
-    else {
-      f[13] = bcd2(o.h || 0); f[14] = bcd2(o.m || 0); f[15] = bcd2(o.s || 0);
-      const [fh, fl] = bcd4(o.frac || 0); f[16] = fh; f[17] = fl;
-    }
-    f[19] = 0; f[20] = 0xeb;
-    let sum = 0; for (let i = 1; i <= 17; i++) sum += f[i];
-    f[18] = (sum + f[19]) & 0xff;
-    return f;
-  }
+  const CATTURA = `
+E0 20 15 02 00 00 00 3C A1 00 25 00 00 00 00 00 00 00 39 00 EB   fase 1 + programma: 25 giri
+E0 21 15 02 00 00 00 00 A2 00 00 00 00 00 00 00 00 00 DA 00 EB   fase 2
+E0 22 15 02 00 00 00 00 A3 00 00 00 00 00 00 00 00 00 DC 00 EB   fase 3 = via
+E0 23 15 02 00 00 00 1B A9 00 01 00 01 00 AA AA AA AA A8 00 EB   corsia 1, giro 1, senza tempo
+E0 24 15 02 00 00 00 1B 00 00 02 00 01 00 AA AA AA AA 01 00 EB   corsia 2, giro 1, senza tempo
+E0 25 15 02 00 00 00 1B A9 A8 01 00 02 00 00 05 03 94 47 00 EB   corsia 1, giro 2, 5.0394
+E0 26 15 02 00 00 00 1B 00 A8 02 00 02 00 00 05 05 80 8E 00 EB   corsia 2, giro 2, 5.0580
+E0 27 15 02 00 00 00 00 A5 00 00 00 00 00 00 00 00 00 E3 00 EB   pausa
+E0 28 15 02 00 00 00 00 A6 00 00 00 00 00 00 00 00 00 E5 00 EB   fine pausa
+E0 29 15 02 00 00 00 00 A2 00 00 00 00 00 00 00 00 00 E2 00 EB   fase 2  ← semaforo di RIPRESA
+E0 2A 15 02 00 00 00 00 A3 00 00 00 00 00 00 00 00 00 E4 00 EB   fase 3
+E0 2B 15 02 00 00 00 1B A9 00 01 00 03 00 00 22 19 71 B6 00 EB   corsia 1, giro 3, 22.1971
+E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 3, 22.3108
+`;
+  // ogni riga: i primi 21 byte esadecimali, il resto è il commento
+  const frames = CATTURA.trim().split('\n').map(r =>
+    (r.match(/\b[0-9A-F]{2}\b/g) || []).slice(0, 21).map(h => parseInt(h, 16)));
+  // 160 ms: l'app ridisegna la classifica al massimo ogni 80 ms (con la
+  // simulazione accelerata arrivano decine di eventi al secondo e ridisegnare
+  // ogni volta è sprecato). Aspettare meno leggerebbe la tabella di prima.
+  const feed = async (f) => { await ds.evaluate(x => window.__feed(x), f); await ds.waitForTimeout(160); };
 
   const ds = await ctx.newPage();
   ds.on('pageerror', e => errors.push(String(e)));
@@ -190,49 +197,81 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok(!(await ds.evaluate(() => document.body.classList.contains('has-fuel'))),
      'niente colonna benzina: il DS non la manda');
 
-  // partenza annunciata dalla centralina (fasi 1, 2, 3)
-  await ds.evaluate(f => window.__feed(f), frame({ type: 0x00, func: 0xa1, laps: 0 }));
-  await ds.waitForTimeout(60);
-  const statoFase1 = await ds.locator('#stateVal').innerText();
-  await ds.evaluate(f => window.__feed(f), frame({ type: 0x00, func: 0xa3, laps: 0 }));
-  await ds.waitForTimeout(80);
-  ok(statoFase1 !== (await ds.locator('#stateVal').innerText()),
-     'le fasi di partenza muovono lo stato: ' + statoFase1 + ' → ' + await ds.locator('#stateVal').innerText());
+  console.log('\n-- chi comanda la gara --');
+  ok(await ds.locator('#start').isDisabled(), 'Via è spento: comanda la centralina');
+  ok(await ds.locator('#pause').isDisabled(), 'Pausa è spenta');
+  ok(await ds.locator('#stop').isDisabled(), 'Stop è spento');
+  ok(!(await ds.locator('#reset').isDisabled()), 'Azzera resta acceso: è locale');
+  ok(await ds.locator('#ctrlNote').isVisible(), 'ed è scritto perché: ' +
+     (await ds.locator('#ctrlNote').innerText()).slice(0, 60) + '…');
+  ok((await ds.locator('#stop').innerText()).match(/^(stop)$/i) !== null,
+     'il pulsante si chiama Stop: ' + await ds.locator('#stop').innerText());
 
-  // primo passaggio senza tempo (riempimento 0xAA) + giri veri
-  await ds.evaluate(f => window.__feed(f), frame({ type: 0x1b, lane: 1, laps: 1, noTime: true }));
-  await ds.evaluate(f => window.__feed(f), frame({ type: 0x1b, lane: 2, laps: 1, noTime: true }));
-  await ds.evaluate(f => window.__feed(f), frame({ type: 0x1b, lane: 1, laps: 2, s: 8, frac: 1200 }));
-  await ds.evaluate(f => window.__feed(f), frame({ type: 0x1b, lane: 2, laps: 2, s: 9, frac: 3400 }));
-  // la centralina ripete lo stesso frame: non deve contare due volte
-  await ds.evaluate(f => window.__feed(f), frame({ type: 0x1b, lane: 1, laps: 2, s: 8, frac: 1200 }));
-  await ds.evaluate(f => window.__feed(f), frame({ type: 0x1b, lane: 1, laps: 3, s: 7, frac: 5000 }));
-  await ds.waitForTimeout(250);
+  console.log('\n-- limite di corsie --');
+  ok(await ds.locator('#addDriver').isDisabled(), '"aggiungi" spento: il DS200 ha 2 corsie');
+  ok(await ds.locator('#slotNote').isVisible(), 'avviso sulle righe in eccesso: ' +
+     (await ds.locator('#slotNote').innerText()).slice(0, 70) + '…');
+  ok((await ds.locator('.slotrow').count()) === 4, 'ma i guidatori NON vengono cancellati');
 
-  const board = await ds.evaluate(() =>
+  console.log('\n-- partenza e programma di gara --');
+  await feed(frames[0]);            // fase 1 + programma
+  ok((await ds.locator('#mode').inputValue()) === 'gp', 'la centralina dice "a giri" → modalità GP');
+  ok((await ds.locator('#laps').inputValue()) === '25', 'e dice quanti: ' + await ds.locator('#laps').inputValue());
+  ok(await ds.locator('#raceNote').isVisible(), 'ed è scritto a video: ' + await ds.locator('#raceNote').innerText());
+
+  await feed(frames[1]); await feed(frames[2]);   // fasi 2 e 3
+  const statoVia = await ds.locator('#stateVal').innerText();
+  ok(/gara|racing|carrera|course|rennen/i.test(statoVia), 'dopo la fase 3 si corre: ' + statoVia);
+
+  console.log('\n-- giri --');
+  for (const i of [3, 4, 5, 6]) await feed(frames[i]);
+  let board = await ds.evaluate(() =>
     [...document.querySelectorAll('#board tr')].map(tr => [...tr.children].map(td => td.innerText.trim())));
-  ok(board.length >= 2, 'due corsie in classifica');
-  ok(board[0][2] === '3', 'corsia 1 a 3 giri (la ripetizione non conta): ' + board[0][2]);
-  ok(board[0][3] === '0:07.50', 'ultimo giro 7,50 s dalla centralina: ' + board[0][3]);
-  ok(board[0][4] === '0:07.50', 'giro veloce 7,50 s: ' + board[0][4]);
-  ok(board[1][2] === '2', 'corsia 2 a 2 giri: ' + board[1][2]);
-  ok(board[1][3] === '0:09.34', 'ultimo giro corsia 2 = 9,34 s: ' + board[1][3]);
+  ok(board[0][2] === '2' && board[1][2] === '2', 'due corsie a 2 giri');
+  ok(board[0][3] === '0:05.03', 'ultimo giro corsia 1 = 5,03 s: ' + board[0][3]);
+  ok(board[1][3] === '0:05.05', 'ultimo giro corsia 2 = 5,05 s: ' + board[1][3]);
 
-  // un frame con checksum sbagliato non deve entrare in classifica
-  const rotto = frame({ type: 0x1b, lane: 1, laps: 9, s: 5 }); rotto[18] ^= 0xff;
-  await ds.evaluate(f => window.__feed(f), rotto);
-  await ds.waitForTimeout(150);
+  console.log('\n-- LA PAUSA (il bug che hai trovato) --');
+  await feed(frames[7]);            // A5 pausa
+  const inPausa = await ds.locator('#stateVal').innerText();
+  ok(/pausa|paused|pause/i.test(inPausa), 'la centralina mette in pausa: ' + inPausa);
+  const orologioInPausa = await ds.locator('#clock').innerText();
+  await ds.waitForTimeout(400);
+  ok((await ds.locator('#clock').innerText()) === orologioInPausa, 'e il cronometro si ferma');
+
+  await feed(frames[8]);            // A6 fine pausa
+  await feed(frames[9]);            // A2 ← il semaforo di ripresa: QUI azzerava tutto
+  await feed(frames[10]);           // A3
+  board = await ds.evaluate(() =>
+    [...document.querySelectorAll('#board tr')].map(tr => [...tr.children].map(td => td.innerText.trim())));
+  ok(board[0][2] === '2' && board[1][2] === '2',
+     'dopo la ripresa i giri sono ancora 2, non azzerati: ' + board.map(r => r[2]).join(','));
+  ok(board[0][4] === '0:05.03', 'e il giro veloce è sopravvissuto: ' + board[0][4]);
+
+  await feed(frames[11]); await feed(frames[12]);
+  board = await ds.evaluate(() =>
+    [...document.querySelectorAll('#board tr')].map(tr => [...tr.children].map(td => td.innerText.trim())));
+  ok(board[0][2] === '3' && board[1][2] === '3', 'i giri riprendono da 3: ' + board.map(r => r[2]).join(','));
+  ok(board[0][4] === '0:05.03', 'il giro veloce resta quello vero, non il giro lungo della pausa');
+
+  console.log('\n-- frame rotti e fine gara --');
+  const rotto = frames[11].slice(); rotto[18] ^= 0xff;
+  await feed(rotto);
   const dopo = await ds.evaluate(() => document.querySelectorAll('#board tr')[0].children[2].innerText.trim());
   ok(dopo === '3', 'frame con checksum sbagliato scartato: giri ancora ' + dopo);
 
-  // fine gara annunciata dalla centralina
-  await ds.evaluate(f => window.__feed(f), frame({ type: 0x00, func: 0xa4, laps: 0 }));
-  await ds.waitForTimeout(150);
+  // fine gara: stessa forma dei frame di funzione della cattura, con A4
+  const fineGara = frames[1].slice();
+  fineGara[1] = 0x2d; fineGara[8] = 0xa4;
+  let sum = 0; for (let i = 1; i <= 17; i++) sum += fineGara[i];
+  fineGara[18] = (sum + fineGara[19]) & 0xff;
+  await feed(fineGara);
   const fine = await ds.locator('#stateVal').innerText();
   ok(/finita|finished|terminada|terminée|beendet/i.test(fine), 'fine gara dalla centralina: ' + fine);
   const orologio = await ds.locator('#clock').innerText();
   await ds.waitForTimeout(300);
   ok((await ds.locator('#clock').innerText()) === orologio, 'cronometro fermo a fine gara');
+
 
   console.log('\n== ERRORI JS ==');
   const real = errors.filter(e => !/Failed to load resource/.test(e));

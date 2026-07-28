@@ -21,12 +21,15 @@
   var SISTEMI = global.SISTEMI;
   if (!SISTEMI) throw new Error("ds200.js: serve registry.js caricato prima");
 
-  /* Le fasi di partenza della centralina sono tre. Le prime due sono il conto
-     alla rovescia, la terza e' il via. E' una lettura del comportamento
-     osservato, non una riga della specifica: se in pista risultasse sfasata,
-     si cambia qui e basta. */
+  /* Mappa ricavata da una cattura vera su DS200 (vedi il test end-to-end, che
+     usa quegli stessi byte). La sequenza osservata e':
+         partenza   A1 → A2 → A3 → passaggi
+         pausa      A5 → A6 → A2 → A3 → passaggi
+     cioe' la centralina, dopo la pausa, RIFA' il semaforo — ma la fase 1
+     compare solo alla partenza vera. Quindi la fase 1 e' l'unico annuncio di
+     "gara nuova": le fasi 2 e 3 non devono azzerare niente. */
   var STATO = {
-    start_race_phase_1: "countdown",
+    start_race_phase_1: "newrace",
     start_race_phase_2: "countdown",
     start_race_phase_3: "running",
     end_race: "finished",
@@ -35,10 +38,31 @@
     abort_race: "aborted"
   };
 
+  /* Il frame della fase 1 porta anche il PROGRAMMA di gara: il tipo-dato dice
+     come si vince e i due byte del "programme" quanto. Nella cattura:
+        07=3C (giri individuali)  09=00 0A=25  →  25 giri, in BCD.
+     ⚠️ La lettura BCD del valore e' un'inferenza: torna con la gara catturata
+     (25 giri) ma va confermata su altre programmazioni. */
+  var PROGRAMMA = {
+    programmed_by_time: "time",
+    programmed_by_laps_total: "lapsTotal",
+    programmed_by_laps_individual: "laps",
+    programmed_by_f1: "f1"
+  };
+
+  function bcdByte(b) {
+    var hi = (b >> 4) & 0xf, lo = b & 0xf;
+    return (hi > 9 || lo > 9) ? null : hi * 10 + lo;
+  }
+
   function Ds200Sistema(def, opts) {
     SISTEMI.Sistema.call(this, def, opts);
     var v = (opts && opts.values) || {};
     this.baud = Number(v.baud) || 4800;
+    /* Prima ancora di collegarci il baud dice quale centralina ti aspetti:
+       57600 = DS300 (8 corsie), tutto il resto = DS200 (2). Poi il primo frame
+       valido conferma o corregge. */
+    this.setCaps({ slots: this.baud === 57600 ? 8 : 2 });
     this.port = null;
     this.reader = null;
     this.leggo = false;
@@ -106,9 +130,32 @@
     }
     this.ok++;
 
-    if (f.dataType === "function" && f.function) {
+    /* DS200 o DS300? Lo dice ogni frame, e cambia quante corsie esistono:
+       2 contro 8. Meglio leggerlo che chiederlo. */
+    if (f.deviceId === 0x02 || f.deviceId === 0x03) {
+      var corsie = f.deviceId === 0x02 ? 2 : 8;
+      if (this.caps.slots !== corsie) {
+        this.setCaps({ slots: corsie });
+        this.raw("centralina riconosciuta: " + f.device + " — " + corsie + " corsie");
+      }
+    }
+
+    /* Lo stato gara sta nel byte della FUNZIONE, che e' valido anche quando il
+       tipo-dato non e' "function": il frame di partenza della cattura ha
+       tipo-dato 0x3C (gara programmata a giri) e funzione A1 insieme. Guardare
+       solo il tipo-dato faceva sparire la partenza. */
+    if (f.function) {
       var st = STATO[f.function];
-      this.raw(f.rawHex + "   " + f.function);
+      this.raw(f.rawHex + "   " + f.function +
+               (f.dataType !== "function" ? " [" + f.dataType + "]" : ""));
+
+      // il frame di fase 1 porta il programma di gara deciso sulla centralina
+      if (f.function === "start_race_phase_1" && PROGRAMMA[f.dataType]) {
+        var hi = bcdByte(f.programHi), lo = bcdByte(f.programLo);
+        var val = (hi == null || lo == null) ? null : hi * 100 + lo;
+        this.send({ type: "programme", kind: PROGRAMMA[f.dataType], value: val });
+        this.raw("   programma di gara: " + PROGRAMMA[f.dataType] + " = " + val);
+      }
       if (st) this.send({ type: "state", state: st });
       return;
     }
@@ -166,7 +213,9 @@
     ],
     caps: {
       slotLabel: "lane",
-      slots: 8,
+      /* 2 sul DS200, 8 sul DS300: parte dal baud scelto e viene corretto dal
+         primo frame valido, che dice quale delle due centraline sta parlando. */
+      slots: 2,
       lapTime: true,
       position: false,
       fuel: false,

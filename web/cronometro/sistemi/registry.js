@@ -70,6 +70,16 @@
     this.status = state;
     this.emit("status", { state: state, detail: detail || null });
   };
+  /* Alcune cose si sanno solo dopo esserci collegati: il DS200 e il DS300
+     parlano lo stesso protocollo ma gestiscono 2 corsie contro 8, e chi dei due
+     sia lo dice ogni frame. Quindi le caps possono cambiare a collegamento
+     fatto, e l'interfaccia deve accorgersene. */
+  Sistema.prototype.setCaps = function (patch) {
+    var cambiato = false, k;
+    for (k in patch) if (this.caps[k] !== patch[k]) { this.caps[k] = patch[k]; cambiato = true; }
+    if (cambiato) this.emit("caps", this.caps);
+    return cambiato;
+  };
   /* Scorciatoia usata dalle implementazioni per mandare un evento al motore. */
   Sistema.prototype.send = function (ev) { this.emit("event", ev); };
   Sistema.prototype.raw = function (text) { this.emit("raw", text); };
@@ -113,11 +123,22 @@
     return def.create(opts || {});
   }
 
+  /* Chi comanda la gara. Se il sistema accetta comandi, comanda l'applicazione
+     e lui esegue (simulatore, oXigen). Se non li accetta ma annuncia lo stato,
+     comanda lui e noi registriamo (DS200/DS300). Se non fa ne' l'uno ne'
+     l'altro, comanda l'applicazione perche' non c'e' nessun altro (Ninco). */
+  function authority(caps) {
+    if (!caps) return "app";
+    if (caps.control) return "app";
+    return caps.raceState ? "sistema" : "app";
+  }
+
   var SISTEMI = {
     Sistema: Sistema,
     STATUS: STATUS,
     CAPS_DEFAULT: CAPS_DEFAULT,
-    register: register, list: list, get: get, create: create, available: available
+    register: register, list: list, get: get, create: create,
+    available: available, authority: authority
   };
 
   global.SISTEMI = SISTEMI;

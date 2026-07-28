@@ -100,6 +100,14 @@
        perche' e' l'unico punto in cui la regola vive). */
     this.finishAll = !!opts.finishAll;
 
+    /* Chi comanda la gara: 'app' o 'sistema'. Col DS200 comanda la centralina —
+       partenza, pausa e bandiera li decide lei — quindi il motore NON deve
+       chiudere la gara per conto suo quando vede il traguardo: aspetta che sia
+       la centralina a dirlo, altrimenti bastano un giro perso o un conteggio
+       sfasato per chiudere una gara che in pista sta ancora andando.
+       Lo stesso valore spegne i pulsanti nell'interfaccia. */
+    this.authority = opts.authority === "sistema" ? "sistema" : "app";
+
     this.state = STATE.IDLE;
     this.startedAt = null;
     this.endedAt = null;
@@ -171,12 +179,22 @@
 
   Race.prototype.elapsedMs = function () {
     if (this.startedAt == null) return 0;
+    /* `_pausedAt` valorizzato vuol dire "orologio in sosta", e non solo nello
+       stato di pausa: anche il semaforo di ripresa ferma il cronometro. */
     var end = this.endedAt != null ? this.endedAt
-            : (this.state === STATE.PAUSED && this._pausedAt != null ? this._pausedAt : this.now());
+            : (this._pausedAt != null ? this._pausedAt : this.now());
     return Math.max(0, end - this.startedAt - this._pausedMs);
   };
 
   /* -- stato ----------------------------------------------------------------- */
+
+  /* Una gara e' "aperta" se ha avuto il via e non e' ancora finita. Serve a
+     distinguere il semaforo di PARTENZA da quello di RIPRESA: sono lo stesso
+     stato, ma il primo apre una gara nuova e il secondo no. */
+  Race.prototype.inCorso = function () {
+    return this.startedAt != null && this.endedAt == null &&
+           this.state !== STATE.FINISHED && this.state !== STATE.ABORTED;
+  };
 
   Race.prototype._setState = function (next, t) {
     if (next === this.state) return;
@@ -184,21 +202,24 @@
     t = t != null ? t : this.now();
 
     if (next === STATE.RUNNING) {
-      if (prev === STATE.PAUSED && this._pausedAt != null) {
+      /* Si riparte da una sosta: pausa vera, oppure il countdown di ripresa
+         (il DS200 dopo la pausa rimanda le fasi 2 e 3, cioe' rifa' il semaforo). */
+      if (this._pausedAt != null) {
         this._pausedMs += t - this._pausedAt;
         this._pausedAt = null;
-      } else if (prev !== STATE.RUNNING) {
+      } else if (prev !== STATE.RUNNING && !this.inCorso()) {
         // vera partenza
         this._resetTiming(t);
       }
     } else if (next === STATE.PAUSED) {
       this._pausedAt = t;
     } else if (next === STATE.COUNTDOWN) {
-      this._resetScores();
-      this.startedAt = null;
-      this.endedAt = null;
-      this._pausedAt = null;
-      this._pausedMs = 0;
+      /* ⚠️ Il countdown NON azzera niente: azzerare e' un'azione esplicita
+         (command('newrace')), non un effetto collaterale di uno stato. Era il
+         difetto che cancellava la classifica ad ogni ripresa dalla pausa.
+         A gara aperta il semaforo vale come sosta, e il cronometro si ferma. */
+      if (this.inCorso()) { if (this._pausedAt == null) this._pausedAt = t; }
+      else { this.startedAt = null; this.endedAt = null; this._pausedAt = null; this._pausedMs = 0; }
     } else if (next === STATE.FINISHED || next === STATE.ABORTED) {
       if (this.startedAt != null && this.endedAt == null) {
         if (prev === STATE.PAUSED && this._pausedAt != null) this._pausedMs += t - this._pausedAt;
@@ -240,9 +261,17 @@
   Race.prototype.command = function (cmd, t) {
     t = t != null ? t : this.now();
     switch (cmd) {
-      case "arm":                       // pronti: azzera e aspetta il via
+      case "newrace":                   // gara nuova: azzera e aspetta il via
+        this._resetScores();
+        this.startedAt = null;
+        this.endedAt = null;
+        this._pausedAt = null;
+        this._pausedMs = 0;
         this._setState(STATE.COUNTDOWN, t);
+        this.emit("change", this);
         return true;
+      case "arm":                       // sinonimo storico
+        return this.command("newrace", t);
       case "start":
         if (this.state === STATE.RUNNING) return false;
         if (this.state !== STATE.PAUSED) this._resetScores();
@@ -321,6 +350,11 @@
   };
 
   Race.prototype._stateEvent = function (ev, t) {
+    /* 'newrace' e 'countdown' finiscono nello stesso stato ma NON sono la
+       stessa cosa: il primo apre una gara nuova (azzera), il secondo e' solo
+       il semaforo — che il DS200 rimanda anche dopo ogni pausa. */
+    if (ev.state === "newrace") { this.command("newrace", t); return this.state; }
+
     var map = {
       countdown: STATE.COUNTDOWN, start: STATE.COUNTDOWN,
       running: STATE.RUNNING, go: STATE.RUNNING,
@@ -341,11 +375,22 @@
     g.present = true;
 
     /* Doppioni. Tutti e tre i sistemi ripetono i pacchetti: il DS200 manda lo
-       stesso frame piu' volte, la power base Ninco ripete i risultati finche'
+       stesso frame tre volte, la power base Ninco ripete i risultati finche'
        non cambia qualcosa. Se il numero di giri arriva dal sistema quello e' il
        criterio buono; se non arriva, ci si affida alla distanza fra i passaggi. */
     if (ev.laps != null) {
-      if (ev.laps <= g.laps) return null;
+      /* Rete di sicurezza: il numero di giri non torna MAI indietro. Se torna
+         indietro, la pista ha ricominciato a contare — ci siamo collegati a
+         gara iniziata, oppure e' partita una gara nuova e l'annuncio non ci e'
+         arrivato. In ogni caso quello che avevamo in classifica non vale piu'. */
+      if (ev.laps < g.laps) {
+        this._resetScores();
+        this._resetTiming(t);
+        this.emit("restart", { slot: ev.slot, laps: ev.laps, t: t });
+        g = this.guidatore(ev.slot);
+      } else if (ev.laps <= g.laps) {
+        return null;
+      }
     } else if (g.lastCrossAt != null && (t - g.lastCrossAt) < this.minLapMs) {
       return null;
     }
@@ -407,8 +452,10 @@
       if (lead != null) this.emit("lead", { slot: lead, guidatore: st[0], t: t });
     }
 
-    // traguardo (solo GP a giri)
-    if (MODES[this.mode].target === "laps" && this.targetLaps > 0 &&
+    /* Traguardo (solo GP a giri, e solo se la regola e' nostra: quando comanda
+       la centralina, la bandiera la sventola lei con un evento 'finished'). */
+    if (this.authority === "app" &&
+        MODES[this.mode].target === "laps" && this.targetLaps > 0 &&
         this.state === STATE.RUNNING && !g.finished && g.laps >= this.targetLaps) {
       g.finished = true;
       g.finishedAt = t;
