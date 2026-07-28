@@ -204,18 +204,18 @@ window.I18N_STRINGS = {
   },
   ncTitle:{it:"Contagiri Ninco Digital",en:"Ninco Digital lap counter",es:"Cuentavueltas Ninco Digital"},
   ncDesc:{
-    it:"Legge la power base N-Digital via <b>RS-232</b>: posizioni, giri, benzina e riserva, modalità amatore/professionale, tempi sul giro (firmware ≥ 1.08) e dati grezzi esportabili.",
-    en:"Reads the N-Digital power base over <b>RS-232</b>: positions, laps, fuel and reserve, amateur/professional mode, lap times (firmware ≥ 1.08) and exportable raw data.",
-    es:"Lee la power base N-Digital por <b>RS-232</b>: posiciones, vueltas, combustible y reserva, modo amateur/profesional, tiempos por vuelta (firmware ≥ 1.08) y datos en crudo exportables."
+    it:"Legge la power base N-Digital via <b>RS-232</b>: posizioni, giri, benzina e riserva, modalità amatore/professionale, tempi sul giro (firmware ≥ 1.08) e dati grezzi esportabili. <b>→ confluirà nel Cronometro web.</b>",
+    en:"Reads the N-Digital power base over <b>RS-232</b>: positions, laps, fuel and reserve, amateur/professional mode, lap times (firmware ≥ 1.08) and exportable raw data. <b>→ will be folded into the Web lap timer.</b>",
+    es:"Lee la power base N-Digital por <b>RS-232</b>: posiciones, vueltas, combustible y reserva, modo amateur/profesional, tiempos por vuelta (firmware ≥ 1.08) y datos en crudo exportables. <b>→ se integrará en el Cronómetro web.</b>"
   },
   badgeActive:{it:"attivo",en:"active",es:"activo"},
   badgeWip:{it:"in sviluppo",en:"in progress",es:"en desarrollo"},
   badgeAlpha:{it:"molto acerbo",en:"very rough",es:"muy verde"},
   chronoTitle:{it:"Cronometro web",en:"Web lap timer",es:"Cronómetro web"},
   chronoDesc:{
-    it:"<b>Un cronometro solo, per tutti i sistemi.</b> L'idea è gestire una gara — giri, tempi, classifica, benzina — che la pista sia <b>oXigen</b>, un <b>DS200/DS300</b> o una <b>power base Ninco</b>, con la stessa interfaccia. Non è ancora pronto: per ora ogni sistema ha il suo strumento qui sotto.",
-    en:"<b>One lap timer for every system.</b> The idea is to run a race — laps, times, standings, fuel — whether the track is <b>oXigen</b>, a <b>DS200/DS300</b> or a <b>Ninco power base</b>, from the same interface. Not ready yet: for now each system has its own tool below.",
-    es:"<b>Un solo cronómetro para todos los sistemas.</b> La idea es gestionar una carrera — vueltas, tiempos, clasificación, combustible — ya sea la pista <b>oXigen</b>, un <b>DS200/DS300</b> o una <b>power base Ninco</b>, con la misma interfaz. Aún no está listo: por ahora cada sistema tiene su herramienta aquí abajo."
+    it:"<b>Un cronometro solo, per tutti e tre i sistemi.</b> Gestire una gara — giri, tempi, classifica, benzina — con la stessa interfaccia, che la pista sia <b>oXigen</b> (via dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>.<br>Prenderà il posto dei <b>tre contagiri separati</b> che trovi qui sotto — <i>chron02</i> per oXigen, DS200/DS300 e Ninco — che oggi fanno la stessa cosa ognuno a modo suo. Non è ancora pronto.",
+    en:"<b>One lap timer for all three systems.</b> Run a race — laps, times, standings, fuel — from the same interface, whether the track is <b>oXigen</b> (via the dongle), a <b>DS200/DS300</b> or a <b>Ninco power base</b>.<br>It will replace the <b>three separate lap counters</b> below — <i>chron02</i> for oXigen, DS200/DS300 and Ninco — which today do the same job each in its own way. Not ready yet.",
+    es:"<b>Un solo cronómetro para los tres sistemas.</b> Gestionar una carrera — vueltas, tiempos, clasificación, combustible — con la misma interfaz, ya sea la pista <b>oXigen</b> (vía dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>.<br>Sustituirá a los <b>tres cuentavueltas separados</b> de abajo — <i>chron02</i> para oXigen, DS200/DS300 y Ninco — que hoy hacen lo mismo cada uno a su manera. Aún no está listo."
   },
   restIntro:{
     it:"Qui sotto gli <b>strumenti di servizio</b>: configurazione, diagnostica e i contagiri specifici di ogni sistema.",
@@ -245,9 +245,9 @@ window.I18N_STRINGS = {
   },
   lapsTitle:{it:"Contagiri gara (chron02)",en:"Race lap counter (chron02)",es:"Cuentavueltas de carrera (chron02)"},
   lapsDesc:{
-    it:"Gestione gara via dongle: classifica live, giri, tempi e pit dalla telemetria <code>rf_data_x</code>; start/pausa/stop e comandi per singola auto con <code>race_status</code>.",
-    en:"Race management over the dongle: live standings, laps, times and pit from <code>rf_data_x</code> telemetry; start/pause/stop and per-car commands with <code>race_status</code>.",
-    es:"Gestión de carrera vía dongle: clasificación en vivo, vueltas, tiempos y pit desde la telemetría <code>rf_data_x</code>; start/pausa/stop y comandos por coche con <code>race_status</code>."
+    it:"Gestione gara via dongle: classifica live, giri, tempi e pit dalla telemetria <code>rf_data_x</code>; start/pausa/stop e comandi per singola auto con <code>race_status</code>. <b>→ confluirà nel Cronometro web.</b>",
+    en:"Race management over the dongle: live standings, laps, times and pit from <code>rf_data_x</code> telemetry; start/pause/stop and per-car commands with <code>race_status</code>. <b>→ will be folded into the Web lap timer.</b>",
+    es:"Gestión de carrera vía dongle: clasificación en vivo, vueltas, tiempos y pit desde la telemetría <code>rf_data_x</code>; start/pausa/stop y comandos por coche con <code>race_status</code>. <b>→ se integrará en el Cronómetro web.</b>"
   },
   bootTitle:{it:"Configuratore O2",en:"O2 configurator",es:"Configurador O2"},
   bootDesc:{
@@ -257,9 +257,9 @@ window.I18N_STRINGS = {
   },
   dsTitle:{it:"Contagiri DS200 / DS300",en:"DS200 / DS300 lap counter",es:"Cuentavueltas DS200 / DS300"},
   dsDesc:{
-    it:"Monitor del cronometro via <b>RS-232</b>: giri, tempi, classifica live, giro veloce, annunci vocali, export CSV. Installabile e funziona offline.",
-    en:"Lap-timer monitor over <b>RS-232</b>: laps, times, live leaderboard, fast lap, voice announcements, CSV export. Installable and works offline.",
-    es:"Monitor del cronómetro por <b>RS-232</b>: vueltas, tiempos, clasificación en vivo, vuelta rápida, anuncios de voz, exportación CSV. Instalable y funciona sin conexión."
+    it:"Monitor del cronometro via <b>RS-232</b>: giri, tempi, classifica live, giro veloce, annunci vocali, export CSV. Installabile e funziona offline. <b>→ confluirà nel Cronometro web.</b>",
+    en:"Lap-timer monitor over <b>RS-232</b>: laps, times, live leaderboard, fast lap, voice announcements, CSV export. Installable and works offline. <b>→ will be folded into the Web lap timer.</b>",
+    es:"Monitor del cronómetro por <b>RS-232</b>: vueltas, tiempos, clasificación en vivo, vuelta rápida, anuncios de voz, exportación CSV. Instalable y funciona sin conexión. <b>→ se integrará en el Cronómetro web.</b>"
   },
   dsFlashTitle:{it:"Installer ESP32",en:"ESP32 installer",es:"Instalador ESP32"},
   dsFlashDesc:{
@@ -273,7 +273,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.0.0";
+const SITE_VERSION="2.0.1";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto
