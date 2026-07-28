@@ -81,7 +81,18 @@ PATCHES += [
      "link esp32/README"),
 ]
 
-# 4. esp32/README.md: a monte l'app sta in webapp/, qui in web/ds200/. Senza questa
+# 4. Via i rimandi a documenti che esistono solo nelle repo di sviluppo: qui sarebbero
+#    riferimenti morti (questa repo non ha una cartella docs/).
+PATCHES += [
+    (os.path.join(WEB, "remote-config", "index.html"),
+     "// registri leggibili di config/info del controller "
+     "(docs/REPORT-ble-controller-scp3.md) — 2° elem = chiave i18n del nome",
+     "// registri leggibili di config/info del controller "
+     "— 2° elem = chiave i18n del nome",
+     "no rimando a docs/ privati"),
+]
+
+# 5. esp32/README.md: a monte l'app sta in webapp/, qui in web/ds200/. Senza questa
 #    patch il comando di merge scriverebbe il firmware nel posto sbagliato.
 _ESP32_README = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "esp32", "README.md"))

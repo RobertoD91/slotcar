@@ -120,15 +120,29 @@ se cambi il protocollo, aggiornali entrambi insieme ai test. Li verifica la CI
 
 ### Aggiornare le app dalle repo di sviluppo
 
-Le app nascono in due repo separate e qui vengono **copiate**. Per riallinearle:
+Le app nascono in due repo separate e qui vengono **copiate**. La prima volta indica dove
+si trovano (il file è git-ignored, quindi i percorsi restano sulla tua macchina):
 
 ```bash
-./tools/sync-from-upstream.sh
+cp tools/sync.local.conf.example tools/sync.local.conf
+$EDITOR tools/sync.local.conf
 ```
 
-Lo script ricopia le app e riapplica le piccole modifiche locali (link di ritorno
-all'indice). Non tocca `web/index.html` né `web/version.json`, che sono di questa repo.
-Dettagli in [`tools/sync-from-upstream.sh`](tools/sync-from-upstream.sh).
+Poi, ogni volta che vuoi riallineare:
+
+```bash
+./tools/sync-from-upstream.sh          # --dry-run per vedere cosa farebbe
+```
+
+Lo script ricopia le app, riapplica le modifiche locali e rilancia i controlli. Non tocca
+`web/index.html` né `web/version.json`, che sono di questa repo.
+
+Le modifiche locali stanno tutte in
+[`tools/apply-local-patches.py`](tools/apply-local-patches.py): sono **idempotenti** e, se
+a monte cambia il testo su cui si agganciano, lo script **fallisce** invece di lasciar
+passare la cosa in silenzio. Servono perché qui i file stanno in posti diversi rispetto
+alle repo di origine (l'app DS200 passa da `webapp/` a `web/ds200/`, e `esp32/` resta
+fuori da `web/` perché non va pubblicato su Pages).
 
 ### Versioni e cache
 

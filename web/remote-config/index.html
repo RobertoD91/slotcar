@@ -209,7 +209,7 @@ const APP="remote-config",APP_VERSION="1.1.0";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const PFX=0x0a;                                  // header di frame del CONTROLLER (il chip auto usa 0x09)
 const TYPE_STR="SCP3 Handle", VER_STR="O2 / Analog";   // display fissi della schermata SCP3
-// registri leggibili di config/info del controller (docs/REPORT-ble-controller-scp3.md) — 2° elem = chiave i18n del nome
+// registri leggibili di config/info del controller — 2° elem = chiave i18n del nome
 const REGS=[[0x00,"regFw"],[0x81,"regDate"],[0x83,"regName"],[0x8c,"regBrake"],
   [0x8e,"regConfig"],[0x8f,"regId"],[0x90,"regMac"]];
 let dev,rxc,txc,waiter=null;
