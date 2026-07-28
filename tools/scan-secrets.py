@@ -121,9 +121,14 @@ def build_rules():
     rules = [(n, re.compile(p), d) for n, p, d in RULES]
     rules += compile_extra(load_lines(os.path.join(ROOT, "tools", "secrets-denylist.local.txt")),
                            "denylist-locale")
+    # Stesse regole del file locale: righe vuote e commenti '#' si ignorano, cosi' si
+    # puo' caricare tools/secrets-denylist.local.txt tale e quale dentro il GitHub
+    # Secret senza doverlo ripulire a mano.
     env = os.environ.get("SECRET_SCAN_EXTRA", "")
-    rules += compile_extra([l.strip() for l in env.splitlines() if l.strip()],
-                           "denylist-CI")
+    rules += compile_extra(
+        [l.strip() for l in env.splitlines()
+         if l.strip() and not l.strip().startswith("#")],
+        "denylist-CI")
     return rules
 
 

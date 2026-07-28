@@ -243,8 +243,9 @@ la Action te lo ridirà comunque.
 esattamente ciò che stiamo cercando di evitare. Si aggiungono da fuori:
 
 - in locale: `tools/secrets-denylist.local.txt` (git-ignored), una regex per riga;
-- in CI: il **GitHub Secret** `SECRET_SCAN_EXTRA`, stesso formato — *Settings → Secrets
-  and variables → Actions → New repository secret*.
+- in CI: il **GitHub Secret** `SECRET_SCAN_EXTRA`, **stesso identico formato** (righe
+  vuote e commenti `#` vengono ignorati in entrambi i casi, così lo stesso file si carica
+  tale e quale).
 
 ```
 # esempio di contenuto (una riga per valore)
@@ -252,6 +253,24 @@ XX:XX:XX:XX:XX:XX          # il MAC del TUO dongle, in esadecimale
 laMiaPasswordWiFi
 mia\.mail@example\.com
 ```
+
+Il modo più comodo è tenere il file locale come unica fonte e caricarlo nel secret
+con la CLI [`gh`](https://cli.github.com/):
+
+```bash
+gh auth login                                    # solo la prima volta
+
+cp tools/secrets-denylist.local.txt.example tools/secrets-denylist.local.txt   # se non c'è
+$EDITOR tools/secrets-denylist.local.txt         # metti qui i tuoi valori
+
+# carica il file nel secret della repo (legge da stdin)
+gh secret set SECRET_SCAN_EXTRA --repo RobertoD91/slotcar < tools/secrets-denylist.local.txt
+
+gh secret list --repo RobertoD91/slotcar         # verifica: deve comparire in elenco
+```
+
+Per aggiornarlo basta rilanciare lo stesso `gh secret set`: sovrascrive. Il valore non è
+più rileggibile da GitHub — la copia buona resta quella locale, che è git-ignored.
 
 I valori trovati vengono sempre stampati **mascherati** (`Re*******5G`): il log di una
 Action è pubblico quanto il codice, stamparci dentro il segreto sarebbe autolesionista.
