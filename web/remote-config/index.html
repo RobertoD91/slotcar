@@ -41,13 +41,15 @@
   #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
   .broken{background:rgba(224,168,0,.12);border:1px solid #e0a800;border-radius:10px;padding:11px 14px;margin:10px 0 14px;font-size:13px;line-height:1.55}
   .broken b{color:#e0a800}
+  .broken.partial{background:rgba(93,176,255,.12);border-color:var(--acc)}
+  .broken.partial b{color:var(--acc)}
 </style>
 </head>
 <body>
   <div id="nobt" data-i18n-html="noBt"></div>
   <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
-  <div class="broken" data-i18n-html="oxigenBroken"></div>
+  <div class="broken partial" data-i18n-html="oxigenPartial"></div>
   <h1><span data-i18n="ctrlHeading"></span> <span id="st" class="pill"></span></h1>
   <p class="sub" data-i18n-html="sub"></p>
 
@@ -98,7 +100,7 @@
   <!-- ===== Clonazione MAC ===== -->
   <div class="card">
     <p class="cardtitle" data-i18n="cardClone"></p>
-    <div class="row"><label data-i18n="lblMac"></label><input id="cMac" size="10" placeholder="52 5d → 525d">
+    <div class="row"><label data-i18n="lblMac"></label><input id="cMac" size="6" inputmode="latin" autocomplete="off" spellcheck="false" placeholder="525D" aria-describedby="macHint">
       <button class="warn cfg" data-fn="clone" disabled data-i18n="btnClone"></button></div>
     <div class="warnbox" data-i18n-html="cloneWarn"></div>
   </div>
@@ -157,9 +159,9 @@ window.I18N_STRINGS = {
   lblMac:{it:"O2 MAC (2 byte)",en:"O2 MAC (2 bytes)",es:"O2 MAC (2 bytes)"},
   btnClone:{it:"Scrivi MAC (clonazione)",en:"Write MAC (cloning)",es:"Escribir MAC (clonación)"},
   cloneWarn:{
-    it:"⚠️ Il MAC porta l'identità/licenza: scriverlo <b>clona</b> il device. C'è una conferma. Scrive <code>0x90</code> e poi il commit <code>0x9f</code>. (<code>0x80</code>=DFU non è esposto qui apposta.)",
-    en:"⚠️ The MAC carries the identity/license: writing it <b>clones</b> the device. There is a confirmation. Writes <code>0x90</code> then the commit <code>0x9f</code>. (<code>0x80</code>=DFU is deliberately not exposed here.)",
-    es:"⚠️ La MAC lleva la identidad/licencia: escribirla <b>clona</b> el dispositivo. Hay una confirmación. Escribe <code>0x90</code> y luego el commit <code>0x9f</code>. (<code>0x80</code>=DFU no se expone aquí a propósito.)"
+    it:"⚠️ Il MAC è l'<b>identità</b> con cui il device si presenta: riscriverlo lo fa passare per un altro. C'è una conferma. Scrive <code>0x90</code> e poi il commit <code>0x9f</code>. (<code>0x80</code>=DFU non è esposto qui apposta.)",
+    en:"⚠️ The MAC is the <b>identity</b> the device presents: rewriting it makes it pass for another one. There is a confirmation. Writes <code>0x90</code> then the commit <code>0x9f</code>. (<code>0x80</code>=DFU is deliberately not exposed here.)",
+    es:"⚠️ La MAC es la <b>identidad</b> con la que se presenta el dispositivo: reescribirla hace que pase por otro. Hay una confirmación. Escribe <code>0x90</code> y luego el commit <code>0x9f</code>. (<code>0x80</code>=DFU no se expone aquí a propósito.)"
   },
   advSummary:{it:"Avanzato — registri grezzi",en:"Advanced — raw registers",es:"Avanzado — registros en bruto"},
   lblRawRead:{it:"Leggi reg",en:"Read reg",es:"Leer reg"},
@@ -199,9 +201,9 @@ window.I18N_STRINGS = {
   },
   alertMac:{it:"O2 MAC = 2 byte, es. 525d",en:"O2 MAC = 2 bytes, e.g. 525d",es:"O2 MAC = 2 bytes, p. ej. 525d"},
   confirmClone:{
-    it:"Scrivo il MAC (clone identità/licenza) e faccio il commit. Sicuro?",
-    en:"I will write the MAC (identity/license clone) and commit it. Are you sure?",
-    es:"Voy a escribir la MAC (clon de identidad/licencia) y confirmarla. ¿Seguro?"
+    it:"Riscrivo il MAC: da qui in poi il device si presenterà con questa identità. Faccio anche il commit. Sicuro?",
+    en:"I will rewrite the MAC: from now on the device will present this identity. I will commit it too. Are you sure?",
+    es:"Voy a reescribir la MAC: a partir de ahora el dispositivo se presentará con esta identidad. También la confirmo. ¿Seguro?"
   },
   noResp:{it:"(nessuna risposta)",en:"(no response)",es:"(sin respuesta)"}
 };
@@ -270,7 +272,7 @@ async function readAll(){
       if(r===0x83)$("cName").value=asc(v).replace(/\.+$/,"");
       if(r===0x8c){$("cBrake").value=String(v[0]);}
       if(r===0x8f){$("cId").value=v[0];$("fId").textContent=v[0];}
-      if(r===0x90){$("cMac").value=hx(v);$("fMac").textContent=[...v].map(x=>x.toString(16).padStart(2,"0")).join(" ").toUpperCase();}
+      if(r===0x90){$("cMac").value=hx(v);$("cMac").dispatchEvent(new Event("input"));$("fMac").textContent=[...v].map(x=>x.toString(16).padStart(2,"0")).join(" ").toUpperCase();}
     }
     await new Promise(x=>setTimeout(x,110));
   }
@@ -322,6 +324,22 @@ document.addEventListener("i18n:changed",renderStatus);
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
   if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+
+/* Il MAC O2 è 2 byte = ESATTAMENTE 4 cifre esadecimali. Il campo non si lascia
+   riempire di altro: filtra i caratteri non validi e si ferma a quattro, così
+   il valore sbagliato non si può nemmeno digitare. Se resta incompleto il bordo
+   diventa rosso, e la funzione di scrittura rifiuta comunque (alertMac).
+   ⚠️ Il pulsante NON viene toccato qui: la sua abilitazione dipende dalla
+   connessione (vedi setConn), e metterci le mani lo riaccenderebbe da scollegato. */
+(function(){
+  const c=document.getElementById("cMac"); if(!c)return;
+  const valido=()=>/^[0-9A-F]{4}$/.test(c.value);
+  function check(){
+    c.value=c.value.replace(/[^0-9a-fA-F]/g,"").slice(0,4).toUpperCase();
+    c.style.borderColor=(c.value.length&&!valido())?"var(--err)":"";
+  }
+  c.addEventListener("input",check); c.addEventListener("blur",check); check();
+})();
 </script>
 </body>
 </html>

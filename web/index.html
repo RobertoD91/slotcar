@@ -41,6 +41,7 @@
   .badge{float:right;font-size:11px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut)}
   .badge.on{color:var(--ok);border-color:var(--ok)}
   .badge.bad{color:var(--err);border-color:var(--err)}
+  .badge.part{color:var(--acc);border-color:var(--acc)}
   .tech{margin-top:8px;font-size:11px;color:var(--mut)}
   .tech span{display:inline-block;border:1px solid var(--bd);border-radius:6px;padding:1px 7px;margin:2px 4px 0 0}
   footer{color:var(--mut);font-size:12px;margin-top:24px;border-top:1px solid var(--bd);padding-top:12px}
@@ -97,10 +98,10 @@
       <div class="tech"><span>Web Bluetooth</span></div>
     </a>
     <a class="card" href="remote-config/">
-      <span class="badge bad" data-i18n="badgeBroken"></span>
+      <span class="badge part" data-i18n="badgePartial"></span>
       <div class="ico">🎮</div>
       <h3 data-i18n="ctrlTitle"></h3>
-      <p data-i18n="ctrlDesc"></p>
+      <p data-i18n-html="ctrlDesc"></p>
       <div class="tech"><span>Web Bluetooth</span></div>
     </a>
     <a class="card" href="chron02/">
@@ -216,6 +217,7 @@ window.I18N_STRINGS = {
   badgeActive:{it:"attivo",en:"active",es:"activo"},
   badgeWip:{it:"in sviluppo",en:"in progress",es:"en desarrollo"},
   badgeBroken:{it:"non funzionante",en:"not working",es:"no funciona"},
+  badgePartial:{it:"funziona in parte",en:"partly working",es:"funciona en parte"},
   badgeAlpha:{it:"molto acerbo",en:"very rough",es:"muy verde"},
   chronoTitle:{it:"Cronometro web",en:"Web lap timer",es:"Cronómetro web"},
   chronoDesc:{
@@ -240,9 +242,9 @@ window.I18N_STRINGS = {
   },
   ctrlTitle:{it:"Configuratore controller",en:"Controller configurator",es:"Configurador del mando"},
   ctrlDesc:{
-    it:"Config del controller SCP-3 via BLE: nome, brake setting (Default/Lineare), ID, clone MAC; legge firmware/versione/data attivazione.",
-    en:"SCP-3 controller config over BLE: name, brake setting (Default/Linear), ID, MAC clone; reads firmware/version/activation date.",
-    es:"Configuración del mando SCP-3 por BLE: nombre, ajuste de freno (Predeterminado/Lineal), ID, clon MAC; lee firmware/versión/fecha de activación."
+    it:"Config del controller SCP-3 via BLE: nome, brake setting, ID, MAC; legge firmware, versione e data attivazione. <b>Lettura e cambio ID confermati su hardware; la scrittura del MAC no.</b>",
+    en:"SCP-3 controller config over BLE: name, brake setting, ID, MAC; reads firmware, version and activation date. <b>Reading and changing the ID are confirmed on hardware; writing the MAC is not.</b>",
+    es:"Configuración del mando SCP-3 por BLE: nombre, ajuste de freno, ID, MAC; lee firmware, versión y fecha de activación. <b>Lectura y cambio de ID confirmados en hardware; la escritura del MAC no.</b>"
   },
   modesTitle:{it:"Modalità & combinazioni",en:"Modes & combinations",es:"Modos y combinaciones"},
   modesDesc:{
@@ -280,7 +282,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.4.0";
+const SITE_VERSION="2.5.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto

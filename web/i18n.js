@@ -45,6 +45,17 @@
     langLabel: { it: "Lingua", en: "Language", es: "Idioma" },
     // Le app oXigen al momento non funzionano sull'hardware: meglio dirlo in cima
     // invece di lasciare che l'utente lo scopra provando.
+    oxigenPartial: {
+      it: "🔬 <b>Questa app funziona solo in parte.</b> Lettura e cambio ID sono confermati su " +
+        "hardware vero; la <b>scrittura del MAC</b> non è ancora stata verificata. " +
+        "Trattala come <b>strumento di diagnostica</b>, non come cosa da usare in pista.",
+      en: "🔬 <b>This app only partly works.</b> Reading and changing the ID are confirmed on real " +
+        "hardware; <b>writing the MAC</b> has not been verified yet. " +
+        "Treat it as a <b>diagnostic tool</b>, not as something to use at the track.",
+      es: "🔬 <b>Esta app funciona solo en parte.</b> La lectura y el cambio de ID están confirmados en " +
+        "hardware real; la <b>escritura del MAC</b> aún no se ha verificado. " +
+        "Trátala como <b>herramienta de diagnóstico</b>, no como algo para usar en pista.",
+    },
     oxigenBroken: {
       it: "🚧 <b>Questa app al momento NON funziona.</b> È rimasta indietro rispetto all'hardware e " +
         "non è stata rivalidata: aspettati che non si colleghi, o che legga valori sbagliati. " +

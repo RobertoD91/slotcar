@@ -1,15 +1,15 @@
 {
-  "site": "2.4.0",
+  "site": "2.5.0",
   "updated": "2026-07-28",
   "apps": {
     "cronometro": "0.3.0",
-    "car-config": "1.1.0",
-    "remote-config": "1.1.0",
+    "car-config": "1.2.0",
+    "remote-config": "1.2.0",
     "modes": "1.1.0",
     "ninco": "1.0.0",
     "chron02": "1.0.0",
     "o2-bootloader": "1.0.0",
-    "ds200-ds300": "1.5.1",
+    "ds200-ds300": "1.5.2",
     "esp32-installer": "0.9.0"
   }
 }

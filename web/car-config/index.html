@@ -109,7 +109,7 @@
   <!-- ===== Clonazione MAC ===== -->
   <div class="card">
     <p class="cardtitle" data-i18n="secClone"></p>
-    <div class="row"><label data-i18n="lblMac"></label><input id="cMac" size="10" placeholder="52 5d → 525d">
+    <div class="row"><label data-i18n="lblMac"></label><input id="cMac" size="6" inputmode="latin" autocomplete="off" spellcheck="false" placeholder="525D" aria-describedby="macHint">
       <button class="warn act" data-fn="mac" disabled data-i18n="btnWriteMac"></button></div>
     <div class="warnbox" data-i18n-html="cloneWarn"></div>
   </div>
@@ -192,11 +192,11 @@ window.I18N_STRINGS = {
   lblMac:{it:"MAC (2 byte)",en:"MAC (2 bytes)",es:"MAC (2 bytes)"},
   btnWriteMac:{it:"Scrivi MAC (clone)",en:"Write MAC (clone)",es:"Escribir MAC (clon)"},
   cloneWarn:{
-    it:"⚠️ Il MAC porta l'identità/licenza: scriverlo <b>clona</b> il device. C'è una conferma. " +
+    it:"⚠️ Il MAC è l'<b>identità</b> con cui il chip si presenta: riscriverlo lo fa passare per un altro. C'è una conferma. " +
       "(<code>0x80</code>=DFU non è esposto qui apposta.)",
-    en:"⚠️ The MAC carries the identity/license: writing it <b>clones</b> the device. There is a confirmation. " +
+    en:"⚠️ The MAC is the <b>identity</b> the chip presents: rewriting it makes it pass for another one. There is a confirmation. " +
       "(<code>0x80</code>=DFU is intentionally not exposed here.)",
-    es:"⚠️ El MAC lleva la identidad/licencia: escribirlo <b>clona</b> el dispositivo. Hay una confirmación. " +
+    es:"⚠️ El MAC es la <b>identidad</b> con la que se presenta el chip: reescribirlo hace que pase por otro. Hay una confirmación. " +
       "(<code>0x80</code>=DFU no se expone aquí a propósito.)"
   },
   advSummary:{
@@ -240,9 +240,9 @@ window.I18N_STRINGS = {
     es:"MAC = 2 bytes, p. ej. 525d"
   },
   confirmMac:{
-    it:"Scrivo il MAC (clone identità/licenza). Sicuro?",
-    en:"Write the MAC (clone identity/license). Are you sure?",
-    es:"¿Escribir el MAC (clonar identidad/licencia)? ¿Seguro?"
+    it:"Riscrivo il MAC: da qui in poi il chip si presenterà con questa identità. Sicuro?",
+    en:"I will rewrite the MAC: from now on the chip will present this identity. Are you sure?",
+    es:"Voy a reescribir el MAC: a partir de ahora el chip se presentará con esta identidad. ¿Seguro?"
   }
 };
 </script>
@@ -307,7 +307,7 @@ async function readAll(){
       if(r===0x84){$("cSpeed").value=v[0];$("cSpeedV").textContent=v[0];}
       if(r===0x86){$("cBrake").value=v[0];$("cBrakeV").textContent=v[0];}
       if(r===0x87){$("cLimits").checked=v[0]!==0;refreshLim();}
-      if(r===0x90)$("cMac").value=hx(v);
+      if(r===0x90){$("cMac").value=hx(v);$("cMac").dispatchEvent(new Event("input"));}
     }
     await new Promise(x=>setTimeout(x,110));
   }
@@ -359,6 +359,22 @@ document.addEventListener("i18n:changed",renderStatus);
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
   if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+
+/* Il MAC O2 è 2 byte = ESATTAMENTE 4 cifre esadecimali. Il campo non si lascia
+   riempire di altro: filtra i caratteri non validi e si ferma a quattro, così
+   il valore sbagliato non si può nemmeno digitare. Se resta incompleto il bordo
+   diventa rosso, e la funzione di scrittura rifiuta comunque (alertMac).
+   ⚠️ Il pulsante NON viene toccato qui: la sua abilitazione dipende dalla
+   connessione (vedi setConn), e metterci le mani lo riaccenderebbe da scollegato. */
+(function(){
+  const c=document.getElementById("cMac"); if(!c)return;
+  const valido=()=>/^[0-9A-F]{4}$/.test(c.value);
+  function check(){
+    c.value=c.value.replace(/[^0-9a-fA-F]/g,"").slice(0,4).toUpperCase();
+    c.style.borderColor=(c.value.length&&!valido())?"var(--err)":"";
+  }
+  c.addEventListener("input",check); c.addEventListener("blur",check); check();
+})();
 </script>
 </body>
 </html>
