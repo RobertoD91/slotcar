@@ -302,7 +302,9 @@ eq(RACE.formatClock(3661500), '1:01:01.50', 'oltre l\'ora compaiono le ore');
 
 /* ---------- simulatore: riproduzione a tempo reale (accelerata) ---------- */
 (async () => {
-  const s = SISTEMI.create('sim', { speed: 400, settings: { seed: 3, cars: 3, maxLaps: 6 } });
+  const s = SISTEMI.create('sim', {
+    values: { seed: 3, speed: 400 }, cars: 3, settings: { maxLaps: 6 }
+  });
   const clock = fakeClock(0);
   const r = new RACE.Race({ now: () => Date.now(), mode: 'pratica' });
   s.on('event', (ev) => r.feed(ev));

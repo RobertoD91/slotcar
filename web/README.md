@@ -10,6 +10,8 @@ i18n.js           motore multilingua condiviso (IT/EN/ES) + disclaimer legale
 sw.js             service worker network-first (root)
 version.json      versione del sito e delle singole app
 cronometro/       ⭐ Cronometro web: gara su qualsiasi sistema — PWA autonoma (i18n e sw suoi)
+                  race.js = motore · sistemi/ = adattatori · app.js = interfaccia
+                  ⚠️ carica ../ds200-ds300/ds200.js: il decoder è uno solo, non copiato
 car-config/       chip auto oXigen — Web Bluetooth
 remote-config/    controller SCP-3 oXigen — Web Bluetooth
 chron02/          contagiri e gestione gara oXigen — Web Serial

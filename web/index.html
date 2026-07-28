@@ -83,7 +83,7 @@
     <div class="ico">⏱️</div>
     <h3 data-i18n="chronoTitle"></h3>
     <p data-i18n-html="chronoDesc"></p>
-    <div class="tech"><span data-i18n="techPwa"></span><span data-i18n="techSim"></span></div>
+    <div class="tech"><span data-i18n="techPwa"></span><span data-i18n="techSim"></span><span>Web Serial</span></div>
   </a>
   <p class="rest" data-i18n-html="restIntro"></p>
 
@@ -219,9 +219,9 @@ window.I18N_STRINGS = {
   badgeAlpha:{it:"molto acerbo",en:"very rough",es:"muy verde"},
   chronoTitle:{it:"Cronometro web",en:"Web lap timer",es:"Cronómetro web"},
   chronoDesc:{
-    it:"<b>Un cronometro solo, per tutti e tre i sistemi.</b> Gestire una gara — giri, tempi, classifica, benzina — con la stessa interfaccia, che la pista sia <b>oXigen</b> (via dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modalità <b>pratica</b> e <b>GP a giri</b>, guidatori con nome, annunci vocali, cinque lingue.<br><b>Si può già provare</b>: c'è una <b>pista simulata</b> che fa girare una gara vera senza collegare niente. I sistemi veri arrivano uno alla volta, e allora prenderà il posto dei <b>tre contagiri separati</b> qui sotto.",
-    en:"<b>One lap timer for all three systems.</b> Run a race — laps, times, standings, fuel — from the same interface, whether the track is <b>oXigen</b> (via the dongle), a <b>DS200/DS300</b> or a <b>Ninco power base</b>. <b>Practice</b> and <b>GP by laps</b> modes, named drivers, voice announcements, five languages.<br><b>You can already try it</b>: a <b>simulated track</b> runs a real race with nothing plugged in. The real systems are coming one at a time, and then it will replace the <b>three separate lap counters</b> below.",
-    es:"<b>Un solo cronómetro para los tres sistemas.</b> Gestionar una carrera — vueltas, tiempos, clasificación, combustible — con la misma interfaz, ya sea la pista <b>oXigen</b> (vía dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modos <b>práctica</b> y <b>GP a vueltas</b>, pilotos con nombre, anuncios de voz, cinco idiomas.<br><b>Ya se puede probar</b>: hay una <b>pista simulada</b> que corre una carrera de verdad sin conectar nada. Los sistemas reales llegan uno a uno, y entonces sustituirá a los <b>tres cuentavueltas separados</b> de abajo."
+    it:"<b>Un cronometro solo, per tutti e tre i sistemi.</b> Gestire una gara — giri, tempi, classifica, benzina — con la stessa interfaccia, che la pista sia <b>oXigen</b> (via dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modalità <b>pratica</b> e <b>GP a giri</b>, guidatori con nome, annunci vocali, cinque lingue.<br><b>Si può già usare</b> con una <b>pista simulata</b> (nessun hardware) e con un <b>DS200/DS300</b> via RS-232. Ninco e oXigen arrivano dopo, e allora prenderà il posto dei <b>tre contagiri separati</b> qui sotto.",
+    en:"<b>One lap timer for all three systems.</b> Run a race — laps, times, standings, fuel — from the same interface, whether the track is <b>oXigen</b> (via the dongle), a <b>DS200/DS300</b> or a <b>Ninco power base</b>. <b>Practice</b> and <b>GP by laps</b> modes, named drivers, voice announcements, five languages.<br><b>You can already use it</b> with a <b>simulated track</b> (no hardware) and with a <b>DS200/DS300</b> over RS-232. Ninco and oXigen come next, and then it will replace the <b>three separate lap counters</b> below.",
+    es:"<b>Un solo cronómetro para los tres sistemas.</b> Gestionar una carrera — vueltas, tiempos, clasificación, combustible — con la misma interfaz, ya sea la pista <b>oXigen</b> (vía dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modos <b>práctica</b> y <b>GP a vueltas</b>, pilotos con nombre, anuncios de voz, cinco idiomas.<br><b>Ya se puede usar</b> con una <b>pista simulada</b> (sin hardware) y con un <b>DS200/DS300</b> por RS-232. Ninco y oXigen llegan después, y entonces sustituirá a los <b>tres cuentavueltas separados</b> de abajo."
   },
   techSim:{it:"pista simulata",en:"simulated track",es:"pista simulada"},
   restIntro:{
@@ -280,7 +280,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.2.0";
+const SITE_VERSION="2.3.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto

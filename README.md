@@ -44,7 +44,7 @@ La pagina iniziale (`web/index.html`) è un **indice** che porta a tutte le app.
 
 | App | Cosa fa | Serve |
 |---|---|---|
-| [`cronometro/`](web/cronometro/) | **Cronometro web**: gestione gara su qualsiasi sistema — modalità *pratica* e *GP a giri*, guidatori con nome, classifica live, giro veloce, distacchi, annunci vocali, 5 lingue. Include una **pista simulata** per provarlo senza hardware. PWA, funziona offline | niente (simulazione) |
+| [`cronometro/`](web/cronometro/) | **Cronometro web**: gestione gara su qualsiasi sistema — modalità *pratica* e *GP a giri*, guidatori con nome, classifica live, giro veloce, distacchi, annunci vocali, 5 lingue. Sistemi: **pista simulata** (niente hardware) e **DS200/DS300**. PWA, funziona offline | Web Serial (o niente) |
 | [`car-config/`](web/car-config/) | Configuratore del **chip auto** oXigen: nome, ID, modalità, velocità, freno, limiti, clone MAC, test motore/luci/sensore hall | Web Bluetooth |
 | [`remote-config/`](web/remote-config/) | Configuratore del **controller SCP-3**: nome, brake setting, ID, clone MAC; legge firmware e data di attivazione | Web Bluetooth |
 | [`chron02/`](web/chron02/) | **Contagiri e gestione gara** oXigen via dongle: classifica live, giri, tempi e pit dalla telemetria `rf_data_x[13]`; start/pausa/stop e comandi per singola auto con `race_status[10]` | Web Serial |
@@ -87,8 +87,11 @@ Quindi "Avvia gara" non può essere un bottone uguale per tutti: con il DS200 il
 centralina, con la Ninco lo dà il dito dell'utente, con oXigen lo dà davvero l'app.
 
 **Cosa funziona oggi**: motore, modalità *pratica* e *GP a giri*, guidatori modificabili,
-voce e traduzioni, PWA — tutto provabile con la **pista simulata**. I sistemi veri arrivano
-uno alla volta, a partire dal DS200/DS300.
+voce e traduzioni, PWA. Due sistemi: la **pista simulata** (che non serve solo a giocare —
+è ciò che rende il motore verificabile in CI) e il **DS200/DS300**, che riusa il decoder già
+collaudato di `web/ds200-ds300/ds200.js` invece di duplicarlo. ⚠️ Il DS200 è provato con una
+seriale simulata che manda i frame della specifica, **non ancora su una centralina vera**.
+Ninco e oXigen arrivano dopo.
 
 ### Ninco N-Digital: cosa si può fare e cosa no
 

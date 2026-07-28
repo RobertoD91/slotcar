@@ -10,6 +10,9 @@ L'utente è italiano: **rispondere in italiano**.
 ## ⭐ TODO
 
 ### In carico all'utente
+- [ ] **Cronometro web col DS200 vero** — il sistema DS200/DS300 è provato solo con una
+      seriale simulata. Collegare la centralina, far girare una gara e riferire: i giri
+      tornano? i tempi? le fasi di partenza fanno partire il cronometro al momento giusto?
 - [ ] **Auto 8, cifre della benzina invertite** — nel contagiri Ninco l'ottava auto viene
       letta con le due cifre scambiate (`42` → `24`). È documentato, ma la fonte non sa
       dire se valga per tutte le power base. L'utente verifica sul campo e riferisce: se
@@ -23,12 +26,14 @@ L'utente è italiano: **rispondere in italiano**.
       danneggia, ci vuole un MAX3232.
 
 ### Cronometro web — le prossime tappe
-Il motore, il simulatore, le modalità *pratica* e *GP a giri*, i guidatori modificabili, la
-voce, le 5 lingue e la PWA ci sono già (`web/cronometro/`, v0.1.0). Mancano i sistemi veri,
-uno alla volta:
-- [ ] **sistema DS200/DS300** — è il primo perché l'utente ce l'ha sul tavolo. Il parser
-      esiste già (`web/ds200-ds300/ds200.js`): l'adattatore deve solo tradurre i frame in
-      eventi `lap` / `state`. `caps`: `lapTime`, `raceState`, `slotLabel:'lane'`.
+Motore, simulatore, modalità *pratica* e *GP a giri*, guidatori modificabili, voce, 5 lingue
+e PWA ci sono già (`web/cronometro/`, v0.2.0). I sistemi veri arrivano uno alla volta:
+- ✅ **sistema DS200/DS300** (`sistemi/ds200.js`) — riusa il decoder di
+      `web/ds200-ds300/ds200.js` (caricato dalla pagina, non duplicato). Provato E2E con
+      seriale simulata; **da provare sulla centralina vera**. Il record finale porta il
+      tempo TOTALE, non un giro: resta a registro e non entra in classifica. Le fasi di
+      partenza 1/2/3 sono lette come conto alla rovescia + via: se in pista risultasse
+      sfasato, si cambia la tabella `STATO` in cima al file.
 - [ ] **sistema Ninco** — parser in `web/ninco/ninco.js`. `caps`: `position` (la manda la
       base), `fuel`, `slotLabel:'car'`. Il tempo sul giro è per differenza fra due totali.
 - [ ] **sistema oXigen** — l'unico con `control:true`: la gara la comanda l'app

@@ -38,6 +38,8 @@
       "sys.sim.seedHint": "Con lo stesso seme esce sempre la stessa gara.",
       "sys.ds200": "DS200 / DS300",
       "sys.ds200.desc": "Cronometro DS Electronic via RS-232.",
+      "sys.ds200.baud": "Baud",
+      "sys.ds200.baudHint": "DS 300 = 57600 · DS 200 = 4800. Gli altri valori servono solo per provare.",
       "sys.noBus": "non disponibile in questo browser",
 
       "mode.pratica": "Pratica",
@@ -106,7 +108,7 @@
       "foot.text": "Applicazione statica · funziona offline · nessun dato lascia il dispositivo.",
       "foot.disc": "Progetto indipendente, non ufficiale, senza legami con Slot.it / Galileo Engineering, DS Electronic o Ninco. Marchi dei rispettivi proprietari. Da usare solo su hardware di tua proprietà.",
       "install": "Installa questa pagina offline",
-      "wip": "In costruzione: per ora funziona la <b>simulazione</b>. I sistemi veri (DS200/DS300, Ninco, oXigen) arrivano uno alla volta."
+      "wip": "In costruzione. Funzionano la <b>simulazione</b> e il <b>DS200/DS300</b> — quest'ultimo però non è ancora stato provato su una centralina vera. <b>Ninco</b> e <b>oXigen</b> arrivano dopo."
     },
 
     en: {
@@ -131,6 +133,8 @@
       "sys.sim.seedHint": "The same seed always produces the same race.",
       "sys.ds200": "DS200 / DS300",
       "sys.ds200.desc": "DS Electronic lap timer over RS-232.",
+      "sys.ds200.baud": "Baud",
+      "sys.ds200.baudHint": "DS 300 = 57600 · DS 200 = 4800. The other values are only for testing.",
       "sys.noBus": "not available in this browser",
 
       "mode.pratica": "Practice",
@@ -199,7 +203,7 @@
       "foot.text": "Static app · works offline · no data leaves your device.",
       "foot.disc": "Independent, unofficial project, not affiliated with Slot.it / Galileo Engineering, DS Electronic or Ninco. Trademarks belong to their owners. Use only on hardware you own.",
       "install": "Install this page offline",
-      "wip": "Work in progress: for now the <b>simulation</b> works. The real systems (DS200/DS300, Ninco, oXigen) are coming one at a time."
+      "wip": "Work in progress. The <b>simulation</b> and the <b>DS200/DS300</b> work — the latter has not been tried on a real timer yet, though. <b>Ninco</b> and <b>oXigen</b> come next."
     },
 
     es: {
@@ -224,6 +228,8 @@
       "sys.sim.seedHint": "Con la misma semilla sale siempre la misma carrera.",
       "sys.ds200": "DS200 / DS300",
       "sys.ds200.desc": "Cronómetro DS Electronic por RS-232.",
+      "sys.ds200.baud": "Baudios",
+      "sys.ds200.baudHint": "DS 300 = 57600 · DS 200 = 4800. Los demás valores son solo para probar.",
       "sys.noBus": "no disponible en este navegador",
 
       "mode.pratica": "Práctica",
@@ -292,7 +298,7 @@
       "foot.text": "Aplicación estática · funciona sin conexión · ningún dato sale del dispositivo.",
       "foot.disc": "Proyecto independiente, no oficial, sin vínculo con Slot.it / Galileo Engineering, DS Electronic o Ninco. Las marcas son de sus propietarios. Úsalo solo en hardware de tu propiedad.",
       "install": "Instalar esta página sin conexión",
-      "wip": "En construcción: por ahora funciona la <b>simulación</b>. Los sistemas reales (DS200/DS300, Ninco, oXigen) llegan uno a uno."
+      "wip": "En construcción. Funcionan la <b>simulación</b> y el <b>DS200/DS300</b>, aunque este último todavía no se ha probado con un cronómetro real. <b>Ninco</b> y <b>oXigen</b> vienen después."
     },
 
     fr: {
@@ -317,6 +323,8 @@
       "sys.sim.seedHint": "Avec la même graine, la course est toujours identique.",
       "sys.ds200": "DS200 / DS300",
       "sys.ds200.desc": "Chronomètre DS Electronic via RS-232.",
+      "sys.ds200.baud": "Baud",
+      "sys.ds200.baudHint": "DS 300 = 57600 · DS 200 = 4800. Les autres valeurs ne servent qu'aux essais.",
       "sys.noBus": "indisponible dans ce navigateur",
 
       "mode.pratica": "Essais",
@@ -385,7 +393,7 @@
       "foot.text": "Application statique · fonctionne hors ligne · aucune donnée ne quitte l'appareil.",
       "foot.disc": "Projet indépendant, non officiel, sans lien avec Slot.it / Galileo Engineering, DS Electronic ou Ninco. Marques déposées par leurs propriétaires. À utiliser uniquement sur du matériel qui t'appartient.",
       "install": "Installer cette page hors ligne",
-      "wip": "En construction : pour l'instant la <b>simulation</b> fonctionne. Les vrais systèmes (DS200/DS300, Ninco, oXigen) arrivent un par un."
+      "wip": "En construction. La <b>simulation</b> et le <b>DS200/DS300</b> fonctionnent — ce dernier n'a toutefois pas encore été essayé sur un vrai chrono. <b>Ninco</b> et <b>oXigen</b> arrivent ensuite."
     },
 
     de: {
@@ -410,6 +418,8 @@
       "sys.sim.seedHint": "Gleicher Startwert, gleiches Rennen.",
       "sys.ds200": "DS200 / DS300",
       "sys.ds200.desc": "DS-Electronic-Zeitmessung über RS-232.",
+      "sys.ds200.baud": "Baud",
+      "sys.ds200.baudHint": "DS 300 = 57600 · DS 200 = 4800. Die anderen Werte sind nur zum Testen.",
       "sys.noBus": "in diesem Browser nicht verfügbar",
 
       "mode.pratica": "Training",
@@ -478,7 +488,7 @@
       "foot.text": "Statische App · funktioniert offline · keine Daten verlassen das Gerät.",
       "foot.disc": "Unabhängiges, inoffizielles Projekt, ohne Verbindung zu Slot.it / Galileo Engineering, DS Electronic oder Ninco. Marken gehören ihren Inhabern. Nur auf eigener Hardware verwenden.",
       "install": "Diese Seite offline installieren",
-      "wip": "Im Aufbau: derzeit läuft die <b>Simulation</b>. Die echten Systeme (DS200/DS300, Ninco, oXigen) kommen nacheinander dazu."
+      "wip": "Im Aufbau. <b>Simulation</b> und <b>DS200/DS300</b> laufen — letzteres wurde aber noch nicht an einer echten Anlage erprobt. <b>Ninco</b> und <b>oXigen</b> folgen."
     }
   };
 

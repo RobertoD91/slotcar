@@ -102,8 +102,13 @@
 
   function SimSistema(def, opts) {
     SISTEMI.Sistema.call(this, def, opts);
-    this.speed = opts && opts.speed ? opts.speed : 1;
-    this.settings = Object.assign({}, DEFAULTS, opts && opts.settings);
+    opts = opts || {};
+    var v = opts.values || {};
+    this.speed = Number(v.speed) || 1;
+    this.settings = Object.assign({}, DEFAULTS, opts.settings, {
+      seed: Number(v.seed) || DEFAULTS.seed,
+      cars: Math.max(1, Number(opts.cars) || (opts.settings && opts.settings.cars) || DEFAULTS.cars)
+    });
     this._plan = null;
     this._i = 0;
     this._t0 = null;
@@ -196,6 +201,13 @@
     labelKey: "sys.sim",
     descKey: "sys.sim.desc",
     bus: "none",
+    optionsHintKey: "sys.sim.seedHint",
+    options: [
+      { id: "seed", labelKey: "sys.sim.seed", type: "number", dflt: DEFAULTS.seed, min: 1 },
+      { id: "speed", labelKey: "sys.sim.speed", type: "select", dflt: 5,
+        values: [{ v: 1, label: "1×" }, { v: 2, label: "2×" }, { v: 5, label: "5×" },
+                 { v: 10, label: "10×" }, { v: 30, label: "30×" }] }
+    ],
     caps: {
       slotLabel: "car",
       slots: DEFAULTS.cars,

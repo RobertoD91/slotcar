@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "0.1.0";
+  var APP_VERSION = "0.2.0";
   var LS = { nomi: "cronometro.nomi", cfg: "cronometro.cfg" };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -16,8 +16,7 @@
   var els = {
     lang: $("lang"), tts: $("tts"),
     sys: $("sys"), sysDesc: $("sysDesc"), mode: $("mode"), laps: $("laps"),
-    lapsFld: $("lapsFld"), connect: $("connect"),
-    simOpts: $("simOpts"), seed: $("seed"), speed: $("speed"),
+    lapsFld: $("lapsFld"), connect: $("connect"), sysOpts: $("sysOpts"),
     roster: $("roster"), addDriver: $("addDriver"),
     clock: $("clock"), stateVal: $("stateVal"), bestVal: $("bestVal"), targetVal: $("targetVal"),
     start: $("start"), pause: $("pause"), stop: $("stop"), reset: $("reset"), csv: $("csv"),
@@ -33,7 +32,12 @@
     try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
   }
   var nomi = load(LS.nomi, {});          // { "1": "Roberto", ... }
-  var cfg = load(LS.cfg, { sys: "sim", mode: "pratica", laps: 20, tts: false, seed: 20260728, speed: 5, slots: [1, 2, 3, 4] });
+  var cfg = load(LS.cfg, {});
+  cfg = Object.assign({
+    sys: "sim", mode: "pratica", laps: 20, tts: false, slots: [1, 2, 3, 4],
+    opts: {}                              // opzioni per sistema: { sim:{seed,speed}, ... }
+  }, cfg);
+  if (!cfg.opts) cfg.opts = {};
 
   /* ---- gara e sistema ------------------------------------------------------ */
   var race = new RACE.Race({ mode: cfg.mode, targetLaps: cfg.laps });
@@ -267,22 +271,76 @@
     requestAnimationFrame(renderClock);
   }
 
-  /* ---- collegamento del sistema -------------------------------------------- */
-  function impostazioniSim() {
-    return {
-      speed: parseInt(els.speed.value, 10) || 1,
-      settings: {
-        seed: parseInt(els.seed.value, 10) || 1,
-        cars: Math.max(1, race.guidatori.length || 4)
-      }
-    };
+  /* ---- opzioni del sistema -------------------------------------------------- */
+  /* Nessun controllo e' cablato nella pagina: ogni sistema dichiara le sue
+     opzioni in `def.options` e qui le disegniamo. Aggiungere un sistema non
+     richiede di toccare l'HTML. */
+  function valoriOpzioni(def) {
+    var v = Object.assign({}, cfg.opts[def.id]);
+    (def.options || []).forEach(function (o) {
+      if (v[o.id] == null) v[o.id] = o.dflt;
+    });
+    return v;
   }
 
-  function aggiornaDescrizioneSistema() {
-    var d = SISTEMI.get(els.sys.value);
-    els.sysDesc.textContent = d ? t(d.descKey) : "";
-    els.simOpts.hidden = els.sys.value !== "sim";
+  function renderOpzioni() {
+    var def = SISTEMI.get(els.sys.value);
+    els.sysOpts.innerHTML = "";
+    els.sysDesc.textContent = def ? t(def.descKey) : "";
+    if (!def || !def.options || !def.options.length) { els.sysOpts.hidden = true; return; }
+    els.sysOpts.hidden = false;
+
+    var valori = valoriOpzioni(def);
+    def.options.forEach(function (o) {
+      var lab = document.createElement("label");
+      lab.className = "fld";
+      var sp = document.createElement("span");
+      sp.textContent = t(o.labelKey);
+      lab.appendChild(sp);
+
+      var ctl;
+      if (o.type === "select") {
+        ctl = document.createElement("select");
+        o.values.forEach(function (x) {
+          var op = document.createElement("option");
+          op.value = String(x.v);
+          op.textContent = x.labelKey ? t(x.labelKey) : x.label;
+          ctl.appendChild(op);
+        });
+        ctl.value = String(valori[o.id]);
+      } else if (o.type === "checkbox") {
+        ctl = document.createElement("input");
+        ctl.type = "checkbox";
+        ctl.checked = !!valori[o.id];
+      } else {
+        ctl = document.createElement("input");
+        ctl.type = "number";
+        if (o.min != null) ctl.min = o.min;
+        if (o.max != null) ctl.max = o.max;
+        ctl.value = valori[o.id];
+        ctl.autocomplete = "off";
+      }
+      ctl.id = "opt-" + def.id + "-" + o.id;   // stabile: ci si aggancia dai test
+      ctl.addEventListener("change", function () {
+        if (!cfg.opts[def.id]) cfg.opts[def.id] = {};
+        cfg.opts[def.id][o.id] = o.type === "checkbox" ? ctl.checked
+                               : (o.type === "select" ? (isNaN(+ctl.value) ? ctl.value : +ctl.value)
+                                                      : (parseInt(ctl.value, 10) || o.dflt));
+        save(LS.cfg, cfg);
+      });
+      lab.appendChild(ctl);
+      els.sysOpts.appendChild(lab);
+    });
+
+    if (def.optionsHintKey) {
+      var h = document.createElement("span");
+      h.className = "hint";
+      h.textContent = t(def.optionsHintKey);
+      els.sysOpts.appendChild(h);
+    }
   }
+
+  /* ---- collegamento del sistema -------------------------------------------- */
 
   async function connetti() {
     if (sistema) return disconnetti();
@@ -290,7 +348,10 @@
     var d = SISTEMI.get(id);
     if (!d || !SISTEMI.available(d)) return;
 
-    sistema = SISTEMI.create(id, id === "sim" ? impostazioniSim() : {});
+    sistema = SISTEMI.create(id, {
+      values: valoriOpzioni(d),
+      cars: race.guidatori.length || 4
+    });
     caps = sistema.caps;
     document.body.classList.toggle("has-fuel", !!caps.fuel);
 
@@ -364,10 +425,8 @@
   });
   els.sys.addEventListener("change", function () {
     cfg.sys = els.sys.value; save(LS.cfg, cfg);
-    aggiornaDescrizioneSistema();
+    renderOpzioni();
   });
-  els.seed.addEventListener("change", function () { cfg.seed = parseInt(els.seed.value, 10) || 1; save(LS.cfg, cfg); });
-  els.speed.addEventListener("change", function () { cfg.speed = parseInt(els.speed.value, 10) || 1; save(LS.cfg, cfg); });
 
   els.tts.addEventListener("change", function () {
     cfg.tts = els.tts.checked; save(LS.cfg, cfg);
@@ -380,7 +439,7 @@
     I18N.applyDom();
     pickVoice();
     fillSystems(); fillModes();
-    aggiornaDescrizioneSistema();
+    renderOpzioni();
     renderRoster(); renderBoard(); renderState();
   });
 
@@ -471,8 +530,6 @@
     fillLang(); fillSystems(); fillModes();
 
     els.laps.value = cfg.laps;
-    els.seed.value = cfg.seed;
-    els.speed.value = String(cfg.speed);
     els.tts.checked = !!cfg.tts && ttsOk;
     if (!ttsOk) els.tts.parentElement.hidden = true;
     els.appver.textContent = APP_VERSION;
@@ -480,7 +537,7 @@
 
     race.setGuidatori((cfg.slots || [1, 2]).map(function (s) { return { slot: s, name: nomi[s] || null }; }));
 
-    aggiornaDescrizioneSistema();
+    renderOpzioni();
     renderRoster();
     renderBoard();
     renderState();
