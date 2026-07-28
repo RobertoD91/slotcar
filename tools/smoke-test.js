@@ -51,11 +51,32 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok((await page.locator('#noser').isVisible()) === !hasSer,
     `banner Web Serial coerente (API presente=${hasSer})`);
 
-  // footer versione da version.json
+  // Footer: la versione arriva da version.json. Non la scrivo a mano nel test (si
+  // sfasa ad ogni release): controllo l'invariante vero, cioè che version.json e la
+  // costante SITE_VERSION nella pagina coincidano — se divergono, l'utente si becca
+  // il banner "Aggiorna" a vuoto ad ogni caricamento.
   await page.waitForFunction(() => document.getElementById('ver').textContent !== '…', null, { timeout: 5000 });
   const ver = await page.locator('#ver').innerText();
-  ok(ver.includes('1.0.0'), 'footer versione: ' + ver);
-  ok(!(await page.locator('#upd').isVisible()), 'nessun banner "aggiorna" spurio');
+  const site = await page.evaluate(() => fetch('version.json').then(r => r.json()).then(j => j.site));
+  ok(ver.includes(site), `footer mostra la versione di version.json (${site}): ${ver}`);
+  ok(!(await page.locator('#upd').isVisible()),
+    'SITE_VERSION == version.json (nessun banner "aggiorna" spurio)');
+
+  // Avviso "versioni di sviluppo" e nastro fork-me
+  ok(await page.locator('#dev').isVisible(), 'avviso "versioni di sviluppo" visibile');
+  const devTxt = await page.locator('#dev').innerText();
+  ok(/end users|utente finale|usuario final/i.test(devTxt), 'avviso dice che non è per utenti finali');
+  const rib = page.locator('.ghribbon a');
+  ok(await rib.isVisible(), 'nastro "Fork me on GitHub" visibile');
+  ok((await rib.getAttribute('href')).includes('github.com/RobertoD91/slotcar'), 'nastro punta al repo');
+  // il nastro non deve coprire il selettore lingua
+  const overlap = await page.evaluate(() => {
+    const a = document.querySelector('.ghribbon a'), s = document.getElementById('__langsel');
+    if (!a || !s) return 'manca un elemento';
+    const r = a.getBoundingClientRect(), q = s.getBoundingClientRect();
+    return !(r.right < q.left || r.left > q.right || r.bottom < q.top || r.top > q.bottom);
+  });
+  ok(overlap === false, 'nastro e selettore lingua non si sovrappongono');
 
   // ---------- cambio lingua ----------
   console.log('\n== LINGUA EN ==');

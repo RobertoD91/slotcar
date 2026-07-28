@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Blocca il commit se in quello che stai per committare ci sono segreti.
+# Installalo con:  ./tools/install-hooks.sh
+# Scavalcalo (solo se sai cosa fai):  git commit --no-verify
+
+set -uo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "pre-commit: python3 non trovato, non posso controllare i segreti." >&2
+  echo "Installa python3 oppure, se sei sicuro, usa: git commit --no-verify" >&2
+  exit 1
+fi
+
+if ! python3 "$ROOT/tools/scan-secrets.py" --staged --quiet; then
+  cat >&2 <<'EOF'
+
+⛔ COMMIT BLOCCATO — sopra c'è quello che sembra un segreto.
+
+Questa repo è pubblica: password, chiavi, token e MAC personali non ci devono finire.
+  • segreto vero      → toglilo dal file, mettilo in un .env locale o nei GitHub Secrets
+  • falso allarme     → commento  allow-secret  sulla riga, oppure una regex in
+                        tools/secret-scan-allow.txt
+  • devi passare lo stesso → git commit --no-verify   (la Action però te lo ridirà)
+EOF
+  exit 1
+fi
+exit 0

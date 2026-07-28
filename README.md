@@ -1,5 +1,19 @@
 # slotcar — web tools per slot car digitali
 
+> ## ⚠️ Versioni di sviluppo
+>
+> Questi strumenti nascono **per chi programma e sperimenta**: **non sono (ancora)
+> pensati per l'utente finale**. Aspettati interfacce grezze, funzioni incomplete e
+> qualche errore. Alcune app **scrivono** sui dispositivi (configurazione, indirizzo
+> MAC, reset, DFU) e possono renderli temporaneamente inutilizzabili.
+>
+> Usale **solo su hardware tuo** e solo se sai cosa stai facendo. Nessuna garanzia,
+> nessuna assistenza: vedi [Licenza e avvertenze](#licenza-e-avvertenze).
+>
+> *Development builds — made for developers and tinkerers, not (yet) for end users.
+> Some tools write to the devices and can leave them unusable. Use at your own risk,
+> on your own hardware only.*
+
 Raccolta di **web app che girano nel browser**, senza installare niente, per due
 famiglie di prodotti da slot car:
 
@@ -82,7 +96,13 @@ web/                  → è QUESTA cartella che finisce su GitHub Pages
   car-config/ remote-config/ dongle-debug/ modes/    app oXigen
   ds200/                contagiri DS200/DS300 (PWA autonoma, i18n e sw propri)
 esp32/                firmware del ponte DS200 → WiFi/MQTT (PlatformIO)
-tools/sync-from-upstream.sh   riallinea le app dalle repo di sviluppo
+tools/
+  sync-from-upstream.sh    riallinea le app dalle repo di sviluppo
+  apply-local-patches.py   riapplica le modifiche locali dopo il sync
+  scan-secrets.py          cerca segreti nei file e nella storia
+  install-hooks.sh         attiva gli hook git che bloccano i segreti
+  check-links.js           verifica i link interni del sito
+  smoke-test.js            apre tutte le app in un browser headless
 ```
 
 ## Sviluppo locale
@@ -100,6 +120,8 @@ Controlli, tutti senza hardware:
 ```bash
 node tools/check-links.js                                       # link interni del sito
 python3 tools/apply-local-patches.py --check                    # patch locali a posto?
+python3 tools/scan-secrets.py                                   # segreti nei file
+python3 tools/scan-secrets.py --history                         # segreti nella storia
 node web/ds200/ds200.test.js                                    # parser JS
 g++ -std=c++17 -I esp32/test_host -I esp32/src \
     esp32/test_host/test_ds200.cpp -o /tmp/t && /tmp/t          # parser C++
@@ -152,6 +174,57 @@ fuori da `web/` perché non va pubblicato su Pages).
   costante `SITE_VERSION` in `web/index.html`: le pagine mostrano il banner "Aggiorna".
 - La PWA `ds200/` ha una cache **propria** (`web/ds200/sw.js`, cache-first per funzionare
   offline): lì va alzato `CACHE` e le query `?v=` insieme a `APP_VERSION` in `app.js`.
+
+## Segreti: come si evita di pubblicarli
+
+Questa repo è pubblica, quindi password del WiFi, chiavi, token e indirizzi MAC
+personali non ci devono finire — e una volta committati restano leggibili nella storia
+anche se li cancelli dopo. Ci sono tre reti di protezione, tutte sullo stesso motore
+([`tools/scan-secrets.py`](tools/scan-secrets.py)):
+
+| dove | cosa fa |
+|---|---|
+| **hook `pre-commit`** | blocca il commit se c'è un segreto in staging |
+| **hook `pre-push`** | blocca il push se c'è un segreto nei commit in partenza |
+| **[Action `secrets.yml`](.github/workflows/secrets.yml)** | ad ogni push/PR, più un giro settimanale: controlla i file **e tutta la storia**; se trova qualcosa il job fallisce e GitHub ti manda la mail |
+
+Gli hook vanno attivati una volta per clone (git non esegue hook versionati da solo,
+per ovvi motivi di sicurezza):
+
+```bash
+./tools/install-hooks.sh          # imposta core.hooksPath
+```
+
+In emergenza si scavalcano con `git commit --no-verify` / `git push --no-verify`, ma
+la Action te lo ridirà comunque.
+
+**I tuoi valori personali non vanno messi nelle regole**, altrimenti pubblicarli è
+esattamente ciò che stiamo cercando di evitare. Si aggiungono da fuori:
+
+- in locale: `tools/secrets-denylist.local.txt` (git-ignored), una regex per riga;
+- in CI: il **GitHub Secret** `SECRET_SCAN_EXTRA`, stesso formato — *Settings → Secrets
+  and variables → Actions → New repository secret*.
+
+```
+# esempio di contenuto (una riga per valore)
+XX:XX:XX:XX:XX:XX          # il MAC del TUO dongle, in esadecimale
+laMiaPasswordWiFi
+mia\.mail@example\.com
+```
+
+I valori trovati vengono sempre stampati **mascherati** (`Re*******5G`): il log di una
+Action è pubblico quanto il codice, stamparci dentro il segreto sarebbe autolesionista.
+
+Le regole generiche coprono chiavi private, token GitHub/Slack/AWS/Google, JWT,
+indirizzi MAC, URL con credenziali e assegnazioni tipo `PASSWORD=...` (anche nella
+forma `#define`). Falsi allarmi: una regex in
+[`tools/secret-scan-allow.txt`](tools/secret-scan-allow.txt) oppure il commento
+`allow-secret` sulla riga. Le regole hanno i loro test:
+`python3 tools/test-scan-secrets.py`.
+
+> Se un segreto è già stato committato, toglierlo non basta: va **cambiata la
+> credenziale**, perché resta nella storia (e ripulire la storia richiede di
+> riscriverla con `git filter-repo` e forzare il push).
 
 ## Licenza e avvertenze
 

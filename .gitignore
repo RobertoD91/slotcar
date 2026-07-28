@@ -33,3 +33,6 @@ node_modules/
 # --- Export / log --------------------------------------------------------------
 *.csv
 *.log
+
+# --- Denylist personale per lo scanner segreti (resta sulla tua macchina) ----
+tools/secrets-denylist.local.txt

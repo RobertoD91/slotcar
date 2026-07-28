@@ -31,14 +31,33 @@
   #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-weight:600}
   #upd button{background:var(--accfg);color:var(--acc);border:0;border-radius:7px;padding:6px 12px;font-weight:700;cursor:pointer;margin-left:8px}
   .compat{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:10px;font-weight:600}
+  /* Avviso: roba da smanettoni, non da utente finale. */
+  #dev{background:rgba(224,168,0,.12);border:1px solid #e0a800;border-radius:10px;
+       padding:12px 14px;margin-bottom:16px;font-size:13.5px;line-height:1.55}
+  #dev b{color:#e0a800}
+  /* Nastro "Fork me on GitHub" nell'angolo in alto a destra. */
+  .ghribbon{position:fixed;top:0;right:0;width:145px;height:145px;overflow:hidden;
+            z-index:9997;pointer-events:none}
+  .ghribbon a{pointer-events:auto;position:absolute;display:block;width:200px;padding:7px 0;
+              background:#24292f;color:#fff;text-align:center;text-decoration:none;
+              font:600 12px/1.35 -apple-system,Segoe UI,Roboto,sans-serif;
+              transform:rotate(45deg);right:-53px;top:32px;
+              box-shadow:0 2px 8px rgba(0,0,0,.35);
+              border-top:1px solid rgba(255,255,255,.25);
+              border-bottom:1px solid rgba(255,255,255,.25)}
+  .ghribbon a:hover{background:#3a4149}
+  /* Su schermo stretto il nastro mangia mezza pagina: via. */
+  @media (max-width:640px){.ghribbon{display:none}}
 </style>
 </head>
 <body>
+  <div class="ghribbon"><a href="https://github.com/RobertoD91/slotcar" target="_blank" rel="noopener">Fork me on GitHub</a></div>
   <div id="nobt" class="compat" data-i18n-html="noBt"></div>
   <div id="noser" class="compat" data-i18n-html="noSerial"></div>
   <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <h1>Slot Car Web Tools</h1>
   <p class="sub" data-i18n-html="sub"></p>
+  <div id="dev" data-i18n-html="devWarn"></div>
 
   <h2 data-i18n-html="secOxigen"></h2>
   <div class="grid">
@@ -115,6 +134,21 @@ window.I18N_STRINGS = {
     en:"Web tools for digital slot cars: <b>oXigen</b> (Slot.it) and <b>DS Electronic</b> lap timers.<br>They run in the browser, nothing to install. Use Chrome/Edge on desktop or Chrome on Android.",
     es:"Herramientas web para slot cars digitales: <b>oXigen</b> (Slot.it) y cronómetros <b>DS Electronic</b>.<br>Funcionan en el navegador, sin instalar nada. Usa Chrome/Edge en escritorio o Chrome en Android."
   },
+  devWarn:{
+    it:"⚠️ <b>Versioni di sviluppo.</b> Questi strumenti nascono per chi programma e sperimenta: " +
+       "<b>non sono (ancora) pensati per l'utente finale</b>. Interfacce grezze, funzioni incomplete, " +
+       "possibili errori. Alcune <b>scrivono</b> sui dispositivi (configurazione, MAC, reset, DFU) e " +
+       "possono renderli inutilizzabili. Usale solo su hardware tuo, sapendo cosa stai facendo.",
+    en:"⚠️ <b>Development builds.</b> These tools are made for developers and tinkerers: " +
+       "<b>they are not (yet) meant for end users</b>. Rough interfaces, incomplete features, " +
+       "bugs to be expected. Some of them <b>write</b> to the devices (settings, MAC, reset, DFU) and " +
+       "can leave them unusable. Use them only on your own hardware, and only if you know what you are doing.",
+    es:"⚠️ <b>Versiones de desarrollo.</b> Estas herramientas están hechas para programadores y " +
+       "cacharreros: <b>todavía no están pensadas para el usuario final</b>. Interfaces toscas, " +
+       "funciones incompletas, posibles errores. Algunas <b>escriben</b> en los dispositivos " +
+       "(configuración, MAC, reinicio, DFU) y pueden dejarlos inservibles. Úsalas solo en hardware " +
+       "tuyo y sabiendo lo que haces."
+  },
   secOxigen:{
     it:"oXigen — Slot.it <small>(controller SCP-3, chip auto, dongle)</small>",
     en:"oXigen — Slot.it <small>(SCP-3 controller, car chip, dongle)</small>",
@@ -183,8 +217,21 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="1.0.0";
+const SITE_VERSION="1.1.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
+// i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
+// "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto
+// il nastro sparisce e il selettore torna al suo posto.
+function placeLang(){
+  const s=document.getElementById("__langsel");
+  if(!s||!s.parentElement)return;
+  const wide=window.innerWidth>640;
+  s.parentElement.style.left = wide?"8px":"auto";
+  s.parentElement.style.right= wide?"auto":"8px";
+}
+addEventListener("resize",placeLang);
+addEventListener("load",placeLang);
+setTimeout(placeLang,0);
 // Banner di compatibilità: le app BLE e quelle seriali hanno requisiti diversi.
 if(!navigator.bluetooth)document.getElementById("nobt").style.display="block";
 if(!navigator.serial)document.getElementById("noser").style.display="block";

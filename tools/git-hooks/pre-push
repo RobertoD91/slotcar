@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Blocca il push se nei commit che stai per mandare ci sono segreti.
+# Serve perche' il pre-commit puo' essere stato scavalcato con --no-verify, o perche'
+# i commit arrivano da un'altra macchina/branch.
+# Installalo con:  ./tools/install-hooks.sh
+# Scavalcalo (solo se sai cosa fai):  git push --no-verify
+
+set -uo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+ZERO="0000000000000000000000000000000000000000"
+FAIL=0
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "pre-push: python3 non trovato, non posso controllare i segreti." >&2
+  echo "Installa python3 oppure, se sei sicuro, usa: git push --no-verify" >&2
+  exit 1
+fi
+
+# git passa su stdin:  <ref locale> <sha locale> <ref remoto> <sha remoto>
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [ -z "${local_sha:-}" ] && continue
+  [ "$local_sha" = "$ZERO" ] && continue        # sto cancellando un ramo
+
+  if [ "$remote_sha" = "$ZERO" ]; then
+    # Ramo nuovo: guardo i commit che non stanno gia' su un altro ramo remoto.
+    oldest="$(git rev-list "$local_sha" --not --remotes | tail -1)"
+    if [ -n "$oldest" ] && git rev-parse -q --verify "${oldest}^" >/dev/null 2>&1; then
+      range="${oldest}^..${local_sha}"
+    else
+      range=""                                  # ramo nuovo che parte dalla radice
+    fi
+  else
+    range="${remote_sha}..${local_sha}"
+  fi
+
+  if [ -n "$range" ]; then
+    python3 "$ROOT/tools/scan-secrets.py" --range "$range" --quiet || FAIL=1
+  else
+    python3 "$ROOT/tools/scan-secrets.py" --history --quiet || FAIL=1
+  fi
+done
+
+if [ "$FAIL" != 0 ]; then
+  cat >&2 <<'EOF'
+
+⛔ PUSH BLOCCATO — nei commit che stai per mandare c'è quello che sembra un segreto.
+
+Attenzione: se il commit esiste già in locale non basta cancellare la riga e fare un
+commit nuovo — il valore resta nella storia. Va riscritta (git rebase / git filter-repo)
+e la credenziale va comunque considerata compromessa e cambiata.
+
+  • falso allarme          → tools/secret-scan-allow.txt  oppure  allow-secret
+  • devi passare lo stesso → git push --no-verify   (la Action però te lo ridirà)
+EOF
+  exit 1
+fi
+exit 0
