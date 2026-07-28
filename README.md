@@ -1,4 +1,4 @@
-# slotcar — web tools per slot car digitali
+# Slotcar - web tools ed esperimenti vari
 
 > ## ⚠️ Versioni di sviluppo
 >
@@ -48,7 +48,7 @@ La pagina iniziale (`web/index.html`) è un **indice** che porta a tutte le app.
 | [`ninco/`](web/ninco/) | **Contagiri Ninco N-Digital**: posizioni, giri, benzina e riserva, modalità amatore/professionale, tempi sul giro (firmware ≥ 1.08), dati grezzi esportabili | Web Serial |
 
 In arrivo (card "prossimamente" nell'indice): **chron02** (contagiri/gestione gara oXigen
-via dongle) e **O2 Bootloader** (aggiornatore firmware dei pezzi oXigen via dongle).
+via dongle) e **O2 Bootloader** (configurazione oXigen via dongle).
 
 ### Ninco N-Digital: cosa si può fare e cosa no
 
@@ -77,9 +77,9 @@ Le API usate esistono solo su browser basati su Chromium:
 - **Web Bluetooth** (`car-config`, `remote-config`): Chrome/Edge su desktop, Chrome su
   Android. **Non** su Safari/iOS né Firefox.
 - **Web Serial** (`dongle-debug`, `ds200`, `flash.html`): Chrome/Edge/Opera **solo su
-  desktop**. Non su Android né iOS.
+  desktop**. Non su Android né iOS. (Android potrebbe esser supportato in futuro, per iOS serve un esp32 "ponte")
 
-Ogni pagina mostra da sola un avviso rosso se il browser non ha l'API che le serve.
+Ogni pagina mostra un avviso se il browser non ha l'API che le serve.
 Il sito va servito in `https://` (o `http://localhost`): entrambe le API lo richiedono.
 
 ### Una sola dipendenza esterna
@@ -97,11 +97,6 @@ Il workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml) pubblic
 cartella **`web/`** ad ogni push su `master`.
 
 **Setup una tantum:** *Settings → Pages → Build and deployment → Source =* **GitHub Actions**.
-
-Poi il sito è su `https://robertod91.github.io/slotcar/`.
-
-> ⚠️ **Finché la repo è privata**, GitHub Pages richiede un piano a pagamento (Pro/Team).
-> Quando la repo diventa pubblica, Pages è gratuito e non serve toccare il workflow.
 
 ### ⚠️ Serve HTTPS, sempre
 
@@ -181,32 +176,6 @@ I due parser (`web/ds200/ds200.js` e `esp32/src/ds200.h`) devono restare **equiv
 se cambi il protocollo, aggiornali entrambi insieme ai test. Li verifica la CI
 ([`ci.yml`](.github/workflows/ci.yml)).
 
-### Aggiornare le app dalle repo di sviluppo
-
-Le app nascono in due repo separate e qui vengono **copiate**. La prima volta indica dove
-si trovano (il file è git-ignored, quindi i percorsi restano sulla tua macchina):
-
-```bash
-cp tools/sync.local.conf.example tools/sync.local.conf
-$EDITOR tools/sync.local.conf
-```
-
-Poi, ogni volta che vuoi riallineare:
-
-```bash
-./tools/sync-from-upstream.sh          # --dry-run per vedere cosa farebbe
-```
-
-Lo script ricopia le app, riapplica le modifiche locali e rilancia i controlli. Non tocca
-`web/index.html` né `web/version.json`, che sono di questa repo.
-
-Le modifiche locali stanno tutte in
-[`tools/apply-local-patches.py`](tools/apply-local-patches.py): sono **idempotenti** e, se
-a monte cambia il testo su cui si agganciano, lo script **fallisce** invece di lasciar
-passare la cosa in silenzio. Servono perché qui i file stanno in posti diversi rispetto
-alle repo di origine (l'app DS200 passa da `webapp/` a `web/ds200/`, e `esp32/` resta
-fuori da `web/` perché non va pubblicato su Pages).
-
 ### Versioni e cache
 
 - `web/sw.js` è **network-first**: ogni ricarica prende l'ultima versione dalla rete e
@@ -218,9 +187,7 @@ fuori da `web/` perché non va pubblicato su Pages).
 
 ## Segreti: come si evita di pubblicarli
 
-Questa repo è pubblica, quindi password del WiFi, chiavi, token e indirizzi MAC
-personali non ci devono finire — e una volta committati restano leggibili nella storia
-anche se li cancelli dopo. Ci sono tre reti di protezione, tutte sullo stesso motore
+Ci sono tre reti di protezione, tutte sullo stesso motore
 ([`tools/scan-secrets.py`](tools/scan-secrets.py)):
 
 | dove | cosa fa |
@@ -266,7 +233,7 @@ $EDITOR tools/secrets-denylist.local.txt         # metti qui i tuoi valori
 # carica il file nel secret della repo (legge da stdin)
 gh secret set SECRET_SCAN_EXTRA --repo RobertoD91/slotcar < tools/secrets-denylist.local.txt
 
-gh secret list --repo RobertoD91/slotcar         # verifica: deve comparire in elenco
+gh secret list --repo username/slotcar         # verifica: deve comparire in elenco
 ```
 
 Per aggiornarlo basta rilanciare lo stesso `gh secret set`: sovrascrive. Il valore non è
