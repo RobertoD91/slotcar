@@ -1,0 +1,35 @@
+# --- Firmware compilato dalla CI (non va committato) ------------------------
+web/ds200/firmware/*.bin
+
+# --- PlatformIO / ESP32 ------------------------------------------------------
+.pio/
+esp32/.pio/
+.pioenvs/
+.piolibdeps/
+
+# --- Segreti: .env NON va mai committato (l'esempio sì) ----------------------
+.env
+esp32/.env
+*.env
+!.env.example
+!*.env.example
+
+# --- Percorsi locali delle repo di sviluppo (restano sulla tua macchina) -----
+tools/sync.local.conf
+
+# --- Editor / OS -------------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*~
+
+# --- Python / Node ------------------------------------------------------------
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+
+# --- Export / log --------------------------------------------------------------
+*.csv
+*.log

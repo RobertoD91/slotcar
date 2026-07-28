@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0f17" />
+  <title>DS200 ESP32 — Flash & Setup</title>
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css?v=1.5.1" />
+  <style>
+    .wrap { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; }
+    .step { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin: 14px 0; }
+    .step h2 { margin: 0 0 8px; font-size: 16px; }
+    .step ol { margin: 8px 0 0; padding-left: 20px; }
+    .step li { margin: 4px 0; }
+    .cta { text-align: center; margin: 22px 0; }
+    code { background: #00000040; padding: 1px 6px; border-radius: 4px; font-family: var(--mono); }
+    a { color: var(--accent-2); }
+    esp-web-install-button { --esp-tools-button-color: #fff; --esp-tools-button-bg-color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🏁</span>
+      <div><h1>DS200 ESP32 — Flash &amp; Setup</h1><small>Installa il firmware e configura il WiFi dal browser</small></div>
+    </div>
+    <div class="conn"><a class="btn" href="../">← Slot Car Web Tools</a> <a class="btn" href="index.html">↩ Torna all'app</a></div>
+  </header>
+
+  <div class="wrap">
+    <p id="unsupported" class="banner error" hidden>
+      Il flash dal browser richiede <strong>Web Serial</strong>: usa <strong>Chrome, Edge o Opera</strong>
+      su desktop, servendo la pagina via <code>https://</code> o <code>http://localhost</code>.
+    </p>
+
+    <div class="step">
+      <h2>1 · Collega l'ESP32</h2>
+      <p>Collega la scheda ESP32 al PC via USB. Chiudi ogni altro programma che usa la porta seriale
+      (Arduino IDE Serial Monitor, <code>pio device monitor</code>, ecc.).</p>
+    </div>
+
+    <div class="step">
+      <h2>2 · Installa il firmware e configura il WiFi</h2>
+      <p>Premi il pulsante, scegli la porta USB dell'ESP32 e segui la procedura. A fine flash il
+      pulsante propone <strong>“Connect to Wi-Fi”</strong> (via Improv): scegli la tua rete e inserisci la
+      password — niente captive portal necessario.</p>
+      <div class="cta">
+        <esp-web-install-button manifest="firmware/manifest.json">
+          <button slot="activate" class="btn primary">⚡ Installa &amp; configura</button>
+          <span slot="unsupported">Browser non supportato (serve Web Serial).</span>
+          <span slot="not-allowed">Apri la pagina via https:// o http://localhost.</span>
+        </esp-web-install-button>
+      </div>
+      <p class="hint">In alternativa al WiFi via Improv-Serial, il firmware espone un captive portal
+      <code>DS200-Setup</code> e legge i default da <code>config.h</code> / <code>.env</code>.</p>
+    </div>
+
+    <div class="step">
+      <h2>2-bis · Configura il WiFi dal telefono (Improv-BLE)</h2>
+      <p>Il firmware supporta anche <strong>Improv via Bluetooth</strong>: senza cavo, da telefono o PC,
+      apri <a href="https://www.improv-wifi.com/" target="_blank" rel="noopener">improv-wifi.com</a>
+      (con Web Bluetooth: Chrome/Edge) oppure l'app <em>Home Assistant</em>, scegli il dispositivo
+      <code>ds200</code> e inserisci la rete. Si può disattivare con <code>ENABLE_IMPROV_BLE 0</code>.</p>
+    </div>
+
+    <div class="step">
+      <h2>3 · Apri l'interfaccia del dispositivo</h2>
+      <p>Dopo la connessione, l'ESP32 mostra il suo indirizzo IP sulla seriale. Apri
+      <code>http://&lt;ip&gt;/</code> oppure <code>http://ds200.local/</code> per i tempi in tempo reale.
+      I dati vengono anche pubblicati su MQTT con timestamp NTP.</p>
+    </div>
+
+    <div class="step">
+      <h2>Download &amp; flash da riga di comando</h2>
+      <p>File (presenti quando la pagina è ospitata su GitHub Pages / build CI):</p>
+      <ul>
+        <li><a href="firmware/ds200-esp32-merged.bin" download>ds200-esp32-merged.bin</a> — immagine completa (offset 0, per il flasher qui sopra e per esptool).</li>
+        <li><a href="firmware/firmware.bin" download>firmware.bin</a> — solo applicazione, per l'<b>OTA</b> (<code>http://ds200.local/update</code>).</li>
+        <li><a href="firmware/manifest.json" download>manifest.json</a> — manifest ESP Web Tools.</li>
+      </ul>
+      <p><b>Flash completo via esptool</b> (immagine unita):</p>
+      <pre>esptool.py --chip esp32 --baud 921600 write_flash 0x0 ds200-esp32-merged.bin</pre>
+      <p><b>Factory reset</b> (cancella tutto: WiFi/MQTT salvati incl.):</p>
+      <pre>esptool.py --chip esp32 erase_flash</pre>
+      <p><b>OTA da CLI</b> (PlatformIO, via rete):</p>
+      <pre>pio run -t upload --upload-port ds200.local</pre>
+      <p><b>Build locale</b>: <code>cd esp32 &amp;&amp; pio run</code> — i .bin sono in
+      <code>esp32/.pio/build/esp32dev/</code>; l'immagine unita si crea con lo script di merge in
+      <a href="https://github.com/RobertoD91/slotcar/blob/master/esp32/README.md" target="_blank" rel="noopener">esp32/README</a>.</p>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span>Flasher basato su ESP Web Tools · provisioning WiFi via Improv-Serial. <span class="ver">v1.2.0</span></span>
+  </footer>
+
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+  <script>
+    if (!('serial' in navigator)) document.getElementById('unsupported').hidden = false;
+  </script>
+</body>
+</html>

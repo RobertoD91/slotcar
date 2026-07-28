@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<title>Configuratore auto oXigen (BLE)</title>
+<style>
+  :root{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--acc:#5db0ff;--ok:#4ec36b;--err:#ff6b6b;--card:#171a21;--bd:#2a2f3a;--accfg:#04121f}
+  @media (prefers-color-scheme:light){:root{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}}
+  :root[data-theme="dark"]{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--card:#171a21;--bd:#2a2f3a}
+  :root[data-theme="light"]{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:820px;margin:0 auto}
+  a.back{color:var(--mut);text-decoration:none;font-size:13px}
+  h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
+  .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+  button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;font-size:14px}
+  button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+  button.warn{background:var(--err);color:#180404}
+  button:disabled{opacity:.45;cursor:default}
+  input,select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;font:inherit}
+  input[type=range]{padding:0;accent-color:var(--acc)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  label{color:var(--mut);font-size:13px;min-width:110px}
+  .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut);vertical-align:middle}
+  .pill.on{color:var(--ok);border-color:var(--ok)}
+  .val{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:13px}
+  code{font-family:ui-monospace,Menlo,monospace}
+  /* slider disattivati visivamente quando Limiti è off (ma sempre editabili) */
+  #limbox.off .lim input[type=range]{accent-color:var(--mut)}
+  #limbox.off .lim label,#limbox.off .lim .val{opacity:.55}
+  #limbox.off .lim .hint{color:var(--err)}
+  .hint{font-size:12px;color:var(--mut)}
+  .dot{width:16px;height:16px;border-radius:50%;background:var(--bd);display:inline-block;transition:background .1s,box-shadow .1s}
+  .dot.on{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+  .warnbox{color:var(--err);font-size:13px;margin-top:6px}
+  table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid var(--bd);padding:6px 8px;text-align:left}th{color:var(--mut)}
+  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:200px;overflow:auto;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px}
+  #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+  #upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
+  #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
+</style>
+</head>
+<body>
+  <div id="nobt" data-i18n-html="noBt"></div>
+  <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
+  <a class="back" href="../" data-i18n="backHome"></a>
+  <h1><span data-i18n="h1title"></span> <span id="st" class="pill"></span></h1>
+  <p class="sub" data-i18n-html="sub"></p>
+
+  <div class="card">
+    <div class="row">
+      <button id="btnConn" data-i18n="btnConn"></button>
+      <button id="btnDisc" class="sec" disabled data-i18n="btnDisc"></button>
+      <span id="devname" class="val"></span>
+    </div>
+  </div>
+
+  <!-- ===== Configurazione ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="secConfig"></p>
+    <div class="row"><button id="btnReadAll" class="sec" disabled data-i18n="btnReadAll"></button>
+      <span class="hint" data-i18n="readAllHint"></span></div>
+    <div class="row"><label data-i18n="lblName"></label><input id="cName" size="16" maxlength="14" data-i18n-attr="placeholder:phName">
+      <button class="sec cfg" data-fn="name" disabled data-i18n="btnSet"></button></div>
+    <div class="row"><label data-i18n="lblCarId"></label><input id="cId" type="number" min="1" max="20" style="width:80px">
+      <button class="sec cfg" data-fn="id" disabled data-i18n="btnSet"></button></div>
+    <div class="row"><label data-i18n="lblMode"></label>
+      <select id="cMode">
+        <option value="" data-i18n="optReadCfg"></option>
+        <option value="0">SSD</option><option value="2">O2 (oXigen)</option>
+        <option value="3">O2 Hybrid</option><option value="4">D132</option>
+      </select>
+      <button class="sec cfg" data-fn="mode" disabled data-i18n="btnSet"></button></div>
+  </div>
+
+  <!-- ===== Limiti + slider ===== -->
+  <div class="card" id="limbox">
+    <p class="cardtitle" data-i18n="secLimits"></p>
+    <div class="row"><label data-i18n="lblLimits"></label><input id="cLimits" type="checkbox">
+      <button class="sec cfg" data-fn="limits" disabled data-i18n="btnSet"></button></div>
+    <div class="lim">
+      <div class="row"><label data-i18n="lblMaxSpeed"></label><input id="cSpeed" type="range" min="0" max="255" style="flex:1;min-width:150px">
+        <span id="cSpeedV" class="val">–</span><button class="sec cfg" data-fn="speed" disabled data-i18n="btnSet"></button></div>
+      <div class="row"><label data-i18n="lblBrake"></label><input id="cBrake" type="range" min="0" max="255" style="flex:1;min-width:150px">
+        <span id="cBrakeV" class="val">–</span><button class="sec cfg" data-fn="brake" disabled data-i18n="btnSet"></button></div>
+      <div class="hint lim-hint" data-i18n-html="limHint"></div>
+    </div>
+  </div>
+
+  <!-- ===== Test (motore/luci/hall) ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="secTest"></p>
+    <div class="row">
+      <button class="sec act" data-fn="motor" disabled data-i18n="btnMotor"></button>
+      <button class="sec act" data-fn="lights" disabled data-i18n="btnLights"></button>
+    </div>
+    <div class="row"><label data-i18n="lblHall"></label><span id="hallDot" class="dot"></span>
+      <span class="val"><span data-i18n="hallLbl"></span> <b id="hallN">0</b></span>
+      <button id="hallReset" class="sec" disabled data-i18n="btnReset"></button></div>
+    <div class="hint" data-i18n-html="hallHint"></div>
+  </div>
+
+  <!-- ===== Clonazione MAC ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="secClone"></p>
+    <div class="row"><label data-i18n="lblMac"></label><input id="cMac" size="10" placeholder="52 5d → 525d">
+      <button class="warn act" data-fn="mac" disabled data-i18n="btnWriteMac"></button></div>
+    <div class="warnbox" data-i18n-html="cloneWarn"></div>
+  </div>
+
+  <!-- ===== Avanzato ===== -->
+  <div class="card">
+    <details><summary style="cursor:pointer;color:var(--mut)" data-i18n="advSummary"></summary>
+      <div class="row" style="margin-top:8px"><label data-i18n="lblReadReg"></label><input id="rReg" size="6" placeholder="0x8f">
+        <button class="sec cfg" data-fn="rawread" disabled data-i18n="btnRead"></button></div>
+      <div class="row"><label data-i18n="lblWriteReg"></label><input id="wReg" size="6" placeholder="0x84"><input id="wVal" size="14" data-i18n-attr="placeholder:phWriteVal">
+        <button class="sec cfg" data-fn="rawwrite" disabled data-i18n="btnWrite"></button></div>
+      <table id="regtab" style="margin-top:8px"><thead><tr><th>reg</th><th data-i18n="thName"></th><th data-i18n="thValue"></th><th></th></tr></thead><tbody></tbody></table>
+    </details>
+  </div>
+
+  <div class="card"><details><summary style="cursor:pointer;color:var(--mut)" data-i18n="advLog"></summary><div id="log"></div></details></div>
+
+<script>
+window.I18N_STRINGS = {
+  sub:{
+    it:"Legge/scrive i registri del chip via BLE (NUS a registri). Chrome/Edge desktop o Chrome Android. <b>Solo su hardware tuo.</b>",
+    en:"Reads/writes the chip's registers over BLE (register-based NUS). Chrome/Edge on desktop or Chrome on Android. <b>Only on your own hardware.</b>",
+    es:"Lee/escribe los registros del chip por BLE (NUS por registros). Chrome/Edge en escritorio o Chrome en Android. <b>Solo en hardware de tu propiedad.</b>"
+  },
+  backHome:{it:"← Slot Car Web Tools",en:"← Slot Car Web Tools",es:"← Slot Car Web Tools"},
+  h1title:{it:"Configuratore auto",en:"Car configurator",es:"Configurador de coche"},
+  stConnected:{it:"connesso",en:"connected",es:"conectado"},
+  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
+  btnConn:{it:"🔵 Connetti",en:"🔵 Connect",es:"🔵 Conectar"},
+  btnDisc:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
+  secConfig:{it:"Configurazione",en:"Configuration",es:"Configuración"},
+  btnReadAll:{
+    it:"↺ Leggi configurazione dal chip",
+    en:"↺ Read configuration from chip",
+    es:"↺ Leer configuración del chip"
+  },
+  readAllHint:{
+    it:"← premi qui per primo, poi i valori compaiono nei campi",
+    en:"← press this first, then the values appear in the fields",
+    es:"← pulsa aquí primero, luego los valores aparecen en los campos"
+  },
+  lblName:{it:"Nome",en:"Name",es:"Nombre"},
+  phName:{it:"es. La mia auto",en:"e.g. My car",es:"p. ej. Mi coche"},
+  btnSet:{it:"Imposta",en:"Set",es:"Establecer"},
+  lblCarId:{it:"ID auto (1–20)",en:"Car ID (1–20)",es:"ID coche (1–20)"},
+  lblMode:{it:"Modalità",en:"Mode",es:"Modo"},
+  optReadCfg:{
+    it:"— (leggi configurazione)",
+    en:"— (read configuration)",
+    es:"— (leer configuración)"
+  },
+  secLimits:{
+    it:"Limiti velocità / freno",
+    en:"Speed / brake limits",
+    es:"Límites de velocidad / freno"
+  },
+  lblLimits:{it:"Limiti on/off",en:"Limits on/off",es:"Límites on/off"},
+  lblMaxSpeed:{it:"Velocità max",en:"Max speed",es:"Velocidad máx"},
+  lblBrake:{it:"Freno (brake)",en:"Brake",es:"Freno"},
+  limHint:{
+    it:"Gli slider sono <b>sempre modificabili</b>, ma hanno effetto solo con <b>Limiti = on</b>.",
+    en:"The sliders are <b>always editable</b>, but they only take effect with <b>Limits = on</b>.",
+    es:"Los deslizadores son <b>siempre editables</b>, pero solo tienen efecto con <b>Límites = on</b>."
+  },
+  secTest:{it:"Test",en:"Test",es:"Prueba"},
+  btnMotor:{it:"🔧 Test motore",en:"🔧 Motor test",es:"🔧 Prueba de motor"},
+  btnLights:{it:"💡 Test luci",en:"💡 Lights test",es:"💡 Prueba de luces"},
+  lblHall:{it:"Sensore hall",en:"Hall sensor",es:"Sensor hall"},
+  hallLbl:{it:"impulsi giro:",en:"lap pulses:",es:"impulsos de vuelta:"},
+  btnReset:{it:"azzera",en:"reset",es:"poner a cero"},
+  hallHint:{
+    it:"Il pallino lampeggia verde a ogni passaggio calamita (impulso <code>09 02 9c 00</code>). " +
+      "Serve che il chip stia emettendo gli impulsi (test sensore / passaggio sul traguardo).",
+    en:"The dot flashes green on each magnet pass (pulse <code>09 02 9c 00</code>). " +
+      "The chip must be emitting the pulses (sensor test / passing over the finish line).",
+    es:"El punto parpadea en verde en cada paso del imán (impulso <code>09 02 9c 00</code>). " +
+      "El chip debe estar emitiendo los impulsos (prueba del sensor / paso por la meta)."
+  },
+  secClone:{it:"Clonazione (MAC)",en:"Cloning (MAC)",es:"Clonación (MAC)"},
+  lblMac:{it:"MAC (2 byte)",en:"MAC (2 bytes)",es:"MAC (2 bytes)"},
+  btnWriteMac:{it:"Scrivi MAC (clone)",en:"Write MAC (clone)",es:"Escribir MAC (clon)"},
+  cloneWarn:{
+    it:"⚠️ Il MAC porta l'identità/licenza: scriverlo <b>clona</b> il device. C'è una conferma. " +
+      "(<code>0x80</code>=DFU non è esposto qui apposta.)",
+    en:"⚠️ The MAC carries the identity/license: writing it <b>clones</b> the device. There is a confirmation. " +
+      "(<code>0x80</code>=DFU is intentionally not exposed here.)",
+    es:"⚠️ El MAC lleva la identidad/licencia: escribirlo <b>clona</b> el dispositivo. Hay una confirmación. " +
+      "(<code>0x80</code>=DFU no se expone aquí a propósito.)"
+  },
+  advSummary:{
+    it:"Avanzato — registri grezzi",
+    en:"Advanced — raw registers",
+    es:"Avanzado — registros en bruto"
+  },
+  lblReadReg:{it:"Leggi reg",en:"Read reg",es:"Leer reg"},
+  btnRead:{it:"Leggi",en:"Read",es:"Leer"},
+  lblWriteReg:{it:"Scrivi reg",en:"Write reg",es:"Escribir reg"},
+  phWriteVal:{it:"0x32 / aabb / testo",en:"0x32 / aabb / text",es:"0x32 / aabb / texto"},
+  btnWrite:{it:"Scrivi",en:"Write",es:"Escribir"},
+  thName:{it:"nome",en:"name",es:"nombre"},
+  thValue:{it:"valore",en:"value",es:"valor"},
+  btnReadLc:{it:"leggi",en:"read",es:"leer"},
+  advLog:{it:"Log",en:"Log",es:"Registro"},
+  // --- stringhe dinamiche (JS) ---
+  logNoBt:{
+    it:"[!] Web Bluetooth non supportato: usa Chrome/Edge desktop o Chrome Android.",
+    en:"[!] Web Bluetooth not supported: use Chrome/Edge desktop or Chrome Android.",
+    es:"[!] Web Bluetooth no compatible: usa Chrome/Edge escritorio o Chrome Android."
+  },
+  logNoBtInit:{
+    it:"[!] Web Bluetooth non supportato. Usa Chrome/Edge desktop o Chrome Android. NON iOS/Safari.",
+    en:"[!] Web Bluetooth not supported. Use Chrome/Edge desktop or Chrome Android. NOT iOS/Safari.",
+    es:"[!] Web Bluetooth no compatible. Usa Chrome/Edge escritorio o Chrome Android. NO iOS/Safari."
+  },
+  logDisconnected:{it:"disconnesso",en:"disconnected",es:"desconectado"},
+  logConnectedTo:{it:"connesso a",en:"connected to",es:"conectado a"},
+  logError:{it:"errore",en:"error",es:"error"},
+  logLapPulse:{it:"impulso giro",en:"lap pulse",es:"impulso de vuelta"},
+  noResp:{it:"(nessuna risp.)",en:"(no resp)",es:"(sin resp.)"},
+  alertMode:{
+    it:'Modalità: premi prima "Leggi configurazione", oppure scegline una.',
+    en:'Mode: press "Read configuration" first, or choose one.',
+    es:'Modo: pulsa primero "Leer configuración", o elige uno.'
+  },
+  alertMac:{
+    it:"MAC = 2 byte, es. 525d",
+    en:"MAC = 2 bytes, e.g. 525d",
+    es:"MAC = 2 bytes, p. ej. 525d"
+  },
+  confirmMac:{
+    it:"Scrivo il MAC (clone identità/licenza). Sicuro?",
+    en:"Write the MAC (clone identity/license). Are you sure?",
+    es:"¿Escribir el MAC (clonar identidad/licencia)? ¿Seguro?"
+  }
+};
+</script>
+<script src="../i18n.js"></script>
+<script>
+const APP="car-config",APP_VERSION="1.1.0";
+const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+const REGS=[[0x00,"info"],[0x81,"info/capab"],[0x83,"NOME"],[0x84,"MAX SPEED"],[0x86,"BRAKE"],[0x87,"LIMITI on/off"],
+  [0x8e,"config"],[0x8f,"ID auto"],[0x90,"MAC(2B)"],[0x91,"MODO"],[0x94,"ID tx time"],[0x95,"ID D132"]];
+let dev,rxc,txc,waiter=null,hallN=0,hallT=null;
+const $=id=>document.getElementById(id);
+const hx=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join("");
+const asc=b=>[...b].map(x=>x>=32&&x<127?String.fromCharCode(x):".").join("");
+const log=s=>{const l=$("log");l.textContent+=s+"\n";l.scrollTop=l.scrollHeight;};
+const xorsum=a=>{let x=0;for(const b of a)x^=b;return x&0xff;};
+const h2=n=>"0x"+n.toString(16).padStart(2,"0");
+
+let _conn=false;
+function renderStatus(){$("st").textContent=I18N.t(_conn?"stConnected":"stDisconnected");}
+function setConn(on){_conn=on;renderStatus();$("st").className="pill"+(on?" on":"");
+  $("btnConn").disabled=on;$("btnDisc").disabled=!on;
+  document.querySelectorAll(".cfg,.act,#btnReadAll,#hallReset").forEach(b=>b.disabled=!on);}
+async function connect(){
+  if(!navigator.bluetooth){log(I18N.t("logNoBt"));return;}
+  try{
+    dev=await navigator.bluetooth.requestDevice({filters:[{services:[NUS]}],optionalServices:[NUS]});
+    dev.addEventListener("gattserverdisconnected",()=>{setConn(false);$("devname").textContent="";log("["+I18N.t("logDisconnected")+"]");});
+    const g=await dev.gatt.connect(),s=await g.getPrimaryService(NUS);
+    rxc=await s.getCharacteristic(RX);txc=await s.getCharacteristic(TX);
+    await txc.startNotifications();txc.addEventListener("characteristicvaluechanged",onNotify);
+    setConn(true);$("devname").textContent=dev.name||dev.id;log("["+I18N.t("logConnectedTo")+" "+(dev.name||dev.id)+"]");
+  }catch(e){log("["+I18N.t("logError")+": "+e+"]");}
+}
+function onNotify(e){
+  const v=new Uint8Array(e.target.value.buffer);
+  if(v.length>=3&&v[0]===0x09&&v[1]===0x02&&v[2]===0x9c){flashHall();return;}  // impulso giro
+  log("  <- "+hx(v)+"  |"+asc(v)+"|"+(hx(v)==="444f"?"  (DO=ok)":""));
+  if(waiter){waiter(v);waiter=null;}
+}
+const wait=(ms=1200)=>new Promise(r=>{waiter=r;setTimeout(()=>{if(waiter){waiter=null;r(null);}},ms);});
+const send=b=>rxc.writeValueWithoutResponse(new Uint8Array(b));
+async function readReg(reg){log("READ "+h2(reg));await send([0x09,0x12,reg]);return await wait();}
+async function writeReg(reg,val){const body=[0x09,0x02,reg,...val];body.push(xorsum(body));
+  log("WRITE "+h2(reg)+" = "+hx(val)+(asc(val).match(/^[ -~]+$/)?" |"+asc(val)+"|":""));await send(body);return await wait();}
+
+/* hall live indicator */
+function flashHall(){hallN++;$("hallN").textContent=hallN;const d=$("hallDot");d.classList.add("on");
+  clearTimeout(hallT);hallT=setTimeout(()=>d.classList.remove("on"),300);log("🏁 "+I18N.t("logLapPulse")+" ("+hallN+")");}
+$("hallReset").onclick=()=>{hallN=0;$("hallN").textContent="0";};
+
+/* limiti: stile "off" sugli slider */
+function refreshLim(){$("limbox").classList.toggle("off",!$("cLimits").checked);}
+$("cLimits").addEventListener("change",refreshLim);refreshLim();
+
+/* leggi tutta la config e popola i campi */
+async function readAll(){
+  for(const[r]of REGS){const v=await readReg(r);const c=$("v"+r);if(c)c.textContent=v?hx(v)+" |"+asc(v)+"|":I18N.t("noResp");
+    if(v){
+      if(r===0x83)$("cName").value=asc(v).replace(/\.+$/,"");
+      if(r===0x8f)$("cId").value=v[0];
+      if(r===0x91)$("cMode").value=String(v[0]);
+      if(r===0x84){$("cSpeed").value=v[0];$("cSpeedV").textContent=v[0];}
+      if(r===0x86){$("cBrake").value=v[0];$("cBrakeV").textContent=v[0];}
+      if(r===0x87){$("cLimits").checked=v[0]!==0;refreshLim();}
+      if(r===0x90)$("cMac").value=hx(v);
+    }
+    await new Promise(x=>setTimeout(x,110));
+  }
+}
+function parseVal(s){s=(s||"").trim();
+  if(/^0x[0-9a-f]{2}$/i.test(s))return[parseInt(s,16)];
+  const hexs=s.replace(/ /g,"");
+  if(/^[0-9a-f]+$/i.test(hexs)&&hexs.length%2===0&&hexs.length>=2)return[...hexs.matchAll(/../g)].map(m=>parseInt(m[0],16));
+  if(/^\d+$/.test(s))return[parseInt(s)&0xff];
+  return[...new TextEncoder().encode(s)];}
+const fns={
+  name:()=>writeReg(0x83,[...new TextEncoder().encode($("cName").value)]),
+  id:()=>writeReg(0x8f,[Math.max(1,Math.min(20,parseInt($("cId").value)||1))]),
+  mode:()=>{const m=$("cMode").value;if(m==="")return alert(I18N.t("alertMode"));return writeReg(0x91,[parseInt(m)]);},
+  speed:()=>writeReg(0x84,[+$("cSpeed").value]),
+  brake:()=>writeReg(0x86,[+$("cBrake").value]),
+  limits:()=>writeReg(0x87,[$("cLimits").checked?1:0]),
+  motor:()=>writeReg(0x9a,[0x00]),
+  lights:()=>writeReg(0x9b,[0x00]),
+  mac:()=>{const b=parseVal($("cMac").value);if(b.length!==2)return alert(I18N.t("alertMac"));
+    if(confirm(I18N.t("confirmMac")))return writeReg(0x90,b);},
+  rawread:async()=>{const r=parseInt($("rReg").value,16);if(!isNaN(r))await readReg(r);},
+  rawwrite:async()=>{const r=parseInt($("wReg").value,16);if(!isNaN(r))await writeReg(r,parseVal($("wVal").value));},
+};
+document.querySelectorAll(".cfg,.act").forEach(b=>b.onclick=()=>fns[b.dataset.fn]&&fns[b.dataset.fn]());
+$("cSpeed").oninput=e=>$("cSpeedV").textContent=e.target.value;
+$("cBrake").oninput=e=>$("cBrakeV").textContent=e.target.value;
+(function(){const tb=$("regtab").querySelector("tbody");for(const[r,n]of REGS){const tr=document.createElement("tr");
+  tr.innerHTML=`<td><code>${h2(r)}</code></td><td>${n}</td><td class="val" id="v${r}"></td>
+    <td><button class="sec" disabled data-i18n="btnReadLc"></button></td>`;tb.appendChild(tr);
+  const bt=tr.querySelector("button");bt.classList.add("cfg");
+  bt.onclick=async()=>{const v=await readReg(r);$("v"+r).textContent=v?hx(v)+" |"+asc(v)+"|":I18N.t("noResp");};}})();
+
+$("btnConn").onclick=connect;
+$("btnDisc").onclick=()=>{if(dev&&dev.gatt.connected)dev.gatt.disconnect();};
+$("btnReadAll").onclick=readAll;
+// banner compatibilità Web Bluetooth
+if(!navigator.bluetooth){$("nobt").style.display="block";$("btnConn").disabled=true;
+  log(I18N.t("logNoBtInit"));}
+// service worker network-first: sempre l'ultima versione (fix cache)
+if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
+
+/* stato connessione: render iniziale (dopo l'init di i18n) + ri-render al cambio lingua */
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",renderStatus);
+else renderStatus();
+document.addEventListener("i18n:changed",renderStatus);
+
+/* prompt aggiornamento versione */
+function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
+fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
+  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+</script>
+</body>
+</html>
