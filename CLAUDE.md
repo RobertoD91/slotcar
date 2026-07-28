@@ -23,7 +23,7 @@ L'utente è italiano: **rispondere in italiano**.
 
 ### Da fare nel codice
 - [ ] **Migrare col tempo tutte le web app in questa repo pubblica** (richiesta utente):
-      oggi sono copie sincronizzate da `reverse_slot.it` e `ds200rs232`; l'obiettivo è che
+      oggi sono copie sincronizzate da altre repo; l'obiettivo è che
       questa diventi la sorgente e le patch locali spariscano.
 - [ ] **`chron02`** — contagiri/gestione gara oXigen via dongle (card «prossimamente»).
 - [ ] **`o2-bootloader`** — aggiornatore firmware dei pezzi oXigen via dongle (card
