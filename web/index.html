@@ -13,8 +13,20 @@
   *{box-sizing:border-box}
   body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:20px 16px;max-width:820px;margin:0 auto}
   h1{font-size:24px;margin:0 0 2px}.sub{color:var(--mut);margin:0 0 20px;font-size:14px}
-  h2{font-size:15px;margin:26px 0 10px;color:var(--mut);font-weight:600;letter-spacing:.02em}
-  h2 small{font-weight:400}
+  /* Titoli di sezione: grandi e con una riga sopra, così si vede a colpo d'occhio
+     dove finisce un sistema e ne comincia un altro. */
+  h2{font-size:27px;font-weight:800;letter-spacing:-.02em;color:var(--fg);
+     margin:44px 0 14px;padding-top:22px;border-top:2px solid var(--bd)}
+  h2 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;
+           color:var(--mut);margin-top:5px}
+  /* La card in evidenza: è l'app che conta, il resto sono strumenti di servizio. */
+  .hero{border:2px solid var(--acc);border-radius:16px;padding:20px 22px;margin-bottom:14px;
+        background:linear-gradient(140deg,rgba(93,176,255,.10),rgba(93,176,255,.02))}
+  .hero .ico{font-size:38px;line-height:1}
+  .hero h3{margin:10px 0 6px;font-size:22px;font-weight:800;letter-spacing:-.01em}
+  .hero p{margin:0;color:var(--mut);font-size:14px;line-height:1.6}
+  .hero .badge{border-color:var(--acc);color:var(--acc)}
+  .rest{color:var(--mut);font-size:13px;margin:18px 0 0}
   .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
   a.card,div.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
   a.card{transition:transform .08s,border-color .12s}
@@ -60,6 +72,16 @@
   <p class="sub" data-i18n-html="sub"></p>
   <div id="dev" data-i18n-html="devWarn"></div>
 
+  <!-- L'app che conta. Non è ancora pronta, ma sta in cima apposta: tutto il resto
+       qui sotto è roba di servizio e diagnostica. -->
+  <div class="hero">
+    <span class="badge" data-i18n="badgeWip"></span>
+    <div class="ico">⏱️</div>
+    <h3 data-i18n="chronoTitle"></h3>
+    <p data-i18n-html="chronoDesc"></p>
+  </div>
+  <p class="rest" data-i18n-html="restIntro"></p>
+
   <h2 data-i18n-html="secOxigen"></h2>
   <div class="grid">
     <a class="card" href="car-config/">
@@ -101,15 +123,15 @@
 
   <h2 data-i18n-html="secDs"></h2>
   <div class="grid">
-    <a class="card" href="ds200/">
+    <a class="card" href="ds200-ds300/">
       <span class="badge on" data-i18n="badgeActive"></span>
       <div class="ico">⏱️</div>
       <h3 data-i18n="dsTitle"></h3>
       <p data-i18n-html="dsDesc"></p>
       <div class="tech"><span>Web Serial</span><span data-i18n="techPwa"></span></div>
     </a>
-    <a class="card" href="ds200/flash.html">
-      <span class="badge on" data-i18n="badgeActive"></span>
+    <a class="card" href="esp32-installer/">
+      <span class="badge" data-i18n="badgeAlpha"></span>
       <div class="ico">⚡</div>
       <h3 data-i18n="dsFlashTitle"></h3>
       <p data-i18n-html="dsFlashDesc"></p>
@@ -187,6 +209,19 @@ window.I18N_STRINGS = {
     es:"Lee la power base N-Digital por <b>RS-232</b>: posiciones, vueltas, combustible y reserva, modo amateur/profesional, tiempos por vuelta (firmware ≥ 1.08) y datos en crudo exportables."
   },
   badgeActive:{it:"attivo",en:"active",es:"activo"},
+  badgeWip:{it:"in sviluppo",en:"in progress",es:"en desarrollo"},
+  badgeAlpha:{it:"molto acerbo",en:"very rough",es:"muy verde"},
+  chronoTitle:{it:"Cronometro web",en:"Web lap timer",es:"Cronómetro web"},
+  chronoDesc:{
+    it:"<b>Un cronometro solo, per tutti i sistemi.</b> L'idea è gestire una gara — giri, tempi, classifica, benzina — che la pista sia <b>oXigen</b>, un <b>DS200/DS300</b> o una <b>power base Ninco</b>, con la stessa interfaccia. Non è ancora pronto: per ora ogni sistema ha il suo strumento qui sotto.",
+    en:"<b>One lap timer for every system.</b> The idea is to run a race — laps, times, standings, fuel — whether the track is <b>oXigen</b>, a <b>DS200/DS300</b> or a <b>Ninco power base</b>, from the same interface. Not ready yet: for now each system has its own tool below.",
+    es:"<b>Un solo cronómetro para todos los sistemas.</b> La idea es gestionar una carrera — vueltas, tiempos, clasificación, combustible — ya sea la pista <b>oXigen</b>, un <b>DS200/DS300</b> o una <b>power base Ninco</b>, con la misma interfaz. Aún no está listo: por ahora cada sistema tiene su herramienta aquí abajo."
+  },
+  restIntro:{
+    it:"Qui sotto gli <b>strumenti di servizio</b>: configurazione, diagnostica e i contagiri specifici di ogni sistema.",
+    en:"Below are the <b>service tools</b>: configuration, diagnostics and the per-system lap counters.",
+    es:"Debajo están las <b>herramientas de servicio</b>: configuración, diagnóstico y los cuentavueltas de cada sistema."
+  },
   badgeSoon:{it:"prossimamente",en:"coming soon",es:"próximamente"},
   techStatic:{it:"pagina statica",en:"static page",es:"página estática"},
   techPwa:{it:"PWA offline",en:"offline PWA",es:"PWA sin conexión"},
@@ -226,11 +261,11 @@ window.I18N_STRINGS = {
     en:"Lap-timer monitor over <b>RS-232</b>: laps, times, live leaderboard, fast lap, voice announcements, CSV export. Installable and works offline.",
     es:"Monitor del cronómetro por <b>RS-232</b>: vueltas, tiempos, clasificación en vivo, vuelta rápida, anuncios de voz, exportación CSV. Instalable y funciona sin conexión."
   },
-  dsFlashTitle:{it:"Flash ESP32 (DS200)",en:"ESP32 flasher (DS200)",es:"Flasheo ESP32 (DS200)"},
+  dsFlashTitle:{it:"Installer ESP32",en:"ESP32 installer",es:"Instalador ESP32"},
   dsFlashDesc:{
-    it:"Installa dal browser il firmware del ponte <b>ESP32</b> (DS200 → WiFi/MQTT) e configura la rete, senza toolchain.",
-    en:"Install the <b>ESP32</b> bridge firmware (DS200 → WiFi/MQTT) straight from the browser and set up the network, no toolchain needed.",
-    es:"Instala desde el navegador el firmware del puente <b>ESP32</b> (DS200 → WiFi/MQTT) y configura la red, sin toolchain."
+    it:"Installa dal browser il firmware del ponte <b>ESP32</b> (DS200/DS300 → WiFi/MQTT) e configura la rete, senza toolchain. <b>È la cosa più acerba del sito</b>: provalo solo se sai cosa stai facendo.",
+    en:"Install the <b>ESP32</b> bridge firmware (DS200/DS300 → WiFi/MQTT) straight from the browser and set up the network, no toolchain needed. <b>It is the roughest thing here</b>: only try it if you know what you are doing.",
+    es:"Instala desde el navegador el firmware del puente <b>ESP32</b> (DS200/DS300 → WiFi/MQTT) y configura la red, sin toolchain. <b>Es lo más verde del sitio</b>: pruébalo solo si sabes lo que haces."
   },
   footSite:{it:"sito v",en:"site v",es:"sitio v"},
   footUpd:{it:"aggiornato",en:"updated",es:"actualizado"}
@@ -238,7 +273,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="1.4.0";
+const SITE_VERSION="2.0.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto

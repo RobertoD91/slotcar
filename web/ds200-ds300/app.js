@@ -523,7 +523,7 @@
     els.raceState.textContent = raceFn ? t('func.' + raceFn) : '—';
     renderLanes();
     if (els.version) els.version.textContent = 'v' + APP_VERSION;
-    document.title = 'DS200 Monitor v' + APP_VERSION;
+    document.title = 'Contagiri DS200 / DS300 v' + APP_VERSION;
     if (installHintShown) showInstallHint();
   }
 
@@ -541,7 +541,7 @@
 
   // Show the running version (helps spot a stale cache).
   if (els.version) els.version.textContent = 'v' + APP_VERSION;
-  document.title = 'DS200 Monitor v' + APP_VERSION;
+  document.title = 'Contagiri DS200 / DS300 v' + APP_VERSION;
   setInterval(renderLanes, 5000); // refresh "updated Xs ago"
   // Running race stopwatch: tick the big clock smoothly.
   setInterval(() => { els.clock.textContent = fmtElapsed(raceClock.elapsedMs()); }, 50);

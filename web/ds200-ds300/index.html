@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0f17" />
+  <meta name="description" content="Monitor seriale DS200/DS300 per cronometri slot car — Web Serial / PWA." />
+  <title>Contagiri DS200 / DS300</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css?v=1.5.1" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🏁</span>
+      <div>
+        <h1>Contagiri DS200&nbsp;/&nbsp;DS300</h1>
+        <small id="device-line" data-i18n="subtitle">Cronometro slot car — DS200 / DS300</small>
+      </div>
+    </div>
+
+    <div class="conn">
+      <label class="baud" title="DS200: 4800 · DS300: 57600">
+        <span data-i18n="baud">Baud</span>
+        <select id="baud" autocomplete="off">
+          <option value="57600">DS 300 — 57600</option>
+          <option value="4800" selected>DS 200 — 4800</option>
+          <option value="9600">9600 (test)</option>
+          <option value="19200">19200 (test)</option>
+          <option value="38400">38400 (test)</option>
+          <option value="115200">115200 (test)</option>
+        </select>
+        <small class="baudhint">DS 300 = 57600 · DS 200 = 4800</small>
+      </label>
+      <label class="baud" id="lang-label" data-i18n-title="lang_title" title="Lingua">
+        🌐
+        <select id="lang">
+          <option value="it">Italiano</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </label>
+      <button id="connect" class="btn primary" data-i18n="connect">Connetti</button>
+      <button id="disconnect" class="btn" disabled data-i18n="disconnect">Disconnetti</button>
+      <label class="chk" id="tts-label" data-i18n-title="voice_title" title="Annuncio vocale dei risultati">
+        <input type="checkbox" id="tts" /> <span data-i18n="voice">🔊 Voce</span>
+      </label>
+      <span id="status" class="status off">—</span>
+    </div>
+  </header>
+
+  <p id="nosupport" class="banner error" hidden data-i18n="nosupport">
+    Questo browser non supporta la Web Serial API.
+  </p>
+
+  <!-- Big stopwatch hero -->
+  <section class="clockwrap">
+    <div id="clock" class="bigclock mono" aria-label="Cronometro">00:00:00.0000</div>
+  </section>
+
+  <section class="cards">
+    <div class="card stat"><span class="k" data-i18n="stat.device">Dispositivo</span><span id="dev" class="v">—</span></div>
+    <div class="card stat"><span class="k" data-i18n="stat.race">Stato gara</span><span id="race-state" class="v">—</span></div>
+    <div class="card stat"><span class="k" data-i18n="stat.frames">Frame ok / tot</span><span id="counters" class="v mono">0 / 0</span></div>
+  </section>
+
+  <main class="grid">
+    <section class="card">
+      <div class="card-head">
+        <h2 data-i18n="lb.title">Classifica per corsia</h2>
+        <div class="card-actions">
+          <button id="reset" class="btn small" data-i18n="btn.reset">Azzera</button>
+          <button id="export" class="btn small" data-i18n="btn.export">Export CSV</button>
+        </div>
+      </div>
+      <table class="leaderboard">
+        <thead>
+          <tr>
+            <th data-i18n="th.pos">Pos</th><th data-i18n="th.lane">Corsia</th><th data-i18n="th.laps">Giri</th>
+            <th data-i18n="th.last">Ultimo giro</th><th data-i18n="th.fast">Giro veloce</th><th data-i18n="th.updated">Aggiornato</th>
+          </tr>
+        </thead>
+        <tbody id="lanes"></tbody>
+      </table>
+      <p class="hint" data-i18n="lb.hint">Le righe compaiono man mano che ogni corsia trasmette.</p>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2 data-i18n="events.title">Eventi</h2></div>
+      <ul id="events" class="events"></ul>
+    </section>
+
+    <section class="card wide">
+      <div class="card-head">
+        <h2 data-i18n="log.title">Log frame</h2>
+        <div class="card-actions">
+          <label class="chk"><input type="checkbox" id="hideInvalid" /> <span data-i18n="log.hideInvalid">Nascondi frame con errori</span></label>
+          <button id="clearlog" class="btn small" data-i18n="btn.clear">Pulisci</button>
+        </div>
+      </div>
+      <pre id="log" class="log"></pre>
+    </section>
+
+    <section class="card wide" id="cmd-card">
+      <div class="card-head">
+        <h2 data-i18n="cmd.title">Comandi (sperimentale)</h2>
+        <span id="cmdStatus" class="muted"></span>
+      </div>
+      <p class="hint" data-i18n="cmd.warn">Il protocollo è documentato solo in ricezione: questi comandi sono sperimentali.</p>
+      <div class="cmdrow">
+        <label class="baud"><span data-i18n="stat.device">Dispositivo</span>
+          <select id="cmdDev"><option value="2">DS200</option><option value="3">DS300</option></select>
+        </label>
+        <button class="btn small cmd" data-cmd="0xA1" data-i18n="func.start_race_phase_1">Start fase 1</button>
+        <button class="btn small cmd" data-cmd="0xA2" data-i18n="func.start_race_phase_2">Start fase 2</button>
+        <button class="btn small cmd" data-cmd="0xA3" data-i18n="func.start_race_phase_3">Start fase 3</button>
+        <button class="btn small cmd" data-cmd="0xA4" data-i18n="func.end_race">Fine gara</button>
+        <button class="btn small cmd" data-cmd="0xA5" data-i18n="func.start_pause">Pausa</button>
+        <button class="btn small cmd" data-cmd="0xA6" data-i18n="func.end_pause">Fine pausa</button>
+        <button class="btn small cmd" data-cmd="0xA7" data-i18n="func.abort_race">Annulla</button>
+      </div>
+      <div class="cmdrow">
+        <input id="cmdHex" class="cmdhex" placeholder="E0 01 15 02 00 00 00 00 A1 00 00 00 00 00 00 00 00 00 xx 00 EB" />
+        <button id="cmdSend" class="btn small" data-i18n="cmd.send">Invia</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span><span data-i18n="footer.text">App statica · funziona offline come PWA · nessun dato lascia il dispositivo.</span> <span id="version" class="ver"></span></span>
+    <span><a href="../">← Slot Car Web Tools</a> · <a href="../esp32-installer/">⚡ Installer ESP32</a> · <a href="http://ds200.local/" target="_blank" rel="noopener">⚙️ ESP32</a> · <span id="install-hint"></span></span>
+  </footer>
+
+  <script src="i18n.js?v=1.5.1"></script>
+  <script src="ds200.js?v=1.5.1"></script>
+  <script src="app.js?v=1.5.1"></script>
+</body>
+</html>

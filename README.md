@@ -49,11 +49,13 @@ La pagina iniziale (`web/index.html`) è un **indice** che porta a tutte le app.
 | [`chron02/`](web/chron02/) | **Contagiri e gestione gara** oXigen via dongle: classifica live, giri, tempi e pit dalla telemetria `rf_data_x[13]`; start/pausa/stop e comandi per singola auto con `race_status[10]` | Web Serial |
 | [`o2-bootloader/`](web/o2-bootloader/) | **Configuratore oXigen** via dongle: modalità boot su dongle/chip/controller, lettura info (versione firmware, MAC) e console a registri sperimentale | Web Serial |
 | [`modes/`](web/modes/) | Riferimento (dai manuali) di **sequenze tasti, LED, pairing e DFU** di controller e chip | niente, è statica |
-| [`ds200/`](web/ds200/) | **Contagiri DS200 / DS300**: giri, tempi, classifica live, giro veloce, annunci vocali, export CSV. Installabile come PWA, funziona offline | Web Serial |
-| [`ds200/flash.html`](web/ds200/flash.html) | **Flasher ESP32** del ponte DS200 → WiFi/MQTT, con configurazione della rete dal browser | Web Serial |
+| [`ds200-ds300/`](web/ds200-ds300/) | **Contagiri DS200 / DS300**: giri, tempi, classifica live, giro veloce, annunci vocali, export CSV. Installabile come PWA, funziona offline | Web Serial |
+| [`esp32-installer/`](web/esp32-installer/) | **Installer ESP32** del ponte DS200/DS300 → WiFi/MQTT, con configurazione della rete dal browser. **La cosa più acerba del sito** | Web Serial |
 | [`ninco/`](web/ninco/) | **Contagiri Ninco N-Digital**: posizioni, giri, benzina e riserva, modalità amatore/professionale, tempi sul giro (firmware ≥ 1.08), dati grezzi esportabili | Web Serial |
 
-Tutte le card dell'indice sono ora attive: non c'è più niente marcato «prossimamente».
+In cima all'indice, in evidenza, c'è il **Cronometro web**: l'app che dovrà gestire una gara su
+*qualsiasi* sistema con la stessa interfaccia. Non è ancora pronta — è un segnaposto — ma sta lì
+apposta, perché tutto il resto sono strumenti di servizio e diagnostica.
 
 ### Ninco N-Digital: cosa si può fare e cosa no
 
@@ -133,7 +135,9 @@ web/                  → è QUESTA cartella che finisce su GitHub Pages
   version.json          versione del sito e delle singole app
   car-config/ remote-config/ modes/                  app oXigen (Web Bluetooth + riferimento)
   chron02/ o2-bootloader/                            app oXigen via dongle (Web Serial)
-  ds200/                contagiri DS200/DS300 (PWA autonoma, i18n e sw propri)
+  ds200-ds300/          contagiri DS200/DS300 (PWA autonoma, i18n e sw propri)
+  esp32-installer/      installer del firmware ESP32 (app a sé, molto acerba)
+  ds200/                stub: rimanda a ds200-ds300/ e disinstalla il vecchio SW
   ninco/                contagiri Ninco N-Digital (parser + test propri)
 docs/                 documentazione dei protocolli (non pubblicata su Pages)
 esp32/                firmware del ponte DS200 → WiFi/MQTT (PlatformIO)
@@ -162,7 +166,7 @@ Controlli, tutti senza hardware:
 node tools/check-links.js                                       # link interni del sito
 python3 tools/scan-secrets.py                                   # segreti nei file
 python3 tools/scan-secrets.py --history                         # segreti nella storia
-node web/ds200/ds200.test.js                                    # parser DS200 — JS
+node web/ds200-ds300/ds200.test.js                              # parser DS200 — JS
 cd cli && python3 -m pytest tests/ -q                           # parser DS200 — Python
 g++ -std=c++17 -I esp32/test_host -I esp32/src \
     esp32/test_host/test_ds200.cpp -o /tmp/t && /tmp/t          # parser DS200 — C++
@@ -188,7 +192,7 @@ che rimettevano a posto link, disclaimer e percorsi ad ogni copia. Le app oXigen
 tolte da lì, e il progetto DS200 è stato migrato per intero — la sua repo
 (`ds200rs232`) è **congelata** e il suo sito rimanda qui.
 
-⚠️ **I tre parser del DS200 devono restare equivalenti**: `web/ds200/ds200.js` (JS),
+⚠️ **I tre parser del DS200 devono restare equivalenti**: `web/ds200-ds300/ds200.js` (JS),
 `cli/ds_slot_serial.py` (Python) ed `esp32/src/ds200.h` (C++). Se cambi il protocollo,
 aggiornali tutti e tre insieme ai test — [`ci.yml`](.github/workflows/ci.yml) li verifica
 in un colpo solo, cosa che prima non poteva fare nessuno perché stavano in due repo diverse.

@@ -47,7 +47,7 @@ L'utente è italiano: **rispondere in italiano**.
   `master`. Percorsi **sempre relativi**: il sito sta in un sottopercorso.
 - **Tutto è sorgente: si modifica qui, e basta.** Non c'è più niente di copiato da altre
   repo, quindi niente sync e niente patch: si aprono i file e si cambiano.
-- ⚠️ **I TRE PARSER DEL DS200 devono restare equivalenti**: `web/ds200/ds200.js` (JS),
+- ⚠️ **I TRE PARSER DEL DS200 devono restare equivalenti**: `web/ds200-ds300/ds200.js` (JS),
   `cli/ds_slot_serial.py` (Python) ed `esp32/src/ds200.h` (C++). Se cambia il protocollo si
   aggiornano tutti e tre insieme ai test. Ora stanno nella stessa repo e li verifica un
   solo workflow — prima erano divisi fra due repo e nessuno controllava che non
@@ -73,7 +73,7 @@ node tools/check-links.js                     # link interni + nessun percorso a
 python3 tools/scan-secrets.py                 # segreti nei file
 python3 tools/scan-secrets.py --history       # segreti in tutta la storia
 python3 tools/test-scan-secrets.py            # le regole dello scanner
-node web/ds200/ds200.test.js                  # parser DS200 — JS
+node web/ds200-ds300/ds200.test.js            # parser DS200 — JS
 cd cli && python3 -m pytest tests/ -q         # parser DS200 — Python
 g++ -std=c++17 -I esp32/test_host -I esp32/src esp32/test_host/test_ds200.cpp -o /tmp/t && /tmp/t
 node web/ninco/ninco.test.js                  # parser Ninco
@@ -109,7 +109,9 @@ strumenti non esistono più.
   I **tempi sul giro** si ricavano per differenza fra due totali `D` consecutivi.
   La base **non accetta comandi**: si può solo leggere.
 - **DS200/DS300** → `docs/ds200-ds300/`. 21 byte, start `0xE0`, end `0xEB`, BCD.
-  **DS200 = 4800 baud, DS300 = 57600.** I **tre** parser (JS, Python, C++) devono restare
+  **DS200 = 4800 baud, DS300 = 57600.** App in `web/ds200-ds300/`, installer del firmware
+  in `web/esp32-installer/` (separati apposta: il secondo è molto più acerbo).
+  I **tre** parser (JS, Python, C++) devono restare
   equivalenti — vedi le regole d'oro.
 - **Slot.it / oXigen** → `docs/slot.it/`. Lo studio del protocollo sta nella repo privata.
 

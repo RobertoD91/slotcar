@@ -3,7 +3,7 @@ name: CI
 # Controlli senza hardware su tutto quello che questa repo contiene.
 #
 # ⚠️ I TRE PARSER DEL DS200 devono restare equivalenti byte-per-byte:
-#      web/ds200/ds200.js   (JavaScript, la web app)
+#      web/ds200-ds300/ds200.js   (JavaScript, la web app)
 #      cli/ds_slot_serial.py (Python, il CLI)
 #      esp32/src/ds200.h    (C++, il firmware)
 # Se cambi il protocollo, aggiornali tutti e tre insieme ai rispettivi test.
@@ -41,8 +41,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Parser JS DS200 (web/ds200/ds200.js)
-        run: node web/ds200/ds200.test.js
+      - name: Parser JS DS200 (web/ds200-ds300/ds200.js)
+        run: node web/ds200-ds300/ds200.test.js
 
       - name: Parser Python DS200 (cli/ds_slot_serial.py)
         run: |

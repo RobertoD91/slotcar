@@ -14,7 +14,9 @@ remote-config/    controller SCP-3 oXigen — Web Bluetooth
 chron02/          contagiri e gestione gara oXigen — Web Serial
 o2-bootloader/    configuratore oXigen (boot, info, registri) — Web Serial
 modes/            riferimento tasti/LED/pairing — pagina statica
-ds200/            contagiri DS200/DS300 — Web Serial, PWA autonoma
+ds200-ds300/      contagiri DS200/DS300 — Web Serial, PWA autonoma
+esp32-installer/  installer del firmware ESP32 del ponte — app a sé, molto acerba
+ds200/            stub: rimanda a ds200-ds300/ e disinstalla il vecchio service worker
 ```
 
 ## Percorsi relativi (importante)
@@ -49,7 +51,7 @@ Le stringhe generate da JS usano `I18N.t("chiave")` e vanno ri-renderizzate sull
 Chiavi **condivise** già pronte: `disclaimer`, `updateAvail` / `updateBtn` (banner di
 aggiornamento), `noBt` (browser senza Web Bluetooth), `noSerial` (browser senza Web Serial).
 
-> `ds200/` **non** usa questo motore: ha un `i18n.js` proprio con cinque lingue
+> `ds200-ds300/` **non** usa questo motore: ha un `i18n.js` proprio con cinque lingue
 > (it/en/es/fr/de), perché nasceva come progetto a sé ed è autonoma. Se aggiungi una
 > stringa lì, aggiornala nel suo dizionario. (Non è più una copia: si modifica qui come
 > tutto il resto.)

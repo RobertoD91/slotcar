@@ -1,5 +1,5 @@
 # --- Firmware compilato dalla CI (non va committato) ------------------------
-web/ds200/firmware/*.bin
+web/esp32-installer/firmware/*.bin
 
 # --- PlatformIO / ESP32 ------------------------------------------------------
 .pio/

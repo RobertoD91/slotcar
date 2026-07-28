@@ -32,7 +32,7 @@ pio device monitor -b 115200
 
 ## Flash dal browser (stile Tasmota)
 
-La pagina [`web/ds200/flash.html`](../web/ds200/flash.html) usa **ESP Web Tools**: colleghi
+La pagina [`web/esp32-installer/`](../web/esp32-installer/) usa **ESP Web Tools**: colleghi
 l'ESP32 via USB, premi il pulsante e installi il firmware **senza toolchain**. A fine
 flash il pulsante propone **“Connect to Wi-Fi”** e configura la rete via **Improv-Serial**
 (vedi sotto). Serve Chrome/Edge/Opera su `https://` o `http://localhost`.
@@ -44,11 +44,11 @@ Il binario unico da flashare (`ds200-esp32-merged.bin`) lo produce la CI (artifa
 cd esp32 && pio run
 BUILD=.pio/build/esp32dev
 BOOT=$(find ~/.platformio/packages -name boot_app0.bin | head -n1)
-python -m esptool --chip esp32 merge_bin -o ../web/ds200/firmware/ds200-esp32-merged.bin \
+python -m esptool --chip esp32 merge_bin -o ../web/esp32-installer/firmware/ds200-esp32-merged.bin \
   --flash_mode dio --flash_freq 40m --flash_size 4MB \
   0x1000 $BUILD/bootloader.bin 0x8000 $BUILD/partitions.bin \
   0xe000 $BOOT 0x10000 $BUILD/firmware.bin
-# poi servi la cartella web/ via https o localhost e apri ds200/flash.html
+# poi servi la cartella web/ via https o localhost e apri esp32-installer/
 ```
 
 ## Provisioning WiFi: Improv + portale + .env/config.h
@@ -56,7 +56,7 @@ python -m esptool --chip esp32 merge_bin -o ../web/ds200/firmware/ds200-esp32-me
 Quattro modi, tutti attivi quando il dispositivo non è ancora connesso:
 
 1. **Improv-Serial** (libreria `jnthas/Improv WiFi Library`) — il modo "Tasmota":
-   imposti il WiFi dal browser via USB, integrato in `flash.html`. Le credenziali
+   imposti il WiFi dal browser via USB, integrato nell'installer web. Le credenziali
    vengono salvate nella NVS WiFi dell'ESP32 e riusate ai boot successivi.
 2. **`.env`** (git-ignored) — credenziali a compile-time, iniettate come `-D` da
    [`scripts/load_env.py`](scripts/load_env.py). Copialo da [`.env.example`](.env.example).

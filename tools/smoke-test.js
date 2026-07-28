@@ -80,6 +80,24 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   });
   ok(overlap === false, 'nastro e selettore lingua non si sovrappongono');
 
+  // La card in evidenza sta in cima, prima di tutte le sezioni, ed è un placeholder.
+  const hero = page.locator('.hero');
+  ok(await hero.isVisible(), 'card "Cronometro web" in evidenza presente');
+  ok(await page.locator('.hero a').count() === 0, 'la card in evidenza NON è cliccabile (non è pronta)');
+  const order = await page.evaluate(() => {
+    const h = document.querySelector('.hero'), s = document.querySelector('h2');
+    return h && s ? (h.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING) > 0 : false;
+  });
+  ok(order === true, 'la card in evidenza precede la prima sezione');
+  // I titoli di sezione devono essere ben piu' grandi del testo delle card.
+  const sizes = await page.evaluate(() => {
+    const h2 = parseFloat(getComputedStyle(document.querySelector('h2')).fontSize);
+    const p  = parseFloat(getComputedStyle(document.querySelector('.card p')).fontSize);
+    return { h2, p };
+  });
+  ok(sizes.h2 >= 24 && sizes.h2 > sizes.p * 1.7,
+    `sezioni ben piu' grandi del testo (h2=${sizes.h2}px vs card=${sizes.p}px)`);
+
   // ---------- cambio lingua ----------
   console.log('\n== LINGUA EN ==');
   await page.selectOption('#__langsel', 'en');
@@ -99,8 +117,8 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
     ['chron02/', 'Slot Car Web Tools'],
     ['o2-bootloader/', 'Slot Car Web Tools'],
     ['modes/', 'Slot Car Web Tools'],
-    ['ds200/', 'Slot Car Web Tools'],
-    ['ds200/flash.html', 'Slot Car Web Tools'],
+    ['ds200-ds300/', 'Slot Car Web Tools'],
+    ['esp32-installer/', 'Slot Car Web Tools'],
     ['ninco/', 'Slot Car Web Tools'],
   ];
   for (const [path, back] of apps) {
@@ -131,16 +149,16 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   // ---------- navigazione: indice -> app -> indietro ----------
   console.log('\n== NAVIGAZIONE ==');
   await page.goto(BASE + '/', { waitUntil: 'networkidle' });
-  await page.locator('a.card[href="ds200/"]').click();
+  await page.locator('a.card[href="ds200-ds300/"]').click();
   await page.waitForLoadState('networkidle');
-  ok(page.url().endsWith('/ds200/'), 'indice -> DS200: ' + page.url());
+  ok(page.url().endsWith('/ds200-ds300/'), 'indice -> DS200: ' + page.url());
   await page.locator('a[href="../"]').first().click();
   await page.waitForLoadState('networkidle');
   ok(page.url().replace(/\?.*/, '').endsWith('8099/'), 'DS200 -> indice: ' + page.url());
 
   // ---------- il parser DS200 è caricato e funziona nel browser ----------
   console.log('\n== PARSER DS200 (nel browser) ==');
-  await page.goto(BASE + '/ds200/', { waitUntil: 'networkidle' });
+  await page.goto(BASE + '/ds200-ds300/', { waitUntil: 'networkidle' });
   const parser = await page.evaluate(() => (typeof DS200 === 'object' ? Object.keys(DS200).join(',') : 'ASSENTE'));
   ok(parser !== 'ASSENTE', 'oggetto DS200 esposto: ' + parser);
 
