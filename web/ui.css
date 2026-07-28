@@ -1,0 +1,65 @@
+/* ui.css — i token e la cornice comuni a tutto il sito.
+ *
+ * Prima di questo file la stessa tavolozza stava scritta a mano dentro il
+ * <style> di sette pagine — e aveva già iniziato a divergere: due sfumature di
+ * rosso e QUATTRO di giallo, a seconda di chi l'aveva copiata per ultimo.
+ * Cambiare un colore voleva dire aprire otto file e dimenticarne uno.
+ *
+ * Qui dentro ci va solo la roba condivisa: i colori, e i pezzi che ogni pagina
+ * ha uguale (link di ritorno, avvisi, targhette, piè di pagina). Il layout di
+ * ciascuna app resta a casa sua, nel suo <style> o nel suo styles.css, che
+ * viene caricato DOPO e quindi ha sempre l'ultima parola.
+ *
+ * Riferimento: il Cronometro web, che è l'app curata.
+ */
+
+:root{
+  --bg:#0b0f17; --fg:#e9edf3; --mut:#8a94a6;
+  --acc:#5db0ff; --accfg:#04121f;
+  --ok:#4ec36b; --warn:#e0a800; --err:#ff5c5c;
+  --card:#141924; --bd:#242c3a; --chip:#1b2130;
+}
+@media (prefers-color-scheme:light){
+  :root{
+    --bg:#f6f7f9; --fg:#1a1d23; --mut:#5b6472;
+    --card:#fff; --bd:#dfe3ea; --chip:#eef1f5;
+  }
+}
+/* Il selettore di tema esplicito deve vincere sulla preferenza di sistema in
+   entrambe le direzioni, non solo in una. */
+:root[data-theme="dark"]{
+  --bg:#0b0f17; --fg:#e9edf3; --mut:#8a94a6;
+  --card:#141924; --bd:#242c3a; --chip:#1b2130;
+}
+:root[data-theme="light"]{
+  --bg:#f6f7f9; --fg:#1a1d23; --mut:#5b6472;
+  --card:#fff; --bd:#dfe3ea; --chip:#eef1f5;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0 auto;
+  font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg); color:var(--fg);
+}
+a{color:var(--acc)}
+
+/* Il ritorno all'indice: in cima, uguale ovunque. */
+.back{display:inline-block;text-decoration:none;font-size:13px;color:var(--mut)}
+.back:hover{color:var(--acc)}
+
+/* Targhette di stato (attivo / in sviluppo / non funzionante…). */
+.badge{font-size:11px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut)}
+.badge.on{color:var(--ok);border-color:var(--ok)}
+.badge.bad{color:var(--err);border-color:var(--err)}
+.badge.part{color:var(--acc);border-color:var(--acc)}
+
+/* Avvisi e note in piccolo. */
+.note{background:rgba(224,168,0,.12);border:1px solid var(--warn);border-radius:10px;
+      padding:10px 13px;font-size:13px;line-height:1.5}
+.note.info{background:rgba(93,176,255,.12);border-color:var(--acc)}
+.hint{color:var(--mut);font-size:12.5px}
+.hint.warn{color:var(--warn)}
+
+footer{color:var(--mut);font-size:12px}
+footer .disc{font-size:11px;line-height:1.55;opacity:.85}

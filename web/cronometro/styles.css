@@ -2,14 +2,6 @@
    Stessa palette del resto del sito, ma pensato per essere letto a distanza:
    in pista lo schermo sta su un tavolo, non a trenta centimetri dagli occhi. */
 
-:root{
-  --bg:#0b0f17; --fg:#e9edf3; --mut:#8a94a6; --acc:#5db0ff; --accfg:#04121f;
-  --ok:#4ec36b; --warn:#e0a800; --err:#ff5c5c;
-  --card:#141924; --bd:#242c3a;
-}
-@media (prefers-color-scheme:light){
-  :root{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea;--accfg:#04121f}
-}
 *{box-sizing:border-box}
 body{
   margin:0 auto;max-width:940px;padding:16px 14px 40px;
