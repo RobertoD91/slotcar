@@ -22,6 +22,22 @@ L'utente è italiano: **rispondere in italiano**.
       incrociati (1→2, 6→3, 5→5). ⚠️ RS-232 vero a ±12 V: un adattatore TTL 3,3/5 V si
       danneggia, ci vuole un MAX3232.
 
+### Cronometro web — le prossime tappe
+Il motore, il simulatore, le modalità *pratica* e *GP a giri*, i guidatori modificabili, la
+voce, le 5 lingue e la PWA ci sono già (`web/cronometro/`, v0.1.0). Mancano i sistemi veri,
+uno alla volta:
+- [ ] **sistema DS200/DS300** — è il primo perché l'utente ce l'ha sul tavolo. Il parser
+      esiste già (`web/ds200-ds300/ds200.js`): l'adattatore deve solo tradurre i frame in
+      eventi `lap` / `state`. `caps`: `lapTime`, `raceState`, `slotLabel:'lane'`.
+- [ ] **sistema Ninco** — parser in `web/ninco/ninco.js`. `caps`: `position` (la manda la
+      base), `fuel`, `slotLabel:'car'`. Il tempo sul giro è per differenza fra due totali.
+- [ ] **sistema oXigen** — l'unico con `control:true`: la gara la comanda l'app
+      (`race_status[10]`). Serve il dongle.
+- [ ] **GP a tempo** e **qualifiche** — dopo il GP a giri. La regola vive tutta in
+      `MODES` dentro `race.js`.
+- [ ] **guidatori con database, punti e classifica di campionato** — richiesta dell'utente,
+      rinviata a un'evolutiva. Oggi i nomi stanno in `localStorage`.
+
 ### Da fare nel codice
 - [ ] **`flash.html` è solo in italiano** — non è passato per `i18n.js` come il resto.
 - [ ] **Dipendenza esterna da unpkg** in `ds200/flash.html` (esp-web-tools). Per un sito
@@ -82,6 +98,7 @@ cd esp32 && pio run                           # firmware
 # col sito servito in locale (servono Playwright e NODE_PATH=/opt/node22/lib/node_modules)
 cd web && python3 -m http.server 8099 &
 node tools/smoke-test.js                      # tutte le app: link, i18n, errori JS
+node tools/test-cronometro.js                 # una gara simulata dentro il cronometro
 node tools/test-ninco-ui.js                   # contagiri Ninco con seriale simulata
 ```
 
@@ -115,6 +132,48 @@ strumenti non esistono più.
   equivalenti — vedi le regole d'oro.
 - **Slot.it / oXigen** → `docs/slot.it/`. Lo studio del protocollo sta nella repo privata.
 
+## Cronometro web — com'è fatto (`web/cronometro/`)
+
+Tre pezzi, e la separazione è il punto:
+
+- **`race.js` = il motore.** Modalità, giri, tempi, classifica. Niente DOM, niente porte,
+  niente timer: l'orologio si passa da fuori (`opts.now`). Per questo `race.test.js` fa
+  correre gare intere da riga di comando, al millisecondo, senza browser.
+- **`sistemi/` = gli adattatori**, uno per pista. Traducono l'hardware in eventi
+  normalizzati: `lap`, `state`, `presence`, `telemetry`. Contratto e classe base in
+  `sistemi/registry.js`; `sistemi/sim.js` è la pista finta.
+- **`app.js` = solo interfaccia.** Una regola di gara scritta lì è nel posto sbagliato.
+
+**Vocabolario** (vale in tutto il codice, richiesta dell'utente):
+- **guidatore** = la persona. Nome modificabile, salvato in `localStorage`.
+- **posto** (`slot` nel codice) = la corsia o il numero dell'auto. A video diventa
+  "Corsia N" o "Auto N" a seconda di `caps.slotLabel`.
+- **sistema** = l'adattatore verso una pista. Non "driver": si confonderebbe con chi guida.
+
+**I tre sistemi non sono simmetrici** — è il motivo per cui esistono le `caps`:
+
+| | DS200/300 | Ninco | oXigen | sim |
+|---|---|---|---|---|
+| tempo giro | lo manda | per differenza | telemetria | lo manda |
+| posizione | calcolata | **la manda la base** | calcolata | calcolata |
+| benzina | — | **sì** | — | sì (finta) |
+| stato gara | **lo annuncia la centralina** | dedotto | **lo decide l'app** | l'app |
+| comandi | no | no | **sì** | sì |
+
+⇒ "Avvia gara" non può essere un bottone uguale per tutti: `comando()` in `app.js` manda
+sempre al motore, e al sistema **solo** se `caps.control`.
+
+**Scelte già prese, per non ridiscuterle:**
+- **GP a giri**: alla bandiera la gara si chiude, gli altri restano ai giri fatti. Chi passa
+  dopo non incrementa più (`_lap` conta solo con stato `running`).
+- **Prima del via i giri non contano**: le auto girano per scaldare e la pista trasmette lo
+  stesso. Il passaggio serve solo a dire "questo posto è occupato".
+- **Doppioni**: se il sistema manda il numero di giri, comanda quello; se non lo manda, si
+  scartano i passaggi a meno di `minLapMs` (500 ms) l'uno dall'altro.
+- **Il primo giro non è un record**: `best` è vero solo quando si migliora davvero.
+- **Il simulatore ha il seme fisso** (`SIM.plan()` è puro): stessa gara tutte le volte, ed è
+  ciò che rende il motore verificabile in CI.
+
 ## Trappole già pagate
 
 - **i18n**: `i18n.js` costruisce il dizionario su `DOMContentLoaded`. Chi disegna prima
@@ -129,3 +188,7 @@ strumenti non esistono più.
   livello numerico, sparisce proprio quando serve vederla.
 - **`git reset --hard` in un test** butta via anche le modifiche ai file tracciati che
   stavi preparando.
+- **Rientranza nel simulatore**: nel ciclo che spara gli eventi scaduti, un evento può far
+  finire la gara → chi ascolta ferma il simulatore → il piano diventa `null` **mentre siamo
+  ancora dentro il ciclo**. Il controllo all'ingresso non basta: va rifatto ad ogni giro.
+  (Trovato dal test E2E, non dai test del motore: succede solo con i timer veri.)

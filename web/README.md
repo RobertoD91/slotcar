@@ -9,6 +9,7 @@ index.html        landing: l'indice con le card di tutte le app
 i18n.js           motore multilingua condiviso (IT/EN/ES) + disclaimer legale
 sw.js             service worker network-first (root)
 version.json      versione del sito e delle singole app
+cronometro/       ⭐ Cronometro web: gara su qualsiasi sistema — PWA autonoma (i18n e sw suoi)
 car-config/       chip auto oXigen — Web Bluetooth
 remote-config/    controller SCP-3 oXigen — Web Bluetooth
 chron02/          contagiri e gestione gara oXigen — Web Serial
@@ -51,10 +52,11 @@ Le stringhe generate da JS usano `I18N.t("chiave")` e vanno ri-renderizzate sull
 Chiavi **condivise** già pronte: `disclaimer`, `updateAvail` / `updateBtn` (banner di
 aggiornamento), `noBt` (browser senza Web Bluetooth), `noSerial` (browser senza Web Serial).
 
-> `ds200-ds300/` **non** usa questo motore: ha un `i18n.js` proprio con cinque lingue
-> (it/en/es/fr/de), perché nasceva come progetto a sé ed è autonoma. Se aggiungi una
-> stringa lì, aggiornala nel suo dizionario. (Non è più una copia: si modifica qui come
-> tutto il resto.)
+> `ds200-ds300/` e `cronometro/` **non** usano questo motore: hanno un `i18n.js` proprio
+> con cinque lingue (it/en/es/fr/de) e chiavi puntate (`hdr.pos`), perché hanno il
+> vocabolario di gara e gli annunci vocali che qui non servono. Se aggiungi una stringa
+> lì, aggiornala nel loro dizionario. Sono due motori diversi apposta: quello condiviso
+> serve alle pagine di configurazione, quello a cinque lingue alle app di gara.
 
 ## Cache e versioni
 
@@ -71,10 +73,14 @@ recente di quella in esecuzione, mostra il banner **"Aggiorna"**.
 costante `SITE_VERSION` (o `APP_VERSION`) nell'HTML della pagina interessata. Se le due
 non combaciano, il banner resta appeso.
 
-`ds200/sw.js` è invece **cache-first** (deve funzionare offline in pista): lì va alzata la
-costante `CACHE` e le query `?v=` degli asset, insieme a `APP_VERSION` in `ds200/app.js`.
-I due service worker convivono: quello di `ds200/` ha lo scope più specifico e vince sulle
-sue pagine.
+`ds200-ds300/sw.js` e `cronometro/sw.js` sono invece **cache-first** (devono funzionare
+offline in pista): lì vanno alzate la costante `CACHE` e le query `?v=` degli asset,
+insieme a `APP_VERSION` nel rispettivo JS. I service worker convivono: quelli delle
+sottocartelle hanno lo scope più specifico e vincono sulle loro pagine.
+
+⚠️ Con la cache-first, **se dimentichi di alzare `CACHE` chi ha già aperto la pagina resta
+sulla copia vecchia per sempre**. È l'errore che costa di più: vale la pena controllarlo
+prima di pubblicare.
 
 ## Aggiungere una nuova app
 

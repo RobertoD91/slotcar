@@ -1,0 +1,15 @@
+{
+  "name": "Cronometro web — slot car",
+  "short_name": "Cronometro",
+  "description": "Cronometro e gestione gara per slot car digitali: pratica e GP a giri, classifica live, annunci vocali, multilingua. Funziona offline.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0f17",
+  "theme_color": "#0b0f17",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

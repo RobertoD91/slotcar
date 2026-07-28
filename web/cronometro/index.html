@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cronometro web — Slot Car Web Tools</title>
+<meta name="description" content="Cronometro e gestione gara per slot car digitali: pratica e GP a giri, classifica live, annunci vocali, multilingua. Funziona offline.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css?v=0.1.0">
+</head>
+<body>
+<a class="back" href="../" data-i18n="back">← Slot Car Web Tools</a>
+
+<header>
+  <div class="titlebar">
+    <div>
+      <h1 data-i18n="app.title">Cronometro web</h1>
+      <p class="sub" data-i18n="app.sub"></p>
+    </div>
+    <div class="tools">
+      <label class="tog" data-i18n-title="voice_title">
+        <input type="checkbox" id="tts"> <span data-i18n="voice">🔊</span>
+      </label>
+      <select id="lang" data-i18n-title="lang_title"></select>
+    </div>
+  </div>
+  <p class="note" id="wip" data-i18n-html="wip"></p>
+</header>
+
+<!-- ------------------------------- prima ---------------------------------- -->
+<section class="card" id="setup">
+  <h2 data-i18n="setup.title"></h2>
+
+  <div class="row">
+    <label class="fld">
+      <span data-i18n="setup.system"></span>
+      <select id="sys"></select>
+    </label>
+    <label class="fld">
+      <span data-i18n="setup.mode"></span>
+      <select id="mode"></select>
+    </label>
+    <label class="fld" id="lapsFld">
+      <span data-i18n="setup.laps"></span>
+      <input id="laps" type="number" min="1" max="999" step="1" value="20" autocomplete="off">
+    </label>
+    <button id="connect" class="primary" data-i18n="btn.connect"></button>
+  </div>
+  <p class="hint" id="sysDesc"></p>
+
+  <div class="row sub-row" id="simOpts" hidden>
+    <label class="fld">
+      <span data-i18n="sys.sim.seed"></span>
+      <input id="seed" type="number" min="1" step="1" value="20260728" autocomplete="off">
+    </label>
+    <label class="fld">
+      <span data-i18n="sys.sim.speed"></span>
+      <select id="speed">
+        <option value="1">1×</option>
+        <option value="2">2×</option>
+        <option value="5">5×</option>
+        <option value="10">10×</option>
+        <option value="30">30×</option>
+      </select>
+    </label>
+    <span class="hint" data-i18n="sys.sim.seedHint"></span>
+  </div>
+
+  <h3 data-i18n="setup.drivers"></h3>
+  <div id="roster" class="roster"></div>
+  <div class="row">
+    <button id="addDriver" data-i18n="setup.addDriver"></button>
+    <span class="hint" data-i18n="setup.driversHint"></span>
+  </div>
+</section>
+
+<!-- ------------------------------- gara ----------------------------------- -->
+<section class="card" id="race">
+  <div class="bar">
+    <div class="stat"><span data-i18n="info.clock"></span><b id="clock">0:00.00</b></div>
+    <div class="stat"><span data-i18n="info.state"></span><b id="stateVal">—</b></div>
+    <div class="stat"><span data-i18n="info.best"></span><b id="bestVal">—</b></div>
+    <div class="stat"><span data-i18n="info.target"></span><b id="targetVal">—</b></div>
+  </div>
+
+  <div class="ctrl">
+    <button id="start" class="primary" data-i18n="btn.start"></button>
+    <button id="pause" data-i18n="btn.pause"></button>
+    <button id="stop" data-i18n="btn.stop"></button>
+    <button id="reset" data-i18n="btn.reset"></button>
+    <span class="spacer"></span>
+    <button id="csv" class="ghost" data-i18n="btn.csv"></button>
+  </div>
+
+  <table class="board">
+    <thead>
+      <tr>
+        <th data-i18n="hdr.pos"></th>
+        <th data-i18n="hdr.driver"></th>
+        <th data-i18n="hdr.laps"></th>
+        <th data-i18n="hdr.last"></th>
+        <th data-i18n="hdr.best"></th>
+        <th class="gapCol" data-i18n="hdr.gap"></th>
+        <th class="fuelCol" data-i18n="hdr.fuel"></th>
+      </tr>
+    </thead>
+    <tbody id="board"></tbody>
+  </table>
+  <p class="hint" id="boardEmpty" data-i18n="tbl.empty"></p>
+</section>
+
+<details class="card">
+  <summary data-i18n="log.title"></summary>
+  <p class="hint" data-i18n="log.hint"></p>
+  <div class="row"><button id="clearLog" class="ghost" data-i18n="btn.clear"></button></div>
+  <pre id="log"></pre>
+</details>
+
+<footer>
+  <p><button id="install" class="ghost" hidden data-i18n="install"></button></p>
+  <p data-i18n="foot.text"></p>
+  <p class="disc" data-i18n="foot.disc"></p>
+  <p class="ver">v<span id="appver">0.1.0</span></p>
+</footer>
+
+<script src="i18n.js?v=0.1.0"></script>
+<script src="race.js?v=0.1.0"></script>
+<script src="sistemi/registry.js?v=0.1.0"></script>
+<script src="sistemi/sim.js?v=0.1.0"></script>
+<script src="app.js?v=0.1.0"></script>
+</body>
+</html>

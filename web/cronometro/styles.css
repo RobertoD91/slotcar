@@ -1,0 +1,114 @@
+/* Cronometro web — foglio di stile.
+   Stessa palette del resto del sito, ma pensato per essere letto a distanza:
+   in pista lo schermo sta su un tavolo, non a trenta centimetri dagli occhi. */
+
+:root{
+  --bg:#0b0f17; --fg:#e9edf3; --mut:#8a94a6; --acc:#5db0ff; --accfg:#04121f;
+  --ok:#4ec36b; --warn:#e0a800; --err:#ff5c5c;
+  --card:#141924; --bd:#242c3a;
+}
+@media (prefers-color-scheme:light){
+  :root{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea;--accfg:#04121f}
+}
+*{box-sizing:border-box}
+body{
+  margin:0 auto;max-width:940px;padding:16px 14px 40px;
+  font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg);color:var(--fg);
+}
+a{color:var(--acc)}
+.back{display:inline-block;text-decoration:none;font-size:13px;color:var(--mut);margin-bottom:12px}
+.back:hover{color:var(--acc)}
+
+h1{font-size:26px;margin:0 0 2px;letter-spacing:-.02em}
+h2{font-size:17px;margin:0 0 12px}
+h3{font-size:14px;margin:20px 0 8px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.sub{margin:0;color:var(--mut);font-size:14px}
+.hint{color:var(--mut);font-size:12.5px;margin:8px 0 0}
+
+.titlebar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tools{display:flex;align-items:center;gap:10px}
+.tog{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--mut);cursor:pointer}
+
+.note{background:rgba(224,168,0,.12);border:1px solid var(--warn);border-radius:10px;
+      padding:10px 13px;margin:14px 0 0;font-size:13px;line-height:1.5}
+
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;
+      padding:16px;margin-top:14px}
+details.card > summary{cursor:pointer;font-weight:600;font-size:14px}
+
+/* ---- controlli ---------------------------------------------------------- */
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.sub-row{margin-top:12px;padding-top:12px;border-top:1px dashed var(--bd)}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mut)}
+select,input[type=number],input[type=text]{
+  background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;
+  padding:8px 10px;font:inherit;font-size:14px;min-width:120px
+}
+input[type=number]{width:110px;min-width:0}
+select:focus,input:focus{outline:2px solid var(--acc);outline-offset:1px}
+button{
+  background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:9px;
+  padding:9px 15px;font:inherit;font-weight:600;cursor:pointer
+}
+button:hover:not(:disabled){border-color:var(--acc)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:var(--acc);color:var(--accfg);border-color:var(--acc)}
+button.ghost{font-weight:500;color:var(--mut)}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.spacer{flex:1}
+
+/* ---- barra dei numeri --------------------------------------------------- */
+.bar{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.stat{background:var(--bg);border:1px solid var(--bd);border-radius:11px;padding:10px 12px}
+.stat span{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums;margin-top:2px}
+#clock{font-size:34px;letter-spacing:-.02em}
+.stat.on b{color:var(--ok)}
+.stat.warn b{color:var(--warn)}
+
+/* ---- guidatori ---------------------------------------------------------- */
+.roster{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.slotrow{display:flex;align-items:center;gap:8px;background:var(--bg);
+         border:1px solid var(--bd);border-radius:10px;padding:7px 9px}
+.slotrow .num{font-size:12px;color:var(--mut);white-space:nowrap;min-width:64px}
+.slotrow input{flex:1;min-width:0;border:0;background:transparent;padding:4px 2px;font-size:14px}
+.slotrow input:focus{outline:0;border-bottom:1px solid var(--acc)}
+.slotrow .del{border:0;background:transparent;color:var(--mut);font-weight:400;
+              font-size:12px;padding:4px 6px;cursor:pointer}
+.slotrow .del:hover{color:var(--err)}
+
+/* ---- classifica --------------------------------------------------------- */
+table.board{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.board th{text-align:left;font-size:11px;color:var(--mut);text-transform:uppercase;
+          letter-spacing:.06em;padding:6px 8px;border-bottom:1px solid var(--bd);font-weight:600}
+.board td{padding:9px 8px;border-bottom:1px solid var(--bd);font-size:15px}
+.board tr:last-child td{border-bottom:0}
+.board .pos{font-weight:800;width:36px;color:var(--mut)}
+.board tr.lead .pos{color:var(--acc)}
+.board .who{font-weight:600}
+.board .who small{display:block;font-weight:400;font-size:11px;color:var(--mut)}
+.board .best{color:var(--acc)}
+.board .flag{color:var(--ok);font-weight:700}
+.tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:20px;
+     border:1px solid var(--bd);color:var(--mut);margin-left:6px;vertical-align:1px}
+.tag.res{color:var(--warn);border-color:var(--warn)}
+.tag.pit{color:var(--acc);border-color:var(--acc)}
+/* Le colonne che non hanno senso per il sistema collegato spariscono del tutto:
+   una colonna sempre vuota e' peggio di una colonna che non c'e'. */
+body:not(.has-fuel) .fuelCol{display:none}
+
+pre#log{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px;
+        max-height:240px;overflow:auto;font-size:12px;line-height:1.45;margin:10px 0 0;
+        white-space:pre-wrap;word-break:break-all}
+
+footer{color:var(--mut);font-size:12px;margin-top:22px;border-top:1px solid var(--bd);padding-top:12px}
+footer p{margin:6px 0}
+footer .disc{font-size:11px;line-height:1.55;opacity:.85}
+footer .ver{opacity:.6}
+
+@media (max-width:560px){
+  #clock{font-size:28px}
+  .board td,.board th{padding:8px 5px;font-size:14px}
+  .board .gapCol{display:none}
+}

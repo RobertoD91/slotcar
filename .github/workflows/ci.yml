@@ -58,6 +58,9 @@ jobs:
       - name: Parser JS Ninco (web/ninco/ninco.js)
         run: node web/ninco/ninco.test.js
 
+      - name: Motore di gara e simulatore (web/cronometro/)
+        run: node web/cronometro/race.test.js
+
   firmware:
     runs-on: ubuntu-latest
     steps:

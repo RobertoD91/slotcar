@@ -44,6 +44,7 @@ La pagina iniziale (`web/index.html`) è un **indice** che porta a tutte le app.
 
 | App | Cosa fa | Serve |
 |---|---|---|
+| [`cronometro/`](web/cronometro/) | **Cronometro web**: gestione gara su qualsiasi sistema — modalità *pratica* e *GP a giri*, guidatori con nome, classifica live, giro veloce, distacchi, annunci vocali, 5 lingue. Include una **pista simulata** per provarlo senza hardware. PWA, funziona offline | niente (simulazione) |
 | [`car-config/`](web/car-config/) | Configuratore del **chip auto** oXigen: nome, ID, modalità, velocità, freno, limiti, clone MAC, test motore/luci/sensore hall | Web Bluetooth |
 | [`remote-config/`](web/remote-config/) | Configuratore del **controller SCP-3**: nome, brake setting, ID, clone MAC; legge firmware e data di attivazione | Web Bluetooth |
 | [`chron02/`](web/chron02/) | **Contagiri e gestione gara** oXigen via dongle: classifica live, giri, tempi e pit dalla telemetria `rf_data_x[13]`; start/pausa/stop e comandi per singola auto con `race_status[10]` | Web Serial |
@@ -53,9 +54,41 @@ La pagina iniziale (`web/index.html`) è un **indice** che porta a tutte le app.
 | [`esp32-installer/`](web/esp32-installer/) | **Installer ESP32** del ponte DS200/DS300 → WiFi/MQTT, con configurazione della rete dal browser. **La cosa più acerba del sito** | Web Serial |
 | [`ninco/`](web/ninco/) | **Contagiri Ninco N-Digital**: posizioni, giri, benzina e riserva, modalità amatore/professionale, tempi sul giro (firmware ≥ 1.08), dati grezzi esportabili | Web Serial |
 
-In cima all'indice, in evidenza, c'è il **Cronometro web**: l'app che dovrà gestire una gara su
-*qualsiasi* sistema con la stessa interfaccia. Non è ancora pronta — è un segnaposto — ma sta lì
-apposta, perché tutto il resto sono strumenti di servizio e diagnostica.
+### Il Cronometro web
+
+In cima all'indice, in evidenza, c'è il **Cronometro web**: l'app che gestisce una gara su
+*qualsiasi* sistema con la stessa interfaccia. Sta lì apposta, perché tutto il resto sono
+strumenti di servizio e diagnostica: i contagiri per singolo sistema restano, ma come
+**debugger** di quel sistema.
+
+È fatto di tre pezzi separati, ed è una separazione voluta:
+
+- `race.js` — **il motore**: modalità, giri, tempi, classifica. Non tocca il DOM, non apre
+  porte, non usa timer: l'orologio glielo passi tu. Per questo si prova da riga di comando
+  (`race.test.js`) senza browser e senza pista.
+- `sistemi/` — **gli adattatori**, uno per pista. Traducono quello che dice l'hardware in
+  eventi normalizzati, gli stessi per tutti. Ognuno **dichiara cosa sa fare** (`caps`) e
+  l'interfaccia si adatta: la colonna della benzina compare solo se qualcuno la manda, i
+  comandi di gara solo se qualcuno li accetta.
+- `app.js` — **solo interfaccia**. Se ti trovi a scrivere lì una regola di gara, è nel
+  posto sbagliato.
+
+I tre sistemi veri **non sono simmetrici**, e le `caps` esistono per questo:
+
+| | DS200/DS300 | Ninco | oXigen | simulazione |
+|---|---|---|---|---|
+| tempo sul giro | lo manda | per differenza | telemetria | lo manda |
+| posizione | la calcoliamo | **la manda la base** | la calcoliamo | la calcoliamo |
+| benzina / riserva | — | **sì** | — | sì (finta) |
+| stato della gara | **lo annuncia la centralina** | va dedotto | **lo decide l'app** | lo decide l'app |
+| comandare la gara | no | no | **sì** | sì |
+
+Quindi "Avvia gara" non può essere un bottone uguale per tutti: con il DS200 il via lo dà la
+centralina, con la Ninco lo dà il dito dell'utente, con oXigen lo dà davvero l'app.
+
+**Cosa funziona oggi**: motore, modalità *pratica* e *GP a giri*, guidatori modificabili,
+voce e traduzioni, PWA — tutto provabile con la **pista simulata**. I sistemi veri arrivano
+uno alla volta, a partire dal DS200/DS300.
 
 ### Ninco N-Digital: cosa si può fare e cosa no
 
@@ -133,6 +166,7 @@ web/                  → è QUESTA cartella che finisce su GitHub Pages
   i18n.js               motore multilingua condiviso (IT/EN/ES) + disclaimer
   sw.js                 service worker network-first (evita le versioni vecchie in cache)
   version.json          versione del sito e delle singole app
+  cronometro/           il cronometro: motore (race.js) + sistemi (sistemi/) + interfaccia
   car-config/ remote-config/ modes/                  app oXigen (Web Bluetooth + riferimento)
   chron02/ o2-bootloader/                            app oXigen via dongle (Web Serial)
   ds200-ds300/          contagiri DS200/DS300 (PWA autonoma, i18n e sw propri)
@@ -148,6 +182,8 @@ tools/
   install-hooks.sh         attiva gli hook git che bloccano i segreti
   check-links.js           verifica i link interni del sito
   smoke-test.js            apre tutte le app in un browser headless
+  test-cronometro.js       fa correre una gara simulata nel cronometro
+  test-ninco-ui.js         contagiri Ninco con una seriale simulata
 ```
 
 ## Sviluppo locale
@@ -171,6 +207,7 @@ cd cli && python3 -m pytest tests/ -q                           # parser DS200 �
 g++ -std=c++17 -I esp32/test_host -I esp32/src \
     esp32/test_host/test_ds200.cpp -o /tmp/t && /tmp/t          # parser DS200 — C++
 node web/ninco/ninco.test.js                                    # parser Ninco
+node web/cronometro/race.test.js                                # motore di gara + simulatore
 cd esp32 && pio run                                             # firmware
 ```
 
@@ -179,7 +216,9 @@ che apre ogni app, controlla i link di ritorno, il multilingua e gli errori JS:
 
 ```bash
 cd web && python3 -m http.server 8099 &
-node tools/smoke-test.js
+node tools/smoke-test.js         # tutte le app: link, i18n, errori JS
+node tools/test-cronometro.js    # una gara simulata dentro il cronometro
+node tools/test-ninco-ui.js      # contagiri Ninco con seriale simulata
 ```
 
 ### Questa repo è la sorgente di tutto

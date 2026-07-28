@@ -80,10 +80,12 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   });
   ok(overlap === false, 'nastro e selettore lingua non si sovrappongono');
 
-  // La card in evidenza sta in cima, prima di tutte le sezioni, ed è un placeholder.
+  // La card in evidenza sta in cima, prima di tutte le sezioni, e porta al cronometro.
   const hero = page.locator('.hero');
   ok(await hero.isVisible(), 'card "Cronometro web" in evidenza presente');
-  ok(await page.locator('.hero a').count() === 0, 'la card in evidenza NON è cliccabile (non è pronta)');
+  ok(await page.locator('a.hero').count() === 1, 'la card in evidenza è cliccabile');
+  ok((await page.locator('a.hero').getAttribute('href')) === 'cronometro/',
+    'la card in evidenza porta al cronometro');
   const order = await page.evaluate(() => {
     const h = document.querySelector('.hero'), s = document.querySelector('h2');
     return h && s ? (h.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING) > 0 : false;
@@ -112,6 +114,7 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   // ---------- ogni app: carica + link di ritorno ----------
   console.log('\n== APP ==');
   const apps = [
+    ['cronometro/', 'Slot Car Web Tools'],
     ['car-config/', 'Slot Car Web Tools'],
     ['remote-config/', 'Slot Car Web Tools'],
     ['chron02/', 'Slot Car Web Tools'],
@@ -140,9 +143,12 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   for (const [path] of apps) {
     await page.goto(BASE + '/' + path, { waitUntil: 'networkidle' });
     const txt = await page.locator('body').innerText();
-    // una chiave grezza e' una parola camelCase isolata, senza spazi, tipo "stDisc"
-    const raw = (txt.match(/(^|\s)(st[A-Z]\w+|no[A-Z]\w+|hdr[A-Z]\w+|col[A-Z]\w+|btn[A-Z]\w+|title[A-Z]\w+|v[A-Z]\w+)(\s|$)/g) || [])
-                  .map(x => x.trim());
+    // Una chiave grezza è una parola isolata che nessuno scriverebbe in una frase.
+    // Due famiglie, perché le app usano due convenzioni: camelCase ("stDisc",
+    // le app oXigen) e puntata ("hdr.pos", DS200 e cronometro).
+    const camel = txt.match(/(^|\s)(st[A-Z]\w+|no[A-Z]\w+|hdr[A-Z]\w+|col[A-Z]\w+|btn[A-Z]\w+|title[A-Z]\w+|v[A-Z]\w+)(\s|$)/g) || [];
+    const dotted = txt.match(/(^|\s)(app|setup|btn|hdr|state|info|tbl|mode|sys|foot|log|gap|slot|tts|time|cmd|func|lb|events|status)\.[a-zA-Z][\w.]*(\s|$)/g) || [];
+    const raw = camel.concat(dotted).map(x => x.trim());
     ok(raw.length === 0, `${path.padEnd(18)} nessuna chiave i18n grezza${raw.length ? ' → ' + raw.join(', ') : ''}`);
   }
 
