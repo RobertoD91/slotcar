@@ -124,6 +124,24 @@
     </a>
   </div>
 
+  <h2 data-i18n-html="secNinco"></h2>
+  <div class="grid">
+    <a class="card" href="ninco/">
+      <span class="badge on" data-i18n="badgeActive"></span>
+      <div class="ico">🔍</div>
+      <h3 data-i18n="ncTitle"></h3>
+      <p data-i18n-html="ncDesc"></p>
+      <div class="tech"><span>Web Serial</span></div>
+    </a>
+    <div class="card soon">
+      <span class="badge" data-i18n="badgeSoon"></span>
+      <div class="ico">🏎️</div>
+      <h3 data-i18n="ncLapTitle"></h3>
+      <p data-i18n-html="ncLapDesc"></p>
+      <div class="tech"><span>Web Serial</span></div>
+    </div>
+  </div>
+
   <footer>
     <span id="ver">…</span>
   </footer>
@@ -131,9 +149,9 @@
 <script>
 window.I18N_STRINGS = {
   sub:{
-    it:"Strumenti web per slot car digitali: <b>oXigen</b> (Slot.it) e cronometri <b>DS Electronic</b>.<br>Girano nel browser, senza installare nulla. Usare Chrome/Edge desktop o Chrome Android.",
-    en:"Web tools for digital slot cars: <b>oXigen</b> (Slot.it) and <b>DS Electronic</b> lap timers.<br>They run in the browser, nothing to install. Use Chrome/Edge on desktop or Chrome on Android.",
-    es:"Herramientas web para slot cars digitales: <b>oXigen</b> (Slot.it) y cronómetros <b>DS Electronic</b>.<br>Funcionan en el navegador, sin instalar nada. Usa Chrome/Edge en escritorio o Chrome en Android."
+    it:"Strumenti web per slot car digitali: <b>oXigen</b> (Slot.it), cronometri <b>DS Electronic</b> e <b>Ninco Digital</b>.<br>Girano nel browser, senza installare nulla. Usare Chrome/Edge desktop o Chrome Android.",
+    en:"Web tools for digital slot cars: <b>oXigen</b> (Slot.it), <b>DS Electronic</b> lap timers and <b>Ninco Digital</b>.<br>They run in the browser, nothing to install. Use Chrome/Edge on desktop or Chrome on Android.",
+    es:"Herramientas web para slot cars digitales: <b>oXigen</b> (Slot.it), cronómetros <b>DS Electronic</b> y <b>Ninco Digital</b>.<br>Funcionan en el navegador, sin instalar nada. Usa Chrome/Edge en escritorio o Chrome en Android."
   },
   noSsl:{
     it:"🔒 Questa pagina è aperta in <b>http</b>, non in <b>https</b>. Web Bluetooth e Web Serial " +
@@ -170,6 +188,23 @@ window.I18N_STRINGS = {
     it:"DS Electronic <small>(cronometri DS200 / DS300)</small>",
     en:"DS Electronic <small>(DS200 / DS300 lap timers)</small>",
     es:"DS Electronic <small>(cronómetros DS200 / DS300)</small>"
+  },
+  secNinco:{
+    it:"Ninco Digital <small>(power base)</small>",
+    en:"Ninco Digital <small>(power base)</small>",
+    es:"Ninco Digital <small>(power base)</small>"
+  },
+  ncTitle:{it:"Analizzatore seriale",en:"Serial analyser",es:"Analizador serie"},
+  ncDesc:{
+    it:"Legge quello che la power base manda sulla seriale e lo mostra in chiaro, con analisi dei pacchetti ed export. <b>Il protocollo Ninco non è ancora decodificato</b>: per ora si ascolta soltanto.",
+    en:"Reads what the power base sends on the serial port and shows it raw, with packet analysis and export. <b>The Ninco protocol is not decoded yet</b>: for now it only listens.",
+    es:"Lee lo que la power base envía por el puerto serie y lo muestra en crudo, con análisis de paquetes y exportación. <b>El protocolo Ninco aún no está decodificado</b>: por ahora solo escucha."
+  },
+  ncLapTitle:{it:"Contagiri Ninco",en:"Ninco lap counter",es:"Cuentavueltas Ninco"},
+  ncLapDesc:{
+    it:"Giri, tempi e classifica dalla power base Ninco. <b>Bloccato finché non si conosce il protocollo</b>: serve prima una cattura fatta con l'analizzatore qui accanto.",
+    en:"Laps, times and standings from the Ninco power base. <b>Blocked until the protocol is known</b>: it needs a capture made with the analyser next to it first.",
+    es:"Vueltas, tiempos y clasificación desde la power base Ninco. <b>Bloqueado hasta conocer el protocolo</b>: antes hace falta una captura hecha con el analizador de al lado."
   },
   badgeActive:{it:"attivo",en:"active",es:"activo"},
   badgeSoon:{it:"prossimamente",en:"coming soon",es:"próximamente"},
@@ -229,7 +264,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="1.1.1";
+const SITE_VERSION="1.2.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto

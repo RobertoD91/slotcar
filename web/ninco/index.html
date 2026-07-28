@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<title>Ninco Digital — analizzatore seriale</title>
+<style>
+  :root{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--acc:#5db0ff;--ok:#4ec36b;--err:#ff6b6b;--warn:#e0a800;--card:#171a21;--bd:#2a2f3a;--accfg:#04121f}
+  @media (prefers-color-scheme:light){:root{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}}
+  :root[data-theme="dark"]{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--card:#171a21;--bd:#2a2f3a}
+  :root[data-theme="light"]{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:860px;margin:0 auto}
+  a.back{color:var(--mut);text-decoration:none;font-size:13px}
+  h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
+  .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+  button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:8px 13px;font-weight:600;cursor:pointer;font-size:14px}
+  button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+  button:disabled{opacity:.45;cursor:default}
+  input,select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;font:inherit}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  label{color:var(--mut);font-size:13px}
+  .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut);vertical-align:middle}
+  .pill.on{color:var(--ok);border-color:var(--ok)}
+  .val{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:13px}
+  code{font-family:ui-monospace,Menlo,monospace}
+  table{border-collapse:collapse;width:100%;font-size:12.5px}
+  td,th{border-bottom:1px solid var(--bd);padding:5px 7px;text-align:left}th{color:var(--mut)}
+  td.n,th.n{text-align:right;font-family:ui-monospace,Menlo,monospace}
+  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre;max-height:300px;overflow:auto;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px}
+  #noser{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
+  #unknown{background:rgba(224,168,0,.12);border:1px solid var(--warn);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13.5px;line-height:1.55}
+  #unknown b{color:var(--warn)}
+  .wire{font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.7}
+  .bar{display:inline-block;height:9px;background:var(--acc);border-radius:2px;vertical-align:middle}
+  .muted{color:var(--mut);font-size:12.5px}
+</style>
+</head>
+<body>
+  <div id="noser" data-i18n-html="noSerial"></div>
+  <a class="back" href="../">← Slot Car Web Tools</a>
+  <h1><span data-i18n="h1">Ninco Digital — analizzatore seriale</span> <span id="st" class="pill"></span></h1>
+  <p class="sub" data-i18n-html="sub"></p>
+
+  <div id="unknown" data-i18n-html="unknownProto"></div>
+
+  <!-- ===== Cablaggio ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleWiring">Cablaggio</p>
+    <p class="muted" data-i18n-html="wiringIntro"></p>
+    <p class="wire">
+      Mini-DIN 6 &nbsp;pin&nbsp;<b>1</b> &nbsp;→&nbsp; DB-9 &nbsp;pin&nbsp;<b>2</b> &nbsp;<span class="muted">(RX)</span><br>
+      Mini-DIN 6 &nbsp;pin&nbsp;<b>5</b> &nbsp;→&nbsp; DB-9 &nbsp;pin&nbsp;<b>5</b> &nbsp;<span class="muted">(GND)</span>
+    </p>
+    <img src="NincoDB9.jpg" alt="Mini-DIN 6 → DB-9" style="max-width:100%;border-radius:8px;margin-top:6px">
+    <p class="muted" data-i18n-html="wiringNote"></p>
+  </div>
+
+  <!-- ===== Connessione ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleConn">Connessione</p>
+    <div class="row">
+      <button id="btnConn" data-i18n="btnConnect">🔌 Connetti</button>
+      <button id="btnDisc" class="sec" data-i18n="btnDisconnect" disabled>Disconnetti</button>
+      <label for="baud" data-i18n="lblBaud">Baud</label>
+      <select id="baud" autocomplete="off">
+        <option value="1200">1200</option>
+        <option value="2400">2400</option>
+        <option value="4800">4800</option>
+        <option value="9600" selected>9600</option>
+        <option value="19200">19200</option>
+        <option value="38400">38400</option>
+        <option value="57600">57600</option>
+        <option value="115200">115200</option>
+      </select>
+      <span id="rate" class="val"></span>
+    </div>
+    <div class="row">
+      <button id="btnScan" class="sec" data-i18n="btnScan">🔎 Prova tutte le velocità</button>
+      <span class="muted" data-i18n="scanHint"></span>
+    </div>
+    <div id="scanres"></div>
+  </div>
+
+  <!-- ===== Dati ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleData">Dati ricevuti</p>
+    <div class="row">
+      <label for="gap" data-i18n="lblGap">Pausa che separa i pacchetti (ms)</label>
+      <input id="gap" type="number" min="1" max="500" value="15" style="width:80px">
+      <button id="btnClear" class="sec" data-i18n="btnClear">Pulisci</button>
+      <button id="btnExport" class="sec" data-i18n="btnExport" disabled>⬇ Esporta cattura</button>
+    </div>
+    <div id="log" data-i18n-attr="aria-label:titleData"></div>
+  </div>
+
+  <!-- ===== Analisi ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleStats">Analisi (aiuta a trovare il formato)</p>
+    <p class="muted" data-i18n-html="statsIntro"></p>
+    <div id="stats"></div>
+  </div>
+
+<script>
+window.I18N_STRINGS = {
+  h1:{it:"Ninco Digital — analizzatore seriale",en:"Ninco Digital — serial analyser",es:"Ninco Digital — analizador serie"},
+  sub:{
+    it:"Legge quello che la <b>power base Ninco Digital</b> manda sulla porta seriale e lo mostra in chiaro, per capire come è fatto il protocollo. Serve Chrome/Edge su computer.",
+    en:"Reads whatever the <b>Ninco Digital power base</b> sends on its serial port and shows it raw, to work out how the protocol is built. Needs Chrome/Edge on a desktop.",
+    es:"Lee lo que la <b>power base Ninco Digital</b> envía por el puerto serie y lo muestra en crudo, para averiguar cómo es el protocolo. Necesita Chrome/Edge en un ordenador."
+  },
+  unknownProto:{
+    it:"⚠️ <b>Il protocollo Ninco non è ancora decodificato.</b> Nella documentazione del progetto c'è solo lo schema del cavo, non il formato dei dati: questa pagina quindi <b>non pilota</b> ancora niente, <b>legge e basta</b>. Serve a catturare il traffico della centralina per ricavarne il formato — poi si potrà costruire il contagiri vero.",
+    en:"⚠️ <b>The Ninco protocol is not decoded yet.</b> The project documentation only has the cable diagram, not the data format: this page therefore <b>does not control</b> anything yet, it <b>only listens</b>. Its job is to capture the base's traffic so the format can be worked out — then the real lap counter can be built.",
+    es:"⚠️ <b>El protocolo Ninco aún no está decodificado.</b> En la documentación del proyecto solo está el esquema del cable, no el formato de los datos: esta página <b>no controla</b> nada todavía, <b>solo escucha</b>. Sirve para capturar el tráfico de la central y deducir el formato — después se podrá construir el cuentavueltas real."
+  },
+  titleWiring:{it:"Cablaggio",en:"Wiring",es:"Cableado"},
+  wiringIntro:{
+    it:"La power base espone un <b>Mini-DIN 6</b>. Per collegarla a una seriale DB-9 servono due fili soli (è un collegamento di sola lettura):",
+    en:"The power base has a <b>Mini-DIN 6</b> socket. Two wires are enough to reach a DB-9 serial port (it is a read-only link):",
+    es:"La power base tiene un <b>Mini-DIN 6</b>. Bastan dos hilos para llegar a un puerto serie DB-9 (es un enlace de solo lectura):"
+  },
+  wiringNote:{
+    it:"Su un computer moderno serve un <b>adattatore USB↔seriale</b>. Attenzione: i livelli RS-232 sono ±12 V — se il tuo adattatore è a livelli TTL (3,3/5 V) ci vuole in mezzo un convertitore tipo MAX3232, altrimenti rischi di danneggiarlo.",
+    en:"On a modern computer you also need a <b>USB↔serial adapter</b>. Careful: RS-232 levels are ±12 V — if your adapter is TTL level (3.3/5 V) put a MAX3232-style converter in between, or you risk damaging it.",
+    es:"En un ordenador moderno hace falta un <b>adaptador USB↔serie</b>. Cuidado: los niveles RS-232 son ±12 V — si tu adaptador es de nivel TTL (3,3/5 V) pon en medio un convertidor tipo MAX3232, o puedes dañarlo."
+  },
+  titleConn:{it:"Connessione",en:"Connection",es:"Conexión"},
+  btnConnect:{it:"🔌 Connetti",en:"🔌 Connect",es:"🔌 Conectar"},
+  btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
+  lblBaud:{it:"Velocità",en:"Baud",es:"Velocidad"},
+  btnScan:{it:"🔎 Prova tutte le velocità",en:"🔎 Try every baud rate",es:"🔎 Probar todas las velocidades"},
+  scanHint:{
+    it:"la velocità giusta per Ninco non è documentata: questo la cerca ascoltando 3 s per ognuna",
+    en:"the right baud for Ninco is not documented: this listens 3 s on each to find it",
+    es:"la velocidad correcta de Ninco no está documentada: esto escucha 3 s en cada una"
+  },
+  titleData:{it:"Dati ricevuti",en:"Incoming data",es:"Datos recibidos"},
+  lblGap:{it:"Pausa che separa i pacchetti (ms)",en:"Gap that separates packets (ms)",es:"Pausa que separa los paquetes (ms)"},
+  btnClear:{it:"Pulisci",en:"Clear",es:"Limpiar"},
+  btnExport:{it:"⬇ Esporta cattura",en:"⬇ Export capture",es:"⬇ Exportar captura"},
+  titleStats:{it:"Analisi (aiuta a trovare il formato)",en:"Analysis (helps find the format)",es:"Análisis (ayuda a encontrar el formato)"},
+  statsIntro:{
+    it:"Se i pacchetti hanno <b>sempre la stessa lunghezza</b> e cominciano/finiscono <b>sempre con lo stesso byte</b>, quelli sono l'inizio e la fine del pacchetto — è così che è fatto anche il DS200 (<code>E0</code> … <code>EB</code>, 21 byte). Esporta la cattura e allegala per farla decodificare.",
+    en:"If the packets are <b>always the same length</b> and always start/end with <b>the same byte</b>, those are the start and end markers — that is exactly how the DS200 works (<code>E0</code> … <code>EB</code>, 21 bytes). Export the capture and attach it to have it decoded.",
+    es:"Si los paquetes tienen <b>siempre la misma longitud</b> y empiezan/terminan <b>siempre con el mismo byte</b>, esos son el inicio y el fin — así funciona también el DS200 (<code>E0</code> … <code>EB</code>, 21 bytes). Exporta la captura y adjúntala para decodificarla."
+  },
+  stConn:{it:"connesso",en:"connected",es:"conectado"},
+  stDisc:{it:"non connesso",en:"not connected",es:"sin conexión"},
+  stScan:{it:"scansione…",en:"scanning…",es:"escaneando…"},
+  colBaud:{it:"Velocità",en:"Baud",es:"Velocidad"},
+  colBytes:{it:"Byte in 3 s",en:"Bytes in 3 s",es:"Bytes en 3 s"},
+  colDistinct:{it:"Valori diversi",en:"Distinct values",es:"Valores distintos"},
+  colVerdict:{it:"Indizio",en:"Hint",es:"Indicio"},
+  vNothing:{it:"niente",en:"nothing",es:"nada"},
+  vNoise:{it:"sembra rumore",en:"looks like noise",es:"parece ruido"},
+  vGood:{it:"promettente",en:"promising",es:"prometedor"},
+  noPackets:{it:"Ancora nessun pacchetto.",en:"No packets yet.",es:"Todavía ningún paquete."},
+  hdrLen:{it:"Lunghezza dei pacchetti",en:"Packet length",es:"Longitud de los paquetes"},
+  hdrFirst:{it:"Primo byte",en:"First byte",es:"Primer byte"},
+  hdrLast:{it:"Ultimo byte",en:"Last byte",es:"Último byte"},
+  colValue:{it:"Valore",en:"Value",es:"Valor"},
+  colCount:{it:"Quante volte",en:"Count",es:"Cuántas veces"},
+  pkts:{it:"pacchetti",en:"packets",es:"paquetes"},
+  errOpen:{it:"Non riesco ad aprire la porta: ",en:"Cannot open the port: ",es:"No puedo abrir el puerto: "}
+};
+</script>
+<script src="../i18n.js"></script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const T = (k) => (window.I18N ? I18N.t(k) : k);
+const hex = (b) => b.toString(16).padStart(2, "0").toUpperCase();
+
+let port = null, reader = null, keepReading = false;
+let frames = [];          // {t, bytes:[]}
+let cur = null, lastByteAt = 0, rxCount = 0, rxWindowAt = 0;
+
+if (!navigator.serial) { $("noser").style.display = "block"; $("btnConn").disabled = true; $("btnScan").disabled = true; }
+
+function setStatus(on, key){
+  const el = $("st");
+  el.textContent = T(key);
+  el.className = "pill" + (on ? " on" : "");
+}
+setStatus(false, "stDisc");
+
+/* ---------- lettura ---------- */
+// I byte arrivano a blocchi qualsiasi: quello che separa un pacchetto dal successivo
+// è la PAUSA. Sotto la soglia stesso pacchetto, sopra se ne apre uno nuovo.
+function onBytes(chunk){
+  const now = performance.now();
+  const gap = Number($("gap").value) || 15;
+  for (const b of chunk){
+    if (!cur || (now - lastByteAt) > gap){ cur = { t: Date.now(), bytes: [] }; frames.push(cur); }
+    cur.bytes.push(b);
+    lastByteAt = now;
+  }
+  rxCount += chunk.length;
+  if (frames.length > 2000) frames.splice(0, frames.length - 2000);
+  render();
+}
+
+async function readLoop(){
+  while (keepReading && port && port.readable){
+    try {
+      reader = port.readable.getReader();
+      while (true){
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (value && value.length) onBytes(value);
+      }
+    } catch (e) {
+      // porta staccata o errore di lettura: esco dal loop
+      break;
+    } finally {
+      try { reader && reader.releaseLock(); } catch(e){}
+      reader = null;
+    }
+  }
+}
+
+async function connect(){
+  try {
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: Number($("baud").value), dataBits: 8, stopBits: 1, parity: "none" });
+  } catch (e) {
+    if (e && e.name === "NotFoundError") return;      // l'utente ha annullato la scelta
+    alert(T("errOpen") + (e && e.message ? e.message : e));
+    port = null; return;
+  }
+  keepReading = true;
+  $("btnConn").disabled = true; $("btnDisc").disabled = false; $("btnScan").disabled = true;
+  setStatus(true, "stConn");
+  readLoop();
+}
+
+async function disconnect(){
+  keepReading = false;
+  try { reader && await reader.cancel(); } catch(e){}
+  try { port && await port.close(); } catch(e){}
+  port = null;
+  $("btnConn").disabled = false; $("btnDisc").disabled = true; $("btnScan").disabled = false;
+  setStatus(false, "stDisc");
+}
+
+/* ---------- scansione delle velocità ---------- */
+// La velocità giusta non è documentata. Ascoltiamo 3 s su ognuna e riportiamo quanto
+// arriva: a velocità sbagliata di solito o non arriva niente o arrivano pochi valori
+// sempre uguali (rumore di framing). Il giudizio finale resta all'occhio umano.
+async function scanBauds(){
+  const rates = [...$("baud").options].map(o => Number(o.value));
+  let p;
+  try { p = await navigator.serial.requestPort(); }
+  catch(e){ return; }
+
+  $("btnScan").disabled = true; $("btnConn").disabled = true;
+  setStatus(false, "stScan");
+  const rows = [];
+  for (const rate of rates){
+    let n = 0; const seen = new Set();
+    try {
+      await p.open({ baudRate: rate, dataBits: 8, stopBits: 1, parity: "none" });
+      const rd = p.readable.getReader();
+      const stop = Date.now() + 3000;
+      while (Date.now() < stop){
+        const to = new Promise(r => setTimeout(() => r({ value: null, done: true }), stop - Date.now()));
+        const { value } = await Promise.race([rd.read(), to]);
+        if (!value) break;
+        n += value.length; for (const b of value) seen.add(b);
+      }
+      try { await rd.cancel(); } catch(e){}
+      rd.releaseLock();
+      await p.close();
+    } catch (e) {
+      try { await p.close(); } catch(e2){}
+    }
+    rows.push({ rate, n, d: seen.size });
+    renderScan(rows);
+  }
+  $("btnScan").disabled = false; $("btnConn").disabled = false;
+  setStatus(false, "stDisc");
+}
+
+function renderScan(rows){
+  const best = Math.max(...rows.map(r => r.n), 1);
+  let h = "<table><tr><th>" + T("colBaud") + "</th><th class=n>" + T("colBytes") +
+          "</th><th class=n>" + T("colDistinct") + "</th><th>" + T("colVerdict") + "</th></tr>";
+  for (const r of rows){
+    // pochi valori distinti su tanti byte = quasi sempre framing sbagliato
+    const verdict = r.n === 0 ? T("vNothing") : (r.d <= 3 ? T("vNoise") : T("vGood"));
+    h += `<tr><td class=n>${r.rate}</td><td class=n>${r.n}</td><td class=n>${r.d}</td>` +
+         `<td><span class="bar" style="width:${Math.round(60 * r.n / best)}px"></span> ${verdict}</td></tr>`;
+  }
+  $("scanres").innerHTML = h + "</table>";
+}
+
+/* ---------- vista + analisi ---------- */
+let renderPending = false;
+function render(){
+  if (renderPending) return;
+  renderPending = true;
+  requestAnimationFrame(() => { renderPending = false; draw(); });
+}
+
+function draw(){
+  const last = frames.slice(-60);
+  $("log").textContent = last.map(f => {
+    const ts = new Date(f.t).toISOString().substr(11, 12);
+    return ts + "  [" + String(f.bytes.length).padStart(3) + "]  " + f.bytes.map(hex).join(" ");
+  }).join("\n");
+  $("log").scrollTop = $("log").scrollHeight;
+  $("btnExport").disabled = frames.length === 0;
+
+  // byte/s sulla finestra corrente
+  const now = performance.now();
+  if (!rxWindowAt) rxWindowAt = now;
+  if (now - rxWindowAt > 1000){
+    $("rate").textContent = Math.round(rxCount * 1000 / (now - rxWindowAt)) + " B/s";
+    rxCount = 0; rxWindowAt = now;
+  }
+
+  if (!frames.length){ $("stats").innerHTML = '<p class="muted">' + T("noPackets") + "</p>"; return; }
+
+  const tally = (arr) => { const m = new Map(); for (const v of arr) m.set(v, (m.get(v) || 0) + 1);
+                           return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6); };
+  const lens  = tally(frames.map(f => f.bytes.length));
+  const first = tally(frames.map(f => f.bytes[0]));
+  const lastB = tally(frames.map(f => f.bytes[f.bytes.length - 1]));
+
+  const tbl = (title, rows, asHex) => {
+    const max = rows.length ? rows[0][1] : 1;
+    let h = "<table><tr><th>" + title + "</th><th class=n>" + T("colCount") + "</th><th></th></tr>";
+    for (const [v, c] of rows)
+      h += `<tr><td class=n>${asHex ? "0x" + hex(v) : v}</td><td class=n>${c}</td>` +
+           `<td><span class="bar" style="width:${Math.round(90 * c / max)}px"></span></td></tr>`;
+    return h + "</table>";
+  };
+
+  $("stats").innerHTML =
+    '<p class="muted">' + frames.length + " " + T("pkts") + "</p>" +
+    '<div class="row" style="align-items:flex-start;gap:18px">' +
+      '<div style="flex:1;min-width:180px">' + tbl(T("hdrLen"), lens, false) + "</div>" +
+      '<div style="flex:1;min-width:180px">' + tbl(T("hdrFirst"), first, true) + "</div>" +
+      '<div style="flex:1;min-width:180px">' + tbl(T("hdrLast"), lastB, true) + "</div>" +
+    "</div>";
+}
+
+/* ---------- comandi ---------- */
+$("btnConn").onclick = connect;
+$("btnDisc").onclick = disconnect;
+$("btnScan").onclick = scanBauds;
+$("btnClear").onclick = () => { frames = []; cur = null; draw(); };
+$("btnExport").onclick = () => {
+  const head = "# Ninco Digital — cattura seriale\n# baud=" + $("baud").value +
+               "  pausa=" + $("gap").value + "ms  pacchetti=" + frames.length + "\n";
+  const body = frames.map(f => new Date(f.t).toISOString() + "  [" + f.bytes.length + "]  " +
+                               f.bytes.map(hex).join(" ")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([head + body], { type: "text/plain" }));
+  a.download = "ninco-cattura-" + new Date().toISOString().replace(/[:.]/g, "-") + ".txt";
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+// i18n.js costruisce il dizionario su DOMContentLoaded, quindi quando questo script
+// gira (documento ancora in parsing) T() restituirebbe la chiave grezza. Ridisegno
+// quando il dizionario c'è, e ad ogni cambio lingua.
+function refreshAll(){ setStatus(!!port, port ? "stConn" : "stDisc"); draw(); }
+document.addEventListener("i18n:changed", refreshAll);
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", refreshAll);
+else refreshAll();
+</script>
+</body>
+</html>

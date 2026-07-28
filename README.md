@@ -14,13 +14,15 @@
 > Some tools write to the devices and can leave them unusable. Use at your own risk,
 > on your own hardware only.*
 
-Raccolta di **web app che girano nel browser**, senza installare niente, per due
+Raccolta di **web app che girano nel browser**, senza installare niente, per tre
 famiglie di prodotti da slot car:
 
 - **oXigen / Slot.it** — configurazione via **Web Bluetooth** di chip auto e controller
   SCP-3, e debug del dongle via **Web Serial**.
 - **DS Electronic** — monitor/contagiri per i cronometri **DS200 e DS300** via **Web Serial**
   (RS-232), con il flasher del ponte ESP32.
+- **Ninco Digital** — analizzatore seriale della **power base**, per ricavarne il
+  protocollo (non ancora noto) e poi costruirci il contagiri.
 
 Tutte le app sono **statiche**: nessun backend, nessun account, **nessun dato lascia il
 dispositivo**. Sono pubblicate su GitHub Pages da una GitHub Action.
@@ -43,9 +45,22 @@ La pagina iniziale (`web/index.html`) è un **indice** che porta a tutte le app.
 | [`modes/`](web/modes/) | Riferimento (dai manuali) di **sequenze tasti, LED, pairing e DFU** di controller e chip | niente, è statica |
 | [`ds200/`](web/ds200/) | **Contagiri DS200 / DS300**: giri, tempi, classifica live, giro veloce, annunci vocali, export CSV. Installabile come PWA, funziona offline | Web Serial |
 | [`ds200/flash.html`](web/ds200/flash.html) | **Flasher ESP32** del ponte DS200 → WiFi/MQTT, con configurazione della rete dal browser | Web Serial |
+| [`ninco/`](web/ninco/) | **Analizzatore seriale Ninco Digital**: legge la power base, mostra i pacchetti in esadecimale, ne analizza lunghezza e byte iniziali/finali, esporta la cattura | Web Serial |
 
 In arrivo (card "prossimamente" nell'indice): **chron02** (contagiri/gestione gara oXigen
-via dongle) e **O2 Bootloader** (aggiornatore firmware dei pezzi oXigen via dongle).
+via dongle), **O2 Bootloader** (aggiornatore firmware dei pezzi oXigen via dongle) e il
+**contagiri Ninco**.
+
+### ⚠️ Il protocollo Ninco non è ancora decodificato
+
+In [`docs/ninco/`](docs/ninco/) c'è **solo lo schema del cavo** (Mini-DIN 6 → DB-9:
+pin 1→2 e pin 5→5), non il formato dei dati: né il baud rate né il layout dei pacchetti.
+Per questo l'app Ninco **ascolta e basta**, non pilota niente.
+
+Il percorso per sbloccare il contagiri è: collegare la power base, usare *«prova tutte le
+velocità»* per trovare il baud, far girare qualche macchina, **esportare la cattura** e
+farla decodificare. Quando si conosce il formato, il contagiri si scrive riusando la
+struttura già collaudata del DS200 (framer + parser + test).
 
 ### Compatibilità browser
 
@@ -110,6 +125,8 @@ web/                  → è QUESTA cartella che finisce su GitHub Pages
   version.json          versione del sito e delle singole app
   car-config/ remote-config/ dongle-debug/ modes/    app oXigen
   ds200/                contagiri DS200/DS300 (PWA autonoma, i18n e sw propri)
+  ninco/                analizzatore seriale Ninco Digital
+docs/                 documentazione dei protocolli (non pubblicata su Pages)
 esp32/                firmware del ponte DS200 → WiFi/MQTT (PlatformIO)
 tools/
   sync-from-upstream.sh    riallinea le app dalle repo di sviluppo

@@ -41,21 +41,21 @@ PATCHES += [
     (_I18N,
      '"sponsorizzata né supportata da Slot.it / Galileo Engineering</b>. '
      '«Slot.it» e «oXigen» sono marchi dei " +',
-     '"sponsorizzata né supportata da Slot.it / Galileo Engineering né da DS Electronic</b>. '
-     '«Slot.it», «oXigen», " +\n        "«DS Electronic», «DS200» e «DS300» sono marchi dei " +',
+     '"sponsorizzata né supportata da Slot.it / Galileo Engineering, DS Electronic o Ninco</b>. '
+     '«Slot.it», «oXigen», " +\n        "«DS Electronic», «DS200», «DS300» e «Ninco» sono marchi dei " +',
      "disclaimer IT"),
     (_I18N,
      '"supported by Slot.it / Galileo Engineering</b>. '
      '\\"Slot.it\\" and \\"oXigen\\" are trademarks of their " +',
-     '"supported by Slot.it / Galileo Engineering or DS Electronic</b>. '
+     '"supported by Slot.it / Galileo Engineering, DS Electronic or Ninco</b>. '
      '\\"Slot.it\\", \\"oXigen\\", \\"DS Electronic\\", " +\n        '
-     '"\\"DS200\\" and \\"DS300\\" are trademarks of their " +',
+     '"\\"DS200\\", \\"DS300\\" and \\"Ninco\\" are trademarks of their " +',
      "disclaimer EN"),
     (_I18N,
      '"patrocinada ni respaldada por Slot.it / Galileo Engineering</b>. '
      '«Slot.it» y «oXigen» son marcas de sus " +',
-     '"patrocinada ni respaldada por Slot.it / Galileo Engineering ni por DS Electronic</b>. '
-     '«Slot.it», «oXigen», " +\n        "«DS Electronic», «DS200» y «DS300» son marcas de sus " +',
+     '"patrocinada ni respaldada por Slot.it / Galileo Engineering, DS Electronic o Ninco</b>. '
+     '«Slot.it», «oXigen», " +\n        "«DS Electronic», «DS200», «DS300» y «Ninco» son marcas de sus " +',
      "disclaimer ES"),
 ]
 
@@ -81,15 +81,51 @@ PATCHES += [
      "link esp32/README"),
 ]
 
-# 3-bis. Il default del baud e' gia' 4800 (giusto per il DS200), ma i browser
-#    ripristinano da soli l'opzione scelta l'ultima volta quando ricarichi la pagina:
-#    cosi' il menu riparte con un valore diverso da quello scritto nell'HTML.
-#    autocomplete="off" disattiva quel ripristino e il default torna deterministico.
+# 3-bis. Menu del baud. Due cose insieme:
+#    - le voci dicono a quale apparecchio corrispondono: "4800" da solo non aiuta
+#      chi non e' tecnico, "DS 200 — 4800" si'. Prima il DS 300, poi il DS 200, poi
+#      gli altri valori marcati come prove.
+#    - autocomplete="off": i browser ripristinano da soli l'opzione scelta l'ultima
+#      volta quando ricarichi, scavalcando il default scritto nell'HTML.
+#    Selezionato resta il DS 200 (4800), che e' l'apparecchio in uso.
 PATCHES += [
     (os.path.join(WEB, "ds200", "index.html"),
-     '<select id="baud">',
-     '<select id="baud" autocomplete="off">',
-     "baud: default deterministico"),
+     '        <select id="baud">\n'
+     '          <option value="4800" selected>4800</option>\n'
+     '          <option value="9600">9600</option>\n'
+     '          <option value="19200">19200</option>\n'
+     '          <option value="38400">38400</option>\n'
+     '          <option value="57600">57600</option>\n'
+     '          <option value="115200">115200</option>\n'
+     '        </select>\n'
+     '        <small class="baudhint">DS200 4800 · DS300 57600</small>',
+     '        <select id="baud" autocomplete="off">\n'
+     '          <option value="57600">DS 300 — 57600</option>\n'
+     '          <option value="4800" selected>DS 200 — 4800</option>\n'
+     '          <option value="9600">9600 (test)</option>\n'
+     '          <option value="19200">19200 (test)</option>\n'
+     '          <option value="38400">38400 (test)</option>\n'
+     '          <option value="115200">115200 (test)</option>\n'
+     '        </select>\n'
+     '        <small class="baudhint">DS 300 = 57600 · DS 200 = 4800</small>',
+     "baud: voci per apparecchio"),
+]
+
+# 3-ter. dongle-debug mostrava "stDisconnected" (la CHIAVE, non il testo) al primo
+#    caricamento: renderStatus() gira mentre il documento e' ancora in parsing, ma
+#    i18n.js costruisce il dizionario su DOMContentLoaded, quindi I18N.t() restituiva
+#    la chiave. Si ri-renderizzava solo al cambio lingua, e nessuno cambia lingua per
+#    vedere lo stato. Bug presente anche a monte: andrebbe corretto anche li'.
+PATCHES += [
+    (os.path.join(WEB, "dongle-debug", "index.html"),
+     'document.addEventListener("i18n:changed",()=>{renderStatus();renderInfo();});',
+     'document.addEventListener("i18n:changed",()=>{renderStatus();renderInfo();});\n'
+     '// il dizionario i18n esiste solo da DOMContentLoaded in poi: senza questo, al\n'
+     '// primo caricamento si vedeva la chiave grezza al posto del testo tradotto.\n'
+     'if(document.readyState==="loading")'
+     'document.addEventListener("DOMContentLoaded",()=>{renderStatus();renderInfo();});\n'
+     'else{renderStatus();renderInfo();}',
+     "dongle-debug: stato tradotto"),
 ]
 
 # 4. Via i rimandi a documenti che esistono solo nelle repo di sviluppo: qui sarebbero

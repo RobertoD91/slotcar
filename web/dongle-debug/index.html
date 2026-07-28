@@ -342,6 +342,10 @@ renderStatus();
 
 /* ri-render del dinamico al cambio lingua */
 document.addEventListener("i18n:changed",()=>{renderStatus();renderInfo();});
+// il dizionario i18n esiste solo da DOMContentLoaded in poi: senza questo, al
+// primo caricamento si vedeva la chiave grezza al posto del testo tradotto.
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{renderStatus();renderInfo();});
+else{renderStatus();renderInfo();}
 
 /* compat + sw + versione */
 if(!navigator.serial){$("nobt").style.display="block";$("btnConn").disabled=true;

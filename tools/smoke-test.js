@@ -20,9 +20,9 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok((await page.locator('h1').innerText()) === 'Slot Car Web Tools', 'h1 corretto');
 
   const cards = await page.locator('.card').count();
-  ok(cards === 8, `card totali = ${cards} (attese 8)`);
+  ok(cards === 10, `card totali = ${cards} (attese 10)`);
   const links = await page.locator('a.card').count();
-  ok(links === 6, `card cliccabili = ${links} (attese 6)`);
+  ok(links === 7, `card cliccabili = ${links} (attese 7)`);
 
   // i18n: nessuna chiave grezza rimasta a video
   const body = await page.locator('body').innerText();
@@ -30,7 +30,8 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok(!rawKeys.some(k => body.includes(k)), 'i18n applicata (nessuna chiave grezza)');
 
   // sezioni + card nuove
-  ok(body.includes('oXigen') && body.includes('DS Electronic'), 'entrambe le sezioni presenti');
+  ok(body.includes('oXigen') && body.includes('DS Electronic') && body.includes('Ninco'),
+    'tutte e tre le sezioni presenti (oXigen, DS Electronic, Ninco)');
   ok(body.includes('DS200'), 'card DS200 presente');
 
   // disclaimer iniettato da i18n.js, e ora nomina anche DS Electronic
@@ -38,6 +39,7 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok(disc.length > 100, 'disclaimer iniettato');
   ok(disc.includes('DS Electronic'), 'disclaimer nomina DS Electronic');
   ok(disc.includes('Slot.it'), 'disclaimer nomina Slot.it');
+  ok(disc.includes('Ninco'), 'disclaimer nomina Ninco');
 
   // selettore lingua
   ok(await page.locator('#__langsel').count() === 1, 'selettore lingua presente');
@@ -98,6 +100,7 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
     ['modes/', 'Slot Car Web Tools'],
     ['ds200/', 'Slot Car Web Tools'],
     ['ds200/flash.html', 'Slot Car Web Tools'],
+    ['ninco/', 'Slot Car Web Tools'],
   ];
   for (const [path, back] of apps) {
     const before = errors.length;
@@ -109,6 +112,19 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
     const nuovi = errors.slice(before).filter(e => !/Failed to load resource/.test(e));
     ok(okStatus && okBack && nuovi.length === 0,
       `${path.padEnd(18)} status=${resp.status()} back-link=${okBack ? 'sì' : 'NO'} erroriJS=${nuovi.length}`);
+  }
+
+  // ---------- nessuna chiave i18n grezza a video, su NESSUNA pagina ----------
+  // (l'indice lo controlla gia' sopra; qui becco le app che renderizzano da JS
+  // prima che i18n.js abbia costruito il dizionario)
+  console.log('\n== I18N NELLE APP ==');
+  for (const [path] of apps) {
+    await page.goto(BASE + '/' + path, { waitUntil: 'networkidle' });
+    const txt = await page.locator('body').innerText();
+    // una chiave grezza e' una parola camelCase isolata, senza spazi, tipo "stDisc"
+    const raw = (txt.match(/(^|\s)(st[A-Z]\w+|no[A-Z]\w+|hdr[A-Z]\w+|col[A-Z]\w+|btn[A-Z]\w+|title[A-Z]\w+|v[A-Z]\w+)(\s|$)/g) || [])
+                  .map(x => x.trim());
+    ok(raw.length === 0, `${path.padEnd(18)} nessuna chiave i18n grezza${raw.length ? ' → ' + raw.join(', ') : ''}`);
   }
 
   // ---------- navigazione: indice -> app -> indietro ----------

@@ -21,22 +21,22 @@
   var SHARED = {
     disclaimer: {
       it: "<b>Progetto indipendente e non ufficiale.</b> Questa applicazione <b>non è realizzata, approvata, " +
-        "sponsorizzata né supportata da Slot.it / Galileo Engineering né da DS Electronic</b>. «Slot.it», «oXigen», " +
-        "«DS Electronic», «DS200» e «DS300» sono marchi dei " +
+        "sponsorizzata né supportata da Slot.it / Galileo Engineering, DS Electronic o Ninco</b>. «Slot.it», «oXigen», " +
+        "«DS Electronic», «DS200», «DS300» e «Ninco» sono marchi dei " +
         "rispettivi proprietari, citati solo a scopo di interoperabilità e descrizione. Il software è fornito " +
         "«così com'è», <b>senza alcuna garanzia</b> di alcun tipo, esplicita o implicita. L'autore <b>non si assume " +
         "alcuna responsabilità</b> per eventuali danni a dispositivi, dati o cose derivanti dall'uso. Usala " +
         "esclusivamente su hardware di tua proprietà e <b>a tuo rischio</b>.",
       en: "<b>Independent, unofficial project.</b> This application is <b>not made, endorsed, sponsored, or " +
-        "supported by Slot.it / Galileo Engineering or DS Electronic</b>. \"Slot.it\", \"oXigen\", \"DS Electronic\", " +
-        "\"DS200\" and \"DS300\" are trademarks of their " +
+        "supported by Slot.it / Galileo Engineering, DS Electronic or Ninco</b>. \"Slot.it\", \"oXigen\", \"DS Electronic\", " +
+        "\"DS200\", \"DS300\" and \"Ninco\" are trademarks of their " +
         "respective owners, mentioned only for interoperability and descriptive purposes. The software is provided " +
         "\"as is\", <b>without warranty</b> of any kind, express or implied. The author <b>accepts no liability</b> " +
         "for any damage to devices, data, or property arising from its use. Use it only on hardware you own, " +
         "<b>at your own risk</b>.",
       es: "<b>Proyecto independiente y no oficial.</b> Esta aplicación <b>no está desarrollada, avalada, " +
-        "patrocinada ni respaldada por Slot.it / Galileo Engineering ni por DS Electronic</b>. «Slot.it», «oXigen», " +
-        "«DS Electronic», «DS200» y «DS300» son marcas de sus " +
+        "patrocinada ni respaldada por Slot.it / Galileo Engineering, DS Electronic o Ninco</b>. «Slot.it», «oXigen», " +
+        "«DS Electronic», «DS200», «DS300» y «Ninco» son marcas de sus " +
         "respectivos propietarios, citadas únicamente con fines de interoperabilidad y descripción. El software se " +
         "proporciona «tal cual», <b>sin garantía</b> de ningún tipo, expresa o implícita. El autor <b>no asume " +
         "ninguna responsabilidad</b> por daños a dispositivos, datos o bienes derivados de su uso. Úsala únicamente " +
