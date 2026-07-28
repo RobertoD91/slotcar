@@ -81,6 +81,17 @@ PATCHES += [
      "link esp32/README"),
 ]
 
+# 3-bis. Il default del baud e' gia' 4800 (giusto per il DS200), ma i browser
+#    ripristinano da soli l'opzione scelta l'ultima volta quando ricarichi la pagina:
+#    cosi' il menu riparte con un valore diverso da quello scritto nell'HTML.
+#    autocomplete="off" disattiva quel ripristino e il default torna deterministico.
+PATCHES += [
+    (os.path.join(WEB, "ds200", "index.html"),
+     '<select id="baud">',
+     '<select id="baud" autocomplete="off">',
+     "baud: default deterministico"),
+]
+
 # 4. Via i rimandi a documenti che esistono solo nelle repo di sviluppo: qui sarebbero
 #    riferimenti morti (questa repo non ha una cartella docs/).
 PATCHES += [

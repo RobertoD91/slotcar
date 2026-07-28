@@ -127,6 +127,16 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   const parser = await page.evaluate(() => (typeof DS200 === 'object' ? Object.keys(DS200).join(',') : 'ASSENTE'));
   ok(parser !== 'ASSENTE', 'oggetto DS200 esposto: ' + parser);
 
+  // Il baud deve partire a 4800 (DS200) e non farsi ripristinare dal browser.
+  const baud = await page.evaluate(() => {
+    const s = document.getElementById('baud');
+    return { val: s.value, auto: s.getAttribute('autocomplete'),
+             opts: [...s.options].map(o => o.value).join(',') };
+  });
+  ok(baud.val === '4800', 'baud predefinito = 4800 (DS200), letto: ' + baud.val);
+  ok(baud.auto === 'off', 'autocomplete=off (il browser non ripristina il valore vecchio)');
+  ok(baud.opts.includes('57600'), 'in elenco c\'è anche 57600 (DS300)');
+
   console.log('\n== ERRORI CONSOLE ==');
   // L'unica risorsa esterna del sito è esp-web-tools (unpkg) su flash.html: in questa
   // sandbox l'egress è bloccato, quindi quel fallimento è atteso e non conta come bug.
