@@ -20,7 +20,7 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok((await page.locator('h1').innerText()) === 'Slot Car Web Tools', 'h1 corretto');
 
   const cards = await page.locator('.card').count();
-  ok(cards === 10, `card totali = ${cards} (attese 10)`);
+  ok(cards === 9, `card totali = ${cards} (attese 9)`);
   const links = await page.locator('a.card').count();
   ok(links === 7, `card cliccabili = ${links} (attese 7)`);
 

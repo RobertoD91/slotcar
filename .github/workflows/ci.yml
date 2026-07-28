@@ -34,8 +34,11 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Parser JS (web/ds200/ds200.js)
+      - name: Parser JS DS200 (web/ds200/ds200.js)
         run: node web/ds200/ds200.test.js
+
+      - name: Parser JS Ninco (web/ninco/ninco.js)
+        run: node web/ninco/ninco.test.js
 
       - name: Parser C++ (esp32/src/ds200.h)
         run: |

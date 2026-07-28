@@ -1,0 +1,94 @@
+ 
+ N-Digital Rechner-Kopplung 
+ Startseite Schienen (Allgemein) Elektrik & Elektronik (Allgemein) Autos (Analog) Leistungsvergleich (Analog) Zeitnahme (Analog) Carrera Digital 124/132 Carrera Digital 143 Scalextric-Digital Ninco-N Digital SCX Digital Slotbaer Projekte (Digital) Impressum 
+ Slotbaer / Ninco-N Digital / N-Digital Rechner-Kopplung 
+ Eigenartige Nummerierung:
+ Anschlussbelegung 
+ der Out Buchse.
+ Alt vertraut und doch immer wieder neu:
+ D-Sub 9
+ Die nachfolgende Umbauanleitung wurde mit grösster Sorgfalt erstellt. Trotzdem erfolgt der Nachbau auf eigene Gefahr und wir übernehmen weder Verantwortung noch Haftung für eventuell entstehende Schäden jedweder Art. Der 
+ Umbau geht über den "normalen" Gebrauch hinaus, so dass Garantie- und Gewährleistungsansprüche erlöschen.
+ Hardware
+ Die Datensignale an der Outbuchse sind RS232 bzw. EIA232 kompatibel. Sie können also direkt mit der seriellen Schnitstelle eines Rechners oder einem RS232 zu USB Konverter verbunden werden. Das geschieht über ein Adapterkabel, dass an einem Ende einen Mini Din 6 Stecker und am anderen Ende eine D-Sub 9 Buchse hat.
+ Nicht vergessen, dass Rx und Tx über kreuz verbunden werden. Also:
+ Out - Stecker 
+ D-Sub Buchse 
+ 1 
+ 2 
+ Daten von der Powerbase zum Rechner 
+ 6 
+ 3 
+ Daten vom Rechner zur Powerbase 
+ 5 
+ 5 
+ Masse 
+ Die Parameter für die serielle Schnittstelle sind: 1200 Baud, 7 Bit, keine Paraität und 1 Stopbit.
+ Was geht ?
+ Mit der Firmware Version 1.08 wurden Änderungen in der Übertragung vorgenommen. Wo sich die Versionen ab 1.08 von den vorhergehenden unterscheiden, wird im Text darauf hingewiesen.
+ Es geht ein bischen was, aber so richtig viel geht nicht (ab Version geht ein Bisschen mehr)..
+ Man bekommt Informationen über die Anzahl der zu fahrenden Runden, die Positionen der Fahrzeuge, die maximal zulässige Höcgstgeschwindigkeit der Fahrzeue, ob mit Licht gefahren wird, ob Amateur- oder Professionalmodus gefahren wird und die Benzinstände - und ab Version 1.08 auch die Gesamtfahrzeit (und damit die Rundenzeit) und die Bestzeit.
+ Zusätzlich kann man sich nach Rennende über Tastendruck die gefahrenen Runden, die Gesamtrenndauer und die schnellste Rundenzeit für jedes Auto auf der Powerbase anzeigen lassen. Wenn man dies macht, werden die entsprechenden Daten auch über die Out-Buchse übertragen.
+ Das Protokoll für Selbermacher
+ Momentan überträgt die Powerbase ausschließlich Daten zum Rechner. Ein Transfer von Daten zur Powerbase scheint nicht stattzufinden.
+ Die Powerbase schickt ihre Daten unaufgefordert. Ob die Daten jemand liest oder nicht spielt keine Rolle.
+ Datenpakete (von der Powerbase an den Rechner)
+ Alle Datenpakete werden durch einen Wagenrücklauf (Zeichen mit dem Hexwert $0D) abgeschlossen. Im Nachfolgenden werde ich <CR> als Kennung für dieses Zeichen verwenden.
+ Modedatenpaket MX<CR> z.B. M2<CR>
+ Dieses Datenpaket wird übertragen, wenn die Lichteinstellung oder die Amateur/Professionaleinstellung an der Powerbase vorgenommen wird.
+ M 
+ Kennung Modedatenpaket 
+ X 
+ ASCII Zeichen 0 - 3. Die unteren 2 Bit haben folgende Bedeutung:
+ Bit 0 
+ Ist 1, wenn die Autos mit Licht fahren sollen. 
+ Bit1 
+ Ist 1, wenn der Professionalmodus aktiv ist. 
+ <CR> 
+ Paketende 
+ Programmierpaket P<CR> z.B. P<CR>
+ Das Programmierpaket wird übertragen, wenn die Menutaste gedrückt wurde und nun eine Zuweisung der Fahrzeugkennung erfolgen kann. Das Paket wird immer gesendet unabhängig davon, ob dann wirklich eine Programmierung erfolgt. Es gibt auch keine weitere Information ob eine Programmierung erfolgte oder nicht. Ab Version 1.08 wird das Paket immer zweimal übertragen.
+ P 
+ Kennung Programmierpaket 
+ <CR> 
+ Paketende 
+ Zieldurchfahrtpaket LRRRR,A1,A2,A3,A4,A5,A6,A7,A8<CR> z.B. L0025,0C,0C,2C,4C,0C,3C,0C,1C<CR>
+ Dieses Datenpaket wird an verschiedenen Stellen übertragen. Unter anderem vor Rennstart, nach Rennstart, und nach jeder Zieldurchfahrt. Das Paket wird oft zweimal hintereinander übertragen.
+ L 
+ Kennung Zieldurchfahrtpaket 
+ RRRR 
+ Anzahl Runden des Führenden als dezimale ASCII Zahl an. 0034 bedeutet je nach Rennmode, dass der Führende noch 34 Runden zu fahren hat bzw. schon 34 Runden gefahren ist. 
+ A1,A2,A3,A4, A5,A6,A7,A8 
+ Zwei Zeichen für jedes Auto beginnend mit dem Auto mit der Kennung 1.
+ Position 
+ Position des Fahrzeugs als dezimale ASCII Zahl. 0 bedeutet, dass das Auto nicht teilnimmt. 1, dass es erster ist usw.. 
+ Maximale Fahrstufe 
+ Das zweite Zeichen ist ein hexadezimales ASCII zeichen also 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E. F und steht für den entsprechenden 4 Bit Binärwert. Der Wert gibt die maximal zulässige Fahrstufe für dieses Fahrzeug an. Ist die Bahnabschaltung aktiv oder fährt das Auto in die Boxengasse ein, ist der Wert 0. Soll das Auto langsam fahren z.B. wegen Spritmangels ist es eine 4. Hat das Auto freie Fahrt ist es im Amateurmodus C und im Professionalmodus F. 
+ <CR> 
+ Paketende 
+ Benzinstandpaket FB1,B2,B3,B4,B5,B6,B7,B8<CR> z.B. F99,I5,66,43,05,28,47,42<CR>
+ Dieses Paket wird in einem festen Zeitraster übertragen. Es dient der Mitteilung des Benzinstands.
+ F 
+ Kennung Benzinstandpaket 
+ B1,B2,B3,B4, B5,B6,B7,B8 
+ 8 durch Komma getrennte Werte, für jedes Auto einen, beginnend mit dem Auto mit der Kennung 1.
+ Besteht der Wert nur aus dezimalen ASCII Zeichen, so handelt es sich um den aktuellen Benzinstand. Ist der Wert I5 oder 5I, so fährt der Wagen auf Reserve. Dieser Wert ändert sich dann nicht bis der Wagen aufgetankt wird. Sobald der Wert drei Durchfahrten hintereinander I5 bzw. 5I war, wird die maximale Fahrstufe im Zieldurchfahrpaket auf 4 gesetzt.
+ Beim achten Auto sind die Zeichen vertauscht. Wagen 1-7 übertragen wie gewohnt in MSB, Wagen 8 in LSB. Ob das ein Fehler meiner Powerbase ist, oder ob es immer so ist kann ich nicht sagen.
+ <CR> 
+ Paketende 
+ Ergebnispaket DAAAA,RRRR,GGGGGG,SSSSSS<CR> z.B. D0008,0004,000523,000213<CR>
+ Dieses Paket wird nur übertragen, wenn man sich nach dem Rennen die Zeiten der einzelnen Fahrzeuge anzeigen lässt.
+ Ab Version 1.08 wird es auch nach jeder Zieldurchfahrt übertragen. In diesem Fall ist die Gesamtzeit, die bisher verstrichene Zeit. Aus jeweils zwei aufeinander folgenden Gesamtzeiten lässt sich die jeweilige Rundenzeit berechnen. Bei der ersten Runde verwendet man die erste Gesamtzeit.
+ D 
+ Kennung Benzinstandpaket 
+ AAAA 
+ Nummer des Autos für das die Werte gelten als dezimale ASCII Zahl.
+ RRRR 
+ Anzahl der gefahrenen Runden als dezimale ASCII Zahl. Ausser im GP Modus, da geben sie den Abstand in Runden zum Sieger an. 
+ GGGGGG 
+ Gesamtzeit als dezimale ASCII Zahl. 123456 bedeutet 12:34:56 also 12 Minuten 23 Sekunden und 56 Hundertstel.  
+ SSSSSS 
+ Zeit der schnellsten Runde als dezimale ASCII Zahl. 123456 bedeutet 12:34:56 also 12 Minuten 23 Sekunden und 56 Hundertstel. 
+ <CR> 
+ Paketende 
+ 

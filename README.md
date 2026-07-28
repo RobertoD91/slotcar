@@ -21,8 +21,8 @@ famiglie di prodotti da slot car:
   SCP-3, e debug del dongle via **Web Serial**.
 - **DS Electronic** — monitor/contagiri per i cronometri **DS200 e DS300** via **Web Serial**
   (RS-232), con il flasher del ponte ESP32.
-- **Ninco Digital** — analizzatore seriale della **power base**, per ricavarne il
-  protocollo (non ancora noto) e poi costruirci il contagiri.
+- **Ninco Digital** — contagiri per la **power base N-Digital** via **RS-232**:
+  posizioni, giri, benzina e tempi.
 
 Tutte le app sono **statiche**: nessun backend, nessun account, **nessun dato lascia il
 dispositivo**. Sono pubblicate su GitHub Pages da una GitHub Action.
@@ -45,22 +45,30 @@ La pagina iniziale (`web/index.html`) è un **indice** che porta a tutte le app.
 | [`modes/`](web/modes/) | Riferimento (dai manuali) di **sequenze tasti, LED, pairing e DFU** di controller e chip | niente, è statica |
 | [`ds200/`](web/ds200/) | **Contagiri DS200 / DS300**: giri, tempi, classifica live, giro veloce, annunci vocali, export CSV. Installabile come PWA, funziona offline | Web Serial |
 | [`ds200/flash.html`](web/ds200/flash.html) | **Flasher ESP32** del ponte DS200 → WiFi/MQTT, con configurazione della rete dal browser | Web Serial |
-| [`ninco/`](web/ninco/) | **Analizzatore seriale Ninco Digital**: legge la power base, mostra i pacchetti in esadecimale, ne analizza lunghezza e byte iniziali/finali, esporta la cattura | Web Serial |
+| [`ninco/`](web/ninco/) | **Contagiri Ninco N-Digital**: posizioni, giri, benzina e riserva, modalità amatore/professionale, tempi sul giro (firmware ≥ 1.08), dati grezzi esportabili | Web Serial |
 
 In arrivo (card "prossimamente" nell'indice): **chron02** (contagiri/gestione gara oXigen
-via dongle), **O2 Bootloader** (aggiornatore firmware dei pezzi oXigen via dongle) e il
-**contagiri Ninco**.
+via dongle) e **O2 Bootloader** (aggiornatore firmware dei pezzi oXigen via dongle).
 
-### ⚠️ Il protocollo Ninco non è ancora decodificato
+### Ninco N-Digital: cosa si può fare e cosa no
 
-In [`docs/ninco/`](docs/ninco/) c'è **solo lo schema del cavo** (Mini-DIN 6 → DB-9:
-pin 1→2 e pin 5→5), non il formato dei dati: né il baud rate né il layout dei pacchetti.
-Per questo l'app Ninco **ascolta e basta**, non pilota niente.
+Il protocollo è documentato in [`docs/ninco/PROTOCOLLO.md`](docs/ninco/PROTOCOLLO.md)
+(fonte: slotbaer.de, con copia locale della pagina). In breve: **1200 baud, 7 bit, senza
+parità, 1 stop**, testo ASCII, pacchetti terminati da CR, cinque tipi — modalità,
+programmazione, passaggio sul traguardo, benzina, risultato.
 
-Il percorso per sbloccare il contagiri è: collegare la power base, usare *«prova tutte le
-velocità»* per trovare il baud, far girare qualche macchina, **esportare la cattura** e
-farla decodificare. Quando si conosce il formato, il contagiri si scrive riusando la
-struttura già collaudata del DS200 (framer + parser + test).
+Tre limiti che vengono dall'apparecchio, non dall'app:
+
+- **La power base trasmette e basta.** Non accetta comandi, quindi la gara **non si
+  pilota dal PC**: il filo PC→base è cablato ma inutilizzato.
+- **I tempi sul giro esistono solo dal firmware 1.08.** Da lì in poi la base manda il
+  tempo *totale* ad ogni passaggio, e il giro si ricava per differenza fra due totali
+  consecutivi. Con firmware precedenti restano solo posizioni, giri e benzina.
+- **Il conteggio dei giri è ambiguo**: a seconda della modalità di gara `RRRR` sono i giri
+  già fatti *oppure* quelli che restano, e il protocollo non dice quale dei due.
+
+⚠️ I segnali sono **RS-232 veri (±12 V)**: un adattatore USB-seriale TTL a 3,3/5 V si
+danneggia se collegato direttamente. Serve un convertitore tipo MAX3232.
 
 ### Compatibilità browser
 
@@ -125,7 +133,7 @@ web/                  → è QUESTA cartella che finisce su GitHub Pages
   version.json          versione del sito e delle singole app
   car-config/ remote-config/ dongle-debug/ modes/    app oXigen
   ds200/                contagiri DS200/DS300 (PWA autonoma, i18n e sw propri)
-  ninco/                analizzatore seriale Ninco Digital
+  ninco/                contagiri Ninco N-Digital (parser + test propri)
 docs/                 documentazione dei protocolli (non pubblicata su Pages)
 esp32/                firmware del ponte DS200 → WiFi/MQTT (PlatformIO)
 tools/
@@ -154,7 +162,8 @@ node tools/check-links.js                                       # link interni d
 python3 tools/apply-local-patches.py --check                    # patch locali a posto?
 python3 tools/scan-secrets.py                                   # segreti nei file
 python3 tools/scan-secrets.py --history                         # segreti nella storia
-node web/ds200/ds200.test.js                                    # parser JS
+node web/ds200/ds200.test.js                                    # parser DS200
+node web/ninco/ninco.test.js                                    # parser Ninco
 g++ -std=c++17 -I esp32/test_host -I esp32/src \
     esp32/test_host/test_ds200.cpp -o /tmp/t && /tmp/t          # parser C++
 cd esp32 && pio run                                             # firmware

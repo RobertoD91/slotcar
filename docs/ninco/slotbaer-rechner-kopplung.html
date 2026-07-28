@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xml:lang="en-gb" lang="en-gb" >
+<head>
+    	
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="keywords" content="slotbaer ninco ndigital digital slotcar hardware blackbox redbox serielle schnittstelle interface" />
+	<meta name="author" content="Super User" />
+	<meta name="description" content="Beschreibung der Verbindung zwischen der ndigital Redbox und einem Rechner" />
+	<meta name="generator" content="Joomla! - Open Source Content Management" />
+	<title>N-Digital Rechner-Kopplung</title>
+	<link href="//slotbaer.de/templates/slotbaer/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon" />
+	<script src="//slotbaer.de/media/jui/js/jquery.min.js" type="text/javascript"></script>
+	<script src="//slotbaer.de/media/jui/js/jquery-noconflict.js" type="text/javascript"></script>
+	<script src="//slotbaer.de/media/jui/js/jquery-migrate.min.js" type="text/javascript"></script>
+	<script src="//slotbaer.de/media/system/js/caption.js" type="text/javascript"></script>
+	<script type="text/javascript">
+jQuery(window).on('load',  function() {
+				new JCaption('img.caption');
+			});
+	</script>
+
+    <link rel="stylesheet" href="//slotbaer.de/templates/slotbaer/css/template.css" type="text/css" />
+</head>
+
+<body>
+<div id="container">
+    <table id="layoutTable">
+        <tr id="layoutHeaderRow">
+            <td class="left"><ul class="nav menu">
+<li class="item-101 default active"><a href="//slotbaer.de/index.html" >Startseite</a></li><li class="item-102"><a href="//slotbaer.de/schienen-allgemein.html" >Schienen (Allgemein)</a></li><li class="item-103"><a href="//slotbaer.de/elektrik-elektronik-allgemein.html" >Elektrik &amp; Elektronik (Allgemein)</a></li><li class="item-104"><a href="//slotbaer.de/autos-analog.html" >Autos (Analog)</a></li><li class="item-105"><a href="//slotbaer.de/leistungsvergleich-analog.html" >Leistungsvergleich (Analog)</a></li><li class="item-106"><a href="//slotbaer.de/zeitnahme-analog.html" >Zeitnahme (Analog)</a></li><li class="item-107"><a href="//slotbaer.de/carrera-digital-124-132.html" >Carrera Digital 124/132</a></li><li class="item-108"><a href="//slotbaer.de/carrera-digital-143.html" >Carrera Digital 143</a></li><li class="item-109"><a href="//slotbaer.de/scalextric-digital.html" >Scalextric-Digital</a></li><li class="item-110 current"><a href="//slotbaer.de/ninco-n-digital.html" >Ninco-N Digital</a></li><li class="item-111"><a href="//slotbaer.de/scx-digital.html" >SCX Digital</a></li><li class="item-112"><a href="//slotbaer.de/slotbaer-projekte-digital.html" >Slotbaer Projekte (Digital)</a></li><li class="item-113"><a href="//slotbaer.de/impressum.html" >Impressum</a></li></ul>
+</td>
+            <td class="main">
+<div class="contextImage">
+    <div style="background: url(//slotbaer.de/images/context/A24.jpg) no-repeat bottom left;">&nbsp;</div></div>
+</td>
+        </tr>
+        <tr id="layoutTitleRow">
+            <td class="left">&nbsp;</td>
+            <td class="main">
+<span class="breadcrumbs pathway">
+<a href="//slotbaer.de/index.html" class="pathway">Slotbaer</a> / <a href="//slotbaer.de/ninco-n-digital.html" class="pathway">Ninco-N Digital</a> / N-Digital Rechner-Kopplung</span>
+</td>
+        </tr>
+        <tr id="layoutContentRow">
+            <td class="layoutContent" colspan="2"><div class="item-page" itemscope itemtype="https://schema.org/Article">
+	<meta itemprop="inLanguage" content="en-GB" />
+	
+		
+						
+	
+	
+				
+								<div itemprop="articleBody">
+		
+<table>
+<tbody>
+<tr>
+<td class="left">
+<div class="sidebox"><img src="//slotbaer.de/images/ninco/OUT.jpg" alt="Pads" width="145" />
+<p>Eigenartige Nummerierung:<br /> Anschlussbelegung <br /> der Out Buchse.</p>
+</div>
+<div class="sidebox"><img src="//slotbaer.de/images/ninco/DSub.jpg" alt="Pads" width="145" />
+<p>Alt vertraut und doch immer wieder neu:<br /> D-Sub 9</p>
+</div>
+</td>
+<td class="main">
+<p class="italic">Die nachfolgende Umbauanleitung wurde mit grösster Sorgfalt erstellt. Trotzdem erfolgt der Nachbau auf eigene Gefahr und wir übernehmen weder Verantwortung noch Haftung für eventuell entstehende Schäden jedweder Art. Der <br /> Umbau geht über den "normalen" Gebrauch hinaus, so dass Garantie- und Gewährleistungsansprüche erlöschen.</p>
+<p class="bold">Hardware</p>
+<p>Die Datensignale an der Outbuchse sind RS232 bzw. EIA232 kompatibel. Sie können also direkt mit der seriellen Schnitstelle eines Rechners oder einem RS232 zu USB Konverter verbunden werden. Das geschieht über ein Adapterkabel, dass an einem Ende einen Mini Din 6 Stecker und am anderen Ende eine D-Sub 9 Buchse hat.</p>
+<p>Nicht vergessen, dass Rx und Tx über kreuz verbunden werden. Also:</p>
+<p> </p>
+<div align="center">
+<table class="PTB" style="width: 80%;" border="1" cellspacing="0" cellpadding="2">
+<tbody>
+<tr class="row1">
+<td class="col1">Out - Stecker</td>
+<td class="col1">D-Sub Buchse</td>
+<td class="col2"> </td>
+</tr>
+<tr>
+<td class="col1">1</td>
+<td class="col1">2</td>
+<td class="col2">Daten von der Powerbase zum Rechner</td>
+</tr>
+<tr>
+<td class="col1">6</td>
+<td class="col1">3</td>
+<td class="col2">Daten vom Rechner zur Powerbase</td>
+</tr>
+<tr>
+<td class="col1" width="80">5</td>
+<td class="col1" width="80">5</td>
+<td class="col2">Masse</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p> </p>
+<p>Die Parameter für die serielle Schnittstelle sind: 1200 Baud, 7 Bit, keine Paraität und 1 Stopbit.</p>
+<p class="bold">Was geht ?</p>
+<p class="rot">Mit der Firmware Version 1.08 wurden Änderungen in der Übertragung vorgenommen. Wo sich die Versionen ab 1.08 von den vorhergehenden unterscheiden, wird im Text darauf hingewiesen.</p>
+<p>Es geht ein bischen was, aber so richtig viel geht nicht (ab Version geht ein Bisschen mehr)..</p>
+<p>Man bekommt Informationen über die Anzahl der zu fahrenden Runden, die Positionen der Fahrzeuge, die maximal zulässige Höcgstgeschwindigkeit der Fahrzeue, ob mit Licht gefahren wird, ob Amateur- oder Professionalmodus gefahren wird und die Benzinstände - und ab Version 1.08 auch die Gesamtfahrzeit (und damit die Rundenzeit) und die Bestzeit.</p>
+<p>Zusätzlich kann man sich nach Rennende über Tastendruck die gefahrenen Runden, die Gesamtrenndauer und die schnellste Rundenzeit für jedes Auto auf der Powerbase anzeigen lassen. Wenn man dies macht, werden die entsprechenden Daten auch über die Out-Buchse übertragen.</p>
+<p class="bold"><a name="RP"></a>Das Protokoll für Selbermacher</p>
+<p>Momentan überträgt die Powerbase ausschließlich Daten zum Rechner. Ein Transfer von Daten zur Powerbase scheint nicht stattzufinden.</p>
+<p>Die Powerbase schickt ihre Daten unaufgefordert. Ob die Daten jemand liest oder nicht spielt keine Rolle.</p>
+<p>Datenpakete (von der Powerbase an den Rechner)</p>
+<p>Alle Datenpakete werden durch einen Wagenrücklauf (Zeichen mit dem Hexwert $0D) abgeschlossen. Im Nachfolgenden werde ich &lt;CR&gt; als Kennung für dieses Zeichen verwenden.</p>
+<p><span class="bold">Modedatenpaket</span> MX&lt;CR&gt; z.B. M2&lt;CR&gt;</p>
+<p>Dieses Datenpaket wird übertragen, wenn die Lichteinstellung oder die Amateur/Professionaleinstellung an der Powerbase vorgenommen wird.</p>
+<div align="center">
+<table class="PTB" style="width: 80%;" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr class="row1">
+<td class="col1" width="80">M</td>
+<td class="colLast">Kennung Modedatenpaket</td>
+</tr>
+<tr>
+<td class="col1">X</td>
+<td class="colLast">
+<p>ASCII Zeichen 0 - 3. Die unteren 2 Bit haben folgende Bedeutung:</p>
+<div align="center">
+<table class="PTB" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td class="col1" width="80">Bit 0</td>
+<td class="colLast">Ist 1, wenn die Autos mit Licht fahren sollen.</td>
+</tr>
+<tr>
+<td class="col1">Bit1</td>
+<td class="colLast">Ist 1, wenn der Professionalmodus aktiv ist.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</td>
+</tr>
+<tr>
+<td class="col1">&lt;CR&gt;</td>
+<td class="colLast">Paketende</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p> </p>
+<p><span class="bold">Programmierpaket</span> P&lt;CR&gt; z.B. P&lt;CR&gt;</p>
+<p>Das Programmierpaket wird übertragen, wenn die Menutaste gedrückt wurde und nun eine Zuweisung der Fahrzeugkennung erfolgen kann. Das Paket wird immer gesendet unabhängig davon, ob dann wirklich eine Programmierung erfolgt. Es gibt auch keine weitere Information ob eine Programmierung erfolgte oder nicht. Ab Version 1.08 wird das Paket immer zweimal übertragen.</p>
+<div align="center">
+<table class="PTB" style="width: 80%;" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr class="row1">
+<td class="col1" width="80">P</td>
+<td class="colLast">Kennung Programmierpaket</td>
+</tr>
+<tr>
+<td class="col1">&lt;CR&gt;</td>
+<td class="colLast">Paketende</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p> </p>
+<p><span class="bold">Zieldurchfahrtpaket</span> LRRRR,A1,A2,A3,A4,A5,A6,A7,A8&lt;CR&gt; z.B. L0025,0C,0C,2C,4C,0C,3C,0C,1C&lt;CR&gt;</p>
+<p>Dieses Datenpaket wird an verschiedenen Stellen übertragen. Unter anderem vor Rennstart, nach Rennstart, und nach jeder Zieldurchfahrt. Das Paket wird oft zweimal hintereinander übertragen.</p>
+<div align="center">
+<table class="PTB" style="width: 80%;" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr class="row1">
+<td class="col1" width="80">L</td>
+<td class="colLast">Kennung Zieldurchfahrtpaket</td>
+</tr>
+<tr>
+<td class="col1">RRRR</td>
+<td class="colLast">Anzahl Runden des Führenden als dezimale ASCII Zahl an. 0034 bedeutet je nach Rennmode, dass der Führende noch 34 Runden zu fahren hat bzw. schon 34 Runden gefahren ist.</td>
+</tr>
+<tr>
+<td class="col1">A1,A2,A3,A4, A5,A6,A7,A8</td>
+<td class="colLast">
+<p>Zwei Zeichen für jedes Auto beginnend mit dem Auto mit der Kennung 1.</p>
+<div align="center">
+<table class="PTB" style="width: 90%;" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td class="col1" width="80">Position</td>
+<td class="colLast">Position des Fahrzeugs als dezimale ASCII Zahl. 0 bedeutet, dass das Auto nicht teilnimmt. 1, dass es erster ist usw..</td>
+</tr>
+<tr>
+<td class="col1">Maximale Fahrstufe</td>
+<td class="colLast">Das zweite Zeichen ist ein hexadezimales ASCII zeichen also 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E. F und steht für den entsprechenden 4 Bit Binärwert. Der Wert gibt die maximal zulässige Fahrstufe für dieses Fahrzeug an. Ist die Bahnabschaltung aktiv oder fährt das Auto in die Boxengasse ein, ist der Wert 0. Soll das Auto langsam fahren z.B. wegen Spritmangels ist es eine 4. Hat das Auto freie Fahrt ist es im Amateurmodus C und im Professionalmodus F.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</td>
+</tr>
+<tr>
+<td class="col1">&lt;CR&gt;</td>
+<td class="colLast">Paketende</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p> </p>
+<p><span class="bold">Benzinstandpaket</span> FB1,B2,B3,B4,B5,B6,B7,B8&lt;CR&gt; z.B. F99,I5,66,43,05,28,47,42&lt;CR&gt;</p>
+<p>Dieses Paket wird in einem festen Zeitraster übertragen. Es dient der Mitteilung des Benzinstands.</p>
+<div align="center">
+<table class="PTB" style="width: 80%;" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr class="row1">
+<td class="col1" width="80">F</td>
+<td class="colLast">Kennung Benzinstandpaket</td>
+</tr>
+<tr>
+<td class="col1">B1,B2,B3,B4, B5,B6,B7,B8</td>
+<td class="colLast">
+<p>8 durch Komma getrennte Werte, für jedes Auto einen, beginnend mit dem Auto mit der Kennung 1.<br /> Besteht der Wert nur aus dezimalen ASCII Zeichen, so handelt es sich um den aktuellen Benzinstand. Ist der Wert I5 oder 5I, so fährt der Wagen auf Reserve. Dieser Wert ändert sich dann nicht bis der Wagen aufgetankt wird. Sobald der Wert drei Durchfahrten hintereinander I5 bzw. 5I war, wird die maximale Fahrstufe im Zieldurchfahrpaket auf 4 gesetzt.</p>
+<p>Beim achten Auto sind die Zeichen vertauscht. Wagen 1-7 übertragen wie gewohnt in MSB, Wagen 8 in LSB. Ob das ein Fehler meiner Powerbase ist, oder ob es immer so ist kann ich nicht sagen.</p>
+</td>
+</tr>
+<tr>
+<td class="col1">&lt;CR&gt;</td>
+<td class="colLast">Paketende</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p> </p>
+<p><span class="bold">Ergebnispaket</span> DAAAA,RRRR,GGGGGG,SSSSSS&lt;CR&gt; z.B. D0008,0004,000523,000213&lt;CR&gt;</p>
+<p>Dieses Paket wird nur übertragen, wenn man sich nach dem Rennen die Zeiten der einzelnen Fahrzeuge anzeigen lässt.</p>
+<p>Ab Version 1.08 wird es auch nach jeder Zieldurchfahrt übertragen. In diesem Fall ist die Gesamtzeit, die bisher verstrichene Zeit. Aus jeweils zwei aufeinander folgenden Gesamtzeiten lässt sich die jeweilige Rundenzeit berechnen. Bei der ersten Runde verwendet man die erste Gesamtzeit.</p>
+<div align="center">
+<table class="PTB" style="width: 80%;" border="1" cellspacing="0" cellpadding="0">
+<tbody>
+<tr class="row1">
+<td class="col1" width="80">D</td>
+<td class="colLast">Kennung Benzinstandpaket</td>
+</tr>
+<tr>
+<td class="col1">AAAA</td>
+<td class="colLast">
+<p>Nummer des Autos für das die Werte gelten als dezimale ASCII Zahl.</p>
+</td>
+</tr>
+<tr>
+<td class="col1">RRRR</td>
+<td class="colLast">Anzahl der gefahrenen Runden als dezimale ASCII Zahl. Ausser im GP Modus, da geben sie den Abstand in Runden zum Sieger an.</td>
+</tr>
+<tr>
+<td class="col1">GGGGGG</td>
+<td class="colLast">Gesamtzeit als dezimale ASCII Zahl. 123456 bedeutet 12:34:56 also 12 Minuten 23 Sekunden und 56 Hundertstel. </td>
+</tr>
+<tr>
+<td class="col1">SSSSSS</td>
+<td class="colLast">Zeit der schnellsten Runde als dezimale ASCII Zahl. 123456 bedeutet 12:34:56 also 12 Minuten 23 Sekunden und 56 Hundertstel.</td>
+</tr>
+<tr>
+<td class="col1">&lt;CR&gt;</td>
+<td class="colLast">Paketende</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p> </p>
+</td>
+</tr>
+</tbody>
+</table>	</div>
+
+	
+							</div>
+</td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
