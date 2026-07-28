@@ -195,6 +195,7 @@ tools/
   scan-secrets.py          cerca segreti nei file e nella storia
   install-hooks.sh         attiva gli hook git che bloccano i segreti
   check-links.js           verifica i link interni del sito
+  check-versions.js        versioni nel codice == web/version.json
   smoke-test.js            apre tutte le app in un browser headless
   test-cronometro.js       fa correre una gara simulata nel cronometro
   test-ninco-ui.js         contagiri Ninco con una seriale simulata
@@ -214,6 +215,7 @@ Controlli, tutti senza hardware:
 
 ```bash
 node tools/check-links.js                                       # link interni del sito
+node tools/check-versions.js                                    # versioni allineate
 python3 tools/scan-secrets.py                                   # segreti nei file
 python3 tools/scan-secrets.py --history                         # segreti nella storia
 node web/ds200-ds300/ds200.test.js                              # parser DS200 — JS

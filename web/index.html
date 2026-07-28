@@ -35,10 +35,18 @@
   .card .ico{font-size:30px}
   .card h3{margin:8px 0 4px;font-size:17px}
   .card p{margin:0;color:var(--mut);font-size:13px}
+  /* Logo Bluetooth: non esiste come emoji, quindi è una maschera SVG che
+     prende currentColor — così segue il tema chiaro/scuro da sola. */
+  .bt::before{content:"";display:inline-block;width:.62em;height:.95em;
+              margin-right:.32em;vertical-align:-.09em;background:currentColor;
+              -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 7 L17 17 L12 22 V2 L17 7 L7 17' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+              mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 7 L17 17 L12 22 V2 L17 7 L7 17' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
   .badge{float:right;font-size:11px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut)}
   .badge.on{color:var(--ok);border-color:var(--ok)}
   .badge.bad{color:var(--err);border-color:var(--err)}
-  .badge.part{color:var(--acc);border-color:var(--acc)}
+  .badge.part{color:var(--warn);border-color:var(--warn)}
+  .badge.untested{color:var(--warn);border-color:var(--warn)}
+  .badge.untested.hard{color:var(--err);border-color:var(--err)}
   .tech{margin-top:8px;font-size:11px;color:var(--mut)}
   .tech span{display:inline-block;border:1px solid var(--bd);border-radius:6px;padding:1px 7px;margin:2px 4px 0 0}
   footer{color:var(--mut);font-size:12px;margin-top:24px;border-top:1px solid var(--bd);padding-top:12px}
@@ -88,16 +96,16 @@
   <h2 data-i18n-html="secOxigen"></h2>
   <div class="grid">
     <a class="card" href="car-config/">
-      <span class="badge bad" data-i18n="badgeBroken"></span>
+      <span class="badge untested" data-i18n="badgeUntested"></span>
       <div class="ico">🚗</div>
-      <h3 data-i18n="carTitle"></h3>
+      <h3 class="bt" data-i18n="carTitle"></h3>
       <p data-i18n="carDesc"></p>
       <div class="tech"><span>Web Bluetooth</span></div>
     </a>
     <a class="card" href="remote-config/">
       <span class="badge part" data-i18n="badgePartial"></span>
       <div class="ico">🎮</div>
-      <h3 data-i18n="ctrlTitle"></h3>
+      <h3 class="bt" data-i18n="ctrlTitle"></h3>
       <p data-i18n-html="ctrlDesc"></p>
       <div class="tech"><span>Web Bluetooth</span></div>
     </a>
@@ -116,7 +124,6 @@
       <div class="tech"><span>Web Serial</span></div>
     </a>
     <a class="card" href="guida-oxigen/">
-      <span class="badge on" data-i18n="badgeActive"></span>
       <div class="ico">📖</div>
       <h3 data-i18n="modesTitle"></h3>
       <p data-i18n="modesDesc"></p>
@@ -145,7 +152,7 @@
   <h2 data-i18n-html="secNinco"></h2>
   <div class="grid">
     <a class="card" href="ninco/">
-      <span class="badge on" data-i18n="badgeActive"></span>
+      <span class="badge untested hard" data-i18n="badgeUntested"></span>
       <div class="ico">🏎️</div>
       <h3 data-i18n="ncTitle"></h3>
       <p data-i18n-html="ncDesc"></p>
@@ -215,6 +222,7 @@ window.I18N_STRINGS = {
   badgeWip:{it:"in sviluppo",en:"in progress",es:"en desarrollo"},
   badgeBroken:{it:"non funzionante",en:"not working",es:"no funciona"},
   badgePartial:{it:"funziona in parte",en:"partly working",es:"funciona en parte"},
+  badgeUntested:{it:"non testato",en:"untested",es:"sin probar"},
   badgeAlpha:{it:"molto acerbo",en:"very rough",es:"muy verde"},
   chronoTitle:{it:"Cronometro web",en:"Web lap timer",es:"Cronómetro web"},
   chronoDesc:{
@@ -231,13 +239,13 @@ window.I18N_STRINGS = {
   badgeSoon:{it:"prossimamente",en:"coming soon",es:"próximamente"},
   techStatic:{it:"pagina statica",en:"static page",es:"página estática"},
   techPwa:{it:"PWA offline",en:"offline PWA",es:"PWA sin conexión"},
-  carTitle:{it:"Configuratore auto",en:"Car configurator",es:"Configurador de coche"},
+  carTitle:{it:"Configuratore auto BLE",en:"Car configurator BLE",es:"Configurador de coche BLE"},
   carDesc:{
     it:"Legge/scrive i registri del chip via BLE: nome, ID, modalità, velocità, freno, limiti, clone MAC, test motore/luci/hall.",
     en:"Reads/writes the chip's registers over BLE: name, ID, mode, speed, brake, limits, MAC clone, motor/lights/hall test.",
     es:"Lee/escribe los registros del chip por BLE: nombre, ID, modo, velocidad, freno, límites, clon MAC, prueba de motor/luces/hall."
   },
-  ctrlTitle:{it:"Configuratore controller",en:"Controller configurator",es:"Configurador del mando"},
+  ctrlTitle:{it:"Configuratore controller BLE",en:"Controller configurator BLE",es:"Configurador del mando BLE"},
   ctrlDesc:{
     it:"Config del controller SCP-3 via BLE: nome, brake setting, ID, MAC; legge firmware, versione e data attivazione. <b>Lettura e cambio ID confermati su hardware; la scrittura del MAC no.</b>",
     en:"SCP-3 controller config over BLE: name, brake setting, ID, MAC; reads firmware, version and activation date. <b>Reading and changing the ID are confirmed on hardware; writing the MAC is not.</b>",
@@ -255,7 +263,7 @@ window.I18N_STRINGS = {
     en:"Race management over the dongle: live standings, laps, times and pit from <code>rf_data_x</code> telemetry; start/pause/stop and per-car commands with <code>race_status</code>. <b>→ will be folded into the Web lap timer.</b>",
     es:"Gestión de carrera vía dongle: clasificación en vivo, vueltas, tiempos y pit desde la telemetría <code>rf_data_x</code>; start/pausa/stop y comandos por coche con <code>race_status</code>. <b>→ se integrará en el Cronómetro web.</b>"
   },
-  bootTitle:{it:"Configuratore O2",en:"O2 configurator",es:"Configurador O2"},
+  bootTitle:{it:"Configuratore dongle",en:"Dongle configurator",es:"Configurador del dongle"},
   bootDesc:{
     it:"Entra in modalità boot su dongle, chip auto o controller e ne legge le info (versione firmware, MAC). Include una console a registri <b>sperimentale</b> per leggere e scrivere la configurazione.",
     en:"Puts the dongle, car chip or controller into boot mode and reads their info (firmware version, MAC). Includes an <b>experimental</b> register console to read and write settings.",

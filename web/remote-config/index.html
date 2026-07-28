@@ -38,8 +38,8 @@
   #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
   .broken{background:rgba(224,168,0,.12);border:1px solid #e0a800;border-radius:10px;padding:11px 14px;margin:10px 0 14px;font-size:13px;line-height:1.55}
   .broken b{color:#e0a800}
-  .broken.partial{background:rgba(93,176,255,.12);border-color:var(--acc)}
-  .broken.partial b{color:var(--acc)}
+  .broken.partial{background:rgba(224,168,0,.12);border-color:var(--warn)}
+  .broken.partial b{color:var(--warn)}
 </style>
 </head>
 <body>
@@ -207,7 +207,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="remote-config",APP_VERSION="1.1.0";
+const APP="remote-config",APP_VERSION="1.2.0";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const PFX=0x0a;                                  // header di frame del CONTROLLER (il chip auto usa 0x09)
 const TYPE_STR="SCP3 Handle", VER_STR="O2 / Analog";   // display fissi della schermata SCP3

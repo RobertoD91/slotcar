@@ -29,6 +29,12 @@ jobs:
       - name: Link interni
         run: node tools/check-links.js
 
+      # Alzare la versione in un posto solo lascia il banner "Nuova versione
+      # disponibile" appeso per sempre: l'utente clicca, ricarica, lo rivede.
+      # Non rompe niente e non si vede nel diff, quindi lo controlla la CI.
+      - name: Versioni allineate
+        run: node tools/check-versions.js
+
   parsers:
     runs-on: ubuntu-latest
     steps:

@@ -96,6 +96,7 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
 
 ```bash
 node tools/check-links.js                     # link interni + nessun percorso assoluto
+node tools/check-versions.js                  # versioni nel codice == version.json
 python3 tools/scan-secrets.py                 # segreti nei file
 python3 tools/scan-secrets.py --history       # segreti in tutta la storia
 python3 tools/test-scan-secrets.py            # le regole dello scanner

@@ -1,13 +1,13 @@
 /* Service worker — offline cache for the DS200 PWA. */
 /* Bump CACHE on every release so clients drop the old assets. */
-const CACHE = 'ds200-v1.5.1';
+const CACHE = 'ds200-v1.5.2';
 const ASSETS = [
   './',
   './index.html',
-  './i18n.js?v=1.5.1',
-  './app.js?v=1.5.1',
-  './ds200.js?v=1.5.1',
-  './styles.css?v=1.5.1',
+  './i18n.js?v=1.5.2',
+  './app.js?v=1.5.2',
+  './ds200.js?v=1.5.2',
+  './styles.css?v=1.5.2',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
