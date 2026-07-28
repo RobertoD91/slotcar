@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<title>Debug dongle oXigen (USB serial)</title>
+<style>
+  :root{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--acc:#5db0ff;--ok:#4ec36b;--err:#ff6b6b;--card:#171a21;--bd:#2a2f3a;--accfg:#04121f}
+  @media (prefers-color-scheme:light){:root{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}}
+  :root[data-theme="dark"]{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--card:#171a21;--bd:#2a2f3a}
+  :root[data-theme="light"]{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:860px;margin:0 auto}
+  a.back{color:var(--mut);text-decoration:none;font-size:13px}
+  h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
+  .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+  button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:8px 13px;font-weight:600;cursor:pointer;font-size:14px}
+  button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+  button.warn{background:var(--err);color:#180404}
+  button:disabled{opacity:.45;cursor:default}
+  input,select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;font:inherit}
+  input[type=range]{padding:0;accent-color:var(--acc)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  label{color:var(--mut);font-size:13px;min-width:120px}
+  .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut);vertical-align:middle}
+  .pill.on{color:var(--ok);border-color:var(--ok)}
+  .val{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:13px}
+  .kv{font-family:ui-monospace,Menlo,monospace;font-size:13px}
+  code{font-family:ui-monospace,Menlo,monospace}
+  table{border-collapse:collapse;width:100%;font-size:12.5px}td,th{border-bottom:1px solid var(--bd);padding:5px 7px;text-align:left}th{color:var(--mut)}
+  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:220px;overflow:auto;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px}
+  .warnbox{color:var(--err);font-size:13px}
+  #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
+  #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+  #upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
+  .ok{color:var(--ok)}.bad{color:var(--err)}
+</style>
+</head>
+<body>
+  <div id="nobt" data-i18n-html="noSerial"></div>
+  <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
+  <a class="back" href="../">← Slot Car Web Tools</a>
+  <h1><span data-i18n="h1title">Debug dongle</span> <span id="st" class="pill"></span></h1>
+  <p class="sub" data-i18n-html="sub"></p>
+
+  <div class="card"><div class="row">
+    <button id="btnConn" data-i18n="btnConnectDongle">🔌 Connetti dongle</button>
+    <button id="btnDisc" class="sec" data-i18n="btnDisconnect" disabled>Disconnetti</button>
+    <span id="devname" class="val"></span>
+  </div></div>
+
+  <!-- ===== Info / Licenza ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleInfo">Info & licenza (token 9-char)</p>
+    <div class="row">
+      <button class="sec tk" data-t="READACTIV" data-i18n="tkActiv" disabled>Stato attivazione</button>
+      <button class="sec tk" data-t="READMACVL" data-i18n="tkMac" disabled>Leggi MAC</button>
+      <button class="sec tk" data-t="READLICVL" data-i18n="tkLic" disabled>Leggi licenza</button>
+      <button class="sec tk" data-t="READFWVRS" data-i18n="tkFw" disabled>Versione FW</button>
+    </div>
+    <div id="infoOut" class="kv"></div>
+  </div>
+
+  <!-- ===== Comandi gara ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleRace">Comandi gara — race_status[10]</p>
+    <div class="row">
+      <button class="sec rs" data-st="0x61" data-i18n="rsStart" disabled>▶ Start (avvia TX)</button>
+      <button class="sec rs" data-st="0x01" data-i18n="rsStop" disabled>⏹ Stop</button>
+      <button class="sec rs" data-st="0x04" data-i18n="rsPause" disabled>⏸ Pause</button>
+      <button class="sec rs" data-st="0x05" data-i18n="rsFlag" disabled>🚩 Flag</button>
+    </div>
+    <div class="row"><label data-i18n="lblMaxSpeed">Max speed globale</label><input id="rsMax" type="range" min="0" max="255" value="255" style="flex:1;min-width:150px">
+      <span id="rsMaxV" class="val">255</span></div>
+    <div class="row"><label data-i18n="lblCmd">Comando</label>
+      <select id="rsCmd">
+        <option value="0" data-i18n="optNoAction">No action</option>
+        <option value="1" data-i18n="optPitSpeed">Set Pit Lane Speed</option>
+        <option value="2" data-i18n="optMaxSpeed">Set Maximum Speed</option>
+        <option value="3" data-i18n="optMinSpeed">Set Minimum Speed</option>
+        <option value="4" data-i18n="optRfPower">Set RF Tx Power (0-3)</option>
+        <option value="5" data-i18n="optMaxBrake">Set Maximum Brake</option>
+        <option value="7" data-i18n="optMinLap">Set Minimum Lap Time (1/10s)</option>
+      </select>
+      <label style="min-width:70px" data-i18n="lblArg">argomento</label><input id="rsArg" type="number" min="0" max="255" value="0" style="width:80px">
+      <label style="min-width:60px" data-i18n="lblCarId">ID auto</label><input id="rsId" type="number" min="0" max="39" value="0" style="width:70px">
+    </div>
+    <div class="row"><button id="btnRs" class="sec" data-i18n="btnSendRs" disabled>Invia race_status</button>
+      <span class="val"><span data-i18n="frameLabel">frame:</span> <code id="rsHex">–</code></span></div>
+    <div class="warnbox" data-i18n="raceWarn">⚠️ La cornice/lunghezza esatta del PC→dongle non è certa dal PDF: sperimentale.
+      Con Stop/Paused la velocità va a 0. "Start" fa partire il flusso telemetria.</div>
+  </div>
+
+  <!-- ===== Telemetria ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleTel">Telemetria — rf_data_x[13]</p>
+    <div class="row"><button id="btnMon" class="sec" data-i18n="btnMonStart" disabled>▶ Avvia monitor</button>
+      <button id="btnMonStop" class="sec" data-i18n="btnMonStopLbl" disabled>Ferma</button>
+      <span class="val" data-i18n="telHint">decodifica best-effort dei frame 13B che il dongle invia (~10ms/auto)</span></div>
+    <table><thead><tr><th>ID</th><th data-i18n="thLap">giro (s)</th><th data-i18n="thLaps">giri</th><th>pit</th><th data-i18n="thBatt">batt</th><th>↑↓○</th><th data-i18n="thPower">power</th><th data-i18n="thRaceT">race t.</th></tr></thead>
+      <tbody id="telRows"></tbody></table>
+  </div>
+
+  <!-- ===== Zona pericolosa ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleDanger">Zona pericolosa</p>
+    <div class="row"><label data-i18n="lblShowRisky">Mostra comandi rischiosi</label><input id="dangEn" type="checkbox"></div>
+    <div id="dangBox" style="display:none">
+      <div class="row">
+        <button class="warn tk" data-t="ACTIVECLR" data-danger data-i18n="tkActiveclr" disabled>ACTIVECLR (dis-attiva)</button>
+        <button class="warn tk" data-t="CLEARLICV" data-danger data-i18n="tkClearlic" disabled>CLEARLICV (azzera lic)</button>
+        <button class="warn tk" data-t="DONGLERST" data-danger data-i18n="tkDonglerst" disabled>DONGLERST (reset)</button>
+        <button class="warn tk" data-t="DONGLEDFU" data-danger data-i18n="tkDongledfu" disabled>DONGLEDFU (bootloader)</button>
+      </div>
+      <div class="warnbox" data-i18n-html="dangerWarn">⚠️ <code>CLEARLICV</code>/<code>ACTIVECLR</code> azzerano stato/licenza del dongle.
+        <code>DONGLEDFU</code> entra nel bootloader (l'USB sparisce finché non riflashi).</div>
+    </div>
+  </div>
+
+  <!-- ===== Raw / Log ===== -->
+  <div class="card">
+    <details><summary style="cursor:pointer;color:var(--mut)" data-i18n="sumRawLog">Raw & log</summary>
+      <div class="row" style="margin-top:8px"><label data-i18n="lblSendRaw">Invia (hex o testo)</label><input id="rawIn" size="20" placeholder="READFWVRS  /  61 ff 00 …">
+        <button id="btnRaw" class="sec" data-i18n="btnSend" disabled>Invia</button></div>
+      <div id="log"></div>
+    </details>
+  </div>
+
+<script>
+window.I18N_STRINGS = {
+  sub:{
+    it:"Prova le funzioni documentate del dongle oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002). Console info/licenza (letture), comandi gara <code>race_status[10]</code>, telemetria <code>rf_data_x[13]</code>. <b>Solo su hardware tuo.</b>",
+    en:"Try the oXigen dongle's documented features over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002). Info/license console (reads), race commands <code>race_status[10]</code>, telemetry <code>rf_data_x[13]</code>. <b>Only on your own hardware.</b>",
+    es:"Prueba las funciones documentadas del dongle oXigen por <b>USB serie</b> (Web Serial, VID 1FEE/PID 0002). Consola de info/licencia (lecturas), comandos de carrera <code>race_status[10]</code>, telemetría <code>rf_data_x[13]</code>. <b>Solo en tu propio hardware.</b>"
+  },
+  h1title:{it:"Debug dongle",en:"Dongle debug",es:"Depuración del dongle"},
+  btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle"},
+  btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
+
+  titleInfo:{it:"Info & licenza (token da 9 caratteri)",en:"Info & license (9-char tokens)",es:"Info y licencia (tokens de 9 caracteres)"},
+  tkActiv:{it:"Stato attivazione",en:"Activation status",es:"Estado de activación"},
+  tkMac:{it:"Leggi MAC",en:"Read MAC",es:"Leer MAC"},
+  tkLic:{it:"Leggi licenza",en:"Read license",es:"Leer licencia"},
+  tkFw:{it:"Versione FW",en:"FW version",es:"Versión FW"},
+
+  titleRace:{it:"Comandi gara — race_status[10]",en:"Race commands — race_status[10]",es:"Comandos de carrera — race_status[10]"},
+  rsStart:{it:"▶ Start (avvia TX)",en:"▶ Start (start TX)",es:"▶ Start (iniciar TX)"},
+  rsStop:{it:"⏹ Stop",en:"⏹ Stop",es:"⏹ Stop"},
+  rsPause:{it:"⏸ Pause",en:"⏸ Pause",es:"⏸ Pausa"},
+  rsFlag:{it:"🚩 Flag",en:"🚩 Flag",es:"🚩 Bandera"},
+  lblMaxSpeed:{it:"Velocità max globale",en:"Global max speed",es:"Velocidad máx. global"},
+  lblCmd:{it:"Comando",en:"Command",es:"Comando"},
+  optNoAction:{it:"Nessuna azione",en:"No action",es:"Sin acción"},
+  optPitSpeed:{it:"Imposta velocità pit-lane",en:"Set pit lane speed",es:"Ajustar velocidad de la calle de pits"},
+  optMaxSpeed:{it:"Imposta velocità massima",en:"Set maximum speed",es:"Ajustar velocidad máxima"},
+  optMinSpeed:{it:"Imposta velocità minima",en:"Set minimum speed",es:"Ajustar velocidad mínima"},
+  optRfPower:{it:"Imposta potenza RF Tx (0-3)",en:"Set RF Tx power (0-3)",es:"Ajustar potencia RF Tx (0-3)"},
+  optMaxBrake:{it:"Imposta freno massimo",en:"Set maximum brake",es:"Ajustar freno máximo"},
+  optMinLap:{it:"Imposta tempo giro minimo (1/10s)",en:"Set minimum lap time (1/10s)",es:"Ajustar tiempo mínimo por vuelta (1/10s)"},
+  lblArg:{it:"argomento",en:"argument",es:"argumento"},
+  lblCarId:{it:"ID auto",en:"Car ID",es:"ID coche"},
+  btnSendRs:{it:"Invia race_status",en:"Send race_status",es:"Enviar race_status"},
+  frameLabel:{it:"frame:",en:"frame:",es:"trama:"},
+  raceWarn:{
+    it:"⚠️ La cornice/lunghezza esatta del PC→dongle non è certa dal PDF: sperimentale. Con Stop/Paused la velocità va a 0. «Start» fa partire il flusso telemetria.",
+    en:"⚠️ The exact PC→dongle frame/length isn't certain from the PDF: experimental. With Stop/Paused the speed goes to 0. \"Start\" begins the telemetry stream.",
+    es:"⚠️ La trama/longitud exacta de PC→dongle no es segura según el PDF: experimental. Con Stop/Paused la velocidad baja a 0. «Start» inicia el flujo de telemetría."
+  },
+
+  titleTel:{it:"Telemetria — rf_data_x[13]",en:"Telemetry — rf_data_x[13]",es:"Telemetría — rf_data_x[13]"},
+  btnMonStart:{it:"▶ Avvia monitor",en:"▶ Start monitor",es:"▶ Iniciar monitor"},
+  btnMonStopLbl:{it:"Ferma",en:"Stop",es:"Detener"},
+  telHint:{
+    it:"decodifica best-effort dei frame 13B che il dongle invia (~10ms/auto)",
+    en:"best-effort decode of the 13B frames the dongle sends (~10ms/car)",
+    es:"decodificación best-effort de las tramas de 13B que envía el dongle (~10ms/coche)"
+  },
+  thLap:{it:"giro (s)",en:"lap (s)",es:"vuelta (s)"},
+  thLaps:{it:"giri",en:"laps",es:"vueltas"},
+  thBatt:{it:"batt",en:"batt",es:"bat"},
+  thPower:{it:"power",en:"power",es:"potencia"},
+  thRaceT:{it:"race t.",en:"race t.",es:"t. carrera"},
+
+  titleDanger:{it:"Zona pericolosa",en:"Danger zone",es:"Zona peligrosa"},
+  lblShowRisky:{it:"Mostra comandi rischiosi",en:"Show risky commands",es:"Mostrar comandos peligrosos"},
+  tkActiveclr:{it:"ACTIVECLR (dis-attiva)",en:"ACTIVECLR (deactivate)",es:"ACTIVECLR (desactivar)"},
+  tkClearlic:{it:"CLEARLICV (azzera lic)",en:"CLEARLICV (clear license)",es:"CLEARLICV (borrar licencia)"},
+  tkDonglerst:{it:"DONGLERST (reset)",en:"DONGLERST (reset)",es:"DONGLERST (reinicio)"},
+  tkDongledfu:{it:"DONGLEDFU (bootloader)",en:"DONGLEDFU (bootloader)",es:"DONGLEDFU (bootloader)"},
+  dangerWarn:{
+    it:"⚠️ <code>CLEARLICV</code>/<code>ACTIVECLR</code> azzerano stato/licenza del dongle. <code>DONGLEDFU</code> entra nel bootloader (l'USB sparisce finché non riflashi).",
+    en:"⚠️ <code>CLEARLICV</code>/<code>ACTIVECLR</code> reset the dongle's state/license. <code>DONGLEDFU</code> enters the bootloader (USB disappears until you reflash).",
+    es:"⚠️ <code>CLEARLICV</code>/<code>ACTIVECLR</code> borran el estado/licencia del dongle. <code>DONGLEDFU</code> entra en el bootloader (el USB desaparece hasta que reflashees)."
+  },
+
+  sumRawLog:{it:"Raw & log",en:"Raw & log",es:"Datos crudos y registro"},
+  lblSendRaw:{it:"Invia (hex o testo)",en:"Send (hex or text)",es:"Enviar (hex o texto)"},
+  btnSend:{it:"Invia",en:"Send",es:"Enviar"},
+
+  /* ---- stringhe dinamiche (JS) ---- */
+  stConnected:{it:"connesso",en:"connected",es:"conectado"},
+  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
+  logConnected:{it:"[connesso]",en:"[connected]",es:"[conectado]"},
+  logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]"},
+  errWord:{it:"errore",en:"error",es:"error"},
+  monOnMsg:{
+    it:"[monitor telemetria ON — premi anche Start se non arriva nulla]",
+    en:"[telemetry monitor ON — also press Start if nothing arrives]",
+    es:"[monitor de telemetría ON — pulsa también Start si no llega nada]"
+  },
+  monOffMsg:{it:"[monitor OFF]",en:"[monitor OFF]",es:"[monitor OFF]"},
+  noSerialLog:{
+    it:"[!] Web Serial non supportato: usa Chrome/Edge su computer.",
+    en:"[!] Web Serial not supported: use Chrome/Edge on a computer.",
+    es:"[!] Web Serial no compatible: usa Chrome/Edge en un ordenador."
+  },
+  dtActive:{it:"ATTIVO",en:"ACTIVE",es:"ACTIVO"},
+  dtNotActive:{it:"NON attivo",en:"NOT active",es:"NO activo"},
+  dtInactive:{it:"disattivo",en:"inactive",es:"inactivo"},
+  dtFromActMac:{it:"da 'ACT'+~MAC",en:"from 'ACT'+~MAC",es:"de 'ACT'+~MAC"},
+  dtLicense:{it:"licenza",en:"license",es:"licencia"},
+  dtResponse:{it:"risposta",en:"response",es:"respuesta"},
+  dtEmpty:{it:"(vuota)",en:"(empty)",es:"(vacía)"},
+  confirmDanger:{
+    it:"comando che modifica/riavvia il dongle. Procedo?",
+    en:"command that modifies/restarts the dongle. Proceed?",
+    es:"comando que modifica/reinicia el dongle. ¿Continuar?"
+  }
+};
+</script>
+<script src="../i18n.js"></script>
+<script>
+const APP="dongle-debug",APP_VERSION="1.1.0";
+const VID=0x1fee,PID=0x0002;
+let port,writer,reader,acc=[],reading=false,monOn=false,tel={};
+let connState=false,lastTok=null,lastResp=null;
+const $=id=>document.getElementById(id);
+const hx=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join(" ");
+const asc=b=>[...b].map(x=>x>=32&&x<127?String.fromCharCode(x):".").join("");
+const log=s=>{const l=$("log");l.textContent+=s+"\n";l.scrollTop=l.scrollHeight;};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const enc=s=>[...new TextEncoder().encode(s)];
+
+function renderStatus(){const on=connState;$("st").textContent=on?I18N.t("stConnected"):I18N.t("stDisconnected");$("st").className="pill"+(on?" on":"");}
+function setConn(on){connState=on;renderStatus();
+  $("btnConn").disabled=on;$("btnDisc").disabled=!on;
+  document.querySelectorAll(".tk,.rs,#btnRs,#btnMon,#btnMonStop,#btnRaw").forEach(b=>b.disabled=!on);}
+
+async function connect(){
+  if(!navigator.serial){$("nobt").style.display="block";return;}
+  try{
+    port=await navigator.serial.requestPort({filters:[{usbVendorId:VID,usbProductId:PID}]});
+    await port.open({baudRate:115200});
+    writer=port.writable.getWriter();
+    const i=port.getInfo?port.getInfo():{};
+    $("devname").textContent=(i.usbVendorId?("VID "+i.usbVendorId.toString(16)+"/PID "+i.usbProductId.toString(16)):"dongle");
+    setConn(true);log(I18N.t("logConnected"));readLoop();
+  }catch(e){log("["+I18N.t("errWord")+": "+e+"]");}
+}
+async function disconnect(){try{monOn=false;reading=false;if(reader){await reader.cancel().catch(()=>{});}
+  if(writer){writer.releaseLock();}await port.close();}catch(e){}setConn(false);$("devname").textContent="";log(I18N.t("logDisconnected"));}
+async function readLoop(){reading=true;
+  while(reading&&port.readable){reader=port.readable.getReader();
+    try{while(true){const{value,done}=await reader.read();if(done)break;
+      for(const b of value)acc.push(b);if(acc.length>20000)acc=acc.slice(-8000);
+      log("<- "+hx(value));if(monOn)parseTelemetry();}}
+    catch(e){}finally{try{reader.releaseLock();}catch(e){}}}
+}
+async function write(bytes){await writer.write(new Uint8Array(bytes));log("-> "+hx(bytes)+"  |"+asc(bytes)+"|");}
+async function sendCollect(bytes,ms=400){const start=acc.length;await write(bytes);await sleep(ms);return acc.slice(start);}
+
+/* ---------- token / info ---------- */
+function decodeToken(tok,r){
+  const s=asc(r);
+  if(tok==="READFWVRS"&&r.length>=2)return"FW v"+r[0]+"."+r[1]+"  ("+hx(r.slice(0,2))+")";
+  if(tok==="READACTIV"){
+    if(s.includes("ACTIVEYES"))return'<span class="ok">'+I18N.t("dtActive")+' (ACTIVEYES)</span>';
+    if(s.includes("ACTIVENOT"))return'<span class="bad">'+I18N.t("dtNotActive")+' (ACTIVENOT)</span>';
+    // "ACT" + ~MAC
+    const i=[...r].findIndex((_,k)=>r[k]===0x41&&r[k+1]===0x43&&r[k+2]===0x54);
+    if(i>=0&&r.length>=i+9){const mac=r.slice(i+3,i+9).map(b=>(~b)&0xff);
+      return I18N.t("dtInactive")+" — MAC = "+mac.map(b=>b.toString(16).padStart(2,"0").toUpperCase()).join(":")+" ("+I18N.t("dtFromActMac")+")";}
+  }
+  if(tok==="READMACVL"&&r.length>=6){const mac=[...r.slice(0,6)].reverse();
+    return"MAC = "+mac.map(b=>b.toString(16).padStart(2,"0").toUpperCase()).join(":");}
+  if(tok==="READLICVL"&&r.length>=6)return I18N.t("dtLicense")+" (6B) = "+hx(r.slice(0,6));
+  return I18N.t("dtResponse")+": "+(r.length?hx(r):I18N.t("dtEmpty"))+(s.match(/[ -~]/)?"  |"+asc(r)+"|":"");
+}
+function renderInfo(){if(lastTok!=null)$("infoOut").innerHTML="<b>"+lastTok+"</b> → "+decodeToken(lastTok,lastResp);}
+async function token(tok,danger){
+  if(danger&&!confirm(tok+": "+I18N.t("confirmDanger")))return;
+  const r=await sendCollect(enc(tok),400);
+  lastTok=tok;lastResp=r;renderInfo();
+}
+
+/* ---------- race_status[10] ---------- */
+function buildRs(state){const b=new Array(10).fill(0);
+  b[0]=state; b[1]=+$("rsMax").value; b[2]=+$("rsId").value&0xff;
+  const cmd=+$("rsCmd").value, arg=+$("rsArg").value&0xff;
+  if(cmd){b[3]=cmd&0x7f; b[4]=arg;}                    // comando globale (bit7=0)
+  return b;}
+function refreshRsHex(){$("rsHex").textContent=hx(buildRs(0x03));}
+async function sendRs(state){const b=buildRs(state);$("rsHex").textContent=hx(b);await write(b);}
+
+/* ---------- telemetria rf_data_x[13] ---------- */
+function parseTelemetry(){
+  // sync: byte con bit7=1 seguito da ID<=0x27, frame 13B
+  for(let i=0;i+13<=acc.length;i++){
+    if((acc[i]&0x80)&&acc[i+1]<=0x27){
+      const f=acc.slice(i,i+13);
+      const id=f[1], lapCs=f[2]*256+f[3], laps=f[6]*256+f[5];
+      const pit=(f[0]>>4)&1, batt=(f[9]>>2)&1, up=(f[9]>>5)&1, dn=(f[9]>>6)&1, ro=(f[9]>>7)&1;
+      const pw=f[7]&0x7f, rt=f[10]*65536+f[11]*256+f[12];
+      tel[id]={lap:(lapCs/99.25).toFixed(2),laps,pit,batt,btn:(up?"↑":"")+(dn?"↓":"")+(ro?"○":""),pw,rt};
+      i+=12;
+    }
+  }
+  acc=acc.slice(-26);renderTel();
+}
+function renderTel(){const tb=$("telRows");tb.innerHTML="";
+  Object.keys(tel).sort((a,b)=>a-b).forEach(id=>{const t=tel[id];const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${id}</td><td>${t.lap}</td><td>${t.laps}</td><td>${t.pit?"🅿️":""}</td><td>${t.batt?"🔋":""}</td>
+      <td>${t.btn||""}</td><td>${t.pw}</td><td>${t.rt}</td>`;tb.appendChild(tr);});}
+
+/* ---------- wiring ---------- */
+$("btnConn").onclick=connect;$("btnDisc").onclick=disconnect;
+document.querySelectorAll(".tk").forEach(b=>b.onclick=()=>token(b.dataset.t,b.hasAttribute("data-danger")));
+document.querySelectorAll(".rs").forEach(b=>b.onclick=()=>sendRs(parseInt(b.dataset.st)));
+$("rsMax").oninput=e=>{$("rsMaxV").textContent=e.target.value;refreshRsHex();};
+$("rsCmd").onchange=refreshRsHex;$("rsArg").oninput=refreshRsHex;$("rsId").oninput=refreshRsHex;
+$("btnRs").onclick=()=>sendRs(0x03);
+$("btnMon").onclick=()=>{monOn=true;log(I18N.t("monOnMsg"));};
+$("btnMonStop").onclick=()=>{monOn=false;log(I18N.t("monOffMsg"));};
+$("dangEn").onchange=e=>$("dangBox").style.display=e.target.checked?"block":"none";
+$("btnRaw").onclick=async()=>{const s=$("rawIn").value.trim();if(!s)return;
+  const b=/^[0-9a-f ]+$/i.test(s)&&s.replace(/ /g,"").length%2===0?[...s.replace(/ /g,"").matchAll(/../g)].map(m=>parseInt(m[0],16)):enc(s);
+  await write(b);};
+refreshRsHex();
+renderStatus();
+
+/* ri-render del dinamico al cambio lingua */
+document.addEventListener("i18n:changed",()=>{renderStatus();renderInfo();});
+
+/* compat + sw + versione */
+if(!navigator.serial){$("nobt").style.display="block";$("btnConn").disabled=true;
+  log(I18N.t("noSerialLog"));}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
+function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
+fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
+  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+</script>
+</body>
+</html>

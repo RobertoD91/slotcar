@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<title data-i18n="pageTitle">Configuratore controller SCP-3 (BLE)</title>
+<style>
+  :root{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--acc:#5db0ff;--ok:#4ec36b;--err:#ff6b6b;--card:#171a21;--bd:#2a2f3a;--accfg:#04121f}
+  @media (prefers-color-scheme:light){:root{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}}
+  :root[data-theme="dark"]{--bg:#0f1115;--fg:#e9edf3;--mut:#8a94a6;--card:#171a21;--bd:#2a2f3a}
+  :root[data-theme="light"]{--bg:#f6f7f9;--fg:#1a1d23;--mut:#5b6472;--card:#fff;--bd:#dfe3ea}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:820px;margin:0 auto}
+  a.back{color:var(--mut);text-decoration:none;font-size:13px}
+  h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
+  .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+  button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;font-size:14px}
+  button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+  button.warn{background:var(--err);color:#180404}
+  button:disabled{opacity:.45;cursor:default}
+  input,select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;font:inherit}
+  input[type=range]{padding:0;accent-color:var(--acc)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  label{color:var(--mut);font-size:13px;min-width:130px}
+  .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut);vertical-align:middle}
+  .pill.on{color:var(--ok);border-color:var(--ok)}
+  .val{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:13px}
+  code{font-family:ui-monospace,Menlo,monospace}
+  .hint{font-size:12px;color:var(--mut)}
+  .warnbox{color:var(--err);font-size:13px;margin-top:6px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+  .fld{border:1px solid var(--bd);border-radius:9px;padding:8px 10px}
+  .fld .k{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut)}
+  .fld .v{font-family:ui-monospace,Menlo,monospace;font-size:14px;margin-top:2px}
+  table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid var(--bd);padding:6px 8px;text-align:left}th{color:var(--mut)}
+  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:200px;overflow:auto;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px}
+  #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+  #upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
+  #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
+</style>
+</head>
+<body>
+  <div id="nobt" data-i18n-html="noBt"></div>
+  <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
+  <a class="back" href="../">← Slot Car Web Tools</a>
+  <h1><span data-i18n="ctrlHeading"></span> <span id="st" class="pill"></span></h1>
+  <p class="sub" data-i18n-html="sub"></p>
+
+  <div class="card">
+    <div class="row">
+      <button id="btnConn" data-i18n="btnConn"></button>
+      <button id="btnDisc" class="sec" disabled data-i18n="btnDisc"></button>
+      <span id="devname" class="val"></span>
+    </div>
+  </div>
+
+  <!-- ===== Informazioni (sola lettura) ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="cardInfo"></p>
+    <div class="row"><button id="btnReadAll" class="sec" disabled data-i18n="btnReadAll"></button>
+      <span class="hint" data-i18n="readAllHint"></span></div>
+    <div class="grid" style="margin-top:8px">
+      <div class="fld"><div class="k" data-i18n="fldFw"></div><div class="v" id="fFw">—</div></div>
+      <div class="fld"><div class="k" data-i18n="fldType"></div><div class="v" id="fType">—</div></div>
+      <div class="fld"><div class="k" data-i18n="fldVer"></div><div class="v" id="fVer">—</div></div>
+      <div class="fld"><div class="k">ID</div><div class="v" id="fId">—</div></div>
+      <div class="fld"><div class="k">O2 MAC</div><div class="v" id="fMac">—</div></div>
+      <div class="fld"><div class="k" data-i18n="fldDate"></div><div class="v" id="fDate">—</div></div>
+    </div>
+  </div>
+
+  <!-- ===== Configurazione (Nome + Brake) ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="cardConfig"></p>
+    <div class="row"><label data-i18n="lblName"></label><input id="cName" size="16" maxlength="14" data-i18n-attr="placeholder:phName" placeholder=""></div>
+    <div class="row"><label data-i18n="lblBrake"></label>
+      <select id="cBrake">
+        <option value="" data-i18n="brakeNone"></option>
+        <option value="0" data-i18n="brakeDefault"></option>
+        <option value="1" data-i18n="brakeLinear"></option>
+      </select></div>
+    <div class="row"><button class="cfg" data-fn="write" disabled data-i18n="btnWrite"></button>
+      <span class="hint" data-i18n-html="writeHint"></span></div>
+  </div>
+
+  <!-- ===== ID (schermata a parte) ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="cardId"></p>
+    <div class="row"><label>ID (1–20)</label><input id="cId" type="number" min="1" max="20" style="width:80px">
+      <button class="sec cfg" data-fn="id" disabled data-i18n="btnSetId"></button></div>
+  </div>
+
+  <!-- ===== Clonazione MAC ===== -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="cardClone"></p>
+    <div class="row"><label data-i18n="lblMac"></label><input id="cMac" size="10" placeholder="52 5d → 525d">
+      <button class="warn cfg" data-fn="clone" disabled data-i18n="btnClone"></button></div>
+    <div class="warnbox" data-i18n-html="cloneWarn"></div>
+  </div>
+
+  <!-- ===== Avanzato ===== -->
+  <div class="card">
+    <details><summary style="cursor:pointer;color:var(--mut)" data-i18n="advSummary"></summary>
+      <div class="row" style="margin-top:8px"><label data-i18n="lblRawRead"></label><input id="rReg" size="6" placeholder="0x8f">
+        <button class="sec cfg" data-fn="rawread" disabled data-i18n="btnRawRead"></button></div>
+      <div class="row"><label data-i18n="lblRawWrite"></label><input id="wReg" size="6" placeholder="0x8c"><input id="wVal" size="14" data-i18n-attr="placeholder:phRawWrite" placeholder="">
+        <button class="sec cfg" data-fn="rawwrite" disabled data-i18n="btnRawWrite"></button></div>
+      <table id="regtab" style="margin-top:8px"><thead><tr><th>reg</th><th data-i18n="thName"></th><th data-i18n="thValue"></th><th></th></tr></thead><tbody></tbody></table>
+    </details>
+  </div>
+
+  <div class="card"><details><summary style="cursor:pointer;color:var(--mut)">Log</summary><div id="log"></div></details></div>
+
+<script>
+window.I18N_STRINGS = {
+  pageTitle:{it:"Configuratore controller SCP-3 (BLE)",en:"SCP-3 controller configurator (BLE)",es:"Configurador del mando SCP-3 (BLE)"},
+  sub:{
+    it:"Legge/scrive i registri del controller SCP-3 via BLE (NUS a registri). Chrome/Edge desktop o Chrome Android. <b>Solo su hardware tuo.</b>",
+    en:"Reads/writes the SCP-3 controller registers over BLE (register-based NUS). Chrome/Edge desktop or Chrome Android. <b>Only on your own hardware.</b>",
+    es:"Lee/escribe los registros del mando SCP-3 por BLE (NUS por registros). Chrome/Edge escritorio o Chrome Android. <b>Solo en tu propio hardware.</b>"
+  },
+  btnConn:{it:"🔵 Connetti",en:"🔵 Connect",es:"🔵 Conectar"},
+  btnDisc:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
+  ctrlHeading:{it:"Configuratore controller",en:"Controller configurator",es:"Configurador del mando"},
+  cardInfo:{it:"Informazioni (sola lettura)",en:"Information (read-only)",es:"Información (solo lectura)"},
+  btnReadAll:{it:"↺ Leggi configurazione",en:"↺ Read configuration",es:"↺ Leer configuración"},
+  readAllHint:{
+    it:"← premi qui per primo: popola i campi e mostra i dati sotto",
+    en:"← press this first: it fills the fields and shows the data below",
+    es:"← pulsa aquí primero: rellena los campos y muestra los datos abajo"
+  },
+  fldFw:{it:"Firmware",en:"Firmware",es:"Firmware"},
+  fldType:{it:"Tipo Chip",en:"Chip type",es:"Tipo de chip"},
+  fldVer:{it:"Versione",en:"Version",es:"Versión"},
+  fldDate:{it:"Data attivazione",en:"Activation date",es:"Fecha de activación"},
+  cardConfig:{it:"Configurazione",en:"Configuration",es:"Configuración"},
+  lblName:{it:"Nome dispositivo",en:"Device name",es:"Nombre del dispositivo"},
+  phName:{it:"es. Il mio controller",en:"e.g. My controller",es:"p. ej. Mi mando"},
+  lblBrake:{it:"Impostazione freno",en:"Brake setting",es:"Ajuste de freno"},
+  brakeNone:{it:"— (leggi configurazione)",en:"— (read configuration)",es:"— (leer configuración)"},
+  brakeDefault:{it:"Default",en:"Default",es:"Predeterminado"},
+  brakeLinear:{it:"Lineare",en:"Linear",es:"Lineal"},
+  btnWrite:{it:"Scrivi (Nome + Freno)",en:"Write (Name + Brake)",es:"Escribir (Nombre + Freno)"},
+  writeHint:{
+    it:"come il tasto <b>Scrivi</b> dell'app: scrive Nome (0x83) e Impostazione freno (0x8c)",
+    en:"like the app's <b>Write</b> button: writes Name (0x83) and Brake setting (0x8c)",
+    es:"como el botón <b>Escribir</b> de la app: escribe Nombre (0x83) y Ajuste de freno (0x8c)"
+  },
+  cardId:{it:"ID controller",en:"Controller ID",es:"ID del mando"},
+  btnSetId:{it:"Imposta ID",en:"Set ID",es:"Establecer ID"},
+  cardClone:{it:"Clonazione (O2 MAC)",en:"Cloning (O2 MAC)",es:"Clonación (O2 MAC)"},
+  lblMac:{it:"O2 MAC (2 byte)",en:"O2 MAC (2 bytes)",es:"O2 MAC (2 bytes)"},
+  btnClone:{it:"Scrivi MAC (clonazione)",en:"Write MAC (cloning)",es:"Escribir MAC (clonación)"},
+  cloneWarn:{
+    it:"⚠️ Il MAC porta l'identità/licenza: scriverlo <b>clona</b> il device. C'è una conferma. Scrive <code>0x90</code> e poi il commit <code>0x9f</code>. (<code>0x80</code>=DFU non è esposto qui apposta.)",
+    en:"⚠️ The MAC carries the identity/license: writing it <b>clones</b> the device. There is a confirmation. Writes <code>0x90</code> then the commit <code>0x9f</code>. (<code>0x80</code>=DFU is deliberately not exposed here.)",
+    es:"⚠️ La MAC lleva la identidad/licencia: escribirla <b>clona</b> el dispositivo. Hay una confirmación. Escribe <code>0x90</code> y luego el commit <code>0x9f</code>. (<code>0x80</code>=DFU no se expone aquí a propósito.)"
+  },
+  advSummary:{it:"Avanzato — registri grezzi",en:"Advanced — raw registers",es:"Avanzado — registros en bruto"},
+  lblRawRead:{it:"Leggi reg",en:"Read reg",es:"Leer reg"},
+  btnRawRead:{it:"Leggi",en:"Read",es:"Leer"},
+  lblRawWrite:{it:"Scrivi reg",en:"Write reg",es:"Escribir reg"},
+  phRawWrite:{it:"0x01 / 525d / testo",en:"0x01 / 525d / text",es:"0x01 / 525d / texto"},
+  btnRawWrite:{it:"Scrivi",en:"Write",es:"Escribir"},
+  thName:{it:"nome",en:"name",es:"nombre"},
+  thValue:{it:"valore",en:"value",es:"valor"},
+  regReadBtn:{it:"leggi",en:"read",es:"leer"},
+  regFw:{it:"FIRMWARE",en:"FIRMWARE",es:"FIRMWARE"},
+  regDate:{it:"DATA ATTIV.",en:"ACTIV. DATE",es:"FECHA ACTIV."},
+  regName:{it:"NOME",en:"NAME",es:"NOMBRE"},
+  regBrake:{it:"BRAKE SET",en:"BRAKE SET",es:"BRAKE SET"},
+  regConfig:{it:"config",en:"config",es:"config"},
+  regId:{it:"ID",en:"ID",es:"ID"},
+  regMac:{it:"O2 MAC(2B)",en:"O2 MAC(2B)",es:"O2 MAC(2B)"},
+  stConnected:{it:"connesso",en:"connected",es:"conectado"},
+  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
+  logNoBt1:{
+    it:"[!] Web Bluetooth non supportato: usa Chrome/Edge desktop o Chrome Android.",
+    en:"[!] Web Bluetooth not supported: use Chrome/Edge desktop or Chrome Android.",
+    es:"[!] Web Bluetooth no compatible: usa Chrome/Edge escritorio o Chrome Android."
+  },
+  logNoBt2:{
+    it:"[!] Web Bluetooth non supportato. Usa Chrome/Edge desktop o Chrome Android. NON iOS/Safari.",
+    en:"[!] Web Bluetooth not supported. Use Chrome/Edge desktop or Chrome Android. NOT iOS/Safari.",
+    es:"[!] Web Bluetooth no compatible. Usa Chrome/Edge escritorio o Chrome Android. NO iOS/Safari."
+  },
+  logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]"},
+  logConnPrefix:{it:"connesso a",en:"connected to",es:"conectado a"},
+  logErrorPrefix:{it:"errore:",en:"error:",es:"error:"},
+  logBrakeUnset:{
+    it:"[freno non impostato: scegli Default/Lineare o premi 'Leggi configurazione']",
+    en:"[brake not set: choose Default/Linear or press 'Read configuration']",
+    es:"[freno no establecido: elige Predeterminado/Lineal o pulsa 'Leer configuración']"
+  },
+  alertMac:{it:"O2 MAC = 2 byte, es. 525d",en:"O2 MAC = 2 bytes, e.g. 525d",es:"O2 MAC = 2 bytes, p. ej. 525d"},
+  confirmClone:{
+    it:"Scrivo il MAC (clone identità/licenza) e faccio il commit. Sicuro?",
+    en:"I will write the MAC (identity/license clone) and commit it. Are you sure?",
+    es:"Voy a escribir la MAC (clon de identidad/licencia) y confirmarla. ¿Seguro?"
+  },
+  noResp:{it:"(nessuna risposta)",en:"(no response)",es:"(sin respuesta)"}
+};
+</script>
+<script src="../i18n.js"></script>
+<script>
+const APP="remote-config",APP_VERSION="1.1.0";
+const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+const PFX=0x0a;                                  // header di frame del CONTROLLER (il chip auto usa 0x09)
+const TYPE_STR="SCP3 Handle", VER_STR="O2 / Analog";   // display fissi della schermata SCP3
+// registri leggibili di config/info del controller (docs/REPORT-ble-controller-scp3.md) — 2° elem = chiave i18n del nome
+const REGS=[[0x00,"regFw"],[0x81,"regDate"],[0x83,"regName"],[0x8c,"regBrake"],
+  [0x8e,"regConfig"],[0x8f,"regId"],[0x90,"regMac"]];
+let dev,rxc,txc,waiter=null;
+const $=id=>document.getElementById(id);
+const hx=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join("");
+const asc=b=>[...b].map(x=>x>=32&&x<127?String.fromCharCode(x):".").join("");
+const log=s=>{const l=$("log");l.textContent+=s+"\n";l.scrollTop=l.scrollHeight;};
+const xorsum=a=>{let x=0;for(const b of a)x^=b;return x&0xff;};
+const h2=n=>"0x"+n.toString(16).padStart(2,"0");
+const p2=n=>String(n).padStart(2,"0");
+
+let _conn=false;
+function renderStatus(){$("st").textContent=I18N.t(_conn?"stConnected":"stDisconnected");$("st").className="pill"+(_conn?" on":"");}
+function setConn(on){_conn=on;renderStatus();
+  $("btnConn").disabled=on;$("btnDisc").disabled=!on;
+  document.querySelectorAll(".cfg,#btnReadAll").forEach(b=>b.disabled=!on);}
+async function connect(){
+  if(!navigator.bluetooth){log(I18N.t("logNoBt1"));return;}
+  try{
+    dev=await navigator.bluetooth.requestDevice({filters:[{services:[NUS]}],optionalServices:[NUS]});
+    dev.addEventListener("gattserverdisconnected",()=>{setConn(false);$("devname").textContent="";log(I18N.t("logDisconnected"));});
+    const g=await dev.gatt.connect(),s=await g.getPrimaryService(NUS);
+    rxc=await s.getCharacteristic(RX);txc=await s.getCharacteristic(TX);
+    await txc.startNotifications();txc.addEventListener("characteristicvaluechanged",onNotify);
+    setConn(true);$("devname").textContent=dev.name||dev.id;log("["+I18N.t("logConnPrefix")+" "+(dev.name||dev.id)+"]");
+  }catch(e){log("["+I18N.t("logErrorPrefix")+" "+e+"]");}
+}
+function onNotify(e){
+  const v=new Uint8Array(e.target.value.buffer);
+  log("  <- "+hx(v)+"  |"+asc(v)+"|"+(hx(v)==="444f"?"  (DO=ok)":""));
+  if(waiter){waiter(v);waiter=null;}
+}
+const wait=(ms=1200)=>new Promise(r=>{waiter=r;setTimeout(()=>{if(waiter){waiter=null;r(null);}},ms);});
+const send=b=>rxc.writeValueWithoutResponse(new Uint8Array(b));
+async function readReg(reg){
+  log("READ "+h2(reg));
+  // il firmware (reg 0x00) l'app lo legge come '0a 12 00 00 02'; gli altri sono '0a 12 <reg>'
+  await send(reg===0x00?[PFX,0x12,0x00,0x00,0x02]:[PFX,0x12,reg]);
+  return await wait();
+}
+async function writeReg(reg,val){const body=[PFX,0x02,reg,...val];body.push(xorsum(body));
+  log("WRITE "+h2(reg)+" = "+hx(val)+(asc(val).match(/^[ -~]+$/)?" |"+asc(val)+"|":""));await send(body);return await wait();}
+
+/* decodifiche leggibili */
+function fwStr(v){return v&&v.length>=3?v[0]+"."+v[1]+(v[2]>=32&&v[2]<127?String.fromCharCode(v[2]).toUpperCase():""):"—";}
+function dateStr(v){return v&&v.length>=5?p2(v[0])+"/"+p2(v[1])+"/"+(2000+v[2])+" "+p2(v[3])+":"+p2(v[4]):"—";}
+function brakeStr(v){return v&&v.length>=1?(v[0]===1?I18N.t("brakeLinear"):I18N.t("brakeDefault")):"—";}
+
+/* leggi tutta la config e popola i campi */
+async function readAll(){
+  for(const[r]of REGS){const v=await readReg(r);const c=$("v"+r);if(c)c.textContent=v?hx(v)+" |"+asc(v)+"|":I18N.t("noResp");
+    if(v){
+      if(r===0x00)$("fFw").textContent=fwStr(v);
+      if(r===0x81)$("fDate").textContent=dateStr(v);
+      if(r===0x83)$("cName").value=asc(v).replace(/\.+$/,"");
+      if(r===0x8c){$("cBrake").value=String(v[0]);}
+      if(r===0x8f){$("cId").value=v[0];$("fId").textContent=v[0];}
+      if(r===0x90){$("cMac").value=hx(v);$("fMac").textContent=[...v].map(x=>x.toString(16).padStart(2,"0")).join(" ").toUpperCase();}
+    }
+    await new Promise(x=>setTimeout(x,110));
+  }
+  $("fType").textContent=TYPE_STR;$("fVer").textContent=VER_STR;   // display fissi della schermata SCP3
+}
+function parseVal(s){s=(s||"").trim();
+  if(/^0x[0-9a-f]{2}$/i.test(s))return[parseInt(s,16)];
+  const hexs=s.replace(/ /g,"");
+  if(/^[0-9a-f]+$/i.test(hexs)&&hexs.length%2===0&&hexs.length>=2)return[...hexs.matchAll(/../g)].map(m=>parseInt(m[0],16));
+  if(/^\d+$/.test(s))return[parseInt(s)&0xff];
+  return[...new TextEncoder().encode(s)];}
+const fns={
+  /* "Scrivi": Nome (0x83) + Brake Setting (0x8c), come il tasto Scrivi dell'app */
+  write:async()=>{
+    await writeReg(0x83,[...new TextEncoder().encode($("cName").value)]);
+    const b=$("cBrake").value;
+    if(b==="")log(I18N.t("logBrakeUnset"));
+    else await writeReg(0x8c,[parseInt(b)]);
+  },
+  id:()=>writeReg(0x8f,[Math.max(1,Math.min(20,parseInt($("cId").value)||1))]),
+  clone:()=>{const b=parseVal($("cMac").value);if(b.length!==2)return alert(I18N.t("alertMac"));
+    if(confirm(I18N.t("confirmClone")))
+      return (async()=>{await writeReg(0x90,b);await writeReg(0x9f,[0x00]);})();},
+  rawread:async()=>{const r=parseInt($("rReg").value,16);if(!isNaN(r))await readReg(r);},
+  rawwrite:async()=>{const r=parseInt($("wReg").value,16);if(!isNaN(r))await writeReg(r,parseVal($("wVal").value));},
+};
+document.querySelectorAll(".cfg").forEach(b=>b.dataset.fn&&(b.onclick=()=>fns[b.dataset.fn]&&fns[b.dataset.fn]()));
+(function(){const tb=$("regtab").querySelector("tbody");for(const[r,n]of REGS){const tr=document.createElement("tr");
+  tr.innerHTML=`<td><code>${h2(r)}</code></td><td data-i18n="${n}"></td><td class="val" id="v${r}"></td>
+    <td><button class="sec" disabled data-i18n="regReadBtn"></button></td>`;tb.appendChild(tr);
+  const bt=tr.querySelector("button");bt.classList.add("cfg");
+  bt.onclick=async()=>{const v=await readReg(r);$("v"+r).textContent=v?hx(v)+" |"+asc(v)+"|":I18N.t("noResp");};}})();
+
+$("btnConn").onclick=connect;
+$("btnDisc").onclick=()=>{if(dev&&dev.gatt.connected)dev.gatt.disconnect();};
+$("btnReadAll").onclick=readAll;
+// banner compatibilità Web Bluetooth
+if(!navigator.bluetooth){$("nobt").style.display="block";$("btnConn").disabled=true;}
+// service worker network-first: sempre l'ultima versione (fix cache)
+if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
+
+/* stringhe dinamiche iniziali + ri-render al cambio lingua */
+function initDynamic(){renderStatus();if(!navigator.bluetooth)log(I18N.t("logNoBt2"));}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initDynamic);
+else initDynamic();
+document.addEventListener("i18n:changed",renderStatus);
+
+/* prompt aggiornamento versione */
+function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
+fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
+  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+</script>
+</body>
+</html>

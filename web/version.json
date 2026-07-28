@@ -1,0 +1,11 @@
+{
+  "site": "1.0.0",
+  "updated": "2026-07-28",
+  "apps": {
+    "car-config": "1.1.0",
+    "dongle-debug": "1.1.0",
+    "remote-config": "1.1.0",
+    "modes": "1.1.0",
+    "ds200": "1.5.1"
+  }
+}

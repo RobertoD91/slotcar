@@ -1,0 +1,94 @@
+name: Deploy web apps to GitHub Pages
+
+# Pubblica la cartella web/ (landing + tutte le web app) su GitHub Pages.
+#
+# Setup UNA TANTUM: Settings -> Pages -> "Build and deployment" -> Source = "GitHub Actions".
+# NB: finché la repo è PRIVATA, GitHub Pages richiede un piano a pagamento (Pro/Team).
+#     Quando la repo diventa pubblica, Pages è gratuito e non serve cambiare nulla qui.
+#
+# Il firmware ESP32 del contagiri DS200 viene compilato e messo accanto al flasher
+# (web/ds200/firmware/). Quello step è VOLUTAMENTE non bloccante: se la build del
+# firmware fallisce, il sito viene pubblicato lo stesso e solo il flasher resta indietro.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'web/**'
+      - 'esp32/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            ~/.cache/pip
+          key: pio-${{ runner.os }}-${{ hashFiles('esp32/platformio.ini') }}
+          restore-keys: pio-${{ runner.os }}-
+
+      # Non bloccante: il sito deve uscire anche se il firmware non compila.
+      - name: Build ESP32 firmware (DS200 bridge)
+        id: fw
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip platformio esptool
+          cd esp32 && pio run
+          BUILD=.pio/build/esp32dev
+          BOOT_APP0=$(find "$HOME/.platformio/packages" -name boot_app0.bin | head -n1)
+          mkdir -p ../web/ds200/firmware
+          python -m esptool --chip esp32 merge_bin \
+            -o ../web/ds200/firmware/ds200-esp32-merged.bin \
+            --flash_mode dio --flash_freq 40m --flash_size 4MB \
+            0x1000  "$BUILD/bootloader.bin" \
+            0x8000  "$BUILD/partitions.bin" \
+            0xe000  "$BOOT_APP0" \
+            0x10000 "$BUILD/firmware.bin"
+          cp "$BUILD/firmware.bin" ../web/ds200/firmware/firmware.bin   # per l'OTA
+          ls -la ../web/ds200/firmware/
+
+      - name: Report firmware status
+        run: |
+          if [ -f web/ds200/firmware/ds200-esp32-merged.bin ]; then
+            echo "✅ Firmware ESP32 compilato: il flasher web è operativo." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚠️ **Build del firmware ESP32 FALLITA** (esito step: \`${{ steps.fw.outcome }}\`)." >> "$GITHUB_STEP_SUMMARY"
+            echo "Il sito viene pubblicato lo stesso, ma \`web/ds200/flash.html\` non potrà installare nulla." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
