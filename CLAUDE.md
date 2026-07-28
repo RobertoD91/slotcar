@@ -1,8 +1,8 @@
 # CLAUDE.md — memoria di progetto (slotcar)
 
 Repo **pubblica** con le web app per slot car digitali, pubblicate su GitHub Pages.
-**Questa repo è la sorgente**: le app si modificano qui. L'unica cosa ancora copiata da
-fuori è il contagiri DS200/DS300 con il suo firmware ESP32 (vedi *Sincronizzazione*).
+**Questa repo è la sorgente di tutto**: niente è più una copia, non c'è nessuna
+sincronizzazione da fare e nessuna patch da riapplicare. Si modifica direttamente qui.
 L'utente è italiano: **rispondere in italiano**.
 
 ---
@@ -23,10 +23,6 @@ L'utente è italiano: **rispondere in italiano**.
       danneggia, ci vuole un MAX3232.
 
 ### Da fare nel codice
-- [ ] **Migrare anche il contagiri DS200** (`web/ds200/` + `esp32/`): è l'ultima cosa
-      copiata da fuori. Non è immediato — la repo di sviluppo ha un suo sito Pages che
-      pubblica `webapp/`, una sua CI, il CLI Python e la regola dei tre parser da tenere
-      allineati. Da decidere insieme all'utente.
 - [ ] **`flash.html` è solo in italiano** — non è passato per `i18n.js` come il resto.
 - [ ] **Dipendenza esterna da unpkg** in `ds200/flash.html` (esp-web-tools). Per un sito
       100% autonomo va incorporata: serve un bundler, è un modulo ES con dipendenze sue.
@@ -49,13 +45,13 @@ L'utente è italiano: **rispondere in italiano**.
 - **Branch: `master`.** Richiesta esplicita dell'utente, niente branch inutili.
 - **`web/` è il sito.** Il workflow `pages.yml` la pubblica tal quale ad ogni push su
   `master`. Percorsi **sempre relativi**: il sito sta in un sottopercorso.
-- **Quasi tutto è sorgente: si modifica qui.** App oXigen (`car-config`, `remote-config`,
-  `modes`, `chron02`, `o2-bootloader`), contagiri Ninco, indice, `i18n.js`, `sw.js`, tool
-  e documentazione: file di questa repo, si toccano direttamente.
-- **Le uniche copie sono `web/ds200/` ed `esp32/`**, che arrivano dalla repo del progetto
-  DS200: lì ogni modifica va messa come patch in `tools/apply-local-patches.py`, altrimenti
-  il prossimo sync la cancella. Se una patch entra a monte (o il file smette di essere una
-  copia) va **tolta**, o verrebbe applicata due volte.
+- **Tutto è sorgente: si modifica qui, e basta.** Non c'è più niente di copiato da altre
+  repo, quindi niente sync e niente patch: si aprono i file e si cambiano.
+- ⚠️ **I TRE PARSER DEL DS200 devono restare equivalenti**: `web/ds200/ds200.js` (JS),
+  `cli/ds_slot_serial.py` (Python) ed `esp32/src/ds200.h` (C++). Se cambia il protocollo si
+  aggiornano tutti e tre insieme ai test. Ora stanno nella stessa repo e li verifica un
+  solo workflow — prima erano divisi fra due repo e nessuno controllava che non
+  divergessero.
 - **Segreti**: hook `pre-commit`/`pre-push` + Action. Attivali con
   `./tools/install-hooks.sh` (una volta per clone). I valori personali **non** vanno nel
   codice: `tools/secrets-denylist.local.txt` (git-ignored) e il secret `SECRET_SCAN_EXTRA`.
@@ -74,13 +70,13 @@ L'utente è italiano: **rispondere in italiano**.
 
 ```bash
 node tools/check-links.js                     # link interni + nessun percorso assoluto
-python3 tools/apply-local-patches.py --check  # le patch locali sono tutte applicate?
 python3 tools/scan-secrets.py                 # segreti nei file
 python3 tools/scan-secrets.py --history       # segreti in tutta la storia
 python3 tools/test-scan-secrets.py            # le regole dello scanner
-node web/ds200/ds200.test.js                  # parser DS200
-node web/ninco/ninco.test.js                  # parser Ninco
+node web/ds200/ds200.test.js                  # parser DS200 — JS
+cd cli && python3 -m pytest tests/ -q         # parser DS200 — Python
 g++ -std=c++17 -I esp32/test_host -I esp32/src esp32/test_host/test_ds200.cpp -o /tmp/t && /tmp/t
+node web/ninco/ninco.test.js                  # parser Ninco
 cd esp32 && pio run                           # firmware
 
 # col sito servito in locale (servono Playwright e NODE_PATH=/opt/node22/lib/node_modules)
@@ -89,19 +85,19 @@ node tools/smoke-test.js                      # tutte le app: link, i18n, errori
 node tools/test-ninco-ui.js                   # contagiri Ninco con seriale simulata
 ```
 
-## Sincronizzazione (solo DS200)
+## Da dove viene questa roba (storia, per capire il presente)
 
-```bash
-cp tools/sync.local.conf.example tools/sync.local.conf   # prima volta: indica il percorso
-./tools/sync-from-upstream.sh                            # --dry-run per vedere cosa farebbe
-```
-Riallinea **solo** `web/ds200/` ed `esp32/` alla repo del progetto DS200. Il percorso
-**non sta nel codice** (repo pubblica): è in `tools/sync.local.conf`, git-ignored. Lo
-script ricopia, riapplica le 7 patch e rilancia i controlli; il round-trip deve lasciare
-l'albero **identico byte-per-byte**.
+Le app nascevano in due repo private e qui arrivavano **copiate**, con 16 patch locali che
+rimettevano a posto link, disclaimer e percorsi ad ogni allineamento. Ora è tutto finito:
 
-> Le app oXigen non sono più copie: sono state tolte dalla repo privata, che ora tiene
-> solo lo studio dei protocolli, i firmware e i tool. Con loro sono sparite 9 patch.
+- le app **oXigen** sono state tolte dalla repo privata (che tiene solo lo studio dei
+  protocolli, i firmware e i tool) → **−9 patch**;
+- il **DS200** è stato migrato per intero da `ds200rs232`, che è stata **congelata**: il suo
+  README dice che è superata e il suo GitHub Pages **rimanda qui** → **−7 patch**.
+
+⇒ **zero patch, zero sync, zero copie.** Se trovi in giro riferimenti a
+`sync-from-upstream.sh` o `apply-local-patches.py`, sono resti da cancellare: quegli
+strumenti non esistono più.
 
 ## Protocolli — dove sono documentati
 
@@ -113,9 +109,8 @@ l'albero **identico byte-per-byte**.
   I **tempi sul giro** si ricavano per differenza fra due totali `D` consecutivi.
   La base **non accetta comandi**: si può solo leggere.
 - **DS200/DS300** → `docs/ds200-ds300/`. 21 byte, start `0xE0`, end `0xEB`, BCD.
-  **DS200 = 4800 baud, DS300 = 57600.** Parser JS (`web/ds200/ds200.js`) e C++
-  (`esp32/src/ds200.h`) devono restare **equivalenti**: se cambia il protocollo si
-  aggiornano entrambi con i test.
+  **DS200 = 4800 baud, DS300 = 57600.** I **tre** parser (JS, Python, C++) devono restare
+  equivalenti — vedi le regole d'oro.
 - **Slot.it / oXigen** → `docs/slot.it/`. Lo studio del protocollo sta nella repo privata.
 
 ## Trappole già pagate

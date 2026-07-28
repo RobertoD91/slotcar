@@ -137,9 +137,9 @@ web/                  → è QUESTA cartella che finisce su GitHub Pages
   ninco/                contagiri Ninco N-Digital (parser + test propri)
 docs/                 documentazione dei protocolli (non pubblicata su Pages)
 esp32/                firmware del ponte DS200 → WiFi/MQTT (PlatformIO)
+cli/                  decoder DS200 da riga di comando (Python) + i suoi test
+homeassistant/        automazione per annunciare i giri con Piper
 tools/
-  sync-from-upstream.sh    riallinea le app dalle repo di sviluppo
-  apply-local-patches.py   riapplica le modifiche locali dopo il sync
   scan-secrets.py          cerca segreti nei file e nella storia
   install-hooks.sh         attiva gli hook git che bloccano i segreti
   check-links.js           verifica i link interni del sito
@@ -160,13 +160,13 @@ Controlli, tutti senza hardware:
 
 ```bash
 node tools/check-links.js                                       # link interni del sito
-python3 tools/apply-local-patches.py --check                    # patch locali a posto?
 python3 tools/scan-secrets.py                                   # segreti nei file
 python3 tools/scan-secrets.py --history                         # segreti nella storia
-node web/ds200/ds200.test.js                                    # parser DS200
-node web/ninco/ninco.test.js                                    # parser Ninco
+node web/ds200/ds200.test.js                                    # parser DS200 — JS
+cd cli && python3 -m pytest tests/ -q                           # parser DS200 — Python
 g++ -std=c++17 -I esp32/test_host -I esp32/src \
-    esp32/test_host/test_ds200.cpp -o /tmp/t && /tmp/t          # parser C++
+    esp32/test_host/test_ds200.cpp -o /tmp/t && /tmp/t          # parser DS200 — C++
+node web/ninco/ninco.test.js                                    # parser Ninco
 cd esp32 && pio run                                             # firmware
 ```
 
@@ -178,33 +178,20 @@ cd web && python3 -m http.server 8099 &
 node tools/smoke-test.js
 ```
 
-I due parser (`web/ds200/ds200.js` e `esp32/src/ds200.h`) devono restare **equivalenti**:
-se cambi il protocollo, aggiornali entrambi insieme ai test. Li verifica la CI
-([`ci.yml`](.github/workflows/ci.yml)).
+### Questa repo è la sorgente di tutto
 
-### Questa repo è la sorgente (tranne il DS200)
+Niente qui dentro è una copia di qualcos'altro: **si aprono i file e si modificano**.
+Non c'è nessuno script di allineamento e nessuna patch da riapplicare.
 
-Le app **si modificano qui**: non sono copie di niente. L'unica eccezione è il contagiri
-DS200/DS300 (`web/ds200/`) con il suo firmware (`esp32/`), che arriva dal progetto DS200.
-La prima volta indica dove si trova — il file è git-ignored, quindi il percorso resta
-sulla tua macchina:
+Non è sempre stato così: le app arrivavano da due repo private e c'erano 16 patch locali
+che rimettevano a posto link, disclaimer e percorsi ad ogni copia. Le app oXigen sono state
+tolte da lì, e il progetto DS200 è stato migrato per intero — la sua repo
+(`ds200rs232`) è **congelata** e il suo sito rimanda qui.
 
-```bash
-cp tools/sync.local.conf.example tools/sync.local.conf
-$EDITOR tools/sync.local.conf
-./tools/sync-from-upstream.sh          # --dry-run per vedere cosa farebbe
-```
-
-Lo script ricopia solo quelle due cartelle, riapplica le modifiche locali e rilancia i
-controlli. Le modifiche locali stanno in
-[`tools/apply-local-patches.py`](tools/apply-local-patches.py): sono **idempotenti** e, se
-a monte cambia il testo su cui si agganciano, lo script **fallisce** invece di lasciar
-passare la cosa in silenzio. Servono perché lì i file stanno in posti diversi rispetto
-alla repo di origine (l'app passa da `webapp/` a `web/ds200/`, ed `esp32/` resta fuori da
-`web/` perché non va pubblicato su Pages), più le voci del menu del baud.
-
-⚠️ Quindi: **`web/ds200/` ed `esp32/` non vanno modificati a mano**, o il prossimo
-allineamento cancella tutto. Ogni altro file di questa repo sì.
+⚠️ **I tre parser del DS200 devono restare equivalenti**: `web/ds200/ds200.js` (JS),
+`cli/ds_slot_serial.py` (Python) ed `esp32/src/ds200.h` (C++). Se cambi il protocollo,
+aggiornali tutti e tre insieme ai test — [`ci.yml`](.github/workflows/ci.yml) li verifica
+in un colpo solo, cosa che prima non poteva fare nessuno perché stavano in due repo diverse.
 
 ### Versioni e cache
 

@@ -1,0 +1,63 @@
+# Home Assistant — read DS200 results aloud with Piper (local TTS)
+# ===============================================================
+#
+# The ESP32 firmware publishes a ready-to-speak phrase on   <base>/announce
+# (default base topic "ds200", so: ds200/announce), e.g.:
+#     "Corsia 2, giro 5, 11 secondi e 31, giro veloce"
+#     "Start gara — fase 1"
+# This automation simply speaks whatever arrives on that topic.
+#
+# Prerequisites
+# -------------
+# 1. MQTT integration in HA, connected to the SAME broker as the ESP32.
+# 2. A Piper TTS engine — install the "Piper" add-on (Wyoming) or the Piper
+#    integration. It exposes a TTS entity such as `tts.piper`. (Any TTS entity
+#    works: tts.google_translate_say, tts.home_assistant_cloud, …)
+# 3. A media_player to play on (smart speaker, Chromecast, VLC, etc.).
+#
+# Install: paste into configuration.yaml, or save as a package
+# (config/packages/ds200_tts.yaml with `homeassistant: packages: …`),
+# then edit the two <-- placeholders and reload automations.
+
+automation:
+  - alias: "DS200 — speak results (Piper)"
+    id: ds200_announce_piper
+    mode: queued        # keep announcements that arrive close together
+    max: 10
+    triggers:
+      - trigger: mqtt
+        topic: "ds200/announce"
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.payload | trim | length > 0 }}"
+    actions:
+      - action: tts.speak
+        target:
+          entity_id: tts.piper                          # <-- your Piper TTS entity
+        data:
+          media_player_entity_id: media_player.soggiorno # <-- your speaker
+          message: "{{ trigger.payload }}"
+          language: "it"                                  # match your Piper voice
+
+# ---------------------------------------------------------------------------
+# Optional: build the phrase in HA from the raw frame JSON instead, e.g. to
+# announce in another language. Disable ENABLE_ANNOUNCE on the ESP32 and
+# trigger on ds200/frame, whose payload is JSON (lane, laps, time_text, …):
+#
+#   triggers:
+#     - trigger: mqtt
+#       topic: "ds200/frame"
+#   conditions:
+#     - "{{ trigger.payload_json.data_type == 'timing_data'
+#            and trigger.payload_json.time_text is defined }}"
+#   actions:
+#     - action: tts.speak
+#       target: { entity_id: tts.piper }
+#       data:
+#         media_player_entity_id: media_player.soggiorno
+#         message: >-
+#           Lane {{ trigger.payload_json.lane }},
+#           lap {{ trigger.payload_json.laps }},
+#           {{ trigger.payload_json.time_text }}
+#         language: "en"
+# ---------------------------------------------------------------------------

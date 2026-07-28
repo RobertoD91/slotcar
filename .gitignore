@@ -14,9 +14,6 @@ esp32/.env
 !.env.example
 !*.env.example
 
-# --- Percorsi locali delle repo di sviluppo (restano sulla tua macchina) -----
-tools/sync.local.conf
-
 # --- Editor / OS -------------------------------------------------------------
 .vscode/
 .idea/
