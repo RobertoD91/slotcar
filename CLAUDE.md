@@ -10,9 +10,13 @@ L'utente è italiano: **rispondere in italiano**.
 ## ⭐ TODO
 
 ### In carico all'utente
-- [ ] **Cronometro web col DS200 vero** — il sistema DS200/DS300 è provato solo con una
-      seriale simulata. Collegare la centralina, far girare una gara e riferire: i giri
-      tornano? i tempi? le fasi di partenza fanno partire il cronometro al momento giusto?
+- [ ] **Cronometro col DS200: resta da confermare il numero di giri programmato.** Il frame
+      di partenza dice «gara a giri individuali, 0x25». Lo leggiamo come **25 in BCD** e
+      torna con la cattura, ma va verificato su un'altra programmazione (metti 12 giri sulla
+      centralina e guarda se l'app scrive 12).
+- [ ] **Cronometro col DS200, secondo giro di prove** — la pausa è sistemata e verificata
+      sulla cattura. Restano da provare in pista: gara annullata (A7), fine gara vera (A4),
+      e il record finale.
 - [ ] **Auto 8, cifre della benzina invertite** — nel contagiri Ninco l'ottava auto viene
       letta con le due cifre scambiate (`42` → `24`). È documentato, ma la fonte non sa
       dire se valga per tutte le power base. L'utente verifica sul campo e riferisce: se
@@ -21,19 +25,15 @@ L'utente è italiano: **rispondere in italiano**.
 - [ ] **Cattura reale Ninco** — esportare una cattura vera dalla power base e usarla per
       verificare che la decodifica regga sui casi che la documentazione non copre
       (modalità GP, gara in pausa, fine gara, rifornimenti).
-- [ ] **Prova sul campo del contagiri Ninco** — serve il cavo Mini-DIN 6 → DB-9 con Rx/Tx
-      incrociati (1→2, 6→3, 5→5). ⚠️ RS-232 vero a ±12 V: un adattatore TTL 3,3/5 V si
-      danneggia, ci vuole un MAX3232.
+- [ ] **Prova sul campo del contagiri Ninco** (il cavo ce l'ha già).
 
 ### Cronometro web — le prossime tappe
 Motore, simulatore, modalità *pratica* e *GP a giri*, guidatori modificabili, voce, 5 lingue
-e PWA ci sono già (`web/cronometro/`, v0.2.0). I sistemi veri arrivano uno alla volta:
+e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla volta:
 - ✅ **sistema DS200/DS300** (`sistemi/ds200.js`) — riusa il decoder di
-      `web/ds200-ds300/ds200.js` (caricato dalla pagina, non duplicato). Provato E2E con
-      seriale simulata; **da provare sulla centralina vera**. Il record finale porta il
-      tempo TOTALE, non un giro: resta a registro e non entra in classifica. Le fasi di
-      partenza 1/2/3 sono lette come conto alla rovescia + via: se in pista risultasse
-      sfasato, si cambia la tabella `STATO` in cima al file.
+      `web/ds200-ds300/ds200.js` (caricato dalla pagina, non duplicato). **Provato su
+      centralina vera** e sistemato con la cattura dell'utente (vedi sotto). Il record
+      finale porta il tempo TOTALE, non un giro: resta a registro e non entra in classifica.
 - [ ] **sistema Ninco** — parser in `web/ninco/ninco.js`. `caps`: `position` (la manda la
       base), `fuel`, `slotLabel:'car'`. Il tempo sul giro è per differenza fra due totali.
 - [ ] **sistema oXigen** — l'unico con `control:true`: la gara la comanda l'app
@@ -77,9 +77,14 @@ e PWA ci sono già (`web/cronometro/`, v0.2.0). I sistemi veri arrivano uno alla
   `./tools/install-hooks.sh` (una volta per clone). I valori personali **non** vanno nel
   codice: `tools/secrets-denylist.local.txt` (git-ignored) e il secret `SECRET_SCAN_EXTRA`.
 - **Versioni**: se pubblichi un aggiornamento alza `web/version.json` **e** `SITE_VERSION`
-  in `web/index.html`, altrimenti compare il banner «Aggiorna» a vuoto. La PWA `ds200/` ha
-  una cache propria (cache-first): lì vanno alzati anche `CACHE` in `sw.js`, le query `?v=`
-  e `APP_VERSION` in `app.js`.
+  in `web/index.html`, altrimenti compare il banner «Aggiorna» a vuoto. Le PWA
+  (`ds200-ds300/`, `cronometro/`) hanno una cache propria **cache-first**: lì vanno alzati
+  anche `CACHE` in `sw.js`, le query `?v=` e `APP_VERSION` — se te ne dimentichi, chi ha
+  già aperto la pagina resta sulla copia vecchia per sempre.
+- ⭐ **I colori stanno in `web/ui.css`, uno solo.** Se aggiungi una pagina, linka quello e
+  non ricopiare `:root{--bg:…}`: prima era copiato in sette file e aveva già prodotto due
+  rossi e quattro gialli diversi. `ui.css` va caricato **prima** dello stile della pagina,
+  così il layout locale vince.
 - **Commit trailer**: mantieni `Co-Authored-By` / `Claude-Session`. **Mai** l'id del modello
   in file committati.
 - **Linguaggio (richiesta utente)**: non usare la parola «reverse» (né «reverse engineering»
@@ -136,6 +141,8 @@ strumenti non esistono più.
   I **tre** parser (JS, Python, C++) devono restare
   equivalenti — vedi le regole d'oro.
 - **Slot.it / oXigen** → `docs/slot.it/`. Lo studio del protocollo sta nella repo privata.
+  La **guida rapida** (tasti, LED, pairing, DFU) è la web app `web/guida-oxigen/`, che si
+  chiamava `modes/`: il vecchio percorso resta come stub che rimanda.
 
 ## Cronometro web — com'è fatto (`web/cronometro/`)
 
@@ -168,6 +175,25 @@ Tre pezzi, e la separazione è il punto:
 ⇒ "Avvia gara" non può essere un bottone uguale per tutti: `comando()` in `app.js` manda
 sempre al motore, e al sistema **solo** se `caps.control`.
 
+**Chi comanda la gara** (`SISTEMI.authority`, da `caps`): se il sistema accetta comandi
+comanda l'app (simulazione, oXigen); se annuncia soltanto comanda lui (DS200/DS300); se non
+fa né l'uno né l'altro comanda l'app perché non c'è nessun altro (Ninco). Da quel valore
+discendono **tre** cose che prima erano incoerenti fra loro: i pulsanti di gara spenti col
+DS, il motore che non chiude la gara al traguardo, e il fatto che i comandi vadano al
+sistema solo se li accetta.
+
+**Il DS200, quello che dice davvero** (cattura dell'utente, fatta a fixture del test E2E):
+- sequenza di **partenza**: `A1` → `A2` → `A3` → passaggi;
+- sequenza di **ripresa dalla pausa**: `A5` → `A6` → **`A2` → `A3`** → passaggi. La
+  centralina RIFA' il semaforo. ⚠️ La fase 1 compare **solo** alla partenza vera: è quello
+  il criterio per distinguere «gara nuova» da «si riparte», e ci ha risparmiato l'euristica.
+- il frame di **fase 1 porta il programma di gara**: tipo-dato `0x3C` (giri individuali) e
+  funzione `A1` **insieme** — guardare solo il tipo-dato faceva sparire la partenza. I due
+  byte del «programme» danno il numero di giri (`0x25` → 25, letto in BCD: **da confermare**
+  su un'altra programmazione).
+- `DS200 = 2 corsie, DS300 = 8`, e **quale dei due sia lo dice il byte 4 di ogni frame**:
+  il limite di posti si aggiusta da solo, non serve chiederlo.
+
 **Scelte già prese, per non ridiscuterle:**
 - **GP a giri**: alla bandiera la gara si chiude, gli altri restano ai giri fatti. Chi passa
   dopo non incrementa più (`_lap` conta solo con stato `running`).
@@ -178,6 +204,11 @@ sempre al motore, e al sistema **solo** se `caps.control`.
 - **Il primo giro non è un record**: `best` è vero solo quando si migliora davvero.
 - **Il simulatore ha il seme fisso** (`SIM.plan()` è puro): stessa gara tutte le volte, ed è
   ciò che rende il motore verificabile in CI.
+- **Azzerare è un'azione esplicita** (`command('newrace')`), mai un effetto collaterale di
+  uno stato. Era il difetto che cancellava la classifica ad ogni ripresa dalla pausa.
+- **Rete di sicurezza**: il numero di giri non torna mai indietro. Se torna indietro, la
+  pista ha ricominciato a contare → gara nuova. Vale anche se l'annuncio di partenza si
+  perde o se ci si collega a gara iniziata.
 
 ## Trappole già pagate
 
@@ -193,6 +224,16 @@ sempre al motore, e al sistema **solo** se `caps.control`.
   livello numerico, sparisce proprio quando serve vederla.
 - **`git reset --hard` in un test** butta via anche le modifiche ai file tracciati che
   stavi preparando.
+- **Un tag che si mangia il precedente**: inserire `<script>…</script>` cercando
+  `</script>\n</body>` sostituisce **anche** la chiusura del blocco che c'era prima, e il
+  nuovo tag finisce dentro quello vecchio → `SyntaxError: Unexpected token '<'`. L'ha beccato
+  lo smoke test, non la lettura del diff.
+- **`maxlength` tronca prima che il JS ripulisca**: su un campo MAC con `maxlength="4"`,
+  incollare `52 5d` dà `52 5` e poi `525` — una cifra persa. Se il valore va normalizzato,
+  il limite lo deve fare il filtro (prima togli, poi taglia), non l'attributo.
+- **Nomi di classe che si scontrano fra `ui.css` e l'app**: `.note` è un riquadro giallo nel
+  foglio condiviso e una riga smorzata nella guida oXigen. Riusare un nome per un'altra cosa
+  richiede di azzerarlo per intero (sfondo, bordo, padding), o te lo porti dietro.
 - **Rientranza nel simulatore**: nel ciclo che spara gli eventi scaduti, un evento può far
   finire la gara → chi ascolta ferma il simulatore → il piano diventa `null` **mentre siamo
   ancora dentro il ciclo**. Il controllo all'ingresso non basta: va rifatto ad ogni giro.

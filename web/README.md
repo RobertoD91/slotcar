@@ -6,6 +6,7 @@ pagine (solo il firmware ESP32 viene compilato e depositato in `ds200/firmware/`
 
 ```
 index.html        landing: l'indice con le card di tutte le app
+ui.css            ⭐ token dei colori + cornice condivisa (link di ritorno, note, badge)
 i18n.js           motore multilingua condiviso (IT/EN/ES) + disclaimer legale
 sw.js             service worker network-first (root)
 version.json      versione del sito e delle singole app
@@ -16,11 +17,31 @@ car-config/       chip auto oXigen — Web Bluetooth
 remote-config/    controller SCP-3 oXigen — Web Bluetooth
 chron02/          contagiri e gestione gara oXigen — Web Serial
 o2-bootloader/    configuratore oXigen (boot, info, registri) — Web Serial
-modes/            riferimento tasti/LED/pairing — pagina statica
+guida-oxigen/     guida rapida tasti/LED/pairing — pagina statica con ricerca
+modes/            stub: rimanda a guida-oxigen/ (vecchio nome della guida)
 ds200-ds300/      contagiri DS200/DS300 — Web Serial, PWA autonoma
 esp32-installer/  installer del firmware ESP32 del ponte — app a sé, molto acerba
 ds200/            stub: rimanda a ds200-ds300/ e disinstalla il vecchio service worker
 ```
+
+## Colori: una tavolozza sola (`ui.css`)
+
+`ui.css` tiene i **token** (colori, e i pochi pezzi che ogni pagina ha uguali: link di
+ritorno, note, badge, piè di pagina). Va caricato **prima** del foglio della pagina, così
+il layout locale ha sempre l'ultima parola:
+
+```html
+<link rel="stylesheet" href="../ui.css">
+<style> /* solo il layout di questa app */ </style>
+```
+
+⚠️ Prima esisteva lo stesso blocco `:root{--bg:…}` copiato in sette pagine, e aveva già
+iniziato a divergere: due rossi e **quattro gialli** diversi. Se aggiungi una pagina, non
+ricopiare i colori: linka `ui.css`.
+
+⚠️ Attenzione ai nomi che si scontrano: in `ui.css` `.note` è un riquadro giallo, mentre in
+`guida-oxigen/` era già una riga piccola e smorzata. Se riusi un nome per un'altra cosa,
+azzeralo per intero (sfondo, bordo, padding) o te lo porti dietro.
 
 ## Percorsi relativi (importante)
 

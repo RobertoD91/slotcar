@@ -46,10 +46,10 @@ La pagina iniziale (`web/index.html`) è un **indice** che porta a tutte le app.
 |---|---|---|
 | [`cronometro/`](web/cronometro/) | **Cronometro web**: gestione gara su qualsiasi sistema — modalità *pratica* e *GP a giri*, guidatori con nome, classifica live, giro veloce, distacchi, annunci vocali, 5 lingue. Sistemi: **pista simulata** (niente hardware) e **DS200/DS300**. PWA, funziona offline | Web Serial (o niente) |
 | [`car-config/`](web/car-config/) | Configuratore del **chip auto** oXigen: nome, ID, modalità, velocità, freno, limiti, clone MAC, test motore/luci/sensore hall | Web Bluetooth |
-| [`remote-config/`](web/remote-config/) | Configuratore del **controller SCP-3**: nome, brake setting, ID, clone MAC; legge firmware e data di attivazione | Web Bluetooth |
+| [`remote-config/`](web/remote-config/) | Configuratore del **controller SCP-3**: nome, brake setting, ID, MAC; legge firmware e data di attivazione. *Lettura e cambio ID confermati su hardware, scrittura del MAC no* | Web Bluetooth |
 | [`chron02/`](web/chron02/) | **Contagiri e gestione gara** oXigen via dongle: classifica live, giri, tempi e pit dalla telemetria `rf_data_x[13]`; start/pausa/stop e comandi per singola auto con `race_status[10]` | Web Serial |
 | [`o2-bootloader/`](web/o2-bootloader/) | **Configuratore oXigen** via dongle: modalità boot su dongle/chip/controller, lettura info (versione firmware, MAC) e console a registri sperimentale | Web Serial |
-| [`modes/`](web/modes/) | Riferimento (dai manuali) di **sequenze tasti, LED, pairing e DFU** di controller e chip | niente, è statica |
+| [`guida-oxigen/`](web/guida-oxigen/) | **Guida rapida oXigen**: cosa fa ogni combinazione di tasti e cosa vuol dire ogni lampeggio — accensione, guida, LED, pairing e DFU, dai manuali. Con ricerca | niente, è statica |
 | [`ds200-ds300/`](web/ds200-ds300/) | **Contagiri DS200 / DS300**: giri, tempi, classifica live, giro veloce, annunci vocali, export CSV. Installabile come PWA, funziona offline | Web Serial |
 | [`esp32-installer/`](web/esp32-installer/) | **Installer ESP32** del ponte DS200/DS300 → WiFi/MQTT, con configurazione della rete dal browser. **La cosa più acerba del sito** | Web Serial |
 | [`ninco/`](web/ninco/) | **Contagiri Ninco N-Digital**: posizioni, giri, benzina e riserva, modalità amatore/professionale, tempi sul giro (firmware ≥ 1.08), dati grezzi esportabili | Web Serial |
@@ -89,9 +89,18 @@ centralina, con la Ninco lo dà il dito dell'utente, con oXigen lo dà davvero l
 **Cosa funziona oggi**: motore, modalità *pratica* e *GP a giri*, guidatori modificabili,
 voce e traduzioni, PWA. Due sistemi: la **pista simulata** (che non serve solo a giocare —
 è ciò che rende il motore verificabile in CI) e il **DS200/DS300**, che riusa il decoder già
-collaudato di `web/ds200-ds300/ds200.js` invece di duplicarlo. ⚠️ Il DS200 è provato con una
-seriale simulata che manda i frame della specifica, **non ancora su una centralina vera**.
-Ninco e oXigen arrivano dopo.
+collaudato di `web/ds200-ds300/ds200.js` invece di duplicarlo. Ninco e oXigen arrivano dopo.
+
+Col DS200/DS300 l'app **segue la centralina invece di comandarla**: legge dal frame di
+partenza com'è programmata la gara (a giri, e quanti) e si configura da sola; i pulsanti
+Via/Pausa/Stop restano spenti perché quei comandi si danno dai tasti della centralina; e il
+motore non chiude la gara al traguardo, aspetta che sia lei a dirlo. Il numero di corsie si
+adatta pure: 2 sul DS200, 8 sul DS300, e quale dei due sia lo dice ogni frame.
+
+Il test end-to-end gira su una **cattura vera** invece che su frame inventati — sono quei
+byte ad aver rivelato due cose che non avremmo indovinato: che il frame di partenza porta
+anche il programma di gara, e che dopo una pausa la centralina rifà il semaforo (per cui
+leggere "countdown" come "gara nuova" cancellava la classifica ad ogni ripresa).
 
 ### Ninco N-Digital: cosa si può fare e cosa no
 
@@ -166,10 +175,12 @@ riporta il riepilogo della Action).
 ```
 web/                  → è QUESTA cartella che finisce su GitHub Pages
   index.html            landing: l'indice che punta a tutte le app
+  ui.css                token dei colori e cornice condivisi da TUTTE le pagine
   i18n.js               motore multilingua condiviso (IT/EN/ES) + disclaimer
   sw.js                 service worker network-first (evita le versioni vecchie in cache)
   version.json          versione del sito e delle singole app
   cronometro/           il cronometro: motore (race.js) + sistemi (sistemi/) + interfaccia
+  guida-oxigen/         guida rapida tasti/LED/pairing (era modes/, che ora rimanda qui)
   car-config/ remote-config/ modes/                  app oXigen (Web Bluetooth + riferimento)
   chron02/ o2-bootloader/                            app oXigen via dongle (Web Serial)
   ds200-ds300/          contagiri DS200/DS300 (PWA autonoma, i18n e sw propri)

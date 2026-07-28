@@ -119,7 +119,7 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
     ['remote-config/', 'Slot Car Web Tools'],
     ['chron02/', 'Slot Car Web Tools'],
     ['o2-bootloader/', 'Slot Car Web Tools'],
-    ['modes/', 'Slot Car Web Tools'],
+    ['guida-oxigen/', 'Slot Car Web Tools'],
     ['ds200-ds300/', 'Slot Car Web Tools'],
     ['esp32-installer/', 'Slot Car Web Tools'],
     ['ninco/', 'Slot Car Web Tools'],

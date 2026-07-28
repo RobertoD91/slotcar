@@ -115,9 +115,9 @@
       <p data-i18n-html="bootDesc"></p>
       <div class="tech"><span>Web Serial</span></div>
     </a>
-    <a class="card" href="modes/">
+    <a class="card" href="guida-oxigen/">
       <span class="badge on" data-i18n="badgeActive"></span>
-      <div class="ico">🎛️</div>
+      <div class="ico">📖</div>
       <h3 data-i18n="modesTitle"></h3>
       <p data-i18n="modesDesc"></p>
       <div class="tech"><span data-i18n="techStatic"></span></div>
@@ -243,11 +243,11 @@ window.I18N_STRINGS = {
     en:"SCP-3 controller config over BLE: name, brake setting, ID, MAC; reads firmware, version and activation date. <b>Reading and changing the ID are confirmed on hardware; writing the MAC is not.</b>",
     es:"Configuración del mando SCP-3 por BLE: nombre, ajuste de freno, ID, MAC; lee firmware, versión y fecha de activación. <b>Lectura y cambio de ID confirmados en hardware; la escritura del MAC no.</b>"
   },
-  modesTitle:{it:"Modalità & combinazioni",en:"Modes & combinations",es:"Modos y combinaciones"},
+  modesTitle:{it:"Guida rapida oXigen",en:"oXigen quick guide",es:"Guía rápida oXigen"},
   modesDesc:{
-    it:"Riferimento: tutte le sequenze tasti/accensione (standard/APP/DFU), i LED e il pairing di controller e chip auto, dai manuali.",
-    en:"Reference: all button/power-on sequences (standard/APP/DFU), the LEDs and pairing of controller and car chip, from the manuals.",
-    es:"Referencia: todas las secuencias de botones/encendido (estándar/APP/DFU), los LED y el emparejamiento del mando y el chip del coche, según los manuales."
+    it:"Cosa fa ogni combinazione di tasti e cosa vuol dire ogni lampeggio: accensione, guida, LED, pairing e DFU di controller e chip auto. Si consulta col controller in mano.",
+    en:"What every button combination does and what every blink means: power-on, driving, LEDs, pairing and DFU for the controller and car chip. Made to be read with the controller in your hand.",
+    es:"Qué hace cada combinación de botones y qué significa cada parpadeo: encendido, conducción, LED, emparejamiento y DFU del mando y del chip. Para consultar con el mando en la mano."
   },
   lapsTitle:{it:"Contagiri gara (chron02)",en:"Race lap counter (chron02)",es:"Cuentavueltas de carrera (chron02)"},
   lapsDesc:{
@@ -279,7 +279,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.5.0";
+const SITE_VERSION="2.6.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto
