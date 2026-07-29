@@ -10,7 +10,7 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="../ui.css?v=1">
-<link rel="stylesheet" href="styles.css?v=0.3.1">
+<link rel="stylesheet" href="styles.css?v=0.4.0">
 </head>
 <body>
 <!-- Link di ritorno e selettore lingua stanno insieme in alto a SINISTRA, come
@@ -73,8 +73,14 @@
 <!-- ------------------------------- gara ----------------------------------- -->
 <section class="card" id="race">
   <p class="note" id="raceNote" hidden></p>
+  <!-- Il tempo di gara si guarda da lontano, mentre si corre attorno alla pista:
+       è l'unico numero che merita tutta questa dimensione. Il colore segue lo
+       stato, così si capisce a colpo d'occhio se sta correndo o è in pausa. -->
+  <div class="clockpanel" id="clockPanel">
+    <span class="lbl" data-i18n="info.clock"></span>
+    <b id="clock">0:00.00</b>
+  </div>
   <div class="bar">
-    <div class="stat"><span data-i18n="info.clock"></span><b id="clock">0:00.00</b></div>
     <div class="stat"><span data-i18n="info.state"></span><b id="stateVal">—</b></div>
     <div class="stat"><span data-i18n="info.best"></span><b id="bestVal">—</b></div>
     <div class="stat"><span data-i18n="info.target"></span><b id="targetVal">—</b></div>
@@ -91,7 +97,9 @@
   <!-- Perché i comandi sono spenti: lo dice l'app, non lo deve indovinare l'utente. -->
   <p class="hint" id="ctrlNote" hidden></p>
 
-  <table class="board">
+  <!-- La classifica scorre da sola quando non ci sta: senza .tbwrap era la
+       PAGINA a scorrere di lato, e si spostava tutto il resto con lei. -->
+  <div class="tbwrap"><table class="board">
     <thead>
       <tr>
         <th data-i18n="hdr.pos"></th>
@@ -104,7 +112,7 @@
       </tr>
     </thead>
     <tbody id="board"></tbody>
-  </table>
+  </table></div>
   <p class="hint" id="boardEmpty" data-i18n="tbl.empty"></p>
 </section>
 
@@ -119,17 +127,17 @@
   <p><button id="install" class="ghost" hidden data-i18n="install"></button></p>
   <p data-i18n="foot.text"></p>
   <p class="disc" data-i18n="foot.disc"></p>
-  <p class="ver">v<span id="appver">0.3.1</span></p>
+  <p class="ver">v<span id="appver">0.4.0</span></p>
 </footer>
 
-<script src="i18n.js?v=0.3.1"></script>
-<script src="race.js?v=0.3.1"></script>
-<script src="sistemi/registry.js?v=0.3.1"></script>
-<script src="sistemi/sim.js?v=0.3.1"></script>
+<script src="i18n.js?v=0.4.0"></script>
+<script src="race.js?v=0.4.0"></script>
+<script src="sistemi/registry.js?v=0.4.0"></script>
+<script src="sistemi/sim.js?v=0.4.0"></script>
 <!-- Il decoder dei frame DS200/DS300 è quello del contagiri: un file solo,
      un solo posto dove correggerlo. -->
-<script src="../ds200-ds300/ds200.js?v=0.3.1"></script>
-<script src="sistemi/ds200.js?v=0.3.1"></script>
-<script src="app.js?v=0.3.1"></script>
+<script src="../ds200-ds300/ds200.js?v=0.4.0"></script>
+<script src="sistemi/ds200.js?v=0.4.0"></script>
+<script src="app.js?v=0.4.0"></script>
 </body>
 </html>

@@ -54,12 +54,31 @@ button.ghost{font-weight:500;color:var(--mut)}
 .ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
 .spacer{flex:1}
 
-/* ---- barra dei numeri --------------------------------------------------- */
-.bar{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+/* ---- il tempo di gara ----------------------------------------------------
+   Si legge stando in piedi vicino alla pista, non a trenta centimetri dallo
+   schermo: la dimensione cresce con la finestra (clamp) invece di essere fissa,
+   e le cifre sono tabulari perché il numero non "balli" mentre scorre. */
+.clockpanel{background:var(--bg);border:1px solid var(--bd);border-radius:14px;
+            padding:14px 18px 18px;text-align:center;margin-bottom:10px}
+.clockpanel .lbl{display:block;font-size:11px;color:var(--mut);
+                 text-transform:uppercase;letter-spacing:.1em}
+#clock{display:block;font-size:clamp(46px,12vw,104px);line-height:1.02;
+       font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+       margin-top:4px;transition:color .15s}
+/* Il colore dice lo stato senza doverlo leggere. */
+.clockpanel.on   #clock{color:var(--ok)}
+.clockpanel.warn #clock{color:var(--warn)}
+.clockpanel.done #clock{color:var(--acc)}
+.clockpanel.idle #clock{color:var(--mut)}
+
+/* ---- barra dei numeri ----------------------------------------------------
+   Restano su UNA riga anche sul telefono: sono tre riquadri corti, impilarli
+   mangiava mezzo schermo e spingeva la classifica fuori dalla vista. Sotto i
+   560px si rimpicciolisce il testo, non si cambia disposizione. */
+.bar{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))}
 .stat{background:var(--bg);border:1px solid var(--bd);border-radius:11px;padding:10px 12px}
 .stat span{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
 .stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums;margin-top:2px}
-#clock{font-size:34px;letter-spacing:-.02em}
 .stat.on b{color:var(--ok)}
 .stat.warn b{color:var(--warn)}
 
@@ -104,7 +123,11 @@ footer .disc{font-size:11px;line-height:1.55;opacity:.85}
 footer .ver{opacity:.6}
 
 @media (max-width:560px){
-  #clock{font-size:28px}
+  .clockpanel{padding:10px 12px 14px}
+  .bar{gap:6px}
+  .stat{padding:8px 9px}
+  .stat span{font-size:10px;letter-spacing:.04em}
+  .stat b{font-size:16px}
   .board td,.board th{padding:8px 5px;font-size:14px}
   .board .gapCol{display:none}
 }

@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "0.3.1";
+  var APP_VERSION = "0.4.0";
   var LS = { nomi: "cronometro.nomi", cfg: "cronometro.cfg" };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -22,6 +22,7 @@
     clock: $("clock"), stateVal: $("stateVal"), bestVal: $("bestVal"), targetVal: $("targetVal"),
     start: $("start"), pause: $("pause"), stop: $("stop"), reset: $("reset"), csv: $("csv"),
     board: $("board"), boardEmpty: $("boardEmpty"),
+    clockPanel: $("clockPanel"),
     log: $("log"), clearLog: $("clearLog"), install: $("install"), appver: $("appver")
   };
 
@@ -259,6 +260,12 @@
     var box = els.stateVal.parentElement;
     box.className = "stat" + (race.state === "running" ? " on"
                             : race.state === "paused" ? " warn" : "");
+    /* Il tempo cambia colore con lo stato: da lontano il colore si legge prima
+       della parola, e spesso è l'unica cosa che serve sapere. */
+    els.clockPanel.className = "clockpanel " +
+      (race.state === "running" ? "on"
+       : race.state === "paused" || race.state === "countdown" ? "warn"
+       : race.state === "finished" ? "done" : "idle");
 
     var inGara = race.state === "running";
     var inPausa = race.state === "paused";

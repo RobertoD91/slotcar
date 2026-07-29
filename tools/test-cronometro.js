@@ -87,6 +87,25 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   const fuelVisible = await page.locator('th.fuelCol').isVisible();
   ok(fuelVisible, 'intestazione benzina visibile');
 
+  /* Lo smoke test guarda le pagine APPENA APERTE, e a tabella vuota non sborda
+     nessuno: la classifica si allarga solo quando ha dentro dei numeri. Il
+     controllo va fatto qui, dove la gara è appena finita e le righe ci sono. */
+  console.log('\n== SCHERMO STRETTO, CLASSIFICA PIENA ==');
+  for (const w of [320, 360]) {
+    await page.setViewportSize({ width: w, height: 720 });
+    await page.waitForTimeout(120);
+    const m = await page.evaluate(() => ({
+      doc: document.documentElement.scrollWidth,
+      cli: document.documentElement.clientWidth,
+      colonne: getComputedStyle(document.querySelector('.bar'))
+                 .gridTemplateColumns.split(' ').filter(c => parseFloat(c) > 0).length
+    }));
+    ok(m.doc <= m.cli, w + 'px: la pagina non scorre di lato (documento ' + m.doc + ')');
+    ok(m.colonne === 3, w + 'px: i tre riquadri stanno su una riga (' + m.colonne + ')');
+  }
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.waitForTimeout(120);
+
   console.log('\n== AZZERAMENTO ==');
   await page.locator('#reset').click();
   await page.waitForTimeout(150);

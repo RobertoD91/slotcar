@@ -1,8 +1,8 @@
 {
-  "site": "2.12.0",
+  "site": "2.13.0",
   "updated": "2026-07-29",
   "apps": {
-    "cronometro": "0.3.1",
+    "cronometro": "0.4.0",
     "car-config": "1.2.0",
     "remote-config": "1.2.0",
     "ninco": "1.0.1",
