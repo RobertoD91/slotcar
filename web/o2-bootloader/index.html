@@ -97,6 +97,74 @@
     <div class="mutbox" data-i18n-html="infoNote"></div>
   </div>
 
+  <!-- ===== Campi con un nome dimostrato =====
+       Ognuno viene da una cattura in cui l'azione era scritta nel nome del file,
+       e il valore riletto subito dopo la scrittura combacia. Chi aggiunge un campo
+       qui deve avere la stessa prova: senza, si resta nella console. -->
+  <div class="card">
+    <p class="cardtitle" data-i18n="titleFields">Campi noti</p>
+    <p class="val" data-i18n-html="fieldsIntro"></p>
+    <p class="note" id="fldHint" hidden></p>
+
+    <div class="fld" data-tgt="chip">
+      <div class="row">
+        <label data-i18n="lblCarId">ID auto (1–20)</label>
+        <input id="vCarId" type="number" min="1" max="20" value="1" style="width:80px">
+        <button id="bCarIdR" class="sec needc needboot" data-i18n="btnFldRead" disabled>Leggi</button>
+        <button id="bCarIdW" class="sec needc needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
+        <span id="oCarId" class="kv"></span>
+      </div>
+      <div class="row"><span id="pCarId" class="prev"></span></div>
+    </div>
+
+    <div class="fld" data-tgt="chip">
+      <div class="row">
+        <label data-i18n="lblPit">Velocità in corsia box (0–255)</label>
+        <input id="vPit" type="number" min="0" max="255" value="204" style="width:80px">
+        <button id="bPitR" class="sec needc needboot" data-i18n="btnFldRead" disabled>Leggi</button>
+        <button id="bPitW" class="sec needc needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
+        <span id="oPit" class="kv"></span>
+      </div>
+      <div class="row"><span id="pPit" class="prev"></span></div>
+    </div>
+
+    <div class="fld" data-tgt="chip">
+      <div class="row">
+        <label data-i18n="lblMacChip">MAC del chip, 2 byte (clone)</label>
+        <input id="vMacChip" size="7" placeholder="12 34" style="width:90px">
+        <button id="bMacChipR" class="sec needc needboot" data-i18n="btnFldRead" disabled>Leggi</button>
+        <button id="bMacChipW" class="sec needc needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
+        <span id="oMacChip" class="kv"></span>
+      </div>
+      <div class="row"><span id="pMacChip" class="prev"></span></div>
+    </div>
+
+    <div class="fld" data-tgt="controller">
+      <div class="row">
+        <label data-i18n="lblCtrlId">ID controller (1–20)</label>
+        <input id="vCtrlId" type="number" min="1" max="20" value="1" style="width:80px">
+        <button id="bCtrlIdR" class="sec needc needboot" data-i18n="btnFldRead" disabled>Leggi</button>
+        <button id="bCtrlIdW" class="sec needc needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
+        <span id="oCtrlId" class="kv"></span>
+      </div>
+      <div class="row"><span id="pCtrlId" class="prev"></span></div>
+    </div>
+
+    <div class="fld" data-tgt="controller">
+      <div class="row">
+        <label data-i18n="lblMacCtrl">MAC del controller, 2 byte (clone)</label>
+        <input id="vMacCtrl" size="7" placeholder="12 34" style="width:90px">
+        <button id="bMacCtrlR" class="sec needc needboot" data-i18n="btnFldRead" disabled>Leggi</button>
+        <button id="bMacCtrlW" class="sec needc needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
+        <span id="oMacCtrl" class="kv"></span>
+      </div>
+      <div class="row"><span id="pMacCtrl" class="prev"></span></div>
+    </div>
+
+    <div class="warnbox" data-i18n-html="macWarn"></div>
+    <div class="mutbox" data-i18n-html="fieldsNote"></div>
+  </div>
+
   <!-- ===== Console registri ===== -->
   <div class="card">
     <p class="cardtitle" data-i18n="titleReg">Console registri <span class="expchip" data-i18n="expLabel">sperimentale</span></p>
@@ -146,22 +214,28 @@
               <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rgFwChip"></td></tr>
           <tr><td><code>0a 11/12 00 80 02</code></td><td data-i18n="tCtrl">controller</td><td><code>04 0c</code></td>
               <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rgFwCtrl"></td></tr>
-          <tr><td><code>0c 12 00 40 01</code></td><td data-i18n="tDongle">dongle</td><td><code>ff</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg12Dongle"></td></tr>
-          <tr><td><code>09 12 00 02 01</code></td><td data-i18n="tChip">chip auto</td><td><code>00 → 04 → 05</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg02Chip"></td></tr>
-          <tr><td><code>0a 12 00 02 01</code></td><td data-i18n="tCtrl">controller</td><td><code>04 / 05</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg02Ctrl"></td></tr>
-          <tr><td><code>09 12 00 11 02</code></td><td data-i18n="tChip">chip auto</td><td><code>03 03</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg11Chip"></td></tr>
-          <tr><td><code>09 12 00 20 05</code></td><td data-i18n="tChip">chip auto</td><td><code>ff ff ff ff ff</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg20Both"></td></tr>
-          <tr><td><code>09 12 00 40 02</code></td><td data-i18n="tChip">chip auto</td><td><code>ff ff</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg40Chip"></td></tr>
-          <tr><td><code>09 02 00 10 01 &lt;val&gt;</code></td><td data-i18n="tChip">chip auto</td><td><code>DO</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg10Chip"></td></tr>
+          <tr><td><code>09 12 00 02 01</code><br><code>09 02 00 02 03 &lt;cks&gt;</code></td><td data-i18n="tChip">chip auto</td><td><code>05</code></td>
+              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rg02Chip"></td></tr>
+          <tr><td><code>0a 12 00 02 01</code><br><code>0a 02 00 02 03 &lt;cks&gt;</code></td><td data-i18n="tCtrl">controller</td><td><code>05</code></td>
+              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rg02Ctrl"></td></tr>
+          <tr><td><code>09 12 00 10 02</code><br><code>09 02 00 10 01 &lt;cks&gt;</code></td><td data-i18n="tChip">chip auto</td><td><code>cc cc</code></td>
+              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rg10Chip"></td></tr>
+          <tr><td><code>09 12 00 20 05</code><br><code>09 02 00 20 08 &lt;cks&gt;</code></td><td data-i18n="tChip">chip auto</td><td><code>12 12 12 ff 34</code></td>
+              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rg20Chip"></td></tr>
+          <tr><td><code>0a 12 00 20 05</code><br><code>0a 02 00 20 08 &lt;cks&gt;</code></td><td data-i18n="tCtrl">controller</td><td><code>12 12 12 ff 34</code></td>
+              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rg20Ctrl"></td></tr>
           <tr><td><code>0a 12 00 16 01</code></td><td data-i18n="tCtrl">controller</td><td><code>00 / 02 / 03 / 04</code></td>
               <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg16Ctrl"></td></tr>
+          <tr><td><code>09 12 00 70 02</code></td><td data-i18n="tChip">chip auto</td><td><code>2 byte</code></td>
+              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg70Chip"></td></tr>
+          <tr><td><code>09 12 00 11 02</code></td><td data-i18n="tChip">chip auto</td><td><code>03 03</code></td>
+              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg11Chip"></td></tr>
+          <tr><td><code>09 12 00 40 02</code></td><td data-i18n="tChip">chip auto</td><td><code>ff ff</code></td>
+              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg40Chip"></td></tr>
+          <tr><td><code>09 11 00 82 02</code></td><td data-i18n="tChip">chip auto</td><td><code>00 80</code></td>
+              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg82Chip"></td></tr>
+          <tr><td><code>0c 12 00 40 01</code></td><td data-i18n="tDongle">dongle</td><td><code>ff</code></td>
+              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg12Dongle"></td></tr>
         </tbody>
       </table>
     </div>
@@ -208,9 +282,9 @@ window.I18N_STRINGS = {
   },
 
   sub:{
-    it:"Riprende una parte delle funzioni di <b>configurazione</b> del programma ufficiale per Windows: parla col dongle oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002), sceglie il dispositivo (dongle, chip auto, controller), entra in modalità boot e legge informazioni e registri. <b>Non aggiorna il firmware</b> e non tocca l'attivazione. <b>Solo su hardware tuo.</b>",
-    en:"Covers part of the <b>configuration</b> features of the official Windows program: it talks to the oXigen dongle over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002), picks the device (dongle, car chip, controller), enters boot mode and reads information and registers. <b>It does not update firmware</b> and does not touch activation. <b>Only on your own hardware.</b>",
-    es:"Cubre parte de las funciones de <b>configuración</b> del programa oficial para Windows: habla con el dongle oXigen por <b>USB serie</b> (Web Serial, VID 1FEE/PID 0002), elige el dispositivo (dongle, chip del coche, mando), entra en modo boot y lee información y registros. <b>No actualiza el firmware</b> ni toca la activación. <b>Solo en tu propio hardware.</b>"
+    it:"Riprende una parte delle funzioni di <b>configurazione</b> del programma ufficiale per Windows: parla col dongle oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002), sceglie il dispositivo (dongle, chip auto, controller), entra in modalità boot, legge le informazioni e cambia i campi di cui si conosce il nome — <b>ID, velocità in corsia box e MAC</b> (clonazione). <b>Non aggiorna il firmware</b> e non tocca l'attivazione. <b>Solo su hardware tuo.</b>",
+    en:"Covers part of the <b>configuration</b> features of the official Windows program: it talks to the oXigen dongle over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002), picks the device (dongle, car chip, controller), enters boot mode, reads the information and changes the fields whose name is known — <b>ID, pit-lane speed and MAC</b> (cloning). <b>It does not update firmware</b> and does not touch activation. <b>Only on your own hardware.</b>",
+    es:"Cubre parte de las funciones de <b>configuración</b> del programa oficial para Windows: habla con el dongle oXigen por <b>USB serie</b> (Web Serial, VID 1FEE/PID 0002), elige el dispositivo (dongle, chip del coche, mando), entra en modo boot, lee la información y cambia los campos cuyo nombre se conoce — <b>ID, velocidad en el pit lane y MAC</b> (clonación). <b>No actualiza el firmware</b> ni toca la activación. <b>Solo en tu propio hardware.</b>"
   },
   h1title:{it:"Configuratore dongle",en:"Dongle configurator",es:"Configurador del dongle"},
   btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle"},
@@ -248,6 +322,46 @@ window.I18N_STRINGS = {
     es:"Solo lecturas, ninguna escritura. La versión se lee con la misma trama que usa el programa oficial: <code>0c 11 00 00 02</code> en el dongle, el registro <code>0x80</code> en chip y mando. Los dos bytes son mayor y menor en decimal (p. ej. <code>04 0e</code> = 4.14). El MAC llega con los bytes en orden inverso, y aquí se le da la vuelta."
   },
 
+  /* ---- campi con un nome dimostrato ---- */
+  titleFields:{it:"Campi noti",en:"Known fields",es:"Campos conocidos"},
+  fieldsIntro:{
+    it:"Questi campi hanno un nome <b>dimostrato</b>: per ognuno esiste una cattura del programma ufficiale in cui è stata cambiata <b>quella sola cosa</b>, e il valore riletto subito dopo combacia. Il dispositivo è quello scelto sopra: entra prima in boot.",
+    en:"These fields have a <b>proven</b> name: for each one there is a capture of the official program where <b>that single thing</b> was changed, and the value read back straight after matches. The device is the one selected above: enter boot first.",
+    es:"Estos campos tienen un nombre <b>demostrado</b>: para cada uno existe una captura del programa oficial donde se cambió <b>solo esa cosa</b>, y el valor releído justo después coincide. El dispositivo es el elegido arriba: entra antes en boot."
+  },
+  fldPickChip:{
+    it:"Questi campi stanno sul <b>chip auto</b> e sul <b>controller</b>. Scegli uno dei due qui sopra: sul dongle non esistono.",
+    en:"These fields live on the <b>car chip</b> and the <b>controller</b>. Pick one of the two above: they do not exist on the dongle.",
+    es:"Estos campos están en el <b>chip del coche</b> y en el <b>mando</b>. Elige uno de los dos arriba: en el dongle no existen."
+  },
+  lblCarId:{it:"ID auto (1–20)",en:"Car ID (1–20)",es:"ID del coche (1–20)"},
+  lblCtrlId:{it:"ID controller (1–20)",en:"Controller ID (1–20)",es:"ID del mando (1–20)"},
+  lblPit:{it:"Velocità in corsia box (0–255)",en:"Pit-lane speed (0–255)",es:"Velocidad en el pit lane (0–255)"},
+  lblMacChip:{it:"MAC del chip, 2 byte (clone)",en:"Chip MAC, 2 bytes (clone)",es:"MAC del chip, 2 bytes (clon)"},
+  lblMacCtrl:{it:"MAC del controller, 2 byte (clone)",en:"Controller MAC, 2 bytes (clone)",es:"MAC del mando, 2 bytes (clon)"},
+  btnFldRead:{it:"Leggi",en:"Read",es:"Leer"},
+  btnFldWrite:{it:"Scrivi",en:"Write",es:"Escribir"},
+  macWarn:{
+    it:"⚠️ <b>Il MAC è l'identità del dispositivo.</b> Riscriverlo è la funzione di clonazione del programma ufficiale: due dispositivi con lo stesso MAC rispondono agli stessi comandi. Annota il valore che leggi <b>prima</b> di cambiarlo — è l'unico modo per rimetterlo com'era. Solo su hardware tuo.",
+    en:"⚠️ <b>The MAC is the device's identity.</b> Rewriting it is the official program's cloning feature: two devices with the same MAC answer the same commands. Write down the value you read <b>before</b> changing it — it is the only way to put it back. Only on your own hardware.",
+    es:"⚠️ <b>El MAC es la identidad del dispositivo.</b> Reescribirlo es la función de clonación del programa oficial: dos dispositivos con el mismo MAC responden a los mismos comandos. Anota el valor que leas <b>antes</b> de cambiarlo — es la única forma de dejarlo como estaba. Solo en tu propio hardware."
+  },
+  fieldsNote:{
+    it:"Solo due byte del MAC passano da qui, come nel programma ufficiale: sono gli stessi due che si vedono anche sul canale Bluetooth, con un altro numero di registro. La velocità in corsia box è stata vista sul chip auto (prefisso <code>09</code>), non sul controller.",
+    en:"Only two bytes of the MAC go through here, as in the official program: they are the same two that also show up on the Bluetooth channel, under a different register number. Pit-lane speed was seen on the car chip (prefix <code>09</code>), not on the controller.",
+    es:"Solo dos bytes del MAC pasan por aquí, como en el programa oficial: son los mismos dos que aparecen también en el canal Bluetooth, con otro número de registro. La velocidad en el pit lane se vio en el chip del coche (prefijo <code>09</code>), no en el mando."
+  },
+  fldRead:{it:"letto",en:"read",es:"leído"},
+  fldWritten:{it:"scritto ✓",en:"written ✓",es:"escrito ✓"},
+  fldNoAck:{it:"nessuna conferma DO — scrittura non confermata",en:"no DO ack — write not confirmed",es:"sin confirmación DO — escritura no confirmada"},
+  fldBadVal:{it:"valore non valido",en:"invalid value",es:"valor no válido"},
+  fldBadRead:{it:"risposta di lunghezza inattesa: {m} byte invece di {n}",en:"reply of unexpected length: {m} bytes instead of {n}",es:"respuesta de longitud inesperada: {m} bytes en vez de {n}"},
+  confirmMac:{
+    it:"Stai per riscrivere il MAC di questo dispositivo (funzione di clonazione). Hai annotato il valore attuale? Procedo?",
+    en:"You are about to rewrite this device's MAC (cloning feature). Have you written down the current value? Proceed?",
+    es:"Vas a reescribir el MAC de este dispositivo (función de clonación). ¿Has anotado el valor actual? ¿Continúo?"
+  },
+
   titleReg:{it:"Console registri",en:"Register console",es:"Consola de registros"},
   expLabel:{it:"sperimentale",en:"experimental",es:"experimental"},
   regTargetHint:{
@@ -265,9 +379,9 @@ window.I18N_STRINGS = {
   btnWriteReg:{it:"Scrivi",en:"Write",es:"Escribir"},
   lblPreview:{it:"frame che verrà inviato",en:"frame that will be sent",es:"trama que se enviará"},
   regWriteWarn:{
-    it:"⚠️ <b>Scrittura sperimentale.</b> La forma della scrittura è quella vista nelle catture (<code>&lt;prefisso&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;valore…&gt;</code>), ma <b>non è confermata</b>: in alcune scritture del programma ufficiale i byte non tornano con la lettura corrispondente, quindi lunghezza ed eventuale checksum restano un'ipotesi. Il dispositivo può interpretare male quello che gli mandi. Solo su hardware tuo.",
-    en:"⚠️ <b>Experimental write.</b> The write shape is the one seen in the captures (<code>&lt;prefix&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;value…&gt;</code>), but it is <b>not confirmed</b>: in some of the official program's writes the bytes do not match the corresponding read, so the length and a possible checksum remain a hypothesis. The device may misread what you send. Only on your own hardware.",
-    es:"⚠️ <b>Escritura experimental.</b> La forma de la escritura es la vista en las capturas (<code>&lt;prefijo&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;valor…&gt;</code>), pero <b>no está confirmada</b>: en algunas escrituras del programa oficial los bytes no cuadran con la lectura correspondiente, así que la longitud y un posible checksum siguen siendo una hipótesis. El dispositivo puede malinterpretar lo que le mandas. Solo en tu propio hardware."
+    it:"⚠️ <b>Qui la forma del frame è giusta, ma il registro lo scegli tu.</b> La scrittura segue le catture (intestazione + dati + checksum) e su questa parte non ci sono più dubbi; quello che resta incerto è <b>a quale campo</b> corrisponda un registro che non sia fra quelli noti qui sopra. Scrivere in un registro che non conosci cambia una configurazione che non sai quale sia. Solo su hardware tuo.",
+    en:"⚠️ <b>The frame shape here is right, but the register is your choice.</b> The write follows the captures (header + data + checksum) and that part is no longer in doubt; what is still uncertain is <b>which field</b> a register maps to, when it is not one of the known ones above. Writing to a register you do not know changes a setting you cannot name. Only on your own hardware.",
+    es:"⚠️ <b>Aquí la forma de la trama es correcta, pero el registro lo eliges tú.</b> La escritura sigue las capturas (cabecera + datos + checksum) y esa parte ya no está en duda; lo que sigue siendo incierto es <b>a qué campo</b> corresponde un registro que no sea de los conocidos de arriba. Escribir en un registro que no conoces cambia un ajuste que no sabes cuál es. Solo en tu propio hardware."
   },
   noiseWarn:{
     it:"⚠️ <b>Spegni i controller mentre leggi i registri.</b> Da specifica il dongle blu manda per conto suo la telemetria di gara (un record da 13 byte ogni 10 ms) sulla <b>stessa</b> porta: con un controller acceso la risposta può contenere byte che non c'entrano nulla. Se il numero di byte non torna, di solito è questo.",
@@ -277,16 +391,16 @@ window.I18N_STRINGS = {
 
   titleRules:{it:"Regole del frame",en:"Frame rules",es:"Reglas de la trama"},
   rulesBody:{
-    it:"<b>Lettura</b> <code>&lt;prefisso&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: l'ultimo byte è il <b>numero di byte da leggere</b>, e la risposta ha sempre quella lunghezza — <b>confermato</b> sulle catture. L'op di lettura compare sia come <code>0x12</code> sia come <code>0x11</code>: la differenza non è chiara, per questo la puoi scegliere.<br><b>Scrittura</b> <code>&lt;prefisso&gt; 02 …</code>: il dispositivo risponde <code>DO</code>, lo stesso segno di conferma che compare anche sugli altri due canali (radio e Bluetooth) — è lo stesso protocollo a registri esposto su tre bus.<br><b>Dongle</b>: frame diverso, <code>0c &lt;reg&gt; &lt;alto&gt; &lt;basso&gt; &lt;op&gt;</code> con op <code>02</code>=leggi e <code>01</code>=imposta (conferma <code>ff</code>); qui il numero di byte non si indica.<br>Nelle risposte lunghe compaiono i marcatori <code>RRR</code> e <code>SSS</code>: sembrano l'inquadratura di letture e scritture a blocchi, ma non è confermato.",
-    en:"<b>Read</b> <code>&lt;prefix&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: the last byte is the <b>number of bytes to read</b>, and the reply always has that length — <b>confirmed</b> on the captures. The read op appears both as <code>0x12</code> and as <code>0x11</code>: the difference is unclear, which is why you can choose it.<br><b>Write</b> <code>&lt;prefix&gt; 02 …</code>: the device answers <code>DO</code>, the same acknowledgement marker that shows up on the other two channels (radio and Bluetooth) — it is the same register protocol exposed on three buses.<br><b>Dongle</b>: different frame, <code>0c &lt;reg&gt; &lt;high&gt; &lt;low&gt; &lt;op&gt;</code> with op <code>02</code>=read and <code>01</code>=set (ack <code>ff</code>); here you do not state a byte count.<br>Long replies contain the markers <code>RRR</code> and <code>SSS</code>: they look like the framing of block reads and writes, but that is not confirmed.",
-    es:"<b>Lectura</b> <code>&lt;prefijo&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: el último byte es el <b>número de bytes a leer</b>, y la respuesta siempre tiene esa longitud — <b>confirmado</b> en las capturas. La op de lectura aparece tanto como <code>0x12</code> como <code>0x11</code>: la diferencia no está clara, por eso puedes elegirla.<br><b>Escritura</b> <code>&lt;prefijo&gt; 02 …</code>: el dispositivo responde <code>DO</code>, la misma marca de confirmación que aparece en los otros dos canales (radio y Bluetooth) — es el mismo protocolo de registros expuesto en tres buses.<br><b>Dongle</b>: trama distinta, <code>0c &lt;reg&gt; &lt;alto&gt; &lt;bajo&gt; &lt;op&gt;</code> con op <code>02</code>=leer y <code>01</code>=fijar (confirmación <code>ff</code>); aquí no se indica el número de bytes.<br>En las respuestas largas aparecen las marcas <code>RRR</code> y <code>SSS</code>: parecen el encuadre de lecturas y escrituras por bloques, pero no está confirmado."
+    it:"<b>Lettura</b> <code>&lt;prefisso&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: l'ultimo byte è il <b>numero di byte da leggere</b>, e la risposta ha sempre quella lunghezza. L'op di lettura compare sia come <code>0x12</code> sia come <code>0x11</code>: la differenza non è chiara, per questo la puoi scegliere.<br><b>Scrittura</b>, in <b>due</b> frame: prima <code>&lt;prefisso&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, poi un frame a parte con gli <code>&lt;n&gt;</code> byte di <b>dati</b>. Il dispositivo risponde <code>DO</code> a tutti e due. Il <b>checksum</b> è la somma a 8 bit dei byte di dati: se il dato è di un byte solo, il checksum coincide con il valore — ed è per questo che un frame unico sembrava funzionare.<br><b>Dati su più byte</b>: ogni byte utile va <b>ripetuto tre volte</b> e seguito da <code>ff</code>. Il MAC (2 byte) diventa <code>hi hi hi ff lo lo lo ff</code>, cioè <code>n</code>=8; l'ID diventa <code>id id id</code>, cioè <code>n</code>=3, senza <code>ff</code> finale. È la stessa ridondanza che si ritrova in lettura: <code>12 12 12 ff 34</code> è il MAC <code>12:34</code>.<br><b>Dongle</b>: frame diverso, <code>0c &lt;reg&gt; &lt;alto&gt; &lt;basso&gt; &lt;op&gt;</code> con op <code>02</code>=leggi e <code>01</code>=imposta (conferma <code>ff</code>); qui il numero di byte non si indica.",
+    en:"<b>Read</b> <code>&lt;prefix&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: the last byte is the <b>number of bytes to read</b>, and the reply always has that length. The read op appears both as <code>0x12</code> and as <code>0x11</code>: the difference is unclear, which is why you can choose it.<br><b>Write</b>, in <b>two</b> frames: first <code>&lt;prefix&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, then a separate frame with the <code>&lt;n&gt;</code> <b>data</b> bytes. The device answers <code>DO</code> to both. The <b>checksum</b> is the 8-bit sum of the data bytes: if the data is a single byte, the checksum equals the value — which is why one single frame appeared to work.<br><b>Multi-byte data</b>: every useful byte is <b>repeated three times</b> and followed by <code>ff</code>. The MAC (2 bytes) becomes <code>hi hi hi ff lo lo lo ff</code>, so <code>n</code>=8; the ID becomes <code>id id id</code>, so <code>n</code>=3, with no trailing <code>ff</code>. The same redundancy comes back on reads: <code>12 12 12 ff 34</code> is the MAC <code>12:34</code>.<br><b>Dongle</b>: different frame, <code>0c &lt;reg&gt; &lt;high&gt; &lt;low&gt; &lt;op&gt;</code> with op <code>02</code>=read and <code>01</code>=set (ack <code>ff</code>); here you do not state a byte count.",
+    es:"<b>Lectura</b> <code>&lt;prefijo&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: el último byte es el <b>número de bytes a leer</b>, y la respuesta siempre tiene esa longitud. La op de lectura aparece tanto como <code>0x12</code> como <code>0x11</code>: la diferencia no está clara, por eso puedes elegirla.<br><b>Escritura</b>, en <b>dos</b> tramas: primero <code>&lt;prefijo&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, luego una trama aparte con los <code>&lt;n&gt;</code> bytes de <b>datos</b>. El dispositivo responde <code>DO</code> a las dos. El <b>checksum</b> es la suma de 8 bits de los bytes de datos: si el dato es de un solo byte, el checksum coincide con el valor — y por eso una trama única parecía funcionar.<br><b>Datos de varios bytes</b>: cada byte útil se <b>repite tres veces</b> y va seguido de <code>ff</code>. El MAC (2 bytes) se convierte en <code>hi hi hi ff lo lo lo ff</code>, o sea <code>n</code>=8; el ID en <code>id id id</code>, o sea <code>n</code>=3, sin <code>ff</code> final. La misma redundancia vuelve en la lectura: <code>12 12 12 ff 34</code> es el MAC <code>12:34</code>.<br><b>Dongle</b>: trama distinta, <code>0c &lt;reg&gt; &lt;alto&gt; &lt;bajo&gt; &lt;op&gt;</code> con op <code>02</code>=leer y <code>01</code>=fijar (confirmación <code>ff</code>); aquí no se indica el número de bytes."
   },
 
   titleRegTable:{it:"Registri visti nelle catture",en:"Registers seen in the captures",es:"Registros vistos en las capturas"},
   regTableWarn:{
-    it:"⚠️ <b>Appunti grezzi, non una mappa.</b> Sono i comandi che il programma ufficiale ha mandato durante l'analisi del protocollo, con quello che ha risposto il dispositivo. Solo le versioni firmware sono <b>confermate</b>: tutto il resto è un'ipotesi, e dai soli byte non si distingue (per esempio) l'ID dell'auto dalla modalità auto/tipo pista, che sono entrambi numerini piccoli.",
-    en:"⚠️ <b>Rough notes, not a map.</b> These are the commands the official program sent during the protocol analysis, with what the device answered. Only the firmware versions are <b>confirmed</b>: everything else is a hypothesis, and from the bytes alone you cannot tell (for instance) the car ID from the car mode/track type, since both are small numbers.",
-    es:"⚠️ <b>Notas en bruto, no un mapa.</b> Son los comandos que el programa oficial envió durante el análisis del protocolo, con lo que respondió el dispositivo. Solo las versiones de firmware están <b>confirmadas</b>: todo lo demás es una hipótesis, y solo con los bytes no se distingue (por ejemplo) el ID del coche del modo coche/tipo de pista, porque los dos son números pequeños."
+    it:"Le righe <b>confermate</b> vengono da catture in cui il programma ufficiale ha cambiato <b>un solo campo per volta</b>, con l'azione scritta nel nome del file: il valore riletto subito dopo combacia, e il checksum torna su tutte le scritture. Le righe segnate <b>ipotesi</b> sono comandi visti passare senza sapere a quale campo corrispondano: dai soli byte un ID e una modalità sono due numerini piccoli uguali. I valori mostrati sono quelli delle prove, non i tuoi.",
+    en:"The <b>confirmed</b> rows come from captures where the official program changed <b>one field at a time</b>, with the action written in the file name: the value read back straight after matches, and the checksum adds up on every write. The rows marked <b>hypothesis</b> are commands seen going past without knowing which field they map to: from the bytes alone, an ID and a mode are two identical small numbers. The values shown are the ones from the tests, not yours.",
+    es:"Las filas <b>confirmadas</b> vienen de capturas donde el programa oficial cambió <b>un solo campo cada vez</b>, con la acción escrita en el nombre del archivo: el valor releído justo después coincide, y el checksum cuadra en todas las escrituras. Las filas marcadas como <b>hipótesis</b> son comandos vistos pasar sin saber a qué campo corresponden: solo con los bytes, un ID y un modo son dos números pequeños iguales. Los valores mostrados son los de las pruebas, no los tuyos."
   },
   thCmd:{it:"comando",en:"command",es:"comando"},
   thTarget:{it:"dispositivo",en:"device",es:"dispositivo"},
@@ -319,34 +433,49 @@ window.I18N_STRINGS = {
     es:"escritura en el dongle vista al entrar en boot, antes de las lecturas: significado desconocido, <code>ff</code> es solo la confirmación."
   },
   rg02Chip:{
-    it:"un byte che cambia nel tempo: ID dell'auto <b>oppure</b> modalità auto/tipo pista (oXigen, oXigen misto SSD, SSD, D132). Dai byte i due non si distinguono. L'unico dato certo di quella sessione: l'auto in prova aveva ID 5, letto dalla telemetria.",
-    en:"a byte that changes over time: car ID <b>or</b> car mode/track type (oXigen, oXigen mixed SSD, SSD, D132). The two cannot be told apart from the bytes. The one certain fact from that session: the car under test had ID 5, read from the telemetry.",
-    es:"un byte que cambia con el tiempo: ID del coche <b>o</b> modo coche/tipo de pista (oXigen, oXigen mixto SSD, SSD, D132). Por los bytes no se distinguen. El único dato cierto de esa sesión: el coche de prueba tenía ID 5, leído de la telemetría."
+    it:"<b>ID dell'auto.</b> Nella cattura «cambio ID» il programma ufficiale scrive 1, 2, 3, 4, 5, 6 uno dopo l'altro e la rilettura restituisce ogni volta lo stesso numero. I dati vanno triplicati: <code>id id id</code>, quindi <code>n</code>=3.",
+    en:"<b>Car ID.</b> In the \"change ID\" capture the official program writes 1, 2, 3, 4, 5, 6 one after another and the read-back returns the same number every time. The data is tripled: <code>id id id</code>, so <code>n</code>=3.",
+    es:"<b>ID del coche.</b> En la captura «cambio de ID» el programa oficial escribe 1, 2, 3, 4, 5, 6 uno tras otro y la relectura devuelve cada vez el mismo número. Los datos van triplicados: <code>id id id</code>, o sea <code>n</code>=3."
   },
   rg02Ctrl:{
-    it:"campo numerico da un byte del controller. Forse l'ID, ma non è confermato.",
-    en:"one-byte numeric field on the controller. Possibly the ID, but unconfirmed.",
-    es:"campo numérico de un byte del mando. Quizá el ID, pero sin confirmar."
+    it:"<b>ID del controller.</b> Stesso registro e stessa forma dell'ID auto, con il prefisso del controller.",
+    en:"<b>Controller ID.</b> Same register and same shape as the car ID, with the controller prefix.",
+    es:"<b>ID del mando.</b> Mismo registro y misma forma que el ID del coche, con el prefijo del mando."
   },
   rg11Chip:{
     it:"due byte uguali, significato ignoto.",
     en:"two identical bytes, meaning unknown.",
     es:"dos bytes iguales, significado desconocido."
   },
-  rg20Both:{
-    it:"blocco da cinque byte, con attorno i marcatori <code>RRR</code>/<code>SSS</code>: sembra un blocco di configurazione (nome? pattern di frequenza?). Compare uguale anche sul controller.",
-    en:"five-byte block, with the <code>RRR</code>/<code>SSS</code> markers around it: it looks like a configuration block (name? frequency pattern?). It shows up the same way on the controller.",
-    es:"bloque de cinco bytes, rodeado por las marcas <code>RRR</code>/<code>SSS</code>: parece un bloque de configuración (¿nombre? ¿patrón de frecuencia?). Aparece igual en el mando."
+  rg20Chip:{
+    it:"<b>MAC del chip, 2 byte</b> — è la clonazione. La cattura si chiama «cambio MAC 45-67 poi 12-34 poi ff-ff poi 00-00» e sul filo passano esattamente quei quattro valori. In scrittura <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8); in lettura bastano 5 byte, con il byte basso in fondo.",
+    en:"<b>Chip MAC, 2 bytes</b> — this is the cloning. The capture is named \"change MAC 45-67 then 12-34 then ff-ff then 00-00\", and exactly those four values go over the wire. Written as <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8); on reads 5 bytes are enough, with the low byte at the end.",
+    es:"<b>MAC del chip, 2 bytes</b> — es la clonación. La captura se llama «cambio de MAC 45-67 luego 12-34 luego ff-ff luego 00-00», y por el cable pasan exactamente esos cuatro valores. En escritura <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8); en lectura bastan 5 bytes, con el byte bajo al final."
+  },
+  rg20Ctrl:{
+    it:"<b>MAC del controller, 2 byte</b> (clonazione). Stesso registro e stessa forma del MAC del chip. È lo stesso campo che sul canale Bluetooth ha un altro numero di registro.",
+    en:"<b>Controller MAC, 2 bytes</b> (cloning). Same register and same shape as the chip MAC. It is the same field that carries a different register number on the Bluetooth channel.",
+    es:"<b>MAC del mando, 2 bytes</b> (clonación). Mismo registro y misma forma que el MAC del chip. Es el mismo campo que en el canal Bluetooth lleva otro número de registro."
   },
   rg40Chip:{
-    it:"due byte, forse il MAC corto del chip: non confermato.",
-    en:"two bytes, possibly the chip's short MAC: unconfirmed.",
-    es:"dos bytes, quizá el MAC corto del chip: sin confirmar."
+    it:"due byte, sempre <code>ff ff</code> nelle catture: significato ignoto.",
+    en:"two bytes, always <code>ff ff</code> in the captures: meaning unknown.",
+    es:"dos bytes, siempre <code>ff ff</code> en las capturas: significado desconocido."
+  },
+  rg82Chip:{
+    it:"due byte letti insieme alla versione firmware, sempre uguali: significato ignoto.",
+    en:"two bytes read alongside the firmware version, always the same: meaning unknown.",
+    es:"dos bytes leídos junto a la versión de firmware, siempre iguales: significado desconocido."
+  },
+  rg70Chip:{
+    it:"due byte scrivibili, <b>non</b> triplicati come gli altri campi a più byte: fa storia a sé, e a quale campo corrisponda non si sa. Visto una volta sola.",
+    en:"two writable bytes, <b>not</b> tripled like the other multi-byte fields: it is an exception, and which field it maps to is unknown. Seen only once.",
+    es:"dos bytes escribibles, <b>no</b> triplicados como los demás campos de varios bytes: es una excepción, y no se sabe a qué campo corresponde. Visto una sola vez."
   },
   rg10Chip:{
-    it:"campo da un byte scrivibile: nella cattura il programma ufficiale ci ha scritto valori diversi uno dopo l'altro. Che campo sia non si sa.",
-    en:"writable one-byte field: in the capture the official program wrote different values into it one after another. Which field it is remains unknown.",
-    es:"campo de un byte escribible: en la captura el programa oficial escribió valores distintos uno tras otro. No se sabe qué campo es."
+    it:"<b>Velocità in corsia box.</b> Nella cattura «cambio velocità pit lane» il programma ufficiale scrive 26, 51, 89, 117, 201, 204, 255 e la rilettura restituisce ogni volta lo stesso numero, ripetuto due volte. Un byte solo, quindi il checksum coincide col valore.",
+    en:"<b>Pit-lane speed.</b> In the \"change pit-lane speed\" capture the official program writes 26, 51, 89, 117, 201, 204, 255 and the read-back returns the same number each time, repeated twice. A single byte, so the checksum equals the value.",
+    es:"<b>Velocidad en el pit lane.</b> En la captura «cambio de velocidad del pit lane» el programa oficial escribe 26, 51, 89, 117, 201, 204, 255 y la relectura devuelve cada vez el mismo número, repetido dos veces. Un solo byte, así que el checksum coincide con el valor."
   },
   rg16Ctrl:{
     it:"un byte del controller che assume pochi valori: sembra una scelta fra opzioni (freno? pattern di frequenza? RCS?), non confermato.",
@@ -354,9 +483,9 @@ window.I18N_STRINGS = {
     es:"un byte del mando que toma pocos valores: parece una elección entre opciones (¿freno? ¿patrón de frecuencia? ¿RCS?), sin confirmar."
   },
   helpNote:{
-    it:"<b>Vuoi aiutare a confermarli?</b> Entra in boot sul dispositivo, leggi un registro, cambia <b>un solo</b> campo dal programma ufficiale, rileggi lo stesso registro e scrivi nel riquadro «Annota» che cosa hai cambiato. Poi scarica il registro qui sotto: quando si sa quale campo corrisponde a quale byte, le ipotesi qui sopra diventano fatti.",
-    en:"<b>Want to help confirm them?</b> Enter boot on the device, read a register, change <b>one single</b> field in the official program, read the same register again and write in the \"Note\" box what you changed. Then download the log below: once you know which field maps to which byte, the hypotheses above become facts.",
-    es:"<b>¿Quieres ayudar a confirmarlos?</b> Entra en boot en el dispositivo, lee un registro, cambia <b>un solo</b> campo en el programa oficial, vuelve a leer el mismo registro y escribe en el recuadro «Anota» qué has cambiado. Luego descarga el registro de abajo: cuando se sepa qué campo corresponde a qué byte, las hipótesis de arriba se vuelven hechos."
+    it:"<b>Vuoi aiutare a confermare quelli che restano?</b> È esattamente così che sono stati chiusi ID, MAC e velocità in corsia box: una cattura per campo, con <b>un solo</b> campo cambiato e l'azione scritta nel nome del file. Qui: entra in boot, leggi il registro, cambia quel campo dal programma ufficiale, rileggi lo stesso registro e scrivi nel riquadro «Annota» che cosa hai cambiato. Poi scarica il registro qui sotto.",
+    en:"<b>Want to help confirm the ones that are left?</b> This is exactly how the ID, the MAC and the pit-lane speed were closed: one capture per field, with <b>one single</b> field changed and the action written in the file name. Here: enter boot, read the register, change that field in the official program, read the same register again and write in the \"Note\" box what you changed. Then download the log below.",
+    es:"<b>¿Quieres ayudar a confirmar los que quedan?</b> Así es exactamente como se cerraron el ID, el MAC y la velocidad del pit lane: una captura por campo, con <b>un solo</b> campo cambiado y la acción escrita en el nombre del archivo. Aquí: entra en boot, lee el registro, cambia ese campo en el programa oficial, vuelve a leer el mismo registro y escribe en el recuadro «Anota» qué has cambiado. Luego descarga el registro de abajo."
   },
 
   titleLimits:{it:"Cosa questa app non fa (e perché)",en:"What this app does not do (and why)",es:"Lo que esta app no hace (y por qué)"},
@@ -371,9 +500,9 @@ window.I18N_STRINGS = {
     es:"<b>Ningún comando de actualización forzada o de reinicio como botón.</b> Existen y están documentados en el estudio del protocolo, pero sin un bootloader listo para recoger el dispositivo lo dejan inservible: por eso no están aquí. Por lo mismo, la consola rechaza la <b>escritura</b> en el registro <code>0x80</code> de chip y mando, que en ese bus inicia justamente ese proceso; leerlo, en cambio, solo devuelve la versión de firmware y es inofensivo."
   },
   limConfig:{
-    it:"<b>Non replica i campi di configurazione</b> del programma ufficiale (cambio ID, cambio MAC, modalità auto/tipo pista, pattern di frequenza, modalità freno, velocità in corsia box, database dei controller). Si sa <i>per dove</i> passano — sono questi frame a registri — ma non <i>quali</i> registri: offrirli adesso vorrebbe dire tirare a indovinare sulla configurazione del tuo hardware.",
-    en:"<b>It does not replicate the configuration fields</b> of the official program (change ID, change MAC, car mode/track type, frequency pattern, brake mode, pit-lane speed, controller database). We know <i>where</i> they travel — these register frames — but not <i>which</i> registers: offering them now would mean guessing at your hardware's configuration.",
-    es:"<b>No replica los campos de configuración</b> del programa oficial (cambiar ID, cambiar MAC, modo coche/tipo de pista, patrón de frecuencia, modo de freno, velocidad en el pit lane, base de datos de mandos). Se sabe <i>por dónde</i> pasan — son estas tramas de registros — pero no <i>qué</i> registros: ofrecerlos ahora sería adivinar sobre la configuración de tu hardware."
+    it:"<b>Non replica ancora tutti i campi di configurazione</b> del programma ufficiale. Ci sono ID, MAC (clonazione) e velocità in corsia box, perché per quelli esiste una cattura che li dimostra. <b>Mancano</b> modalità auto/tipo pista, pattern di frequenza, modalità freno e database dei controller: si sa <i>per dove</i> passano — sono questi stessi frame a registri — ma non <i>quale</i> registro sia quale, e offrirli adesso vorrebbe dire tirare a indovinare sulla configurazione del tuo hardware.",
+    en:"<b>It does not replicate all the configuration fields</b> of the official program yet. The ID, the MAC (cloning) and the pit-lane speed are here, because for those there is a capture that proves them. <b>Missing</b>: car mode/track type, frequency pattern, brake mode and the controller database — we know <i>where</i> they travel (these same register frames) but not <i>which</i> register is which, and offering them now would mean guessing at your hardware's configuration.",
+    es:"<b>Todavía no replica todos los campos de configuración</b> del programa oficial. Están el ID, el MAC (clonación) y la velocidad en el pit lane, porque para esos hay una captura que los demuestra. <b>Faltan</b>: modo coche/tipo de pista, patrón de frecuencia, modo de freno y base de datos de mandos — se sabe <i>por dónde</i> pasan (estas mismas tramas de registros) pero no <i>qué</i> registro es cuál, y ofrecerlos ahora sería adivinar sobre la configuración de tu hardware."
   },
   limRace:{
     it:"<b>Non gestisce la gara.</b> Sulla stessa porta viaggiano anche i comandi di gara e la telemetria, ma stanno nel <a href=\"../chron02/\">contagiri</a>: qui c'è solo la configurazione.",
@@ -436,7 +565,7 @@ window.I18N_STRINGS = {
   regNoResp:{it:"nessuna risposta",en:"no reply",es:"sin respuesta"},
   lenOk:{it:"lunghezza attesa ✓",en:"expected length ✓",es:"longitud esperada ✓"},
   lenBad:{it:"attesi {n} byte, ricevuti {m} — controller accesi? (vedi avviso sopra)",en:"expected {n} bytes, got {m} — controllers powered on? (see the warning above)",es:"esperados {n} bytes, recibidos {m} — ¿mandos encendidos? (mira el aviso de arriba)"},
-  blockMarks:{it:"contiene i marcatori a blocchi RRR/SSS",en:"contains the RRR/SSS block markers",es:"contiene las marcas de bloque RRR/SSS"},
+  tripleHint:{it:"dati triplicati → valore {v}",en:"tripled data → value {v}",es:"datos triplicados → valor {v}"},
   badHex:{it:"valore hex non valido",en:"invalid hex value",es:"valor hex no válido"},
   confirmWrite:{
     it:"Scrittura SPERIMENTALE su registro. La forma del frame non è confermata: potresti cambiare la configurazione del dispositivo senza volerlo. Procedo?",
@@ -458,7 +587,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="o2-bootloader",APP_VERSION="1.2.1";
+const APP="o2-bootloader",APP_VERSION="1.3.0";
 const VID=0x1fee,PID=0x0002;
 /* Il programma ufficiale apre la COM a 9600 8N1 (visto nelle catture USB). Sul
    dongle è una COM virtuale, quindi il valore è nominale — ma se un giorno in
@@ -569,17 +698,120 @@ async function exitBoot(){
 }
 
 /* ---------- frame a registri ----------
-   Lettura  chip/controller : <pfx> <op> 00 <reg> <n>   -> risposta di <n> byte (confermato)
-   Lettura  dongle          : 0c <reg> 00 00 02        -> il valore (2 byte sul registro visto)
-   Scrittura chip/controller: <pfx> 02 00 <reg> <n> <val…> -> conferma "DO"
-   Scrittura dongle         : 0c <reg> <alto> <basso> 01   -> conferma 0xff                      */
+   Lettura  chip/controller : <pfx> <op> 00 <reg> <n>   -> risposta di <n> byte
+   Lettura  dongle          : 0c <reg> 00 00 02         -> il valore (2 byte sul registro visto)
+   Scrittura chip/controller: DUE frame —
+       intestazione  <pfx> 02 00 <reg> <n> <checksum>   -> conferma "DO"
+       dati          <n> byte                           -> conferma "DO"
+   Scrittura dongle         : 0c <reg> <alto> <basso> 01 -> conferma 0xff
+
+   ⚠️ Prima l'app mandava un frame solo, coi dati attaccati all'intestazione. Con un
+   dato da un byte sembrava funzionare — ma per un caso fortunato: con un byte solo
+   il checksum COINCIDE col valore, quindi l'intestazione risultava giusta per sbaglio
+   e il frame dei dati mancante passava inosservato. Su tutto il resto era sbagliata.  */
+const cks=d=>d.reduce((a,b)=>(a+b)&0xff,0);
 function buildRead(t,reg,op,len){
   if(t==="dongle")return[0x0c,reg,0x00,0x00,0x02];
   return[TARGETS[t].pfx,op,0x00,reg,len];
 }
-function buildWrite(t,reg,vals){
-  if(t==="dongle")return[0x0c,reg,vals[0]||0,vals[1]||0,0x01];
-  return[TARGETS[t].pfx,0x02,0x00,reg,vals.length,...vals];
+/* -> [intestazione, dati] per chip/controller; [frame unico] per il dongle */
+function buildWrite(t,reg,data){
+  if(t==="dongle")return[[0x0c,reg,data[0]||0,data[1]||0,0x01]];
+  return[[TARGETS[t].pfx,0x02,0x00,reg,data.length,cks(data)],[...data]];
+}
+/* Manda l'intestazione, aspetta, poi i dati: il dispositivo conferma "DO" a
+   entrambi. Torna tutto quello che è arrivato, così chi chiama cerca la conferma. */
+async function sendWrite(frames,ms=350){
+  let r=[];
+  for(const f of frames) r=r.concat(await sendCollect(f,ms));
+  return r;
+}
+
+/* ---------- campi con un nome dimostrato ----------
+   Ogni riga viene da una cattura del programma ufficiale in cui è stata cambiata
+   quella sola cosa (l'azione è scritta nel nome del file) e la rilettura combacia.
+   `enc` costruisce i byte di DATI, `dec` rilegge la risposta.
+   ⚠️ La numerazione dei registri qui è quella del canale USB: sul Bluetooth gli
+   stessi campi hanno numeri diversi, non si copiano da un'app all'altra. */
+const FIELDS={
+  /* id triplicato SENZA ff finale: n=3 */
+  carId:  {t:"chip",      reg:0x02, rd:2,        v:"vCarId",  o:"oCarId",  p:"pCarId",
+           enc:v=>[v,v,v], dec:r=>r[0], num:[1,20]},
+  ctrlId: {t:"controller",reg:0x02, rd:2,        v:"vCtrlId", o:"oCtrlId", p:"pCtrlId",
+           enc:v=>[v,v,v], dec:r=>r[0], num:[1,20]},
+  /* un byte solo: niente triplicazione, e il checksum coincide col valore */
+  pit:    {t:"chip",      reg:0x10, rd:2, rlen:2,  v:"vPit",  o:"oPit",    p:"pPit",
+           enc:v=>[v], dec:r=>r[0], num:[0,255]},
+  /* MAC 2 byte: hi hi hi ff lo lo lo ff (n=8); in lettura 5 byte, basso in fondo */
+  macChip:{t:"chip",      reg:0x20, rd:2, rlen:5,  v:"vMacChip", o:"oMacChip", p:"pMacChip",
+           enc:m=>[m[0],m[0],m[0],0xff,m[1],m[1],m[1],0xff], dec:r=>[r[0],r[4]], mac:true},
+  macCtrl:{t:"controller",reg:0x20, rd:2, rlen:5,  v:"vMacCtrl", o:"oMacCtrl", p:"pMacCtrl",
+           enc:m=>[m[0],m[0],m[0],0xff,m[1],m[1],m[1],0xff], dec:r=>[r[0],r[4]], mac:true}
+};
+const RD_OP=0x12;                      // op di lettura usata dal programma ufficiale
+const fldReadLen=f=>f.rlen||1;
+const hex2=b=>b.toString(16).padStart(2,"0");
+
+/* Il campo MAC accetta due byte in esadecimale. Il limite lo fa il filtro, NON
+   l'attributo maxlength: con maxlength il browser tronca PRIMA che il JS pulisca,
+   e incollando "12 34" resta "12 3" → una cifra persa. */
+function macBytes(s){
+  const c=(s||"").replace(/[^0-9a-f]/gi,"").slice(0,4);
+  if(c.length!==4)return null;
+  return [parseInt(c.slice(0,2),16),parseInt(c.slice(2),16)];
+}
+function fldValue(k){
+  const f=FIELDS[k],el=$(f.v);
+  if(f.mac)return macBytes(el.value);
+  const n=parseInt(el.value,10);
+  if(!Number.isFinite(n)||n<f.num[0]||n>f.num[1])return null;
+  return n;
+}
+function fldFrames(k){
+  const f=FIELDS[k],val=fldValue(k);
+  if(val===null)return null;
+  return buildWrite(f.t,f.reg,f.enc(val));
+}
+async function fldRead(k){
+  const f=FIELDS[k],out=$(f.o),len=fldReadLen(f);
+  const r=await sendCollect(buildRead(f.t,f.reg,RD_OP,len),400);
+  if(r.length!==len){
+    out.innerHTML='<span class="warn">'+I18N.t("fldBadRead",{m:r.length,n:len})+"</span>";
+    return;
+  }
+  const d=f.dec(r);
+  if(f.mac){$(f.v).value=hex2(d[0])+" "+hex2(d[1]);
+    out.innerHTML='<span class="ok">'+I18N.t("fldRead")+": "+hex2(d[0])+":"+hex2(d[1])+"</span>";}
+  else{$(f.v).value=d;out.innerHTML='<span class="ok">'+I18N.t("fldRead")+": "+d+"</span>";}
+  renderFields();
+}
+async function fldWrite(k){
+  const f=FIELDS[k],out=$(f.o),frames=fldFrames(k);
+  if(!frames){out.innerHTML='<span class="bad">'+I18N.t("fldBadVal")+"</span>";return;}
+  if(f.mac&&!confirm(I18N.t("confirmMac")))return;
+  const r=await sendWrite(frames);
+  out.innerHTML=asc(r).includes("DO")
+    ? '<span class="ok">'+I18N.t("fldWritten")+"</span>"
+    : '<span class="warn">'+I18N.t("fldNoAck")+"</span>";
+}
+
+/* Mostra solo i campi del dispositivo scelto: sul dongle non ne esiste nessuno,
+   e allora la card lo dice invece di restare vuota. */
+function renderFields(){
+  const t=tgt();let visibili=0;
+  document.querySelectorAll(".fld").forEach(d=>{
+    const on=d.dataset.tgt===t;d.hidden=!on;if(on)visibili++;
+  });
+  /* innerHTML e non textContent: la stringa ha del grassetto dentro, ed è nostra
+     (viene dal dizionario, non dal dispositivo) — con textContent si leggerebbero
+     i tag a video. */
+  const h=$("fldHint");h.hidden=visibili>0;if(!h.hidden)h.innerHTML=I18N.t("fldPickChip");
+  for(const k in FIELDS){
+    const f=FIELDS[k];if(f.t!==t)continue;
+    const fr=fldFrames(k);
+    $(f.p).textContent=I18N.t("regReadOut")+": "+hx(buildRead(f.t,f.reg,RD_OP,fldReadLen(f)))+
+      "   ·   "+I18N.t("regWriteOut")+": "+(fr?hx(fr[0])+" + "+hx(fr[1]):"—");
+  }
 }
 const curReg=()=>parseInt(($("regA").value||"0").trim(),16)&0xff;
 const curOp=()=>parseInt($("regOp").value,16)&0xff;
@@ -597,8 +829,13 @@ function renderPreview(){
   $("lbLen").style.opacity=dg?".45":"";
   $("lbVal").textContent=I18N.t(dg?"lblValDongle":"lblVal");
   $("prevR").textContent=I18N.t("regReadOut")+": "+hx(buildRead(t,curReg(),curOp(),curLen()));
+  /* Quello che si scrive nel campo sono i byte di DATI, cioè quelli che finiscono
+     nel secondo frame: lunghezza e checksum dell'intestazione li calcola l'app.
+     Per i campi a più byte i dati vanno già triplicati — la regola è qui sotto. */
   const v=parseHex($("regV").value);
-  $("prevW").textContent=I18N.t("regWriteOut")+": "+((v&&v.length)?hx(buildWrite(t,curReg(),v)):"—");
+  const fr=(v&&v.length)?buildWrite(t,curReg(),v):null;
+  $("prevW").textContent=I18N.t("regWriteOut")+": "+
+    (fr?(fr.length>1?hx(fr[0])+" + "+hx(fr[1]):hx(fr[0])):"—");
 }
 
 async function readReg(){
@@ -609,7 +846,11 @@ async function readReg(){
   else if(t!=="dongle")extra=(r.length===len)
     ? ' <span class="ok">'+I18N.t("lenOk")+"</span>"
     : ' <span class="warn">'+I18N.t("lenBad").replace("{n}",len).replace("{m}",r.length)+"</span>";
-  if(/RRR|SSS/.test(asc(r)))extra+=' <span class="warn">'+I18N.t("blockMarks")+"</span>";
+  /* Un tempo qui si segnalavano i «marcatori a blocchi RRR/SSS». Non esistono:
+     erano semplicemente i dati triplicati (52 52 52 ff = il byte 0x52 ripetuto),
+     che a stamparli come testo somigliano a "RRR". Ora si dice il valore vero. */
+  if(r.length>=4&&r[0]===r[1]&&r[1]===r[2]&&r[3]===0xff)
+    extra+=' <span class="ok">'+I18N.t("tripleHint",{v:"0x"+hex2(r[0])})+"</span>";
   $("regOut").innerHTML="<b>"+I18N.t("regReadOut")+"</b> 0x"+reg.toString(16).padStart(2,"0")+" ["+t+"] → "+
     (r.length?hx(r)+"  |"+asc(r)+"|":I18N.t("regNoResp"))+extra;
 }
@@ -619,7 +860,7 @@ async function writeReg(){
   const vals=parseHex($("regV").value);
   if(vals===null||!vals.length){$("regOut").innerHTML='<span class="bad">'+I18N.t("badHex")+"</span>";return;}
   if(!confirm(I18N.t("confirmWrite")))return;
-  const r=await sendCollect(buildWrite(t,reg,vals),400);
+  const r=await sendWrite(buildWrite(t,reg,vals),400);
   const s=asc(r);let ack="";
   if(t==="dongle")ack=r.includes(0xff)?' <span class="ok">'+I18N.t("regAckFf")+"</span>":' <span class="warn">'+I18N.t("regNoAck")+"</span>";
   else ack=s.includes("DO")?' <span class="ok">'+I18N.t("regAckDo")+"</span>":' <span class="warn">'+I18N.t("regNoAck")+"</span>";
@@ -658,6 +899,16 @@ $("btnFw").onclick=readFw;$("btnMac").onclick=readMac;
 $("btnRead").onclick=readReg;$("btnWrite").onclick=writeReg;
 ["tgt","regA","regOp","regL","regV"].forEach(id=>{$(id).oninput=renderPreview;$(id).onchange=renderPreview;});
 
+/* campi noti: i pulsanti si chiamano b<Nome>R / b<Nome>W, uno per campo */
+const BTN={carId:"CarId",ctrlId:"CtrlId",pit:"Pit",macChip:"MacChip",macCtrl:"MacCtrl"};
+for(const k in BTN){
+  $("b"+BTN[k]+"R").onclick=()=>fldRead(k);
+  $("b"+BTN[k]+"W").onclick=()=>fldWrite(k);
+  $(FIELDS[k].v).oninput=renderFields;
+  $(FIELDS[k].v).onchange=renderFields;
+}
+$("tgt").addEventListener("change",renderFields);
+
 /* Invio grezzo: utile per provare frame a mano, ma i comandi che avviano
    aggiornamenti forzati, reset o toccano l'attivazione restano fuori. */
 const RAW_FUORI=/DFU|RST|RESET|ACTIV|LIC/i;
@@ -676,7 +927,7 @@ $("btnSave").onclick=()=>{
   a.click();URL.revokeObjectURL(a.href);};
 
 /* ri-render del dinamico al cambio lingua */
-function renderAll(){renderStatus();renderBootPill();renderInfo();renderPreview();}
+function renderAll(){renderStatus();renderBootPill();renderInfo();renderPreview();renderFields();}
 document.addEventListener("i18n:changed",renderAll);
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",renderAll);
 renderAll();

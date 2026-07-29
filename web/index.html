@@ -260,9 +260,9 @@ window.I18N_STRINGS = {
   },
   bootTitle:{it:"Configuratore dongle",en:"Dongle configurator",es:"Configurador del dongle"},
   bootDesc:{
-    it:"Entra in modalità boot su dongle, chip auto o controller e ne legge le info (versione firmware, MAC). Include una console a registri <b>sperimentale</b> per leggere e scrivere la configurazione.",
-    en:"Puts the dongle, car chip or controller into boot mode and reads their info (firmware version, MAC). Includes an <b>experimental</b> register console to read and write settings.",
-    es:"Pone el dongle, el chip del coche o el mando en modo boot y lee su información (versión de firmware, MAC). Incluye una consola de registros <b>experimental</b> para leer y escribir la configuración."
+    it:"Entra in modalità boot su dongle, chip auto o controller e ne legge le info (versione firmware, MAC). Cambia i campi di cui si conosce il nome — <b>ID, velocità in corsia box, MAC</b> (clonazione) — e ha una console a registri <b>sperimentale</b> per tutto il resto.",
+    en:"Puts the dongle, car chip or controller into boot mode and reads their info (firmware version, MAC). Changes the fields whose name is known — <b>ID, pit-lane speed, MAC</b> (cloning) — and has an <b>experimental</b> register console for everything else.",
+    es:"Pone el dongle, el chip del coche o el mando en modo boot y lee su información (versión de firmware, MAC). Cambia los campos cuyo nombre se conoce — <b>ID, velocidad en el pit lane, MAC</b> (clonación) — y tiene una consola de registros <b>experimental</b> para todo lo demás."
   },
   dsTitle:{it:"Contagiri DS200 / DS300",en:"DS200 / DS300 lap counter",es:"Cuentavueltas DS200 / DS300"},
   dsDesc:{
@@ -282,7 +282,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.8.1";
+const SITE_VERSION="2.9.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
 // "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto

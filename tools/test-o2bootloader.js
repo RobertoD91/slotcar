@@ -125,10 +125,11 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   out = await txt('#regOut');
   ok(!/✓/.test(out) && /5/.test(out) && /2/.test(out), 'lunghezza diversa segnalata: ' + out);
 
-  // marcatori a blocchi riconosciuti
-  await fire('#btnRead', ascii('RRR').concat([0xff, 0x77, 0x77]));
+  /* Il vecchio "blocco RRR/SSS" era un abbaglio: 52 52 52 ff è il byte 0x52
+     triplicato, e stampato come testo somiglia a "RRR". Ora si decodifica. */
+  await fire('#btnRead', [0x52, 0x52, 0x52, 0xff, 0x77]);
   out = await txt('#regOut');
-  ok(/RRR/.test(out), 'marcatori a blocchi segnalati: ' + out);
+  ok(/0x52/.test(out), 'i "marcatori RRR" sono dati triplicati: ' + out);
 
   // op di lettura 0x11 selezionabile
   await page.selectOption('#regOp', '11');
@@ -136,15 +137,105 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok((await txt('#prevR')).includes('09 11 00 20 05'), 'op 0x11: ' + await txt('#prevR'));
   await page.selectOption('#regOp', '12');
 
-  // scrittura + conferma DO
+  // dati triplicati riconosciuti al posto dei "marcatori RRR/SSS" che non esistevano
+  await fire('#btnRead', [0x12, 0x12, 0x12, 0xff, 0x34]);
+  out = await txt('#regOut');
+  ok(/0x12/.test(out), 'dati triplicati decodificati: ' + out);
+
+  /* Scrittura in DUE frame: intestazione con lunghezza e checksum, poi i dati.
+     Con un byte solo il checksum coincide col valore — è il caso che prima
+     funzionava per sbaglio, e resta un buon controllo di non-regressione. */
   await page.fill('#regA', '10');
   await page.fill('#regV', 'cc');
   await page.waitForTimeout(60);
-  ok((await txt('#prevW')).includes('09 02 00 10 01 cc'), 'anteprima scrittura: ' + await txt('#prevW'));
-  await fire('#btnWrite', ascii('DO'), 150, 600);
-  ok((await sent())[0] === '09 02 00 10 01 cc', 'frame di scrittura come nella cattura');
+  ok((await txt('#prevW')).includes('09 02 00 10 01 cc') && (await txt('#prevW')).includes('+ cc'),
+     'anteprima scrittura, due frame: ' + await txt('#prevW'));
+  await fire('#btnWrite', ascii('DO'), 150, 900);
+  ok(JSON.stringify(await sent()) === JSON.stringify(['09 02 00 10 01 cc', 'cc']),
+     'scrittura in due frame: ' + (await sent()).join(' | '));
   out = await txt('#regOut');
   ok(/DO/.test(out), 'conferma DO riconosciuta: ' + out);
+
+  /* ---- campi con un nome dimostrato ----
+     I frame attesi qui sotto NON sono quelli che genera l'app: sono copiati dalle
+     catture USB del programma ufficiale, quelle in cui l'azione è scritta nel nome
+     del file e si cambia un campo per volta. Confrontare l'app con se stessa non
+     proverebbe niente. Riferimenti:
+       ID auto 5        cattura "cambio id"            09 02 00 02 03 0f + 05 05 05
+       ID controller 5  cattura chip+controller        0a 02 00 02 03 0f + 05 05 05
+       pit lane 26      cattura "cambio velocita pit"  09 02 00 10 01 1a + 1a
+       MAC 12:34        cattura "cambio mac …12-34…"   09 02 00 20 08 d0 + 12 12 12 ff 34 34 34 ff
+     Sul controller il MAC 12:34 ha la stessa intestazione col prefisso 0a: i dati
+     sono identici, quindi lo è anche il checksum, e la forma 0a 02 00 20 08 <cks>
+     è quella dei frame veri della stessa cattura. */
+  console.log('\n== CAMPI CON UN NOME DIMOSTRATO ==');
+  const campo = async (target, val, letturaAttesa, risposta, scritturaAttesa, decodAtteso) => {
+    await page.selectOption('#tgt', target.tgt);
+    await page.waitForTimeout(80);
+    await page.fill(target.input, val);
+    await page.waitForTimeout(80);
+
+    // lettura: frame + decodifica del valore riletto
+    await fire(target.read, risposta);
+    ok((await sent())[0] === letturaAttesa,
+       `${target.nome}: lettura ${(await sent())[0]} (cattura: ${letturaAttesa})`);
+    ok((await txt(target.out)).includes(decodAtteso),
+       `${target.nome}: riletto → ${await txt(target.out)}`);
+
+    // scrittura: due frame, come nella cattura
+    await fire(target.write, ascii('DO'), 120, 900);
+    const s = await sent();
+    ok(JSON.stringify(s) === JSON.stringify(scritturaAttesa),
+       `${target.nome}: scrittura ${s.join(' | ')}`);
+    ok(/✓/.test(await txt(target.out)), `${target.nome}: conferma DO`);
+  };
+
+  await campo({ nome: 'ID auto', tgt: 'chip', input: '#vCarId',
+                read: '#bCarIdR', write: '#bCarIdW', out: '#oCarId' },
+              '5', '09 12 00 02 01', [0x05], ['09 02 00 02 03 0f', '05 05 05'], '5');
+
+  await campo({ nome: 'velocità corsia box', tgt: 'chip', input: '#vPit',
+                read: '#bPitR', write: '#bPitW', out: '#oPit' },
+              '26', '09 12 00 10 02', [0x1a, 0x1a], ['09 02 00 10 01 1a', '1a'], '26');
+
+  await campo({ nome: 'MAC chip', tgt: 'chip', input: '#vMacChip',
+                read: '#bMacChipR', write: '#bMacChipW', out: '#oMacChip' },
+              '12 34', '09 12 00 20 05', [0x12, 0x12, 0x12, 0xff, 0x34],
+              ['09 02 00 20 08 d0', '12 12 12 ff 34 34 34 ff'], '12:34');
+
+  await campo({ nome: 'ID controller', tgt: 'controller', input: '#vCtrlId',
+                read: '#bCtrlIdR', write: '#bCtrlIdW', out: '#oCtrlId' },
+              '5', '0a 12 00 02 01', [0x05], ['0a 02 00 02 03 0f', '05 05 05'], '5');
+
+  await campo({ nome: 'MAC controller', tgt: 'controller', input: '#vMacCtrl',
+                read: '#bMacCtrlR', write: '#bMacCtrlW', out: '#oMacCtrl' },
+              '12 34', '0a 12 00 20 05', [0x12, 0x12, 0x12, 0xff, 0x34],
+              ['0a 02 00 20 08 d0', '12 12 12 ff 34 34 34 ff'], '12:34');
+
+  /* Il campo MAC non ha maxlength: il limite lo fa il filtro, altrimenti il
+     browser tronca prima che il JS pulisca e incollando due byte se ne perde una
+     cifra. Il valore in eccesso va scartato, non deve spostare i byte. */
+  await page.selectOption('#tgt', 'chip');
+  await page.fill('#vMacChip', '12:34:56');
+  await page.waitForTimeout(80);
+  ok((await txt('#pMacChip')).includes('12 12 12 ff 34 34 34 ff'),
+     'MAC: il testo in eccesso viene scartato, non sposta i byte: ' + await txt('#pMacChip'));
+
+  // valore fuori intervallo: lo dice, non manda un frame a caso
+  await page.fill('#vCarId', '99');
+  await page.waitForTimeout(80);
+  await fire('#bCarIdW', null, 0, 300);
+  ok((await sent()).length === 0, 'ID fuori intervallo: nessun frame inviato');
+  ok((await txt('#oCarId')).length > 3, 'e lo dice: ' + await txt('#oCarId'));
+  await page.fill('#vCarId', '5');
+
+  // sul dongle questi campi non esistono: la card lo dice invece di restare vuota
+  await page.selectOption('#tgt', 'dongle');
+  await page.waitForTimeout(120);
+  ok(await page.locator('#fldHint').isVisible(), 'sul dongle la card spiega perché è vuota: ' +
+     (await txt('#fldHint')).slice(0, 60) + '…');
+  await page.selectOption('#tgt', 'chip');
+  await page.waitForTimeout(120);
 
   // ---- blocchi di sicurezza ----
   console.log('\n== BLOCCHI DI SICUREZZA ==');
