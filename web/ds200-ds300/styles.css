@@ -141,3 +141,7 @@ table.leaderboard { width: 100%; border-collapse: collapse; }
 @media (max-width: 860px) {
   .grid { grid-template-columns: 1fr; }
 }
+
+/* Selettore lingua: in alto a sinistra, come su tutte le altre pagine. */
+.langline{margin:0 0 6px}
+.langline .baud{display:inline-flex;align-items:center;gap:6px;font-size:12px}

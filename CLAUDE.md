@@ -92,6 +92,19 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   protocollo*, *studio*, *ipotesi da confermare*. Vale anche per il metodo JS `.reverse()`,
   che ovviamente resta: è codice, non prosa.
 
+## Cornice della pagina: dove stanno le cose
+
+- **Selettore lingua: in alto a SINISTRA, su tutte le pagine.** A destra c'è il nastro
+  «Fork me on GitHub» dell'indice: stando a destra il selettore doveva schivarlo con
+  un'eccezione, e il risultato era che cambiava lato fra l'indice e le app. A sinistra il
+  margine è libero ovunque, perché il link di ritorno sta nella colonna centrata.
+- **Link di ritorno: in alto a sinistra**, `<a class="back" href="../">`.
+- ⚠️ Restano **tre trattamenti** diversi: riquadro fisso nel margine (le 6 app che usano
+  `i18n.js` condiviso + l'indice), in linea accanto al link di ritorno (cronometro), in
+  linea in cima (DS200/DS300). Il lato è lo stesso, l'aspetto no. Per unificarli davvero
+  `i18n.js` dovrebbe inserire il selettore **nel flusso** dopo `.back` invece di
+  posizionarlo fisso — da fare se si vuole chiudere del tutto.
+
 ## Targhette di stato — la convenzione
 
 Il colore risponde a **una domanda sola: quanto ci si può fidare?** Le classi

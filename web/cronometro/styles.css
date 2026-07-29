@@ -9,7 +9,9 @@ body{
   background:var(--bg);color:var(--fg);
 }
 a{color:var(--acc)}
-.back{display:inline-block;text-decoration:none;font-size:13px;color:var(--mut);margin-bottom:12px}
+.topline{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.topline select{font-size:12px;padding:3px 6px;min-width:0}
+.back{display:inline-block;text-decoration:none;font-size:13px;color:var(--mut)}
 .back:hover{color:var(--acc)}
 
 h1{font-size:26px;margin:0 0 2px;letter-spacing:-.02em}

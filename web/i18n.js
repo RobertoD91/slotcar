@@ -11,7 +11,7 @@
  * Stringhe dinamiche da JS:  I18N.t("chiave")   (usa la lingua corrente)
  * Cambio lingua -> evento "i18n:changed" sul document (le pagine ri-renderizzano il dinamico).
  *
- * i18n.js crea da solo: il SELETTORE lingua (in alto a destra) e il DISCLAIMER (in fondo).
+ * i18n.js crea da solo: il SELETTORE lingua (in alto a sinistra) e il DISCLAIMER (in fondo).
  */
 (function () {
   var LANGS = ["it", "en", "es"];
@@ -167,7 +167,12 @@
   function buildUI() {
     // Selettore lingua (fisso, in alto a destra).
     var bar = document.createElement("div");
-    bar.style.cssText = "position:fixed;top:8px;right:8px;z-index:9999;font:13px -apple-system,Segoe UI,Roboto,sans-serif";
+    /* Angolo in alto a SINISTRA, su tutte le pagine. A destra c'è il nastro
+       "Fork me on GitHub" dell'indice: stando a destra il selettore doveva
+       schivarlo con un'eccezione, e il risultato era che cambiava lato fra
+       l'indice e le app. A sinistra il margine è libero ovunque — il link di
+       ritorno sta nella colonna centrata, non nel margine. */
+    bar.style.cssText = "position:fixed;top:8px;left:8px;z-index:9999;font:13px -apple-system,Segoe UI,Roboto,sans-serif";
     var sel = document.createElement("select");
     sel.id = "__langsel";
     sel.title = t("langLabel");

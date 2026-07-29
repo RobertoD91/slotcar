@@ -282,21 +282,10 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.9.1";
+const SITE_VERSION="2.10.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
-// i18n.js piazza il selettore lingua in alto a DESTRA, dove qui c'è il nastro
-// "Fork me on GitHub": su schermo largo lo sposto a sinistra, su schermo stretto
-// il nastro sparisce e il selettore torna al suo posto.
-function placeLang(){
-  const s=document.getElementById("__langsel");
-  if(!s||!s.parentElement)return;
-  const wide=window.innerWidth>640;
-  s.parentElement.style.left = wide?"8px":"auto";
-  s.parentElement.style.right= wide?"auto":"8px";
-}
-addEventListener("resize",placeLang);
-addEventListener("load",placeLang);
-setTimeout(placeLang,0);
+// Il selettore lingua sta in alto a sinistra su tutte le pagine (vedi i18n.js):
+// qui non serve nessuna eccezione, il nastro "Fork me on GitHub" è dall'altra parte.
 // Web Bluetooth e Web Serial esistono SOLO in contesto sicuro (https, o localhost).
 // Su http il browser non le espone affatto, e i banner direbbero "browser non
 // supportato": falso, e manda fuori strada. Quindi prima proviamo a passare a https,
