@@ -7,46 +7,26 @@
 <title>Configuratore auto oXigen (BLE)</title>
 <link rel="stylesheet" href="../ui.css">
 <style>
-  *{box-sizing:border-box}
-  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:820px;margin:0 auto}
-  a.back{color:var(--mut);text-decoration:none;font-size:13px}
-  h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
-  .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
-  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
-  button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;font-size:14px}
-  button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
-  button.warn{background:var(--err);color:#180404}
-  button:disabled{opacity:.45;cursor:default}
-  input,select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;font:inherit}
-  input[type=range]{padding:0;accent-color:var(--acc)}
-  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
-  label{color:var(--mut);font-size:13px;min-width:110px}
-  .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut);vertical-align:middle}
-  .pill.on{color:var(--ok);border-color:var(--ok)}
-  .val{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:13px}
-  code{font-family:ui-monospace,Menlo,monospace}
+  /* Qui dentro solo quello che è di QUESTA pagina: intestazione, riquadri,
+     pulsanti, campi, targhette e registro stanno in ../ui.css. */
+  :root{--wrap:820px}
+  label{min-width:110px}
+  /* Il clone riscrive il MAC: è l'avviso più grave della pagina, e il giallo
+     che basta agli altri avvisi qui direbbe troppo poco. */
+  .warnbox{color:var(--err)}
+  .dot{width:16px;height:16px;border-radius:50%;background:var(--bd);display:inline-block;transition:background .1s,box-shadow .1s}
+  .dot.on{background:var(--ok);box-shadow:0 0 10px var(--ok)}
   /* slider disattivati visivamente quando Limiti è off (ma sempre editabili) */
   #limbox.off .lim input[type=range]{accent-color:var(--mut)}
   #limbox.off .lim label,#limbox.off .lim .val{opacity:.55}
   #limbox.off .lim .hint{color:var(--err)}
-  .hint{font-size:12px;color:var(--mut)}
-  .dot{width:16px;height:16px;border-radius:50%;background:var(--bd);display:inline-block;transition:background .1s,box-shadow .1s}
-  .dot.on{background:var(--ok);box-shadow:0 0 10px var(--ok)}
-  .warnbox{color:var(--err);font-size:13px;margin-top:6px}
-  table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid var(--bd);padding:6px 8px;text-align:left}th{color:var(--mut)}
-  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:200px;overflow:auto;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px}
-  #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
-  #upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
-  #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
-  .broken{background:rgba(224,168,0,.12);border:1px solid #e0a800;border-radius:10px;padding:11px 14px;margin:10px 0 14px;font-size:13px;line-height:1.55}
-  .broken b{color:#e0a800}
 </style>
 </head>
-<body>
-  <div id="nobt" data-i18n-html="noBt"></div>
-  <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
+<body class="app">
+  <div id="nobt" class="banner nope" data-i18n-html="noBt"></div>
+  <div id="upd" class="banner upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../" data-i18n="backHome"></a>
-  <div class="broken" data-i18n-html="oxigenBroken"></div>
+  <div class="note" data-i18n-html="oxigenBroken"></div>
   <h1><span data-i18n="h1title"></span> <span id="st" class="pill"></span></h1>
   <p class="sub" data-i18n-html="sub"></p>
 
@@ -245,7 +225,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="car-config",APP_VERSION="1.2.0";
+const APP="car-config",APP_VERSION="1.2.1";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const REGS=[[0x00,"info"],[0x81,"info/capab"],[0x83,"NOME"],[0x84,"MAX SPEED"],[0x86,"BRAKE"],[0x87,"LIMITI on/off"],
   [0x8e,"config"],[0x8f,"ID auto"],[0x90,"MAC(2B)"],[0x91,"MODO"],[0x94,"ID tx time"],[0x95,"ID D132"]];

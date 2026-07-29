@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "0.4.0";
+  var APP_VERSION = "0.4.1";
   var LS = { nomi: "cronometro.nomi", cfg: "cronometro.cfg" };
 
   var $ = function (id) { return document.getElementById(id); };

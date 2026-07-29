@@ -7,44 +7,26 @@
 <title>Ninco Digital — contagiri</title>
 <link rel="stylesheet" href="../ui.css">
 <style>
-  *{box-sizing:border-box}
-  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:900px;margin:0 auto}
-  a.back{color:var(--mut);text-decoration:none;font-size:13px}
-  h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
-  .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
-  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
-  button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:8px 13px;font-weight:600;cursor:pointer;font-size:14px}
-  button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
-  button:disabled{opacity:.45;cursor:default}
-  input,select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:6px 8px;font:inherit;font-size:13px}
-  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
-  label{color:var(--mut);font-size:13px}
-  .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut);vertical-align:middle}
-  .pill.on{color:var(--ok);border-color:var(--ok)}
-  .pill.warn{color:var(--warn);border-color:var(--warn)}
-  .val{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:13px}
-  code{font-family:ui-monospace,Menlo,monospace}
-  table{border-collapse:collapse;width:100%;font-size:13.5px}
-  td,th{border-bottom:1px solid var(--bd);padding:6px 8px;text-align:left}
-  th{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.4px}
-  td.n,th.n{text-align:right;font-family:ui-monospace,Menlo,monospace}
+  /* Qui dentro solo quello che è di QUESTA pagina: la cornice sta in ../ui.css. */
+  :root{--wrap:900px}
+  input,select{padding:6px 8px;font-size:13px}
+  table{font-size:13.5px}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+  td.n,th.n{text-align:right;font-family:ui-monospace,Menlo,Consolas,monospace}
   tr.out{opacity:.4}
   .lead{color:var(--ok);font-weight:700}
+  /* Il livello di benzina: la barra si legge da lontano, il numero da vicino. */
   .fuel{display:inline-block;width:52px;height:8px;border:1px solid var(--bd);border-radius:3px;overflow:hidden;vertical-align:middle;margin-right:6px}
   .fuel i{display:block;height:100%;background:var(--ok)}
   .fuel.low i{background:var(--warn)}
   .res{color:var(--err);font-weight:600}
-  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre;max-height:200px;overflow:auto;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px}
-  #noser{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
-  .note{background:rgba(224,168,0,.10);border:1px solid var(--warn);border-radius:10px;padding:10px 13px;margin:10px 0;font-size:13px;line-height:1.5}
-  .note b{color:var(--warn)}
-  .wire{font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.7}
-  .muted{color:var(--mut);font-size:12.5px}
+  #log{white-space:pre}
+  .wire{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.7}
   details summary{cursor:pointer;color:var(--mut);font-size:13px}
 </style>
 </head>
-<body>
-  <div id="noser" data-i18n-html="noSerial"></div>
+<body class="app">
+  <div id="noser" class="banner nope" data-i18n-html="noSerial"></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
   <h1><span data-i18n="h1">Ninco Digital — contagiri</span>
       <span id="st" class="pill"></span>

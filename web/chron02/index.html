@@ -7,51 +7,26 @@
 <title>Contagiri oXigen (chron02)</title>
 <link rel="stylesheet" href="../ui.css">
 <style>
-  *{box-sizing:border-box}
-  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:920px;margin:0 auto}
-  a.back{color:var(--mut);text-decoration:none;font-size:13px}
-  h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
-  .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
-  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
-  button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:8px 13px;font-weight:600;cursor:pointer;font-size:14px}
-  button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
-  button.warn{background:var(--err);color:#180404}
-  button:disabled{opacity:.45;cursor:default}
-  input,select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;font:inherit}
-  input[type=range]{padding:0;accent-color:var(--acc)}
-  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
-  label{color:var(--mut);font-size:13px;min-width:120px}
-  .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut);vertical-align:middle}
-  .pill.on,.pill.run{color:var(--ok);border-color:var(--ok)}
-  .pill.pause,.pill.flag{color:var(--warn);border-color:var(--warn)}
-  .pill.stop{color:var(--err);border-color:var(--err)}
-  .val{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:13px}
-  .kv{font-family:ui-monospace,Menlo,monospace;font-size:13px}
-  code{font-family:ui-monospace,Menlo,monospace}
-  .timer{font-family:ui-monospace,Menlo,monospace;font-size:30px;font-weight:700;letter-spacing:1px}
-  .tableWrap{overflow-x:auto}
-  table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:560px}
-  td,th{border-bottom:1px solid var(--bd);padding:5px 7px;text-align:left;white-space:nowrap}
-  th{color:var(--mut)}
-  td.num,th.num{text-align:right;font-family:ui-monospace,Menlo,monospace}
+  /* Qui dentro solo quello che è di QUESTA pagina: la cornice sta in ../ui.css. */
+  :root{--wrap:920px}
+  label{min-width:120px}
+  .timer{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:30px;font-weight:700;letter-spacing:1px}
+  /* La tabella della gara ha molte colonne strette: scorre nel suo riquadro,
+     altrimenti a scorrere di lato è tutta la pagina. */
+  table{font-size:12.5px;min-width:560px}
+  td,th{padding:5px 7px;white-space:nowrap}
+  td.num,th.num{text-align:right;font-family:ui-monospace,Menlo,Consolas,monospace}
+  /* Barra del grilletto: si legge di colpo, il numero no. */
   .tbar{display:inline-block;width:70px;height:9px;background:var(--bd);border-radius:5px;overflow:hidden;vertical-align:middle;margin-right:6px}
   .tbar>span{display:block;height:100%;background:var(--acc)}
-  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:200px;overflow:auto;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px}
-  .warnbox{color:var(--warn);font-size:13px;margin-top:8px}
   .empty{color:var(--mut);font-size:13px;padding:6px 2px}
-  #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
-  #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
-  #upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
-  .ok{color:var(--ok)}.bad{color:var(--err)}
-  .broken{background:rgba(224,168,0,.12);border:1px solid #e0a800;border-radius:10px;padding:11px 14px;margin:10px 0 14px;font-size:13px;line-height:1.55}
-  .broken b{color:#e0a800}
 </style>
 </head>
-<body>
-  <div id="nobt" data-i18n-html="noSerial"></div>
-  <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
+<body class="app">
+  <div id="nobt" class="banner nope" data-i18n-html="noSerial"></div>
+  <div id="upd" class="banner upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
-  <div class="broken" data-i18n-html="oxigenBroken"></div>
+  <div class="note" data-i18n-html="oxigenBroken"></div>
   <h1><span data-i18n="h1title"></span> <span id="st" class="pill"></span></h1>
   <p class="sub" data-i18n-html="sub"></p>
 
@@ -103,7 +78,7 @@
   <div class="card">
     <p class="cardtitle" data-i18n="titleBoard"></p>
     <div class="row"><button id="btnReset" class="sec" data-i18n="btnResetData"></button></div>
-    <div class="tableWrap">
+    <div class="tbwrap">
       <table><thead><tr>
         <th class="num">#</th><th>ID</th>
         <th class="num" data-i18n="thLaps"></th>
@@ -123,7 +98,7 @@
   <!-- ===== Log giri ===== -->
   <div class="card">
     <p class="cardtitle" data-i18n="titleLapLog"></p>
-    <div class="tableWrap">
+    <div class="tbwrap">
       <table><thead><tr>
         <th data-i18n="llWhen"></th><th>ID</th>
         <th class="num" data-i18n="llLapN"></th>
@@ -233,7 +208,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="chron02",APP_VERSION="1.1.0";
+const APP="chron02",APP_VERSION="1.1.1";
 const VID=0x1fee,PID=0x0002;
 
 /* stati race_status[0] = 0x60 | enum (1=stop,3=run,4=pause,5=flag) */

@@ -16,7 +16,7 @@
 :root{
   --bg:#0b0f17; --fg:#e9edf3; --mut:#8a94a6;
   --acc:#5db0ff; --accfg:#04121f;
-  --ok:#4ec36b; --warn:#e0a800; --err:#ff5c5c;
+  --ok:#4ec36b; --warn:#e0a800; --err:#ff5c5c; --errfg:#180404;
   --card:#141924; --bd:#242c3a; --chip:#1b2130;
 }
 @media (prefers-color-scheme:light){
@@ -48,6 +48,81 @@ a{color:var(--acc)}
 .back{display:inline-block;text-decoration:none;font-size:13px;color:var(--mut)}
 .back:hover{color:var(--acc)}
 
+/* ---- La cornice del debugger --------------------------------------------
+ *
+ * Da qui in giù c'è quello che CINQUE app avevano copiato identico nel proprio
+ * <style>: intestazione, riquadri, pulsanti, campi, targhette, tabelle,
+ * registro. Non è un vezzo di uniformità: la copia stava già divergendo — il
+ * giallo degli avvisi era scritto a mano come `#e0a800` in quattro file invece
+ * che come `var(--warn)`, e bastava ritoccare la tavolozza per ritrovarsi con
+ * due gialli diversi nella stessa pagina.
+ *
+ * Il layout PROPRIO di ogni app resta a casa sua: il suo foglio viene caricato
+ * dopo questo e ha sempre l'ultima parola. Il Cronometro, che è l'app curata,
+ * riscrive quasi tutto — ed è giusto così.
+ *
+ * `--wrap` è l'unica cosa che ogni pagina imposta da sé: la larghezza utile
+ * cambia col contenuto (una tabella di registri vuole più spazio di un modulo).
+ *
+ * ⚠️ TUTTO sotto `body.app`, e non è pedanteria: qui dentro ci sono selettori
+ * di ELEMENTO (button, input, table, h1). Lasciati liberi arrivano anche
+ * all'indice, alla guida e al cronometro — pagine che questa cornice non
+ * l'hanno mai chiesta — e infatti al primo tentativo l'indice si è allungato
+ * di 56px senza che nessuno avesse toccato l'indice. Vestirsi da debugger
+ * dev'essere una scelta: si scrive `<body class="app">`.
+ */
+:where(body.app){max-width:var(--wrap,880px);padding:16px}
+
+:where(body.app) h1{font-size:20px;margin:4px 0 2px}
+:where(body.app) .sub{color:var(--mut);margin:0 0 14px;font-size:13px}
+:where(body.app) .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
+:where(body.app) .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+
+:where(body.app) button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;
+                padding:8px 13px;font-weight:600;cursor:pointer;font-size:14px}
+:where(body.app) button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+:where(body.app) button.warn{background:var(--err);color:var(--errfg)}
+:where(body.app) button:disabled{opacity:.45;cursor:default}
+
+:where(body.app) input,:where(body.app) select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);
+                               border-radius:7px;padding:7px 9px;font:inherit}
+:where(body.app) input:disabled,:where(body.app) select:disabled{opacity:.45}
+:where(body.app) input[type=range]{padding:0;accent-color:var(--acc)}
+:where(body.app) .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+:where(body.app) label{color:var(--mut);font-size:13px}
+
+/* Targhetta di STATO CORRENTE (connesso, in gara, fermo): parla del momento.
+   Da non confondere con .badge, che parla di quanto ci si può fidare di
+   un'app e sta nell'indice. */
+:where(body.app) .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);
+               color:var(--mut);vertical-align:middle}
+:where(body.app) .pill.on,:where(body.app) .pill.run{color:var(--ok);border-color:var(--ok)}
+:where(body.app) .pill.warn,:where(body.app) .pill.pause,:where(body.app) .pill.flag{color:var(--warn);border-color:var(--warn)}
+:where(body.app) .pill.bad,:where(body.app) .pill.stop{color:var(--err);border-color:var(--err)}
+
+:where(body.app) code,:where(body.app) .val,:where(body.app) .kv{font-family:ui-monospace,Menlo,Consolas,monospace}
+:where(body.app) .val{color:var(--mut);font-size:13px}
+:where(body.app) .kv{font-size:13px}
+:where(body.app) .ok{color:var(--ok)} :where(body.app) .bad{color:var(--err)} :where(body.app) .warn{color:var(--warn)}
+:where(body.app) .muted,:where(body.app) .mutbox{color:var(--mut);font-size:12.5px}
+:where(body.app) .warnbox{color:var(--warn);font-size:13px;margin-top:6px}
+
+:where(body.app) table{border-collapse:collapse;width:100%;font-size:13px}
+:where(body.app) td,:where(body.app) th{border-bottom:1px solid var(--bd);padding:6px 8px;text-align:left}
+:where(body.app) th{color:var(--mut)}
+
+/* Il registro grezzo: c'è in tutti i debugger, ed è il motivo per cui esistono. */
+:where(body.app) #log,:where(body.app) .log{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;
+          white-space:pre-wrap;max-height:200px;overflow:auto;background:var(--bg);
+          border:1px solid var(--bd);border-radius:8px;padding:10px}
+
+/* Fasce in cima alla pagina: aggiornamento disponibile, oppure il browser non
+   ha quello che serve. Partono nascoste e le accende il codice della pagina. */
+:where(body.app) .banner{display:none;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+:where(body.app) .banner.upd{background:var(--acc);color:var(--accfg)}
+:where(body.app) .banner.upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
+:where(body.app) .banner.nope{background:var(--err);color:var(--errfg);padding:12px 14px}
+
 /* ---- Targhette di stato: la convenzione ---------------------------------
  *
  * Il colore risponde a UNA domanda sola: quanto ci possiamo fidare?
@@ -76,8 +151,10 @@ a{color:var(--acc)}
 
 /* Avvisi e note in piccolo. */
 .note{background:rgba(224,168,0,.12);border:1px solid var(--warn);border-radius:10px;
-      padding:10px 13px;font-size:13px;line-height:1.5}
+      padding:11px 14px;margin:10px 0 14px;font-size:13px;line-height:1.55}
 .note.info{background:rgba(93,176,255,.12);border-color:var(--acc)}
+.note b{color:var(--warn)}
+.note.info b{color:var(--acc)}
 .hint{color:var(--mut);font-size:12.5px}
 .hint.warn{color:var(--warn)}
 

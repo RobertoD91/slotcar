@@ -7,46 +7,22 @@
 <title data-i18n="pageTitle">Configuratore controller SCP-3 (BLE)</title>
 <link rel="stylesheet" href="../ui.css">
 <style>
-  *{box-sizing:border-box}
-  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg);padding:16px;max-width:820px;margin:0 auto}
-  a.back{color:var(--mut);text-decoration:none;font-size:13px}
-  h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--mut);margin:0 0 14px;font-size:13px}
-  .cardtitle{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:0 0 8px}
-  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
-  button{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;font-size:14px}
-  button.sec{background:transparent;color:var(--fg);border:1px solid var(--bd)}
-  button.warn{background:var(--err);color:#180404}
-  button:disabled{opacity:.45;cursor:default}
-  input,select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;font:inherit}
-  input[type=range]{padding:0;accent-color:var(--acc)}
-  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
-  label{color:var(--mut);font-size:13px;min-width:130px}
-  .pill{font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut);vertical-align:middle}
-  .pill.on{color:var(--ok);border-color:var(--ok)}
-  .val{font-family:ui-monospace,Menlo,monospace;color:var(--mut);font-size:13px}
-  code{font-family:ui-monospace,Menlo,monospace}
-  .hint{font-size:12px;color:var(--mut)}
-  .warnbox{color:var(--err);font-size:13px;margin-top:6px}
+  /* Qui dentro solo quello che è di QUESTA pagina: la cornice sta in ../ui.css. */
+  :root{--wrap:820px}
+  label{min-width:130px}
+  .warnbox{color:var(--err)}
+  /* Le caselle "chiave: valore" dei registri letti. */
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
   .fld{border:1px solid var(--bd);border-radius:9px;padding:8px 10px}
   .fld .k{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut)}
-  .fld .v{font-family:ui-monospace,Menlo,monospace;font-size:14px;margin-top:2px}
-  table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid var(--bd);padding:6px 8px;text-align:left}th{color:var(--mut)}
-  #log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;max-height:200px;overflow:auto;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px}
-  #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
-  #upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
-  #nobt{display:none;background:var(--err);color:#180404;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-weight:600}
-  .broken{background:rgba(224,168,0,.12);border:1px solid #e0a800;border-radius:10px;padding:11px 14px;margin:10px 0 14px;font-size:13px;line-height:1.55}
-  .broken b{color:#e0a800}
-  .broken.partial{background:rgba(224,168,0,.12);border-color:var(--warn)}
-  .broken.partial b{color:var(--warn)}
+  .fld .v{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;margin-top:2px}
 </style>
 </head>
-<body>
-  <div id="nobt" data-i18n-html="noBt"></div>
-  <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
+<body class="app">
+  <div id="nobt" class="banner nope" data-i18n-html="noBt"></div>
+  <div id="upd" class="banner upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
-  <div class="broken partial" data-i18n-html="oxigenPartial"></div>
+  <div class="note" data-i18n-html="oxigenPartial"></div>
   <h1><span data-i18n="ctrlHeading"></span> <span id="st" class="pill"></span></h1>
   <p class="sub" data-i18n-html="sub"></p>
 
@@ -207,7 +183,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="remote-config",APP_VERSION="1.2.0";
+const APP="remote-config",APP_VERSION="1.2.1";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const PFX=0x0a;                                  // header di frame del CONTROLLER (il chip auto usa 0x09)
 const TYPE_STR="SCP3 Handle", VER_STR="O2 / Analog";   // display fissi della schermata SCP3

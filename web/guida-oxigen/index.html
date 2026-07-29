@@ -56,9 +56,11 @@
   /* La fonte serve, ma non deve competere col contenuto. */
   .src{color:var(--mut);font-size:10.5px;white-space:nowrap;opacity:.75}
 
-  /* ⚠️ `.note` qui è una riga piccola e smorzata, non il riquadro giallo di
-     ui.css: va azzerato per intero, o si porta dietro sfondo e bordo. */
-  .note{font-size:12.5px;color:var(--mut);margin:8px 2px;background:none;border:0;padding:0;line-height:1.6}
+  /* Didascalia: una riga piccola e smorzata sotto una tabella. Si chiamava
+     `.note`, cioè come il riquadro giallo di ui.css, e per non ereditarne
+     sfondo e bordo andava azzerata per intero. Due cose diverse con lo stesso
+     nome sono una trappola che si ripaga da sola: ora ha il suo. */
+  .cap{font-size:12.5px;color:var(--mut);margin:8px 2px;line-height:1.6}
 
   .tag{font-size:11px;padding:2px 9px;border-radius:20px;border:1px solid var(--bd);color:var(--mut)}
   .tag.o2{color:var(--acc);border-color:var(--acc)}
@@ -160,7 +162,7 @@
   </table></div>
 
   <p class="cardtitle" data-i18n="scp3_reprog_title"></p>
-  <p class="note" data-i18n-html="scp3_reprog_setup"></p>
+  <p class="cap" data-i18n-html="scp3_reprog_setup"></p>
   <div class="tbwrap"><table>
     <thead><tr><th data-i18n="scp3_reprog_th1"></th><th data-i18n="th_action"></th><th data-i18n="th_ledconf"></th><th data-i18n="th_source"></th></tr></thead>
     <tbody>
@@ -170,7 +172,7 @@
       <tr><td class="mode">max</td><td data-i18n-html="scp3_reprog_r4_action"></td><td data-i18n-html="scp3_reprog_r4_led"></td><td class="src">Reprog. p.7</td></tr>
     </tbody>
   </table></div>
-  <p class="note" data-i18n="scp3_reprog_note"></p>
+  <p class="cap" data-i18n="scp3_reprog_note"></p>
 </div>
 
 <!-- ============================ CHIP AUTO ============================ -->
@@ -188,7 +190,7 @@
       <tr><td data-i18n-html="chip_led_off"></td><td data-i18n-html="chip_led_r5_mean"></td><td class="src">Chip p.7-8, 12</td></tr>
     </tbody>
   </table></div>
-  <p class="note" data-i18n-html="chip_led_note"></p>
+  <p class="cap" data-i18n-html="chip_led_note"></p>
 
   <p class="cardtitle" data-i18n="chip_dfu_title"></p>
   <div class="tbwrap"><table>
@@ -203,7 +205,7 @@
       <tr><td data-i18n="chip_dfu_r7_sit"></td><td data-i18n-html="chip_dfu_r7_seq"></td><td data-i18n="chip_dfu_r7_out"></td><td class="src">Chip p.20-21</td></tr>
     </tbody>
   </table></div>
-  <p class="note" data-i18n-html="chip_dfu_note"></p>
+  <p class="cap" data-i18n-html="chip_dfu_note"></p>
 
   <p class="cardtitle" data-i18n="chip_act_title"></p>
   <div class="tbwrap"><table>
@@ -254,7 +256,7 @@
 <!-- ============================ ARC PRO ============================ -->
 <div class="card sect" id="arc">
   <h2 data-i18n="arc_h2"></h2>
-  <p class="note" data-i18n-html="arc_note"></p>
+  <p class="cap" data-i18n-html="arc_note"></p>
 
   <p class="cardtitle" data-i18n="arc_dfu_title"></p>
   <div class="tbwrap"><table>
@@ -554,7 +556,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="guida-oxigen",APP_VERSION="1.2.0";
+const APP="guida-oxigen",APP_VERSION="1.2.1";
 
 /* --- indice sezioni --- */
 (function(){
