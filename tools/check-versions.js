@@ -57,6 +57,28 @@ for (const [rel, re, chiaveFissa] of sorgenti) {
   }
 }
 
+/* Versioni scritte a mano NEL TESTO della pagina (`<span class="ver">v1.2.3`).
+ * Non le legge nessuno script, quindi non si disallineano con un errore: si
+ * disallineano in silenzio, e restano lì a mentire. L'installer ESP32 ha
+ * mostrato «v1.2.0» per mesi con la app a 0.9.1. Chi la scrive a mano ora deve
+ * scriverla giusta. */
+for (const voce of fs.readdirSync(WEB, { withFileTypes: true })) {
+  if (!voce.isDirectory()) continue;
+  const file = path.join(WEB, voce.name, 'index.html');
+  if (!fs.existsSync(file)) continue;
+  const m = fs.readFileSync(file, 'utf8').match(/class="ver">v([0-9]+\.[0-9]+\.[0-9]+)</);
+  if (!m) continue;                                   // vuota o riempita da JS: già controllata sopra
+  visti++;
+  const pubblicata = versioni.apps[voce.name];
+  if (pubblicata === undefined) {
+    console.log(`❌ ${voce.name}/index.html: scrive v${m[1]} ma in version.json non c'è`);
+    errori++;
+  } else if (pubblicata !== m[1]) {
+    console.log(`❌ ${voce.name}/index.html: nel testo v${m[1]}, in version.json ${pubblicata}`);
+    errori++;
+  }
+}
+
 /* E il contrario: voci pubblicate che nessuno dichiara. Non è un errore — una
    pagina statica può non avere versione — ma vale la pena vederle. */
 const dichiarate = new Set(sorgenti.map(([rel, re, k]) => {

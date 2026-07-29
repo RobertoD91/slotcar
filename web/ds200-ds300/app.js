@@ -5,7 +5,7 @@
   // Bump on every release. Shown in the footer so you can tell at a glance
   // whether the browser/PWA cache served a stale version. Keep in sync with the
   // ?v= query strings in index.html and the cache name in sw.js.
-  const APP_VERSION = '1.5.5';
+  const APP_VERSION = '1.6.0';
 
   const $ = (id) => document.getElementById(id);
   const els = {
@@ -15,7 +15,7 @@
     lanes: $('lanes'), events: $('events'), log: $('log'),
     reset: $('reset'), export: $('export'), clearlog: $('clearlog'),
     hideInvalid: $('hideInvalid'), installHint: $('install-hint'),
-    version: $('version'), tts: $('tts'), lang: $('lang'),
+    version: $('version'), tts: $('tts'), lang: $('lang'), link: $('link'),
     cmdCard: $('cmd-card'), cmdDev: $('cmdDev'), cmdHex: $('cmdHex'),
     cmdSend: $('cmdSend'), cmdStatus: $('cmdStatus'),
   };
@@ -40,27 +40,26 @@
   let lastFinalTotalSec = 0;    // max total time from final_record frames
   let winnerTimer = null;       // debounce so final_record frames arrive before we pick
 
-  // Free-running race stopwatch (independent from the per-lap times in frames).
+  /* Il numero grande: e' l'ultimo tempo che la centralina ha TRASMESSO, non un
+   * cronometro. Non scorre da solo — si muove solo quando arriva un frame che
+   * porta un tempo. Prima era un cronometro libero, agganciato ogni tanto ai
+   * dati: un debugger che inventa il tempo racconta una gara che nessuno gli ha
+   * raccontato, e quando il collegamento cade continua allegramente a contare.
+   *
+   * Quanto tempo sia passato dall'ultimo frame lo dice `#link`, qui sotto: e'
+   * il segno vitale del collegamento, e rende leggibile un numero fermo —
+   * "fermo perche' non arriva niente" invece di "fermo perche' e' rotto".
+   */
   const raceClock = (function () {
-    let running = false, startMs = 0, pausedAccum = 0, pauseStart = 0, frozenMs = null;
-    function liveMs() {
-      let e = performance.now() - startMs - pausedAccum;
-      if (pauseStart) e -= (performance.now() - pauseStart);
-      return e;
-    }
+    let shownMs = null;              // null = la centralina non ha ancora detto niente
     return {
-      start() { running = true; startMs = performance.now(); pausedAccum = 0; pauseStart = 0; frozenMs = null; },
-      // Snap the elapsed time to `ms` (data from the timing box) and keep running.
-      syncTo(ms) { running = true; startMs = performance.now() - ms; pausedAccum = 0; pauseStart = 0; frozenMs = null; },
-      pause() { if (running && !pauseStart) pauseStart = performance.now(); },
-      resume() { if (running && pauseStart) { pausedAccum += performance.now() - pauseStart; pauseStart = 0; } },
-      stop() { if (running) { frozenMs = liveMs(); running = false; pauseStart = 0; } },
-      freezeAt(ms) { running = false; pauseStart = 0; frozenMs = ms; },
-      reset() { running = false; startMs = 0; pausedAccum = 0; pauseStart = 0; frozenMs = null; },
-      isRunning() { return running; },
-      elapsedMs() { return running ? liveMs() : (frozenMs != null ? frozenMs : 0); },
+      // `ms` viene sempre dai dati: somma dei giri, oppure il totale finale.
+      setFromData(ms) { shownMs = ms; },
+      clear() { shownMs = null; },
+      elapsedMs() { return shownMs; },
     };
   })();
+  let lastFrameAt = 0;               // performance.now() dell'ultimo frame valido
 
   // i18n shortcut
   const t = (k, p) => I18N.t(k, p);
@@ -196,7 +195,7 @@
   let lastStatus = { cls: 'off', key: 'status.disconnected', params: null };
   function setStatus(cls, key, params) {
     lastStatus = { cls, key, params: params || null };
-    els.status.className = 'status ' + cls;
+    els.status.className = 'pill ' + cls;   // .pill nudo = spento, .pill.on = connesso
     els.status.textContent = t(key, params);
   }
 
@@ -233,6 +232,8 @@
     try { f = DS200.parseFrame(bytes); } catch (e) { return; }
 
     totalFrames++;
+    lastFrameAt = performance.now();   // segno vitale del collegamento
+    renderLink();
     if (f.checksumOk && f.validStart && f.validEnd && f.validLength) okFrames++;
     els.counters.textContent = okFrames + ' / ' + totalFrames;
 
@@ -242,7 +243,7 @@
     allRows.push(f);
     appendLog(f);
 
-    // Race lifecycle (start sequence / pause / end) drives the running clock.
+    // Il ciclo di gara annunciato dalla centralina (partenza / pausa / fine).
     if (f.dataType === 'function' && f.function) handleFunction(f);
 
     // Race-state / events from "function" data words.
@@ -276,29 +277,27 @@
         raceActive = true;
         lapsSinceStart = 0;
         resetRaceData();
-        raceClock.start();
-      } else if (lapsSinceStart === 0) {
-        raceClock.start();   // re-anchor to the latest start phase (the green light)
+        raceClock.clear();       // gara nuova: il tempo trasmesso riparte da zero
+        renderClock();
       }
-    } else if (fn === 'start_pause') {
-      raceClock.pause();
-    } else if (fn === 'end_pause') {
-      raceClock.resume();
     } else if (fn === 'end_race') {
       raceActive = false;
-      raceClock.stop();
       if (winnerTimer) clearTimeout(winnerTimer);
       winnerTimer = setTimeout(finalizeRace, 1500);  // let final_record frames arrive
     } else if (fn === 'abort_race') {
       raceActive = false;
-      raceClock.stop();
       if (winnerTimer) { clearTimeout(winnerTimer); winnerTimer = null; }
     }
+    /* Pausa e ripresa non toccano piu' il numero: la centralina non trasmette
+       un tempo mentre e' in pausa, quindi non c'e' niente da mettere in pausa.
+       Lo stato gara lo dice gia' la sua casella. */
   }
 
   function finalizeRace() {
     winnerTimer = null;
-    if (lastFinalTotalSec > 0) raceClock.freezeAt(lastFinalTotalSec * 1000);
+    // Il record finale porta il tempo TOTALE di gara: e' l'ultimo numero che
+    // la centralina trasmette, e da qui in poi il grande resta quello.
+    if (lastFinalTotalSec > 0) { raceClock.setFromData(lastFinalTotalSec * 1000); renderClock(); }
     const w = sortedLanes()[0];
     if (w && w.laps > 0) {
       winner = w;
@@ -350,7 +349,8 @@
           st.cumulSec += f.timeSeconds;
           let maxCumul = 0;
           lanes.forEach((s) => { if (s.cumulSec > maxCumul) maxCumul = s.cumulSec; });
-          raceClock.syncTo(maxCumul * 1000);
+          raceClock.setFromData(maxCumul * 1000);
+          renderClock();
         }
       }
     } else if (f.dataType === 'final_record_data') {
@@ -373,6 +373,34 @@
       return av - bv;
     });
     return rows;
+  }
+
+  /* Il numero grande. Vuoto finche' la centralina non ha trasmesso un tempo:
+     "—" e' un'informazione vera, "00:00:00.00" sarebbe una bugia con l'aria di
+     un dato. */
+  function renderClock() {
+    const ms = raceClock.elapsedMs();
+    els.clock.textContent = ms == null ? '—' : fmtElapsed(ms);
+    els.clock.classList.toggle('idle', ms == null);
+  }
+
+  /* Da quanto non arriva un frame. E' l'unica cosa che scorre da sola, ed e'
+     un fatto sul collegamento: si legge anche a centralina spenta. */
+  function renderLink() {
+    if (!els.link) return;
+    if (!lastFrameAt) {
+      els.link.textContent = t('link.none');
+      els.link.className = 'link';
+      return;
+    }
+    const s = (performance.now() - lastFrameAt) / 1000;
+    if (s < 2) { els.link.textContent = t('link.live'); els.link.className = 'link on'; return; }
+    /* Fra un passaggio e l'altro la centralina TACE: parla solo quando succede
+       qualcosa. Quindi il silenzio breve è normale e resta smorzato — allarmare
+       ogni sette secondi renderebbe l'avviso rumore di fondo. Il giallo arriva
+       dopo mezzo minuto, quando davvero non sta più arrivando niente. */
+    els.link.textContent = t('link.silent', { n: s < 60 ? Math.floor(s) : Math.floor(s / 60) + ' min' });
+    els.link.className = 'link' + (s > 30 ? ' stale' : '');
   }
 
   function renderLanes() {
@@ -433,7 +461,7 @@
   function escapeHtml(s) {
     return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
-  // Elapsed ms -> "HH:MM:SS.cc" (centiseconds) for the running race clock.
+  // ms -> "HH:MM:SS.cc" (centesimi). Il valore arriva sempre dai dati.
   function fmtElapsed(ms) {
     if (!(ms > 0)) ms = 0;
     const cs = Math.floor(ms / 10), cc = cs % 100;
@@ -471,12 +499,14 @@
     lastSpokenRace = null;
     raceActive = false; lapsSinceStart = 0; winner = null; lastFinalTotalSec = 0;
     if (winnerTimer) { clearTimeout(winnerTimer); winnerTimer = null; }
-    raceClock.reset();
+    raceClock.clear();
+    lastFrameAt = 0;
     els.counters.textContent = '0 / 0';
     els.raceState.textContent = '—';
     els.raceState.classList.remove('winner');
     els.dev.textContent = '—';
-    els.clock.textContent = '00:00:00.00';
+    renderClock();   // torna vuoto, non a zero: "—" dice che non sappiamo niente
+    renderLink();
     els.lanes.innerHTML = '';
     els.events.innerHTML = '';
   }
@@ -542,9 +572,14 @@
   // Show the running version (helps spot a stale cache).
   if (els.version) els.version.textContent = 'v' + APP_VERSION;
   document.title = 'Contagiri DS200 / DS300 v' + APP_VERSION;
+  renderClock();
+  renderLink();
   setInterval(renderLanes, 5000); // refresh "updated Xs ago"
-  // Running race stopwatch: tick the big clock smoothly.
-  setInterval(() => { els.clock.textContent = fmtElapsed(raceClock.elapsedMs()); }, 50);
+  /* L'unica cosa che scorre da sola e' il "da quanto non arriva niente": e' un
+     fatto sul COLLEGAMENTO, non sulla gara, e infatti si legge anche a
+     centralina spenta. Il numero grande invece sta fermo finche' non parla
+     lei. */
+  setInterval(renderLink, 500);
 
   // PWA install + service worker
   if ('serviceWorker' in navigator) {

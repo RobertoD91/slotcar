@@ -81,10 +81,25 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   (`ds200-ds300/`, `cronometro/`) hanno una cache propria **cache-first**: lì vanno alzati
   anche `CACHE` in `sw.js`, le query `?v=` e `APP_VERSION` — se te ne dimentichi, chi ha
   già aperto la pagina resta sulla copia vecchia per sempre.
-- ⭐ **I colori stanno in `web/ui.css`, uno solo.** Se aggiungi una pagina, linka quello e
-  non ricopiare `:root{--bg:…}`: prima era copiato in sette file e aveva già prodotto due
-  rossi e quattro gialli diversi. `ui.css` va caricato **prima** dello stile della pagina,
-  così il layout locale vince.
+- ⭐ **I colori stanno in `web/ui.css`, uno solo — e lo verifica `check-style.js`.** Se
+  aggiungi una pagina, linka quello e non ricopiare `:root{--bg:…}`: prima era copiato in
+  sette file e aveva già prodotto due rossi e quattro gialli diversi. `ui.css` va caricato
+  **prima** dello stile della pagina, così il layout locale vince. Due deroghe, entrambe da
+  motivare per iscritto: `colore-esterno: <perché>` su una riga (il nastro di GitHub deve
+  restare del colore di GitHub) e `stile-autonomo: <perché>` in cima a un file (lo stub
+  `ds200/` disinstalla un service worker: non può dipendere da un foglio che arriva proprio
+  da quel service worker).
+- ⭐ **La cornice dei debugger sta in `ui.css` sotto `body.app`**: intestazione, riquadri,
+  pulsanti, campi, `.pill`, tabelle, `#log`, `.banner`. Una pagina la indossa scrivendo
+  `<body class="app">` e sceglie la sua larghezza con `:root{--wrap:NNNpx}`. È **opt-in**
+  apposta: dentro ci sono selettori di elemento (`button`, `input`, `table`), e liberi
+  arrivavano anche all'indice e al cronometro — che non l'hanno chiesta. Tutto è avvolto in
+  `:where()`, che pesa zero: la cornice è ambientata ma resta scavalcabile dal foglio
+  dell'app, come promette questo elenco.
+- **Le fasce (`.banner`) partono nascoste con l'attributo `hidden`, non con un `display:none`
+  nel CSS**: c'è chi le accende con `style.display` (che scavalca tutto) e chi togliendo
+  `hidden` (che NON scavalca una classe). Con la regola nella classe, il secondo gruppo non
+  si vedrebbe mai più.
 - **Commit trailer**: mantieni `Co-Authored-By` / `Claude-Session`. **Mai** l'id del modello
   in file committati.
 - **Linguaggio (richiesta utente)**: non usare la parola «reverse» (né «reverse engineering»
@@ -101,9 +116,21 @@ costa manutenzione e non serve a nessuno.
 
 ⚠️ Uniformare **non vuol dire buttare via**: se un debugger ha una soluzione migliore
 (tipografia, un numero grande leggibile a distanza, una testata più chiara), quella sale
-in `ui.css` o nel cronometro, e *poi* si appiattisce il resto. Il DS200/DS300 è il caso
-tipico: nasceva come progetto a sé e ha un aspetto suo, più curato — ma è anche l'app che
-il cronometro sta per sostituire, quindi diventerà un debugger come gli altri.
+in `ui.css` o nel cronometro, e *poi* si appiattisce il resto.
+
+**Fatto.** Il DS200/DS300 era il caso tipico — nasceva come progetto a sé, con una
+tavolozza propria (`--panel`, `--line`, `--accent` rosso) e nessun tema chiaro. Il suo
+numero grande è **salito nel cronometro**, dove un orologio ha senso perché il modello di
+gara ne possiede uno; poi il DS200 è diventato un debugger come gli altri.
+
+⭐ **E il suo cronometro è stato tolto, non ridotto.** Scorreva da solo, agganciandosi ogni
+tanto ai dati: a centralina spenta continuava a contare una gara che non stava correndo.
+**Un debugger non inventa dati.** Ora il numero è *l'ultimo tempo che la centralina ha
+trasmesso* — sta fermo finché non ne arriva un altro, e a riposo mostra «—», non
+«00:00:00.00» (che sarebbe una bugia con l'aria di un dato). L'unica cosa che scorre da
+sola è «da quanto non arriva niente», che è un fatto sul **collegamento** e si legge anche
+a centralina spenta. Lo tiene fermo `tools/test-ds200-ui.js`: aspetta tre secondi in
+silenzio e pretende che il numero non si sia mosso.
 
 ## Cornice della pagina: dove stanno le cose
 
@@ -142,6 +169,7 @@ cosa che gli serve — se vale la pena provarci.
 ```bash
 node tools/check-links.js                     # link interni + nessun percorso assoluto
 node tools/check-versions.js                  # versioni nel codice == version.json
+node tools/check-style.js                     # i colori vengono TUTTI da ui.css
 python3 tools/scan-secrets.py                 # segreti nei file
 python3 tools/scan-secrets.py --history       # segreti in tutta la storia
 python3 tools/test-scan-secrets.py            # le regole dello scanner
@@ -157,6 +185,7 @@ node tools/smoke-test.js                      # tutte le app: link, i18n, errori
 node tools/test-cronometro.js                 # una gara simulata dentro il cronometro
 node tools/test-ninco-ui.js                   # contagiri Ninco con seriale simulata
 node tools/test-o2bootloader.js               # configuratore dongle: frame e blocchi di sicurezza
+node tools/test-ds200-ui.js                   # contagiri DS200: il numero NON avanza da solo
 ```
 
 ## Da dove viene questa roba (storia, per capire il presente)
@@ -296,6 +325,14 @@ sistema solo se li accetta.
   porte**, e dopo l'apertura confronta `port.getInfo()` con il VID/PID atteso e **avvisa**.
   Un avviso, non un divieto. Lo stesso vale per Web Bluetooth (`acceptAllDevices` contro
   `filters`), con l'aggravante che lì i filtri servono anche a limitare i permessi.
+- ⭐ **Un cronometro che scorre da solo dentro un debugger.** Il DS200 aveva un orologio
+  libero, agganciato ogni tanto ai dati: sembrava corretto perché *ogni tanto* combaciava,
+  ma fra un aggancio e l'altro raccontava un tempo che nessuno gli aveva detto — e a
+  centralina spenta continuava. Nessun test di parser può vederlo: serve il **tempo che
+  passa**, cioè un test che aspetta in silenzio e pretende che il numero non si muova.
+- **Una lista di eccezioni senza il perché invecchia in silenzio.** In `check-style.js` le
+  deroghe si scrivono con un motivo (`colore-esterno:`, `stile-autonomo:`) proprio per
+  questo: una whitelist muta finisce per coprire i casi che il controllo doveva prendere.
 - **Un tag che si mangia il precedente**: inserire `<script>…</script>` cercando
   `</script>\n</body>` sostituisce **anche** la chiusura del blocco che c'era prima, e il
   nuovo tag finisce dentro quello vecchio → `SyntaxError: Unexpected token '<'`. L'ha beccato

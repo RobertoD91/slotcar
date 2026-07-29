@@ -16,7 +16,7 @@
 :root{
   --bg:#0b0f17; --fg:#e9edf3; --mut:#8a94a6;
   --acc:#5db0ff; --accfg:#04121f;
-  --ok:#4ec36b; --warn:#e0a800; --err:#ff5c5c; --errfg:#180404;
+  --ok:#4ec36b; --warn:#e0a800; --warnfg:#180a00; --err:#ff5c5c; --errfg:#180404;
   --card:#141924; --bd:#242c3a; --chip:#1b2130;
 }
 @media (prefers-color-scheme:light){
@@ -117,8 +117,13 @@ a{color:var(--acc)}
           border:1px solid var(--bd);border-radius:8px;padding:10px}
 
 /* Fasce in cima alla pagina: aggiornamento disponibile, oppure il browser non
-   ha quello che serve. Partono nascoste e le accende il codice della pagina. */
-:where(body.app) .banner{display:none;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+   ha quello che serve.
+   ⚠️ Chi parte nascosto lo dice con l'attributo `hidden`, non con un
+   `display:none` qui dentro: c'è chi le accende con `style.display` (che
+   scavalca tutto) e chi togliendo `hidden` (che NON scavalca una classe).
+   Con la regola nella classe, il secondo gruppo non si sarebbe più visto. */
+:where(body.app) .banner{border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+:where(body.app) .banner.error{background:var(--err);color:var(--errfg);padding:12px 14px}
 :where(body.app) .banner.upd{background:var(--acc);color:var(--accfg)}
 :where(body.app) .banner.upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
 :where(body.app) .banner.nope{background:var(--err);color:var(--errfg);padding:12px 14px}

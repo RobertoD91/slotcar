@@ -35,6 +35,13 @@ jobs:
       - name: Versioni allineate
         run: node tools/check-versions.js
 
+      # I colori stanno in web/ui.css e in nessun altro posto. Un `#e0a800`
+      # scritto a mano non rompe niente e in una pagina sola è invisibile: si
+      # nota solo mettendo due pagine vicine, e nessuno lo fa. È così che erano
+      # nati due rossi e quattro gialli diversi.
+      - name: Una sola tavolozza
+        run: node tools/check-style.js
+
   parsers:
     runs-on: ubuntu-latest
     steps:
@@ -66,6 +73,37 @@ jobs:
 
       - name: Motore di gara e simulatore (web/cronometro/)
         run: node web/cronometro/race.test.js
+
+  # Quello che si vede solo APRENDO la pagina: chiavi i18n non tradotte, errori
+  # JS, tabelle che fanno scorrere di lato tutto il documento, e il cronometro
+  # del DS200 che avanza da solo. Nessuno di questi difetti compare in un diff
+  # o in un test di parser — e tutti e quattro ci sono già passati sotto il naso.
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Installa Chromium per Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm i -D playwright >/dev/null
+          npx playwright install --with-deps chromium
+      - name: Servi il sito
+        run: |
+          cd web && python3 -m http.server 8099 &
+          for i in $(seq 1 30); do curl -sf http://localhost:8099/ >/dev/null && break; sleep 1; done
+      - name: Tutte le app (link, i18n, errori JS, schermo stretto)
+        run: node tools/smoke-test.js
+      - name: Una gara dentro il cronometro
+        run: node tools/test-cronometro.js
+      - name: Contagiri DS200/DS300 (il numero non avanza da solo)
+        run: node tools/test-ds200-ui.js
+      - name: Contagiri Ninco
+        run: node tools/test-ninco-ui.js
+      - name: Configuratore dongle
+        run: node tools/test-o2bootloader.js
 
   firmware:
     runs-on: ubuntu-latest

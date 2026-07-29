@@ -1,159 +1,110 @@
-:root {
-  --bg: #0b0f17;
-  --panel: #131a26;
-  --panel-2: #1a2332;
-  --line: #243044;
-  --text: #e6edf6;
-  --muted: #8aa0bd;
-  --accent: #ff3b3b;
-  --accent-2: #2ea3ff;
-  --ok: #36d399;
-  --bad: #ff6b6b;
-  --best: #ffd54a;
-  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-}
+/* Contagiri DS200 / DS300 — foglio locale.
+ *
+ * ⚠️ Questa app nasceva in una repo tutta sua e aveva una tavolozza propria:
+ * nomi diversi (--panel, --line, --text, --muted, --accent) e nessun tema
+ * chiaro. Era l'ultima pagina del sito a non usare ../ui.css, e si vedeva:
+ * rosso al posto del blu, caratteri da manifesto in classifica, un cronometro
+ * gigante che scorreva da solo.
+ *
+ * È un DEBUGGER: mostra quello che la centralina ha detto, e nient'altro. La
+ * gara — con il suo cronometro, la sua classifica e i suoi annunci — è il
+ * Cronometro web. I colori e la cornice ora arrivano da ../ui.css: qui resta
+ * solo quello che è di questa pagina.
+ */
 
-* { box-sizing: border-box; }
-html, body { margin: 0; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font: 15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  padding-bottom: 40px;
-}
+/* La larghezza utile: due colonne di tabelle vogliono più spazio di un modulo. */
+:root{--wrap:1040px}
 
-.topbar {
-  display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  background: linear-gradient(180deg, #0f1622, #0b0f17);
-  border-bottom: 1px solid var(--line);
-  position: sticky; top: 0; z-index: 10;
-}
-.brand { display: flex; align-items: center; gap: 12px; }
-.logo { font-size: 28px; }
-.brand h1 { font-size: 18px; margin: 0; letter-spacing: .5px; }
-.brand small { color: var(--muted); }
+/* ---- cornice ------------------------------------------------------------ */
+.topbar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+        margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--bd)}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{font-size:22px}
+.brand h1{font-size:20px;margin:0}
+.brand small{color:var(--mut);font-size:13px}
+.conn{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.baud{display:inline-flex;flex-direction:column;gap:2px;font-size:12px;color:var(--mut)}
+.baudhint{color:var(--mut);font-size:10px}
+.chk{color:var(--mut);font-size:13px;display:inline-flex;align-items:center;gap:6px}
 
-.conn { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.baud { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; }
-select, .btn {
-  background: var(--panel-2); color: var(--text);
-  border: 1px solid var(--line); border-radius: 8px;
-  padding: 8px 12px; font-size: 14px; cursor: pointer;
-}
-select:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn:hover:not(:disabled) { border-color: var(--accent-2); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-.btn.small { padding: 5px 10px; font-size: 13px; }
+/* `.btn` è il nome storico dei pulsanti di questa pagina, e qui la maggior
+   parte sono azioni di servizio: Azzera, Pulisci, Esporta. Il predefinito di
+   ui.css è il pulsante ACCENTATO — giusto quando ce n'è uno per riquadro, ma
+   qui griderebbero tutti insieme e non si capirebbe più qual è quello che
+   conta. Quindi: `.btn` neutro, l'accento solo a `.primary`. */
+.btn{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+.btn:hover:not(:disabled){border-color:var(--acc)}
+.btn.primary{background:var(--acc);color:var(--accfg);border-color:var(--acc)}
+.btn.small{padding:5px 10px;font-size:13px}
 
-.status { font-size: 13px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); }
-.status.off { color: var(--muted); }
-.status.on { color: var(--ok); border-color: var(--ok); }
+/* Selettore lingua e ritorno, in alto a sinistra come su tutte le pagine. */
+.langline{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.langline .baud{flex-direction:row;align-items:center;gap:6px}
 
-.banner { margin: 12px 20px; padding: 12px 16px; border-radius: 10px; }
-.banner.error { background: #2a1414; border: 1px solid #5a2a2a; color: #ffc9c9; }
-.banner code { background: #00000040; padding: 1px 5px; border-radius: 4px; }
+/* ---- quello che ha detto la centralina ----------------------------------
+   Il numero grande NON scorre: si muove solo quando arriva un frame. Un
+   cronometro che gira da solo racconta una gara che nessuno gli ha
+   raccontato — ed è esattamente ciò che un debugger non deve fare. */
+.clockwrap{background:var(--card);border:1px solid var(--bd);border-radius:12px;
+           padding:12px 14px 14px;text-align:center;margin-bottom:14px}
+.clockwrap .k{display:block;font-size:11px;color:var(--mut);
+              text-transform:uppercase;letter-spacing:.6px}
+.bigclock{display:block;font-size:clamp(30px,7vw,58px);line-height:1.05;font-weight:800;
+          letter-spacing:1px;font-variant-numeric:tabular-nums;margin-top:4px;
+          overflow:hidden;white-space:nowrap;color:var(--fg)}
+.bigclock.idle{color:var(--mut)}
+/* Il segno vitale del debugger: da quanto tempo non arriva niente. */
+.link{display:block;font-size:12px;color:var(--mut);margin-top:6px}
+.link.on{color:var(--ok)}
+.link.stale{color:var(--warn)}
 
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; padding: 16px 20px 0; }
-.card {
-  background: var(--panel); border: 1px solid var(--line);
-  border-radius: 12px; padding: 14px 16px;
-}
-.card.stat { display: flex; flex-direction: column; gap: 4px; }
-.card.stat .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .6px; }
-.card.stat .v { font-size: 22px; font-weight: 600; }
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}
+.card.stat{display:flex;flex-direction:column;gap:2px;margin-bottom:0}
+.card.stat .k{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+.card.stat .v{font-size:18px;font-weight:600}
+.card.stat .v.winner{color:var(--warn)}
 
-/* Big stopwatch hero */
-.clockwrap { padding: 16px 20px 0; }
-.bigclock {
-  width: 100%;
-  text-align: center;
-  font-weight: 800;
-  font-size: clamp(48px, 13vw, 150px);
-  line-height: 1.04;
-  letter-spacing: 2px;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 12px 10px;
-  text-shadow: 0 0 28px rgba(255, 59, 59, .28);
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; padding: 16px 20px; }
+/* ---- contenuto ---------------------------------------------------------- */
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:14px}
 /* ⚠️ Trappola di grid/flex: un elemento NON si restringe sotto la larghezza del
    proprio contenuto finché non gli si dice min-width:0. Con una tabella dentro,
    la colonna si allarga fino a contenerla e a scorrere è tutta la PAGINA —
    avvolgere la tabella in .tbwrap non serve a niente senza questa riga. */
-.grid > * { min-width: 0; }
-.card.wide { grid-column: 1 / -1; }
+.grid > *{min-width:0}
+.card.wide{grid-column:1 / -1}
 /* flex-wrap: su schermo stretto titolo e pulsanti vanno a capo invece di
    spingere la card oltre il bordo e far scorrere tutta la pagina. */
-.card-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.card-head h2 { font-size: 15px; margin: 0; }
-.card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.chk { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.card-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.card-head h2{font-size:14px;margin:0}
+.card-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 
-table.leaderboard { width: 100%; border-collapse: collapse; }
-.leaderboard th, .leaderboard td { text-align: left; padding: 14px 12px; border-bottom: 1px solid var(--line); }
-.leaderboard th { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .5px; }
-.leaderboard td { font-size: 22px; }
-.leaderboard td.pos { font-weight: 800; color: var(--accent-2); font-size: 26px; }
-.leaderboard td.mono { font-size: 24px; }
-.leaderboard td.best { color: var(--best); }
-.leaderboard tr:first-child td.pos { color: var(--best); }
-.leaderboard tr.winrow td { background: rgba(255, 213, 74, .08); }
-.stat .v.winner { color: var(--best); }
-@media (max-width: 860px) {
-  .leaderboard td { font-size: 18px; }
-  .leaderboard td.pos, .leaderboard td.mono { font-size: 20px; }
+table.leaderboard td{font-size:14px}
+.leaderboard th{font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.leaderboard td.pos{font-weight:800;color:var(--acc)}
+.leaderboard td.best{color:var(--acc)}
+.leaderboard tr:first-child td.pos{color:var(--warn)}
+.leaderboard tr.winrow td{background:rgba(224,168,0,.08)}
+
+.events{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto}
+.events li{padding:7px 4px;border-bottom:1px solid var(--bd);font-size:13.5px}
+.events .t{color:var(--mut);font-size:12px;margin-right:6px}
+
+/* Il registro grezzo è il motivo per cui questa app esiste: qui sta più
+   comodo che altrove, quindi è più alto del predefinito di ui.css. */
+.log{max-height:320px;word-break:break-all}
+.log .bad{color:var(--err)}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+
+.cmdrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.cmdhex{flex:1;min-width:220px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+#cmd-card.disabled{opacity:.55}
+#cmd-card.disabled button,#cmd-card.disabled input,#cmd-card.disabled select{pointer-events:none}
+
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;
+      margin-top:18px;padding-top:12px;border-top:1px solid var(--bd);
+      font-size:12px;color:var(--mut)}
+.ver{opacity:.7;font-family:ui-monospace,Menlo,Consolas,monospace}
+
+@media (max-width:860px){
+  .grid{grid-template-columns:1fr}
 }
-.muted { color: var(--muted); font-size: 13px; }
-.hint { color: var(--muted); font-size: 12px; margin: 10px 2px 0; }
-
-.events { list-style: none; margin: 0; padding: 0; max-height: 360px; overflow: auto; }
-.events li { padding: 7px 4px; border-bottom: 1px solid var(--line); font-size: 14px; }
-.events .t { color: var(--muted); font-size: 12px; margin-right: 6px; }
-
-.log {
-  background: #0a0e15; border: 1px solid var(--line); border-radius: 10px;
-  padding: 12px; max-height: 320px; overflow: auto;
-  font-family: var(--mono); font-size: 12.5px; white-space: pre-wrap; word-break: break-all;
-}
-.log .ok { color: #b9c7da; }
-.log .bad { color: var(--bad); }
-
-.mono { font-family: var(--mono); }
-
-.foot {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  display: flex; justify-content: space-between; gap: 12px;
-  padding: 8px 20px; font-size: 12px; color: var(--muted);
-  background: #0a0e15; border-top: 1px solid var(--line);
-}
-.foot a { color: var(--accent-2); }
-.ver { opacity: .7; font-family: var(--mono); }
-.baudhint { display: block; color: var(--muted); font-size: 10px; margin-top: 2px; }
-.cmdrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
-.cmdrow .cmd { background: var(--panel-2); }
-.cmdhex { flex: 1; min-width: 220px; background: #0a0e15; color: var(--text);
-  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 13px; }
-#cmd-card.disabled { opacity: .55; }
-#cmd-card.disabled button, #cmd-card.disabled input, #cmd-card.disabled select { pointer-events: none; }
-
-@media (max-width: 860px) {
-  .grid { grid-template-columns: 1fr; }
-}
-
-/* Selettore lingua: in alto a sinistra, come su tutte le altre pagine. */
-.langline{display:flex;align-items:center;gap:12px;padding:10px 20px 0}
-.langline .back{text-decoration:none;font-size:13px;color:var(--mut,#8a94a6)}
-.langline .back:hover{color:var(--acc,#5db0ff)}
-.langline .baud{display:inline-flex;align-items:center;gap:6px;font-size:12px}
-
-/* Tabelle larghe: scorrono dentro il loro riquadro (vedi ../ui.css). */
-.tbwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}

@@ -6,35 +6,39 @@
   <meta name="theme-color" content="#0b0f17" />
   <title>Installer ESP32 — ponte DS200 / DS300</title>
   <link rel="icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.5.1" />
+  <link rel="stylesheet" href="../ui.css" />
   <style>
-    .wrap { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; }
-    .step { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin: 14px 0; }
-    .step h2 { margin: 0 0 8px; font-size: 16px; }
-    .step ol { margin: 8px 0 0; padding-left: 20px; }
-    .step li { margin: 4px 0; }
-    .cta { text-align: center; margin: 22px 0; }
-    code { background: #00000040; padding: 1px 6px; border-radius: 4px; font-family: var(--mono); }
-    a { color: var(--accent-2); }
-    esp-web-install-button { --esp-tools-button-color: #fff; --esp-tools-button-bg-color: var(--accent); }
+    /* Questa è una pagina di ISTRUZIONI, non un debugger: aveva una copia della
+       vecchia tavolozza del DS200 (--panel, --line, --accent) in un foglio suo,
+       ed era l'ultima del sito senza tema chiaro. Ora usa ../ui.css come tutte
+       le altre, e qui resta solo il passo numerato. */
+    :root{--wrap:760px}
+    .step{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:14px 0}
+    .step h2{margin:0 0 8px;font-size:16px}
+    .step ol{margin:8px 0 0;padding-left:20px}
+    .step li{margin:4px 0}
+    .cta{text-align:center;margin:22px 0}
+    code{background:var(--chip);padding:1px 6px;border-radius:4px}
     /* Un percorso o un comando dentro <code> non ha spazi: senza questo va a
-     sfondare la pagina su schermo stretto, e a scorrere è tutto il documento. */
-  code{overflow-wrap:anywhere;word-break:break-word}
-  /* Un blocco <pre> conserva le righe com'erano scritte: su schermo stretto
-     esce dal riquadro e a scorrere in orizzontale diventa tutta la PAGINA.
-     Qui dentro ci sono comandi da copiare, quindi non li mando a capo: li
-     faccio scorrere nel loro riquadro. */
-  pre{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
-</style>
+       sfondare la pagina su schermo stretto, e a scorrere è tutto il documento. */
+    code{overflow-wrap:anywhere;word-break:break-word}
+    /* Un blocco <pre> conserva le righe com'erano scritte: su schermo stretto
+       esce dal riquadro e a scorrere in orizzontale diventa tutta la PAGINA.
+       Qui dentro ci sono comandi da copiare, quindi non li mando a capo: li
+       faccio scorrere nel loro riquadro. */
+    pre{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;
+        background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px;
+        font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+    esp-web-install-button{--esp-tools-button-color:var(--accfg);--esp-tools-button-bg-color:var(--acc)}
+    .foot{margin-top:22px;padding-top:12px;border-top:1px solid var(--bd);font-size:12px;color:var(--mut)}
+    .ver{opacity:.7;font-family:ui-monospace,Menlo,Consolas,monospace}
+  </style>
 </head>
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="logo">🏁</span>
-      <div><h1>Installer ESP32</h1><small>Firmware del ponte <b>DS200 / DS300</b> → WiFi/MQTT: installalo e configura la rete dal browser. ⚠️ La parte più acerba del sito.</small></div>
-    </div>
-    <div class="conn"><a class="btn" href="../">← Slot Car Web Tools</a></div>
-  </header>
+<body class="app">
+  <a class="back" href="../">← Slot Car Web Tools</a>
+  <h1>🏁 Installer ESP32</h1>
+  <p class="sub">Firmware del ponte <b>DS200 / DS300</b> → WiFi/MQTT: installalo e configura la rete
+  dal browser. ⚠️ La parte più acerba del sito.</p>
 
   <div class="wrap">
     <p id="unsupported" class="banner error" hidden>
@@ -55,7 +59,7 @@
       password — niente captive portal necessario.</p>
       <div class="cta">
         <esp-web-install-button manifest="firmware/manifest.json">
-          <button slot="activate" class="btn primary">⚡ Installa &amp; configura</button>
+          <button slot="activate" class="primary">⚡ Installa &amp; configura</button>
           <span slot="unsupported">Browser non supportato (serve Web Serial).</span>
           <span slot="not-allowed">Apri la pagina via https:// o http://localhost.</span>
         </esp-web-install-button>
@@ -100,7 +104,7 @@
   </div>
 
   <footer class="foot">
-    <span>Flasher basato su ESP Web Tools · provisioning WiFi via Improv-Serial. <span class="ver">v1.2.0</span></span>
+    <span>Flasher basato su ESP Web Tools · provisioning WiFi via Improv-Serial. <span class="ver">v1.0.0</span></span>
   </footer>
 
   <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
