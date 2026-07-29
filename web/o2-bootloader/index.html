@@ -104,7 +104,13 @@
   <div class="card">
     <p class="cardtitle" data-i18n="titleFields">Campi noti</p>
     <p class="val" data-i18n-html="fieldsIntro"></p>
-    <p class="note" id="fldHint" hidden></p>
+    <div id="fldHint" class="note" hidden>
+      <span id="fldHintTxt"></span>
+      <div class="row" style="margin-top:8px">
+        <button id="goChip" class="sec" data-i18n="btnGoChip"></button>
+        <button id="goCtrl" class="sec" data-i18n="btnGoCtrl"></button>
+      </div>
+    </div>
 
     <div class="fld" data-tgt="chip">
       <div class="row">
@@ -329,6 +335,8 @@ window.I18N_STRINGS = {
     en:"These fields have a <b>proven</b> name: for each one there is a capture of the official program where <b>that single thing</b> was changed, and the value read back straight after matches. The device is the one selected above: enter boot first.",
     es:"Estos campos tienen un nombre <b>demostrado</b>: para cada uno existe una captura del programa oficial donde se cambió <b>solo esa cosa</b>, y el valor releído justo después coincide. El dispositivo es el elegido arriba: entra antes en boot."
   },
+  btnGoChip:{it:"Vai al chip auto",en:"Go to the car chip",es:"Ir al chip del coche"},
+  btnGoCtrl:{it:"Vai al controller",en:"Go to the controller",es:"Ir al mando"},
   fldPickChip:{
     it:"Questi campi stanno sul <b>chip auto</b> e sul <b>controller</b>. Scegli uno dei due qui sopra: sul dongle non esistono.",
     en:"These fields live on the <b>car chip</b> and the <b>controller</b>. Pick one of the two above: they do not exist on the dongle.",
@@ -587,7 +595,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="o2-bootloader",APP_VERSION="1.3.0";
+const APP="o2-bootloader",APP_VERSION="1.3.1";
 const VID=0x1fee,PID=0x0002;
 /* Il programma ufficiale apre la COM a 9600 8N1 (visto nelle catture USB). Sul
    dongle è una COM virtuale, quindi il valore è nominale — ma se un giorno in
@@ -805,7 +813,8 @@ function renderFields(){
   /* innerHTML e non textContent: la stringa ha del grassetto dentro, ed è nostra
      (viene dal dizionario, non dal dispositivo) — con textContent si leggerebbero
      i tag a video. */
-  const h=$("fldHint");h.hidden=visibili>0;if(!h.hidden)h.innerHTML=I18N.t("fldPickChip");
+  const h=$("fldHint");h.hidden=visibili>0;
+  if(!h.hidden)$("fldHintTxt").innerHTML=I18N.t("fldPickChip");
   for(const k in FIELDS){
     const f=FIELDS[k];if(f.t!==t)continue;
     const fr=fldFrames(k);
@@ -813,6 +822,14 @@ function renderFields(){
       "   ·   "+I18N.t("regWriteOut")+": "+(fr?hx(fr[0])+" + "+hx(fr[1]):"—");
   }
 }
+/* Il selettore parte da "dongle", e su quel dispositivo questi campi non
+   esistono: la card resta vuota e la funzione sembra non esserci. Spiegarlo non
+   basta — chi legge deve comunque andare a cercare una tendina che sta in
+   un'altra card. Due pulsanti ce lo portano in un clic. */
+function vaiA(t){ $("tgt").value=t; $("tgt").dispatchEvent(new Event("change")); }
+$("goChip").onclick=()=>vaiA("chip");
+$("goCtrl").onclick=()=>vaiA("controller");
+
 const curReg=()=>parseInt(($("regA").value||"0").trim(),16)&0xff;
 const curOp=()=>parseInt($("regOp").value,16)&0xff;
 const curLen=()=>Math.max(1,Math.min(16,+$("regL").value||1));

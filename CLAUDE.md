@@ -245,6 +245,11 @@ sistema solo se li accetta.
   livello numerico, sparisce proprio quando serve vederla.
 - **`git reset --hard` in un test** butta via anche le modifiche ai file tracciati che
   stavi preparando.
+- **Un predefinito può nascondere la funzione principale.** Nel configuratore dongle la card
+  dei campi (ID, MAC, velocità box) parte vuota, perché quei campi stanno sul chip e sul
+  controller e il selettore predefinito è «dongle». Era corretto e spiegato, ma chi apriva
+  l'app vedeva solo un paragrafo e concludeva che la funzione non c'era. Spiegare non basta:
+  se lo stato predefinito è vuoto, mettici l'azione che lo riempie (lì, due pulsanti).
 - **Un pulsante attivo promette che funzionerà.** Nel configuratore dongle i comandi a
   registri erano abilitati appena connessi, ma hanno senso solo dentro una sessione di
   boot: fuori, il frame parte e non torna niente. Chi li premeva vedeva una risposta vuota
