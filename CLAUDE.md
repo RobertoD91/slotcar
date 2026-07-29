@@ -44,10 +44,17 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
       rinviata a un'evolutiva. Oggi i nomi stanno in `localStorage`.
 
 ### Da fare nel codice
-- [ ] **`flash.html` è solo in italiano** — non è passato per `i18n.js` come il resto.
-- [ ] **Dipendenza esterna da unpkg** in `ds200/flash.html` (esp-web-tools). Per un sito
-      100% autonomo va incorporata: serve un bundler, è un modulo ES con dipendenze sue.
-- [ ] **`flash.html` mostra `v1.2.0` nel footer**, non agganciato a nessuna versione reale.
+- [ ] **L'installer ESP32 è solo in italiano** — non è passato per `i18n.js` come il resto.
+      (Era indicato come `flash.html`, un file che non esiste più: oggi è
+      `web/esp32-installer/index.html`.)
+- [ ] **Dipendenza esterna da unpkg** in `web/esp32-installer/index.html` (esp-web-tools).
+      Per un sito 100% autonomo va incorporata: serve un bundler, è un modulo ES con
+      dipendenze sue. Finché resta, quella pagina **non funziona offline** — ed è l'unica.
+- [ ] **Il timer di `chron02` scorre da solo** — come quello che abbiamo tolto dal DS200, ma
+      il caso NON è lo stesso e per questo è rimasto: lì la gara la comanda **l'app** (manda
+      `race_status`), quindi il tempo misura una cosa che ha causato lei, non un dato che si
+      inventa su un dispositivo muto. Da decidere quando il cronometro avrà il sistema
+      oXigen: allora `chron02` diventa un debugger puro e il timer se ne va con lui.
 
 ### Fatto (per non riaprirlo)
 - ✅ Pages attivo, con dominio personalizzato → `https://robertodisanto.it/slotcar/`
