@@ -9,13 +9,17 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=1.5.3" />
+  <link rel="stylesheet" href="styles.css?v=1.5.5" />
 </head>
 <body>
   <!-- Il selettore lingua sta in alto a sinistra come su tutte le altre pagine.
        Prima era nella riga di connessione accanto al baud: ma la lingua non è
        un'impostazione della centralina, è della cornice. -->
+  <!-- Link di ritorno e lingua in alto a sinistra, come su tutte le altre
+       pagine. Prima il ritorno stava in fondo: era l'unica app a farlo, e
+       chi voleva tornare indietro doveva scorrere fino al piede. -->
   <div class="langline">
+    <a class="back" href="../">← Slot Car Web Tools</a>
     <label class="baud" id="lang-label" data-i18n-title="lang_title" title="Lingua">
         🌐
         <select id="lang">
@@ -83,7 +87,7 @@
           <button id="export" class="btn small" data-i18n="btn.export">Export CSV</button>
         </div>
       </div>
-      <table class="leaderboard">
+      <div class="tbwrap"><table class="leaderboard">
         <thead>
           <tr>
             <th data-i18n="th.pos">Pos</th><th data-i18n="th.lane">Corsia</th><th data-i18n="th.laps">Giri</th>
@@ -91,7 +95,7 @@
           </tr>
         </thead>
         <tbody id="lanes"></tbody>
-      </table>
+      </table></div>
       <p class="hint" data-i18n="lb.hint">Le righe compaiono man mano che ogni corsia trasmette.</p>
     </section>
 
@@ -138,11 +142,11 @@
 
   <footer class="foot">
     <span><span data-i18n="footer.text">App statica · funziona offline come PWA · nessun dato lascia il dispositivo.</span> <span id="version" class="ver"></span></span>
-    <span><a href="../">← Slot Car Web Tools</a> · <span id="install-hint"></span></span>
+    <span id="install-hint"></span>
   </footer>
 
-  <script src="i18n.js?v=1.5.3"></script>
-  <script src="ds200.js?v=1.5.3"></script>
-  <script src="app.js?v=1.5.3"></script>
+  <script src="i18n.js?v=1.5.5"></script>
+  <script src="ds200.js?v=1.5.5"></script>
+  <script src="app.js?v=1.5.5"></script>
 </body>
 </html>

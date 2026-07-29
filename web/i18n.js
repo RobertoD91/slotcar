@@ -165,14 +165,16 @@
   }
 
   function buildUI() {
-    // Selettore lingua (fisso, in alto a destra).
+    /* Selettore lingua: NEL FLUSSO della pagina, in alto a sinistra.
+       Prima era un riquadro `position:fixed` in un angolo, e un riquadro
+       flottante deve schivare qualunque cosa gli capiti vicino: sull'indice
+       c'era il nastro "Fork me on GitHub", per cui serviva un'eccezione che
+       lo spostava di lato — ed era proprio l'eccezione a farlo cambiare
+       posizione fra una pagina e l'altra. Nel flusso non deve schivare
+       niente, scorre col contenuto e non ci va sopra.
+       Dove: subito dopo il link di ritorno se c'è (le app), in cima al corpo
+       se non c'è (l'indice, che è già la pagina di partenza). */
     var bar = document.createElement("div");
-    /* Angolo in alto a SINISTRA, su tutte le pagine. A destra c'è il nastro
-       "Fork me on GitHub" dell'indice: stando a destra il selettore doveva
-       schivarlo con un'eccezione, e il risultato era che cambiava lato fra
-       l'indice e le app. A sinistra il margine è libero ovunque — il link di
-       ritorno sta nella colonna centrata, non nel margine. */
-    bar.style.cssText = "position:fixed;top:8px;left:8px;z-index:9999;font:13px -apple-system,Segoe UI,Roboto,sans-serif";
     var sel = document.createElement("select");
     sel.id = "__langsel";
     sel.title = t("langLabel");
@@ -190,7 +192,16 @@
     sel.value = lang;
     sel.onchange = function () { setLang(sel.value); };
     bar.appendChild(sel);
-    document.body.appendChild(bar);
+
+    var ritorno = document.querySelector("a.back");
+    var font = "font:13px -apple-system,Segoe UI,Roboto,sans-serif";
+    if (ritorno && ritorno.parentElement) {
+      bar.style.cssText = "display:inline-block;margin-left:10px;vertical-align:middle;" + font;
+      ritorno.insertAdjacentElement("afterend", bar);
+    } else {
+      bar.style.cssText = "margin:0 0 12px;" + font;
+      document.body.insertBefore(bar, document.body.firstChild);
+    }
 
     // Disclaimer (in fondo alla pagina).
     var wrap = document.createElement("div");

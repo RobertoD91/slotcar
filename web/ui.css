@@ -83,3 +83,9 @@ a{color:var(--acc)}
 
 footer{color:var(--mut);font-size:12px}
 footer .disc{font-size:11px;line-height:1.55;opacity:.85}
+
+/* Contenuto largo (tabelle, blocchi di codice) su schermo stretto.
+   ⚠️ Deve scorrere DENTRO il suo riquadro: se lasci sbordare la tabella è la
+   PAGINA a scorrere in orizzontale, e allora si sposta tutto — titoli, testo,
+   pulsanti — per colpa di una colonna sola. Avvolgi la tabella in .tbwrap. */
+.tbwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}

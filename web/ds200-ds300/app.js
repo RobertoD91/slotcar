@@ -5,7 +5,7 @@
   // Bump on every release. Shown in the footer so you can tell at a glance
   // whether the browser/PWA cache served a stale version. Keep in sync with the
   // ?v= query strings in index.html and the cache name in sw.js.
-  const APP_VERSION = '1.5.3';
+  const APP_VERSION = '1.5.5';
 
   const $ = (id) => document.getElementById(id);
   const els = {

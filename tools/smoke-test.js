@@ -178,6 +178,21 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok(baud.auto === 'off', 'autocomplete=off (il browser non ripristina il valore vecchio)');
   ok(baud.opts.includes('57600'), 'in elenco c\'è anche 57600 (DS300)');
 
+  // ---------- niente scorrimento orizzontale su schermo stretto ----------
+  // Una tabella larga che sborda fa scorrere la PAGINA: si sposta tutto — titoli,
+  // testo, pulsanti — per colpa di una colonna sola. Va avvolta in .tbwrap.
+  console.log('\n== SCHERMO STRETTO (320px) ==');
+  const stretta = await ctx.newPage();
+  await stretta.setViewportSize({ width: 320, height: 700 });
+  for (const [path] of apps.concat([['', 'indice']])) {
+    await stretta.goto(BASE + '/' + path, { waitUntil: 'networkidle' });
+    const m = await stretta.evaluate(() => ({
+      sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth,
+    }));
+    ok(m.sw <= m.cw + 1, `${(path || 'indice/').padEnd(18)} non sborda (documento ${m.sw}, finestra ${m.cw})`);
+  }
+  await stretta.close();
+
   console.log('\n== ERRORI CONSOLE ==');
   // L'unica risorsa esterna del sito è esp-web-tools (unpkg) su flash.html: in questa
   // sandbox l'egress è bloccato, quindi quel fallimento è atteso e non conta come bug.

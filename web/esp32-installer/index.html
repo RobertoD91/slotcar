@@ -17,7 +17,15 @@
     code { background: #00000040; padding: 1px 6px; border-radius: 4px; font-family: var(--mono); }
     a { color: var(--accent-2); }
     esp-web-install-button { --esp-tools-button-color: #fff; --esp-tools-button-bg-color: var(--accent); }
-  </style>
+    /* Un percorso o un comando dentro <code> non ha spazi: senza questo va a
+     sfondare la pagina su schermo stretto, e a scorrere è tutto il documento. */
+  code{overflow-wrap:anywhere;word-break:break-word}
+  /* Un blocco <pre> conserva le righe com'erano scritte: su schermo stretto
+     esce dal riquadro e a scorrere in orizzontale diventa tutta la PAGINA.
+     Qui dentro ci sono comandi da copiare, quindi non li mando a capo: li
+     faccio scorrere nel loro riquadro. */
+  pre{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+</style>
 </head>
 <body>
   <header class="topbar">

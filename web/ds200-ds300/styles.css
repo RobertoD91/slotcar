@@ -85,10 +85,17 @@ select:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; }
 }
 
 .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; padding: 16px 20px; }
+/* ⚠️ Trappola di grid/flex: un elemento NON si restringe sotto la larghezza del
+   proprio contenuto finché non gli si dice min-width:0. Con una tabella dentro,
+   la colonna si allarga fino a contenerla e a scorrere è tutta la PAGINA —
+   avvolgere la tabella in .tbwrap non serve a niente senza questa riga. */
+.grid > * { min-width: 0; }
 .card.wide { grid-column: 1 / -1; }
-.card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+/* flex-wrap: su schermo stretto titolo e pulsanti vanno a capo invece di
+   spingere la card oltre il bordo e far scorrere tutta la pagina. */
+.card-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .card-head h2 { font-size: 15px; margin: 0; }
-.card-actions { display: flex; align-items: center; gap: 10px; }
+.card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .chk { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 6px; }
 
 table.leaderboard { width: 100%; border-collapse: collapse; }
@@ -143,5 +150,10 @@ table.leaderboard { width: 100%; border-collapse: collapse; }
 }
 
 /* Selettore lingua: in alto a sinistra, come su tutte le altre pagine. */
-.langline{margin:0 0 6px}
+.langline{display:flex;align-items:center;gap:12px;padding:10px 20px 0}
+.langline .back{text-decoration:none;font-size:13px;color:var(--mut,#8a94a6)}
+.langline .back:hover{color:var(--acc,#5db0ff)}
 .langline .baud{display:inline-flex;align-items:center;gap:6px;font-size:12px}
+
+/* Tabelle larghe: scorrono dentro il loro riquadro (vedi ../ui.css). */
+.tbwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}

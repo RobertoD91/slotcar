@@ -92,6 +92,19 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   protocollo*, *studio*, *ipotesi da confermare*. Vale anche per il metodo JS `.reverse()`,
   che ovviamente resta: è codice, non prosa.
 
+## Dove investire sulla grafica (decisione presa)
+
+**Il Cronometro web è l'unica app che merita disegno su misura.** Tutto il resto sono
+**debugger**: strumenti da leggere, non da guardare. Devono essere *uniformi e leggibili*,
+e usare `ui.css` senza personalità propria — una diagnostica bella ma diversa dalle altre
+costa manutenzione e non serve a nessuno.
+
+⚠️ Uniformare **non vuol dire buttare via**: se un debugger ha una soluzione migliore
+(tipografia, un numero grande leggibile a distanza, una testata più chiara), quella sale
+in `ui.css` o nel cronometro, e *poi* si appiattisce il resto. Il DS200/DS300 è il caso
+tipico: nasceva come progetto a sé e ha un aspetto suo, più curato — ma è anche l'app che
+il cronometro sta per sostituire, quindi diventerà un debugger come gli altri.
+
 ## Cornice della pagina: dove stanno le cose
 
 - **Selettore lingua: in alto a SINISTRA, su tutte le pagine.** A destra c'è il nastro
@@ -99,11 +112,11 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   un'eccezione, e il risultato era che cambiava lato fra l'indice e le app. A sinistra il
   margine è libero ovunque, perché il link di ritorno sta nella colonna centrata.
 - **Link di ritorno: in alto a sinistra**, `<a class="back" href="../">`.
-- ⚠️ Restano **tre trattamenti** diversi: riquadro fisso nel margine (le 6 app che usano
-  `i18n.js` condiviso + l'indice), in linea accanto al link di ritorno (cronometro), in
-  linea in cima (DS200/DS300). Il lato è lo stesso, l'aspetto no. Per unificarli davvero
-  `i18n.js` dovrebbe inserire il selettore **nel flusso** dopo `.back` invece di
-  posizionarlo fisso — da fare se si vuole chiudere del tutto.
+- **Il selettore è NEL FLUSSO, non un riquadro flottante.** `i18n.js` lo inserisce subito
+  dopo `a.back` se c'è, altrimenti in cima al corpo (l'indice, che non ha ritorno). Era
+  `position:fixed` in un angolo, e un riquadro flottante deve schivare qualunque cosa gli
+  capiti vicino — sull'indice il nastro, altrove niente: da lì l'eccezione, e dall'eccezione
+  il cambio di lato. Nel flusso non schiva niente e scorre col contenuto.
 
 ## Targhette di stato — la convenzione
 
@@ -258,6 +271,13 @@ sistema solo se li accetta.
   livello numerico, sparisce proprio quando serve vederla.
 - **`git reset --hard` in un test** butta via anche le modifiche ai file tracciati che
   stavi preparando.
+- ⭐ **Grid e flex non si restringono sotto il proprio contenuto** finché non gli dici
+  `min-width:0`. Con una tabella dentro, la colonna si allarga fino a contenerla e a
+  scorrere in orizzontale diventa **tutta la pagina**: si sposta tutto — titoli, testo,
+  pulsanti — per colpa di una colonna sola. Avvolgere la tabella in un `overflow-x:auto`
+  **non serve a niente** senza quel `min-width:0`. Stessa storia per `<pre>`: conserva le
+  righe com'erano scritte, e senza `overflow-x:auto` sfonda la pagina.
+  Lo controlla lo smoke test a 320 px, su tutte le pagine.
 - **Un predefinito può nascondere la funzione principale.** Nel configuratore dongle la card
   dei campi (ID, MAC, velocità box) parte vuota, perché quei campi stanno sul chip e sul
   controller e il selettore predefinito è «dongle». Era corretto e spiegato, ma chi apriva
