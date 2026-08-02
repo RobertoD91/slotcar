@@ -234,9 +234,19 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
   await ds.selectOption('#sys', 'ds300');
   await ds.waitForTimeout(100);
   ok((await ds.locator('#opt-ds300-baud').inputValue()) === '57600', 'il DS300 porta il suo baud: 57600');
+  ok(!(await ds.locator('#addDriver').isDisabled()), 'col DS300 (8 corsie) puoi ancora aggiungere');
 
   await ds.selectOption('#sys', 'ds200');
   await ds.waitForTimeout(100);
+  /* ⭐ Il limite di corsie vale APPENA SCEGLI il sistema, non solo quando ti
+     colleghi: il DS200 ne gestisce 2 e l'app lo sa dal menu. Lasciarti
+     aggiungere otto guidatori per poi toglierteli al collegamento è un giro a
+     vuoto — ed è la regressione arrivata con la separazione DS200/DS300. */
+  ok(await ds.locator('#addDriver').isDisabled(),
+     'col DS200 «aggiungi» è già spento prima di collegarsi: gestisce 2 corsie');
+  ok(await ds.locator('#slotNote').isVisible(), 'e l\'avviso sulle righe in eccesso c\'è già');
+  ok((await ds.locator('.slotrow .num').first().innerText()).match(/corsia|lane|carril|couloir|spur/i) !== null,
+     'anche l\'etichetta del posto segue subito: ' + await ds.locator('.slotrow .num').first().innerText());
   ok(await ds.locator('#opt-ds200-baud').count() === 1, 'le opzioni del DS200 compaiono da sole');
   ok((await ds.locator('#opt-ds200-baud').inputValue()) === '4800', 'e il DS200 il suo: 4800');
   ok(!(await ds.locator('#opt-ds200-baud').isVisible()),

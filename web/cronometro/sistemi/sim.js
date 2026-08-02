@@ -114,6 +114,9 @@
     this._t0 = null;
     this._pausedAt = null;
     this._timer = null;
+    /* A simulazione avviata i posti sono quelli che sta davvero simulando: qui
+       il numero si stringe sul reale, mentre prima della connessione diceva
+       quanti ne poteva reggere. */
     this.caps = Object.assign({}, this.caps, { slots: this.settings.cars });
   }
   SimSistema.prototype = Object.create(SISTEMI.Sistema.prototype);
@@ -210,7 +213,13 @@
     ],
     caps: {
       slotLabel: "car",
-      slots: DEFAULTS.cars,
+      /* ⚠️ NON `DEFAULTS.cars`: quello e' quanti guidatori si trova in tavola
+         all'inizio, non quanti ne regge. La pista finta segue il TUO elenco —
+         alla connessione riceve `cars` e si adegua — quindi qui va il massimo
+         che accetta, altrimenti "aggiungi guidatore" nasce spento su una pista
+         che sarebbe felice di seguirti. (Le caps si applicano appena scegli il
+         sistema: un limite finto qui diventa un divieto vero a video.) */
+      slots: 8,
       lapTime: true,
       position: false,
       fuel: true,

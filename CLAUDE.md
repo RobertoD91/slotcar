@@ -10,23 +10,51 @@ L'utente è italiano: **rispondere in italiano**.
 ## ⭐ TODO
 
 ### In carico all'utente
-- [ ] **Confermare il numero di giri programmato.** Il frame di partenza dice «gara a giri
-      individuali, 0x25». Lo leggiamo come **25 in BCD** e torna con la cattura, ma va
-      verificato su un'altra programmazione: metti **12 giri** sulla centralina e guarda se
-      scrive 12. Ora si legge in **due posti**: la card «Programma» del contagiri e
-      l'annuncio vocale alla partenza del cronometro.
-- [ ] **Cronometro col DS200, secondo giro di prove** — restano da provare in pista: gara
-      annullata (A7), fine gara vera (A4) e il record finale. La fine gara ora si annuncia
-      **una volta sola** (la centralina manda il frame tre volte), da confermare dal vivo.
-- [ ] **Auto 8, cifre della benzina invertite** — nel contagiri Ninco l'ottava auto viene
-      letta con le due cifre scambiate (`42` → `24`). È documentato, ma la fonte non sa
-      dire se valga per tutte le power base. L'utente verifica sul campo e riferisce: se
-      i valori sono giusti *senza* lo scambio, va cambiato il default della casella
-      «auto 8: cifre benzina invertite» in `web/ninco/index.html` (ora è **attiva**).
-- [ ] **Cattura reale Ninco** — esportare una cattura vera dalla power base e usarla per
-      verificare che la decodifica regga sui casi che la documentazione non copre
-      (modalità GP, gara in pausa, fine gara, rifornimenti).
-- [ ] **Prova sul campo del contagiri Ninco** (il cavo ce l'ha già).
+
+> ⭐ **Questa è LA lista, e va stampata in fondo a OGNI risposta.** Richiesta esplicita
+> dell'utente. Sta qui e non in un file a parte perché `CLAUDE.md` si carica da solo ad ogni
+> sessione: una lista che vive solo nella conversazione si perde alla prima compressione del
+> contesto — ed è già successo, con due voci sulle app oXigen sparite per strada.
+> Regole: quando l'utente conferma una prova, la voce si **sposta** in «Fatto» (non si
+> cancella); quando ne nasce una nuova, si **aggiunge qui subito**, nello stesso commit del
+> codice che l'ha resa necessaria.
+
+**oXigen — hardware Slot.it** (le targhette dell'indice dicono di quali ci si può fidare)
+- [ ] **Configuratore auto** (`car-config/`, BLE sul chip) — targhetta **mai provata**: non
+      sappiamo se funziona. Da provare su un chip vero.
+- [ ] **Configuratore controller** (`remote-config/`, BLE sull'SCP-3) — targhetta
+      **parziale**: il cambio ID funziona, il MAC no. Da riprovare.
+- [ ] **Configuratore dongle** (`o2-bootloader/`, USB) — connette e i pulsanti rispondono,
+      ma i campi **ID / MAC / velocità box su chip e controller** non sono mai stati provati
+      su hardware.
+- [ ] **Contagiri oXigen** (`chron02/`, USB) — da riprovare dopo la correzione del filtro
+      porte (`requestPort` non filtra più: mostrava una finestra vuota).
+
+**DS200 / DS300**
+- [ ] **Prova la voce nuova del DS200** — ora DS200 e DS300 sono due sistemi distinti: il
+      baud parte da solo e la modalità la mostra la centralina. Verificare che si colleghi
+      senza toccare le avanzate.
+- [ ] **Confermare il numero di giri programmato** — metti **12 giri** sulla centralina e
+      guarda se scrive 12. Lo leggiamo come BCD e torna con la cattura a 25, ma va
+      confermato. Si legge in due posti: la card «Programma» del contagiri e il campo
+      «Modalità» del cronometro (che ora dice «12 giri (individuali)»).
+- [ ] **Gara a tempo o F1**, se la centralina lo permette — ora l'app le **riporta** invece
+      di ignorarle. Quel percorso è provato solo con frame costruiti a tavolino.
+- [ ] **Secondo giro di prove in pista**: gara annullata (A7), fine gara vera (A4) e record
+      finale. La fine gara ora si annuncia **una volta sola** (la centralina manda il frame
+      tre volte): da confermare dal vivo.
+- [ ] **Nomi dei guidatori** — riprovare a scriverli di seguito, senza ricliccare dopo ogni
+      lettera.
+
+**Ninco**
+- [ ] **Prova sul campo del contagiri** (il cavo ce l'ha già). Targhetta **mai provata**.
+- [ ] **Auto 8, cifre della benzina invertite** — l'ottava auto viene letta con le due cifre
+      scambiate (`42` → `24`). È documentato, ma la fonte non sa dire se valga per tutte le
+      power base. Se i valori sono giusti *senza* lo scambio, va cambiato il default della
+      casella «auto 8: cifre benzina invertite» in `web/ninco/index.html` (ora è **attiva**).
+- [ ] **Cattura reale** — esportarla dalla power base e usarla per verificare la decodifica
+      sui casi che la documentazione non copre (modalità GP, gara in pausa, fine gara,
+      rifornimenti).
 
 ### Cronometro web — le prossime tappe
 Motore, simulatore, modalità *pratica* e *GP a giri*, guidatori modificabili, voce, 5 lingue
@@ -71,6 +99,13 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
 
 ## Regole d'oro
 
+- ⭐ **A OGNI risposta, in fondo, stampa l'elenco «cosa tocca a te»** — richiesta esplicita
+  dell'utente. La fonte è la sezione **«In carico all'utente»** qui sopra, non la memoria
+  della conversazione: da lì si legge e lì si aggiorna. Quando l'utente conferma una prova
+  la voce si sposta in «Fatto»; quando una modifica ne crea una nuova, si aggiunge **nello
+  stesso commit**. Motivo: le voci tenute solo a mente sono già sparite due volte (le prove
+  sulle app oXigen), e un elenco che perde pezzi è peggio di nessun elenco — l'utente crede
+  di aver finito.
 - **Branch: `master`.** Richiesta esplicita dell'utente, niente branch inutili.
 - **`web/` è il sito.** Il workflow `pages.yml` la pubblica tal quale ad ogni push su
   `master`. Percorsi **sempre relativi**: il sito sta in un sottopercorso.
@@ -412,6 +447,13 @@ distinguibili e il giro veloce non è una lotteria. Il grande orologio resta a d
 - **Nomi di classe che si scontrano fra `ui.css` e l'app**: `.note` è un riquadro giallo nel
   foglio condiviso e una riga smorzata nella guida oXigen. Riusare un nome per un'altra cosa
   richiede di azzerarlo per intero (sfondo, bordo, padding), o te lo porti dietro.
+- ⭐ **`caps` dichiarate ≠ `caps` vive.** Il limite di posti si applica **appena scegli il
+  sistema**, non solo quando ti colleghi: il DS200 ne gestisce 2 e l'app lo sa dal menu.
+  Ma allora quello che il sistema dichiara diventa un **divieto vero a video**, e il
+  simulatore dichiarava `slots: DEFAULTS.cars` — cioè quanti guidatori si trova in tavola
+  all'inizio, non quanti ne regge: «aggiungi guidatore» nasceva spento su una pista finta
+  che ti avrebbe seguito volentieri. Nella definizione ci va **quanti ne accetta**; il
+  numero si stringe sul reale alla connessione.
 - **Rientranza nel simulatore**: nel ciclo che spara gli eventi scaduti, un evento può far
   finire la gara → chi ascolta ferma il simulatore → il piano diventa `null` **mentre siamo
   ancora dentro il ciclo**. Il controllo all'ingresso non basta: va rifatto ad ogni giro.

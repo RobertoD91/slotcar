@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "0.5.0";
+  var APP_VERSION = "0.5.1";
   var LS = { nomi: "cronometro.nomi", cfg: "cronometro.cfg" };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -323,6 +323,31 @@
      hai scritto sono roba tua — ma spegne "aggiungi" e segnala chi resta fuori. */
   function limitePosti() { return caps && caps.slots > 0 ? caps.slots : 99; }
 
+  /* ⭐ Le caratteristiche del sistema si applicano APPENA LO SCEGLI, non solo
+   * quando ti colleghi. Il DS200 gestisce 2 corsie e il DS300 otto: adesso che
+   * sono due sistemi distinti l'app lo sa gia' dal menu, e lasciarti aggiungere
+   * otto guidatori per poi toglierteli al collegamento e' un giro a vuoto.
+   * (Prima non poteva saperlo: la voce era una sola e il numero di corsie
+   * dipendeva dal baud, cioe' da un'opzione.)
+   *
+   * Stessa cosa per l'etichetta dei posti — "Corsia" o "Auto" — e per la colonna
+   * della benzina: sono tutte cose che il sistema DICHIARA, non che scopre.
+   * A collegamento avviato invece comandano le caps vive, che i frame possono
+   * aver corretto: qui non si tocca niente. */
+  function applicaCaps(c) {
+    caps = c;
+    document.body.classList.toggle("has-fuel", !!caps.fuel);
+    race.authority = SISTEMI.authority(caps);
+  }
+
+  function anteprimaSistema() {
+    if (sistema) return;                       // collegati: comandano le caps vive
+    var def = SISTEMI.get(els.sys.value);
+    applicaCaps(def ? def.caps : SISTEMI.CAPS_DEFAULT);
+    if (traguardoDelSistema()) { race.targetLaps = null; programma = null; }
+    renderTraguardo(); renderRoster(); renderBoard(); renderState();
+  }
+
   /* ⭐ Chi decide su quanti giri si corre.
    *
    * Se la gara la comanda la centralina, il traguardo e' SUO: lo programmi sulla
@@ -526,12 +551,9 @@
       values: valoriOpzioni(d),
       cars: race.guidatori.length || 4
     });
-    caps = sistema.caps;
-    document.body.classList.toggle("has-fuel", !!caps.fuel);
-
     /* Chi comanda: col DS200 la gara la fa partire la centralina, e il motore
        non deve nemmeno chiudere la gara per conto suo. Vedi registry.authority. */
-    race.authority = SISTEMI.authority(caps);
+    applicaCaps(sistema.caps);
     /* Il numero che avevi scritto tu non vale piu': lo dira' la centralina.
        Lasciarlo li' vorrebbe dire annunciare "gara a 20 giri" mentre sulla
        scatola ne sono programmati 12. */
@@ -544,9 +566,7 @@
     });
     sistema.on("raw", function (s) { logga(s); });
     sistema.on("caps", function (c) {
-      caps = c;
-      document.body.classList.toggle("has-fuel", !!caps.fuel);
-      race.authority = SISTEMI.authority(caps);
+      applicaCaps(c);
       renderTraguardo(); renderRoster(); renderBoard(); renderState();
     });
     sistema.on("status", function (s) {
@@ -618,6 +638,7 @@
   els.sys.addEventListener("change", function () {
     cfg.sys = els.sys.value; save(LS.cfg, cfg);
     renderOpzioni();
+    anteprimaSistema();
   });
 
   els.tts.addEventListener("change", function () {
@@ -743,6 +764,7 @@
     race.setGuidatori((cfg.slots || [1, 2]).map(function (s) { return { slot: s, name: nomi[s] || null }; }));
 
     renderOpzioni();
+    anteprimaSistema();
     renderRoster();
     renderBoard();
     renderState();
