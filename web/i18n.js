@@ -16,6 +16,11 @@
 (function () {
   var LANGS = ["it", "en", "es"];
   var NAMES = { it: "Italiano", en: "English", es: "Español" };
+  /* ⚠️ Le bandierine sono coppie di "indicatori regionali": su Windows non
+     esistono nel font di sistema e si vedono le due lettere (IT, EN, ES). Non è
+     un difetto da correggere — sono comunque leggibili, ed è il motivo per cui
+     accanto resta scritto il NOME della lingua. */
+  var FLAGS = { it: "🇮🇹", en: "🇬🇧", es: "🇪🇸" };
 
   // Stringhe CONDIVISE da tutte le app (tradotte una volta sola).
   var SHARED = {
@@ -185,7 +190,7 @@
     for (var i = 0; i < LANGS.length; i++) {
       var o = document.createElement("option");
       o.value = LANGS[i];
-      o.textContent = NAMES[LANGS[i]];
+      o.textContent = FLAGS[LANGS[i]] + " " + NAMES[LANGS[i]];
       o.style.color = "#111";
       sel.appendChild(o);
     }

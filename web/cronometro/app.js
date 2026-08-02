@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "0.5.1";
+  var APP_VERSION = "0.5.2";
   var LS = { nomi: "cronometro.nomi", cfg: "cronometro.cfg" };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -100,11 +100,18 @@
   }
 
   /* ---- elenchi a tendina --------------------------------------------------- */
+  /* ⚠️ Le bandierine sono coppie di "indicatori regionali": su Windows non
+     esistono nel font di sistema e si vedono le due lettere. Va bene lo stesso —
+     erano gia' due lettere prima — ma per questo resta anche il nome. */
+  var BANDIERE = { it: "🇮🇹", en: "🇬🇧", es: "🇪🇸", fr: "🇫🇷", de: "🇩🇪" };
+  var NOMI_LINGUA = { it: "Italiano", en: "English", es: "Español", fr: "Français", de: "Deutsch" };
+
   function fillLang() {
     els.lang.innerHTML = "";
     I18N.langs.forEach(function (l) {
       var o = document.createElement("option");
-      o.value = l; o.textContent = l.toUpperCase();
+      o.value = l;
+      o.textContent = (BANDIERE[l] || "") + " " + (NOMI_LINGUA[l] || l.toUpperCase());
       els.lang.appendChild(o);
     });
     els.lang.value = I18N.current;

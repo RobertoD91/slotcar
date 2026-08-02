@@ -208,7 +208,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="chron02",APP_VERSION="1.1.1";
+const APP="chron02",APP_VERSION="1.2.0";
 const VID=0x1fee,PID=0x0002;
 
 /* stati race_status[0] = 0x60 | enum (1=stop,3=run,4=pause,5=flag) */
@@ -434,5 +434,6 @@ function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
   if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
 </script>
+<script src="../tema.js"></script>
 </body>
 </html>

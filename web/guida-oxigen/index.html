@@ -556,7 +556,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="guida-oxigen",APP_VERSION="1.2.1";
+const APP="guida-oxigen",APP_VERSION="1.3.0";
 
 /* --- indice sezioni --- */
 (function(){
@@ -649,5 +649,6 @@ fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then
   if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)document.getElementById("upd").style.display="block";
 }).catch(()=>{});
 </script>
+<script src="../tema.js"></script>
 </body>
 </html>

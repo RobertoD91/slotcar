@@ -182,6 +182,18 @@ silenzio e pretende che il numero non si sia mosso.
   un'eccezione, e il risultato era che cambiava lato fra l'indice e le app. A sinistra il
   margine è libero ovunque, perché il link di ritorno sta nella colonna centrata.
 - **Link di ritorno: in alto a sinistra**, `<a class="back" href="../">`.
+- ⭐ **Interruttore chiaro/scuro accanto al selettore lingua, su tutte le pagine**
+  (`web/tema.js`, caricato da ogni `index.html`). **Tre** stati, non due: *auto* (segue il
+  sistema, ed è il predefinito), *chiaro*, *scuro* — un interruttore a due posizioni
+  costringerebbe a scegliere, buttando via `prefers-color-scheme`, che per la maggior parte
+  della gente è già la risposta giusta. In «auto» l'attributo `data-theme` si **toglie**, non
+  si mette a "auto": così tornano a valere la media query e i valori di `:root`.
+  ⚠️ È un file a sé perché i motori di traduzione sono **due** (`web/i18n.js` a 3 lingue che
+  si disegna il selettore, e quelli di cronometro e DS200 a 5 lingue col selettore nel
+  markup): un pezzo che deve stare ovunque non può vivere dentro uno dei due.
+- **Bandierine nel selettore lingua.** ⚠️ Sono coppie di indicatori regionali: su Windows non
+  esistono nel font di sistema e si vedono le due lettere (IT, EN…). Non è un difetto da
+  correggere — per questo accanto resta scritto il **nome** della lingua.
 - **Il selettore è NEL FLUSSO, non un riquadro flottante.** `i18n.js` lo inserisce subito
   dopo `a.back` se c'è, altrimenti in cima al corpo (l'indice, che non ha ritorno). Era
   `position:fixed` in un angolo, e un riquadro flottante deve schivare qualunque cosa gli
@@ -394,8 +406,14 @@ distinguibili e il giro veloce non è una lotteria. Il grande orologio resta a d
   se scrive **lettera per lettera** (`pressSequentially`): con `fill()` non si vede nulla.
 - **Un'auto in riserva ha `fuel === null`**: se il filtro della tabella guarda solo il
   livello numerico, sparisce proprio quando serve vederla.
-- **`git reset --hard` in un test** butta via anche le modifiche ai file tracciati che
-  stavi preparando.
+- ⭐ **`git reset --hard` — e anche `git checkout <file>` — in una prova** buttano via le
+  modifiche non ancora committate. È successo davvero: durante una prova di `check-style.js`
+  un `git checkout web/ninco/index.html` ha riportato indietro l'attributo `hidden` che
+  avevo aggiunto pochi minuti prima, e siccome `.banner` non nasconde più da sé il contagiri
+  Ninco ha detto «browser non supportato» su un Chrome che la Web Serial ce l'ha. Nessun
+  test lo vedeva: nel browser dei test la Web Serial non c'è, quindi la fascia si accendeva
+  per un motivo legittimo. Ora lo smoke test controlla la cosa **strutturale** — ogni
+  `.banner` deve avere `hidden` nel markup — che è l'invariante vera.
 - ⭐ **Grid e flex non si restringono sotto il proprio contenuto** finché non gli dici
   `min-width:0`. Con una tabella dentro, la colonna si allarga fino a contenerla e a
   scorrere in orizzontale diventa **tutta la pagina**: si sposta tutto — titoli, testo,

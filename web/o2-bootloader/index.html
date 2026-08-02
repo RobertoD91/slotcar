@@ -575,7 +575,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="o2-bootloader",APP_VERSION="1.3.2";
+const APP="o2-bootloader",APP_VERSION="1.4.0";
 const VID=0x1fee,PID=0x0002;
 /* Il programma ufficiale apre la COM a 9600 8N1 (visto nelle catture USB). Sul
    dongle è una COM virtuale, quindi il valore è nominale — ma se un giorno in
@@ -936,5 +936,6 @@ function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
   if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
 </script>
+<script src="../tema.js"></script>
 </body>
 </html>

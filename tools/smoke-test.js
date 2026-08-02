@@ -181,6 +181,54 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   // ---------- niente scorrimento orizzontale su schermo stretto ----------
   // Una tabella larga che sborda fa scorrere la PAGINA: si sposta tutto — titoli,
   // testo, pulsanti — per colpa di una colonna sola. Va avvolta in .tbwrap.
+    /* ⭐ Le fasce partono nascoste con l'attributo `hidden`: `.banner` non nasconde
+     più da sé (c'è chi la accende con `style.display`, che scavalca una classe,
+     e chi togliendo `hidden`, che invece non la scavalca). Se una perde
+     l'attributo resta accesa per sempre — ed è successo davvero: il contagiri
+     Ninco diceva «browser non supportato» su un Chrome che la Web Serial ce
+     l'ha. È un difetto strutturale, quindi si controlla nel markup. */
+  /* L'interruttore chiaro/scuro e le bandierine stanno su TUTTE le pagine: se
+     una si dimentica `tema.js` non se ne accorge nessuno, perché la pagina
+     funziona lo stesso — semplicemente non si può più cambiare tema lì. */
+  console.log('\n== TEMA E LINGUA: SU TUTTE LE PAGINE ==');
+  const cornice = await ctx.newPage();
+  for (const [path] of apps.concat([['', 'indice']])) {
+    await cornice.goto(BASE + '/' + path, { waitUntil: 'networkidle' });
+    await cornice.waitForTimeout(150);
+    const r = await cornice.evaluate(() => {
+      const b = document.getElementById('__temabtn');
+      const sel = document.getElementById('__langsel') || document.getElementById('lang');
+      const opt = sel ? [...sel.options].map((o) => o.textContent) : [];
+      return { tema: !!b, lingue: opt.length, bandiere: opt.filter((x) => /\uD83C[\uDDE6-\uDDFF]/.test(x)).length };
+    });
+    ok(r.tema, `${(path || 'indice/').padEnd(18)} ha l'interruttore del tema`);
+    /* L'installer ESP32 non ha il selettore: è italiano e basta, ed è un punto
+       aperto dichiarato in CLAUDE.md. Qui si dice, non si finge che vada bene. */
+    if (r.lingue === 0) console.log(`  ℹ️  ${(path || 'indice/').padEnd(18)} nessun selettore lingua (punto aperto)`);
+    else ok(r.bandiere === r.lingue,
+       `${(path || 'indice/').padEnd(18)} bandierine su tutte le lingue (${r.bandiere}/${r.lingue})`);
+  }
+  // e il tema si applica davvero, non solo l'attributo
+  await cornice.click('#__temabtn');            // auto -> chiaro
+  await cornice.click('#__temabtn');            // chiaro -> scuro
+  const scuro = await cornice.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
+  ok(scuro === '#0b0f17', 'premendo il pulsante il tema scuro si applica davvero: --bg = ' + scuro);
+  await cornice.close();
+
+  console.log('\n== FASCE: PARTONO NASCOSTE ==');
+  const fasce = await ctx.newPage();
+  for (const [path] of apps.concat([['', 'indice']])) {
+    await fasce.goto(BASE + '/' + path, { waitUntil: 'domcontentloaded' });
+    const accese = await fasce.evaluate(() =>
+      [...document.querySelectorAll('.banner')]
+        .filter((e) => !e.hasAttribute('hidden'))
+        .map((e) => e.id || e.className));
+    ok(accese.length === 0, `${(path || 'indice/').padEnd(18)} ` +
+       (accese.length ? 'fascia SENZA hidden: ' + accese.join(', ') : 'tutte con hidden'));
+  }
+  await fasce.close();
+
   console.log('\n== SCHERMO STRETTO (320px) ==');
   const stretta = await ctx.newPage();
   await stretta.setViewportSize({ width: 320, height: 700 });

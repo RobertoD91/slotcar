@@ -48,6 +48,13 @@ a{color:var(--acc)}
 .back{display:inline-block;text-decoration:none;font-size:13px;color:var(--mut)}
 .back:hover{color:var(--acc)}
 
+/* L'interruttore chiaro/scuro, accanto al selettore della lingua. Non è sotto
+   `body.app`: sta su TUTTE le pagine, indice e cronometro compresi. */
+.themebtn{background:rgba(127,127,127,.14);color:inherit;border:1px solid rgba(127,127,127,.4);
+          border-radius:8px;padding:3px 8px;margin-left:8px;cursor:pointer;
+          font-size:14px;line-height:1.4;vertical-align:middle}
+.themebtn:hover{border-color:var(--acc)}
+
 /* ---- La cornice del debugger --------------------------------------------
  *
  * Da qui in giù c'è quello che CINQUE app avevano copiato identico nel proprio

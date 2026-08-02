@@ -225,7 +225,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="car-config",APP_VERSION="1.2.1";
+const APP="car-config",APP_VERSION="1.3.0";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const REGS=[[0x00,"info"],[0x81,"info/capab"],[0x83,"NOME"],[0x84,"MAX SPEED"],[0x86,"BRAKE"],[0x87,"LIMITI on/off"],
   [0x8e,"config"],[0x8f,"ID auto"],[0x90,"MAC(2B)"],[0x91,"MODO"],[0x94,"ID tx time"],[0x95,"ID D132"]];
@@ -353,5 +353,6 @@ fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then
   c.addEventListener("input",check); c.addEventListener("blur",check); check();
 })();
 </script>
+<script src="../tema.js"></script>
 </body>
 </html>
