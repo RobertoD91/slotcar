@@ -165,7 +165,13 @@
         type: "lap",
         slot: f.lane,
         laps: f.laps,
-        lapMs: f.noTime || f.timeSeconds == null ? null : Math.round(f.timeSeconds * 1000)
+        /* ⚠️ NON si arrotonda: la centralina manda DIECIMILLESIMI di secondo
+           (0.1 ms), e Math.round li avrebbe buttati via. A video ne mostriamo
+           comunque quanti ne dichiara `caps.timeDecimals`, ma il confronto fra
+           due giri va fatto su TUTTE le cifre — altrimenti due giri che pari
+           ai centesimi risultano pari e basta, e il giro veloce diventa una
+           lotteria. Le cifre in piu' servono all'ORDINE, non alla vetrina. */
+        lapMs: f.noTime || f.timeSeconds == null ? null : f.timeSeconds * 1000
       });
       this.raw(f.rawHex + "   corsia " + f.lane + " giro " + f.laps +
                "  " + (f.noTime ? "(primo passaggio)" : f.timeText));
@@ -217,6 +223,10 @@
          primo frame valido, che dice quale delle due centraline sta parlando. */
       slots: 2,
       lapTime: true,
+      /* Quattro: la centralina manda HH:MM:SS.dddd, cioe' diecimillesimi. E'
+         l'unico sistema del gruppo che va oltre i centesimi (Ninco manda
+         MMSSCC, oXigen centesimi via telemetria). */
+      timeDecimals: 4,
       position: false,
       fuel: false,
       pit: false,

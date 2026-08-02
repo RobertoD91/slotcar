@@ -52,6 +52,8 @@ let a = build([0xE0, 0x01, 0x15, 0x02, 0, 0, 0, 0x00, 0xA1, 0x12, 0x34, 0, 0, 0,
 let r = D.parseFrame(a, 1700000000);
 assert.strictEqual(r.function, 'start_race_phase_1');
 assert.strictEqual(r.programHi, 0x12);
+// i due byte sono BCD: 0x12 0x34 = 1234. Col DS200 dell'utente sono 0x00 0x25 = 25 giri.
+assert.strictEqual(r.programme, 1234);
 assert.strictEqual(r.programLo, 0x34);
 assert.strictEqual(r.identifier, null);
 assert.strictEqual(r.lane, null);

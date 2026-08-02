@@ -10,13 +10,14 @@ L'utente è italiano: **rispondere in italiano**.
 ## ⭐ TODO
 
 ### In carico all'utente
-- [ ] **Cronometro col DS200: resta da confermare il numero di giri programmato.** Il frame
-      di partenza dice «gara a giri individuali, 0x25». Lo leggiamo come **25 in BCD** e
-      torna con la cattura, ma va verificato su un'altra programmazione (metti 12 giri sulla
-      centralina e guarda se l'app scrive 12).
-- [ ] **Cronometro col DS200, secondo giro di prove** — la pausa è sistemata e verificata
-      sulla cattura. Restano da provare in pista: gara annullata (A7), fine gara vera (A4),
-      e il record finale.
+- [ ] **Confermare il numero di giri programmato.** Il frame di partenza dice «gara a giri
+      individuali, 0x25». Lo leggiamo come **25 in BCD** e torna con la cattura, ma va
+      verificato su un'altra programmazione: metti **12 giri** sulla centralina e guarda se
+      scrive 12. Ora si legge in **due posti**: la card «Programma» del contagiri e
+      l'annuncio vocale alla partenza del cronometro.
+- [ ] **Cronometro col DS200, secondo giro di prove** — restano da provare in pista: gara
+      annullata (A7), fine gara vera (A4) e il record finale. La fine gara ora si annuncia
+      **una volta sola** (la centralina manda il frame tre volte), da confermare dal vivo.
 - [ ] **Auto 8, cifre della benzina invertite** — nel contagiri Ninco l'ottava auto viene
       letta con le due cifre scambiate (`42` → `24`). È documentato, ma la fonte non sa
       dire se valga per tutte le power base. L'utente verifica sul campo e riferisce: se
@@ -277,6 +278,21 @@ sistema solo se li accetta.
 - `DS200 = 2 corsie, DS300 = 8`, e **quale dei due sia lo dice il byte 4 di ogni frame**:
   il limite di posti si aggiusta da solo, non serve chiederlo.
 
+⭐ **La precisione è una proprietà del SISTEMA, non della grafica** (`caps.timeDecimals`):
+il DS200/DS300 trasmette `HH:MM:SS.dddd`, cioè **diecimillesimi**; il Ninco manda `MMSSCC`,
+cioè centesimi; oXigen centesimi via telemetria. Mostrarne quattro dove ne arrivano due
+vuol dire inventarne due, e mostrarne due dove ne arrivano quattro vuol dire buttarne via.
+Tre regole:
+- **il contagiri** (debugger) mostra sempre quello che è arrivato, tutte le cifre;
+- **il cronometro** mostra `caps.timeDecimals` del sistema collegato;
+- **la voce dice sempre i centesimi**, in tutti i sistemi: è come si citano i tempi, e
+  quattro cifre lette ad alta voce sono incomprensibili (scelta dell'utente).
+
+⚠️ Le cifre in più servono soprattutto all'**ordine**, non alla vetrina: il tempo sul giro
+arriva al motore **senza arrotondamento**, così due giri pari ai centesimi restano
+distinguibili e il giro veloce non è una lotteria. Il grande orologio resta a due decimali:
+è un tempo di gara, non un tempo sul giro, e a distanza le cifre in più sono rumore.
+
 **Scelte già prese, per non ridiscuterle:**
 - **GP a giri**: alla bandiera la gara si chiude, gli altri restano ai giri fatti. Chi passa
   dopo non incrementa più (`_lap` conta solo con stato `running`).
@@ -303,6 +319,17 @@ sistema solo se li accetta.
   «browser non supportato» è fuorviante. L'indice passa da sé a `https`.
 - **La power base Ninco ripete i pacchetti**: un totale non crescente va ignorato, o si
   contano giri da 0 ms e il giro veloce diventa 0.
+- ⭐ **Anche il DS200 ripete OGNI frame tre volte**, e non basta che chi cambia stato si
+  difenda: `_setState` usciva subito se lo stato non cambiava, ma l'evento `end` lo emetteva
+  `_finish`, *prima* di quella guardia — e la voce annunciava il vincitore tre volte. Ogni
+  transizione che produce un evento va resa **idempotente dove l'evento nasce**, non dove lo
+  stato cambia.
+- ⭐ **Ridisegnare una lista mentre ci si scrive dentro.** Rinominare un guidatore emetteva
+  `roster`, chi ascolta ricostruiva l'elenco, e la casella sotto le dita spariva col fuoco
+  dentro: dopo ogni lettera bisognava ricliccare. Due lezioni: un evento deve dire *cosa* è
+  cambiato (`roster` = chi c'è, non come si chiama), e chi ricostruisce un pezzo di pagina
+  che può contenere il fuoco deve **ricordarsi dov'era il cursore**. Il test lo prende solo
+  se scrive **lettera per lettera** (`pressSequentially`): con `fill()` non si vede nulla.
 - **Un'auto in riserva ha `fuel === null`**: se il filtro della tabella guarda solo il
   livello numerico, sparisce proprio quando serve vederla.
 - **`git reset --hard` in un test** butta via anche le modifiche ai file tracciati che

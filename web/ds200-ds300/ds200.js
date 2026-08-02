@@ -134,6 +134,7 @@
 
     let programHi = null;
     let programLo = null;
+    let programme = null;
     let identifier = null;
     let isFastLap = false;
     let isFirstPosition = false;
@@ -141,6 +142,13 @@
     if (functionId === 0xa1) {
       programHi = frame[9];
       programLo = frame[10];
+      /* I due byte sono BCD come tutto il resto: 0x00 0x25 = 25 giri. Il parser
+         decodifica gia' giri, ore, minuti e secondi — lasciare QUESTI grezzi
+         obbligava ogni consumatore a rifare la conversione per conto suo (e
+         infatti il contagiri mostrava "prog 0x2500" invece di "25 giri"). */
+      const ph = bcdByteToInt(programHi), pl = bcdByteToInt(programLo);
+      programme = (ph === null || pl === null) ? null : ph * 100 + pl;
+      if (programme === null) warnings.push('invalid_bcd_programme');
     } else {
       // Flags can appear in either the function slot (byte 9 / idx 8) or the
       // identifier slot (byte 10 / idx 9): 0xA9 = fast lap, 0xA8 = first position.
@@ -205,7 +213,7 @@
       identifierId, identifier,
       isFastLap, isFirstPosition,
       laneMask, lane,
-      programHi, programLo,
+      programHi, programLo, programme,
       laps, hours, minutes, seconds,
       fraction4digits: fraction,
       noTime,

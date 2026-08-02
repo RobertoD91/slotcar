@@ -78,7 +78,7 @@ function frame({ device = 0x02, dataType = 0x00, fn = 0x00, id = 0x00, lane = 0x
 
   console.log('\n== LA CENTRALINA ANNUNCIA LA PARTENZA ==');
   // fase 1 = 0x3C (giri individuali) + funzione 0xA1, come nella cattura vera
-  await page.evaluate((f) => window.__feed(f), frame({ dataType: 0x3C, fn: 0xA1, id: 0x25, lane: 0x00 }));
+  await page.evaluate((f) => window.__feed(f), frame({ dataType: 0x3C, fn: 0xA1, id: 0x00, lane: 0x25 }));
   await page.evaluate((f) => window.__feed(f), frame({ dataType: 0x00, fn: 0xA2 }));
   await page.evaluate((f) => window.__feed(f), frame({ dataType: 0x00, fn: 0xA3 }));
   await page.waitForTimeout(200);
@@ -120,6 +120,32 @@ function frame({ device = 0x02, dataType = 0x00, fn = 0x00, id = 0x00, lane = 0x
   await page.click('#reset');
   await page.waitForTimeout(150);
   ok((await page.locator('#clock').innerText()).trim() === '—', 'azzerato: torna vuoto, non a zero');
+
+  console.log('\n== ⭐ MOSTRA TUTTO QUELLO CHE È ARRIVATO ==');
+  // un debugger che riassume costringe a leggere l'esadecimale a mano
+  await page.evaluate((f) => window.__feed(f),
+    frame({ dataType: 0x3C, fn: 0xA1, id: 0x00, lane: 0x25 }));
+  await page.waitForTimeout(200);
+  const prog = await page.locator('#prog').innerText();
+  ok(/\b25\b/.test(prog), 'il numero di giri programmato si vede: ' + prog);
+  ok(/giri|lap|vuelta|tour|Runden/i.test(prog), 'e dice anche di che gara si tratta: ' + prog);
+
+  const campi = await page.evaluate(() =>
+    [...document.querySelectorAll('#fields tbody tr')].map(tr => tr.children[0].textContent));
+  for (const atteso of ['txCounter', 'password', 'identifier', 'flags', 'programme',
+                        'control', 'checksum', 'laneMask', 'raw']) {
+    ok(campi.includes(atteso), 'il pannello mostra il campo ' + atteso);
+  }
+  const rigaProg = await page.evaluate(() => {
+    const tr = [...document.querySelectorAll('#fields tbody tr')]
+      .find(r => r.children[0].textContent === 'programme');
+    return tr ? tr.children[1].textContent : '';
+  });
+  ok(/^25\b/.test(rigaProg), 'e il programma decodificato, coi byte grezzi accanto: ' + rigaProg);
+
+  const riga = await page.locator('#log').innerText();
+  ok(riga.includes('prog=25'), 'anche il registro grezzo lo riporta');
+  ok(/tx=|pw=|ctl=/.test(riga), 'insieme a contatore, password e controllo');
 
   console.log('\n== CORNICE COMUNE ==');
   const comune = await page.evaluate(() => ({

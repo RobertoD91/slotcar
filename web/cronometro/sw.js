@@ -4,19 +4,19 @@
  * ⚠️ Ad ogni pubblicazione va alzato CACHE **e** le query ?v= qui sotto e in
  * index.html: con la cache-first, se non cambia il nome, chi ha gia' aperto la
  * pagina resta sulla copia vecchia per sempre. */
-const CACHE = 'cronometro-v0.4.1';
+const CACHE = 'cronometro-v0.4.2';
 const ASSETS = [
   './',
   './index.html',
   '../ui.css?v=2',
-  './styles.css?v=0.4.1',
-  './i18n.js?v=0.4.1',
-  './race.js?v=0.4.1',
-  './sistemi/registry.js?v=0.4.1',
-  './sistemi/sim.js?v=0.4.1',
-  '../ds200-ds300/ds200.js?v=0.4.1',
-  './sistemi/ds200.js?v=0.4.1',
-  './app.js?v=0.4.1',
+  './styles.css?v=0.4.2',
+  './i18n.js?v=0.4.2',
+  './race.js?v=0.4.2',
+  './sistemi/registry.js?v=0.4.2',
+  './sistemi/sim.js?v=0.4.2',
+  '../ds200-ds300/ds200.js?v=0.4.2',
+  './sistemi/ds200.js?v=0.4.2',
+  './app.js?v=0.4.2',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',

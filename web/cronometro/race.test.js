@@ -387,6 +387,57 @@ eq(RACE.formatClock(3661500), '1:01:01.50', 'oltre l\'ora compaiono le ore');
   eq(fine.standings.every(g => g.bestLapMs > 3000 && g.bestLapMs < 30000), true);
 }
 
+/* ---------- frame ripetuti: la centralina li manda TRE volte ---------- */
+{
+  /* Il DS200 ripete ogni frame tre volte. Chiudere una gara gia' chiusa non e'
+     un evento: senza la guardia in _finish, la voce annunciava il vincitore
+     tre volte di fila. */
+  const r = newRace({ mode: 'gp', targetLaps: 3 });
+  let fini = 0;
+  r.on('end', () => fini++);
+  r.feed({ type: 'state', state: 'running' });
+  r._clock.adv(5000);
+  r.feed({ type: 'lap', slot: 1, laps: 1, lapMs: 5000 });
+
+  r.feed({ type: 'state', state: 'finished' });
+  r.feed({ type: 'state', state: 'finished' });
+  r.feed({ type: 'state', state: 'finished' });
+  eq(fini, 1, "'end' una volta sola anche se il frame arriva tre volte");
+
+  // e nemmeno lo stop manuale la richiude
+  r.command('stop');
+  eq(fini, 1, 'nemmeno uno stop dopo la fine riapre e richiude la gara');
+
+  // ma una gara NUOVA puo' finire di nuovo
+  r.command('newrace');
+  r.feed({ type: 'state', state: 'running' });
+  r.feed({ type: 'state', state: 'finished' });
+  eq(fini, 2, 'una gara nuova pero' + String.fromCharCode(39) + ' finisce davvero');
+}
+
+/* ---------- rinominare non e' un cambio di roster ---------- */
+{
+  /* 'roster' vuol dire "chi c'e' e' cambiato", e chi ascolta ridisegna l'elenco
+     da capo — cancellando la casella di testo sotto le dita di chi sta
+     scrivendo. Rinominare non cambia chi c'e'. */
+  const r = newRace({});
+  r.guidatore(1);
+  let roster = 0, rename = 0;
+  r.on('roster', () => roster++);
+  r.on('rename', () => rename++);
+
+  'Roberto'.split('').forEach((_, i) => r.rename(1, 'Roberto'.slice(0, i + 1)));
+  eq(roster, 0, 'sette lettere, zero eventi roster');
+  eq(rename, 7, 'ma sette eventi rename, uno per lettera');
+  eq(r.bySlot[1].name, 'Roberto');
+
+  // aggiungere e togliere invece SI'
+  r.guidatore(2);
+  eq(roster, 1, 'un posto nuovo cambia il roster');
+  r.removeGuidatore(2);
+  eq(roster, 2, 'e toglierlo pure');
+}
+
 /* ---------- simulatore: riproduzione a tempo reale (accelerata) ---------- */
 (async () => {
   const s = SISTEMI.create('sim', {

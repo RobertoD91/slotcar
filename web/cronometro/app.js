@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "0.4.1";
+  var APP_VERSION = "0.4.2";
   var LS = { nomi: "cronometro.nomi", cfg: "cronometro.cfg" };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -141,6 +141,18 @@
   }
 
   function renderRoster() {
+    /* ⚠️ Qui l'elenco si ricostruisce da capo, e se stai scrivendo un nome la
+       casella sotto le dita sparisce col fuoco dentro. Rinominare non passa piu'
+       di qui (vedi race.rename), ma un'altra via resta aperta: se mentre scrivi
+       arriva il giro di un posto ancora sconosciuto, il roster cambia davvero e
+       ridisegnarlo e' giusto. Allora ci si ricorda dov'era il cursore. */
+    var attivo = document.activeElement;
+    var slotAttivo = null, sel = 0;
+    if (attivo && attivo.tagName === "INPUT" && els.roster.contains(attivo)) {
+      slotAttivo = attivo.dataset.slot;
+      sel = attivo.selectionStart;
+    }
+
     els.roster.innerHTML = "";
     race.guidatori.forEach(function (g) {
       var row = document.createElement("div");
@@ -154,6 +166,7 @@
       inp.type = "text";
       inp.value = g.name || "";
       inp.placeholder = t("hdr.driver");
+      inp.dataset.slot = g.slot;
       inp.setAttribute("aria-label", num.textContent);
       inp.addEventListener("input", function () {
         race.rename(g.slot, inp.value);
@@ -175,6 +188,11 @@
       els.roster.appendChild(row);
     });
     renderLimite();
+
+    if (slotAttivo != null) {
+      var tornato = els.roster.querySelector('input[data-slot="' + slotAttivo + '"]');
+      if (tornato) { tornato.focus(); try { tornato.setSelectionRange(sel, sel); } catch (e) {} }
+    }
   }
 
   function salvaSlots() {
@@ -194,6 +212,14 @@
   });
 
   /* ---- classifica ---------------------------------------------------------- */
+  /* Quanti decimali scrivere: lo dichiara il SISTEMA collegato, non l'interfaccia.
+     Il DS200 manda diecimillesimi e li mostriamo; Ninco e oXigen mandano
+     centesimi e mostrarne quattro sarebbe inventarne due. Il grande orologio
+     resta a due: e' un tempo di gara, non un tempo sul giro, e a distanza le
+     cifre in piu' sono rumore. Anche la voce dice sempre i centesimi. */
+  function dec() { return caps.timeDecimals == null ? 2 : caps.timeDecimals; }
+  function tempo(ms) { return RACE.formatMs(ms, dec()); }
+
   function gapText(g, leader) {
     if (!leader || g === leader) return "—";
     if (g.laps < leader.laps) {
@@ -201,7 +227,7 @@
       return d === 1 ? t("gap.lap") : t("gap.laps", { n: d });
     }
     if (g.lastCrossAt != null && leader.lastCrossAt != null) {
-      return "+" + RACE.formatMs(g.lastCrossAt - leader.lastCrossAt);
+      return "+" + tempo(g.lastCrossAt - leader.lastCrossAt);
     }
     return "—";
   }
@@ -235,8 +261,8 @@
         esc(nomeDi(g)) + (g.name ? "<small>" + esc(etichetta) + "</small>" : ""), "who"));
 
       tr.appendChild(td(String(g.laps)));
-      tr.appendChild(td(RACE.formatMs(g.lastLapMs)));
-      tr.appendChild(td(RACE.formatMs(g.bestLapMs),
+      tr.appendChild(td(tempo(g.lastLapMs)));
+      tr.appendChild(td(tempo(g.bestLapMs),
         migliore && migliore.slot === g.slot && g.bestLapMs != null ? "best" : ""));
       tr.appendChild(td(gapText(g, st[0]), "gapCol"));
 
@@ -249,7 +275,7 @@
       els.board.appendChild(tr);
     });
 
-    els.bestVal.textContent = migliore ? RACE.formatMs(migliore.bestLapMs) : "—";
+    els.bestVal.textContent = migliore ? tempo(migliore.bestLapMs) : "—";
     els.targetVal.textContent = race.mode === "gp"
       ? t("info.targetLaps", { n: race.targetLaps })
       : t("mode.pratica");
@@ -526,7 +552,18 @@
   var leaderPrec = null;
 
   race.on("state", function (e) {
-    if (e.state === "running" && e.prev !== "paused") { detti = Object.create(null); leaderPrec = null; speak(t("tts.start"), true); }
+    if (e.state === "running" && e.prev !== "paused") {
+      detti = Object.create(null); leaderPrec = null;
+      /* Alla partenza si dice anche SU QUANTI GIRI si corre. Col DS200 il
+         numero non l'hai scelto tu: l'ha deciso la centralina e l'app l'ha
+         appena letto dal frame di partenza — sentirselo dire è l'unica
+         conferma che quello che sta per correre è davvero quello programmato. */
+      var via = t("tts.start");
+      if (race.mode === "gp" && race.targetLaps > 0) {
+        via += ", " + t("tts.startLaps", { n: race.targetLaps });
+      }
+      speak(via, true);
+    }
     else if (e.state === "running" && e.prev === "paused") speak(t("tts.resumed"));
     else if (e.state === "paused") speak(t("tts.paused"));
     renderState();

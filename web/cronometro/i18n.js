@@ -100,6 +100,7 @@
 
       "tts.on": "Annuncio vocale attivo",
       "tts.start": "Via!",
+      "tts.startLaps": "gara a {n} giri",
       "tts.paused": "Gara in pausa",
       "tts.resumed": "Si riparte",
       "tts.lap": "{who}, giro {n}, {time}",
@@ -200,6 +201,7 @@
 
       "tts.on": "Voice announcements on",
       "tts.start": "Go!",
+      "tts.startLaps": "{n}-lap race",
       "tts.paused": "Race paused",
       "tts.resumed": "Racing again",
       "tts.lap": "{who}, lap {n}, {time}",
@@ -300,6 +302,7 @@
 
       "tts.on": "Anuncios de voz activados",
       "tts.start": "¡Ya!",
+      "tts.startLaps": "carrera a {n} vueltas",
       "tts.paused": "Carrera en pausa",
       "tts.resumed": "Se reanuda",
       "tts.lap": "{who}, vuelta {n}, {time}",
@@ -400,6 +403,7 @@
 
       "tts.on": "Annonces vocales activées",
       "tts.start": "Départ !",
+      "tts.startLaps": "course en {n} tours",
       "tts.paused": "Course en pause",
       "tts.resumed": "On repart",
       "tts.lap": "{who}, tour {n}, {time}",
@@ -500,6 +504,7 @@
 
       "tts.on": "Sprachansagen aktiv",
       "tts.start": "Los!",
+      "tts.startLaps": "Rennen über {n} Runden",
       "tts.paused": "Rennen pausiert",
       "tts.resumed": "Weiter geht's",
       "tts.lap": "{who}, Runde {n}, {time}",

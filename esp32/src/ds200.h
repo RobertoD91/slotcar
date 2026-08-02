@@ -35,6 +35,7 @@ struct Frame {
   uint8_t  laneMask;
   int      lane;              // 0 if none, else 1..8
   int      programHi, programLo; // -1 if not applicable
+  int      programme;            // programHi/Lo decoded from BCD, -1 if n/a
   int      laps;             // -1 if invalid BCD
   int      hours, minutes, seconds, fraction; // -1 if invalid
   bool     noTime;           // true = no lap time yet (0xAA fill)
@@ -146,7 +147,7 @@ inline void parse(const uint8_t* f, Frame& fr) {
 
   fr.identifierId = f[9];
   fr.laneMask     = f[10];
-  fr.programHi = fr.programLo = -1;
+  fr.programHi = fr.programLo = fr.programme = -1;
   fr.identifier = nullptr;
   fr.isFastLap = false;
   fr.isFirstPosition = false;
@@ -154,6 +155,10 @@ inline void parse(const uint8_t* f, Frame& fr) {
   if (f[8] == 0xA1) {                 // start of race -> bytes 10/11 are programme values
     fr.programHi = f[9];
     fr.programLo = f[10];
+    // BCD like everything else: 0x00 0x25 = 25 laps. Decoded here so no
+    // consumer has to redo the conversion on its own.
+    int ph = bcdByte(fr.programHi), pl = bcdByte(fr.programLo);
+    fr.programme = (ph < 0 || pl < 0) ? -1 : ph * 100 + pl;
   } else {
     // Flags appear in either the function slot (idx 8) or identifier slot (idx 9):
     // 0xA9 = fast lap, 0xA8 = first position.
@@ -198,6 +203,7 @@ inline void parse(const uint8_t* f, Frame& fr) {
   if (!fr.validLength) add("bad_length");
   if (!fr.checksumOk)  add("bad_checksum");
   if (fr.laps < 0)     add("invalid_bcd_laps");
+  if (f[8] == 0xA1 && fr.programme < 0) add("invalid_bcd_programme");
   if (!fr.noTime && fr.timeText[0] == '\0') add("invalid_bcd_time");
   if (fr.dataTypeId != 0x00 && f[8] != 0xA1 && fr.lane == 0) add("unknown_lane_mask");
 

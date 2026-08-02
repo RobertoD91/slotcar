@@ -45,6 +45,11 @@
     slotLabel: "car",   // 'lane' (corsia) | 'car' (auto): come si chiama il posto
     slots: 8,           // quanti posti gestisce la pista
     lapTime: false,     // fornisce il tempo sul giro
+    /* Quanti decimali di secondo quel sistema puo' davvero giustificare.
+       Non e' un vezzo grafico: il DS200 trasmette DIECIMILLESIMI (4), il Ninco
+       manda MMSSCC cioe' centesimi (2), e oXigen centesimi via telemetria.
+       Mostrarne quattro dove ne arrivano due sarebbe inventare due cifre. */
+    timeDecimals: 2,
     position: false,    // fornisce la posizione in classifica
     fuel: false,
     pit: false,

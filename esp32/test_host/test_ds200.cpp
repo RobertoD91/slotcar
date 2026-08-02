@@ -51,6 +51,8 @@ int main() {
   Frame fa; parse(a, fa);
   assert(strcmp(fa.function, "start_race_phase_1") == 0);
   assert(fa.programHi == 0x12 && fa.programLo == 0x34);
+  // BCD: 0x12 0x34 = 1234. On the user's DS200 it is 0x00 0x25 = 25 laps.
+  assert(fa.programme == 1234);
   assert(fa.identifier == nullptr);
   assert(fa.lane == 0);
   assert(strstr(fa.warnings, "unknown_lane_mask") == nullptr);

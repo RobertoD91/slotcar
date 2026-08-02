@@ -160,7 +160,12 @@
   Race.prototype.rename = function (slot, name) {
     var g = this.guidatore(slot);
     g.name = name && String(name).trim() ? String(name).trim() : null;
-    this.emit("roster", this.guidatori);
+    /* ⚠️ NON emette 'roster'. 'roster' vuol dire "chi c'e' e' cambiato" —
+       qualcuno e' entrato o uscito — e chi ascolta ridisegna l'elenco da capo.
+       Rinominare non cambia chi c'e', e ridisegnare l'elenco mentre stai
+       scrivendo distrugge la casella che hai sotto le dita: si perdeva il fuoco
+       ad ogni lettera, e bisognava ricliccare per scrivere la successiva. */
+    this.emit("rename", { slot: g.slot, guidatore: g });
     this.emit("change", this);
     return g;
   };
@@ -308,6 +313,12 @@
   };
 
   Race.prototype._finish = function (t, winner) {
+    /* ⚠️ La centralina ripete OGNI frame tre volte, quindi "fine gara" arriva
+       tre volte. `_setState` da solo si difende (esce subito se lo stato non
+       cambia), ma l'evento 'end' lo emette questa funzione: senza la guardia
+       qui, la voce annunciava il vincitore tre volte di fila.
+       Chiudere una gara gia' chiusa non e' un evento. */
+    if (this.state === STATE.FINISHED || this.state === STATE.ABORTED) return;
     this._setState(STATE.FINISHED, t);
     var st = this.standings();
     this.emit("end", { winner: winner || st[0] || null, standings: st, t: t });
@@ -534,19 +545,25 @@
 
   /* -- formattazione (usata da interfaccia, voce e CSV: sta qui una volta sola) */
 
-  function formatMs(ms) {
+  /* `dec` = decimali di secondo. Il valore lo decide il SISTEMA collegato
+     (`caps.timeDecimals`), non l'interfaccia: scrivere quattro cifre dove ne
+     arrivano due significa inventarne due. Il predefinito e' 2 — i centesimi,
+     che e' come si citano i tempi e come li dice la voce. */
+  function formatMs(ms, dec) {
     if (ms == null || !isFinite(ms)) return "—";
+    dec = dec == null ? 2 : dec;
     var neg = ms < 0; ms = Math.abs(ms);
     var m = Math.floor(ms / 60000),
         s = Math.floor(ms % 60000 / 1000),
-        c = Math.floor(ms % 1000 / 10);
-    return (neg ? "-" : "") + m + ":" + String(s).padStart(2, "0") + "." + String(c).padStart(2, "0");
+        f = Math.floor((ms % 1000) * Math.pow(10, dec - 3));
+    return (neg ? "-" : "") + m + ":" + String(s).padStart(2, "0") +
+           (dec > 0 ? "." + String(f).padStart(dec, "0") : "");
   }
 
-  function formatClock(ms) {
+  function formatClock(ms, dec) {
     if (ms == null || !isFinite(ms)) return "0:00.00";
     var h = Math.floor(ms / 3600000);
-    var rest = formatMs(ms % 3600000);
+    var rest = formatMs(ms % 3600000, dec);
     return h > 0 ? h + ":" + (rest.length < 8 ? "0" : "") + rest : rest;
   }
 

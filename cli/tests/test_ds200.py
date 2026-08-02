@@ -84,6 +84,8 @@ def test_start_of_race_program_values_not_identifier_or_lane():
     f = ds.parse_frame(frame)
     assert f.function == "start_race_phase_1"
     assert f.program_hi == 0x12
+    # BCD: 0x12 0x34 = 1234. On the user's DS200 it is 0x00 0x25 = 25 laps.
+    assert f.programme == 1234
     assert f.program_lo == 0x34
     assert f.identifier is None          # NOT mis-read as an identifier
     assert f.lane is None                # NOT mis-read as a lane

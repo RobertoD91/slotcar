@@ -124,6 +124,7 @@ class DSFrame:
     lane: Optional[int]
     program_hi: Optional[int]
     program_lo: Optional[int]
+    programme: Optional[int]
     laps: Optional[int]
     hours: Optional[int]
     minutes: Optional[int]
@@ -201,6 +202,7 @@ def parse_frame(frame: bytes, ts: Optional[float] = None) -> DSFrame:
 
     program_hi = None
     program_lo = None
+    programme = None
     identifier = None
     is_fast_lap = False
     is_first_position = False
@@ -208,6 +210,12 @@ def parse_frame(frame: bytes, ts: Optional[float] = None) -> DSFrame:
     if function_id == 0xA1:
         program_hi = frame[9]
         program_lo = frame[10]
+        # BCD like everything else: 0x00 0x25 = 25 laps. Decoding it here keeps
+        # every consumer from redoing the conversion (and getting it wrong).
+        ph, pl = bcd_byte_to_int(program_hi), bcd_byte_to_int(program_lo)
+        programme = None if ph is None or pl is None else ph * 100 + pl
+        if programme is None:
+            warnings.append("invalid_bcd_programme")
     else:
         # Flags can appear in either the function slot (byte 9 / idx 8) or the
         # identifier slot (byte 10 / idx 9): 0xA9 = fast lap, 0xA8 = first position.
@@ -281,6 +289,7 @@ def parse_frame(frame: bytes, ts: Optional[float] = None) -> DSFrame:
         lane=lane,
         program_hi=program_hi,
         program_lo=program_lo,
+        programme=programme,
         laps=laps,
         hours=hours,
         minutes=minutes,
@@ -399,7 +408,8 @@ def print_human(f: DSFrame, show_invalid: bool = True) -> None:
         print(f"  function: unknown_0x{f.function_id:02X}")
 
     if f.program_hi is not None:
-        print(f"  program: hi=0x{f.program_hi:02X} lo=0x{f.program_lo:02X}")
+        print(f"  program: hi=0x{f.program_hi:02X} lo=0x{f.program_lo:02X}"
+              + (f"  = {f.programme}" if f.programme is not None else ""))
 
     if f.identifier is not None:
         flags = []

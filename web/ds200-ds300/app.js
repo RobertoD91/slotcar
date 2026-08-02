@@ -5,7 +5,7 @@
   // Bump on every release. Shown in the footer so you can tell at a glance
   // whether the browser/PWA cache served a stale version. Keep in sync with the
   // ?v= query strings in index.html and the cache name in sw.js.
-  const APP_VERSION = '1.6.0';
+  const APP_VERSION = '1.7.0';
 
   const $ = (id) => document.getElementById(id);
   const els = {
@@ -16,6 +16,7 @@
     reset: $('reset'), export: $('export'), clearlog: $('clearlog'),
     hideInvalid: $('hideInvalid'), installHint: $('install-hint'),
     version: $('version'), tts: $('tts'), lang: $('lang'), link: $('link'),
+    prog: $('prog'), fields: $('fields'),
     cmdCard: $('cmd-card'), cmdDev: $('cmdDev'), cmdHex: $('cmdHex'),
     cmdSend: $('cmdSend'), cmdStatus: $('cmdStatus'),
   };
@@ -242,6 +243,9 @@
 
     allRows.push(f);
     appendLog(f);
+    renderFields(f);
+    // il programma arriva solo col frame di partenza: si tiene, non si sostituisce
+    if (f.functionId === 0xa1) renderProg(f);
 
     // Il ciclo di gara annunciato dalla centralina (partenza / pausa / fine).
     if (f.dataType === 'function' && f.function) handleFunction(f);
@@ -378,6 +382,65 @@
   /* Il numero grande. Vuoto finche' la centralina non ha trasmesso un tempo:
      "—" e' un'informazione vera, "00:00:00.00" sarebbe una bugia con l'aria di
      un dato. */
+  /* Il programma di gara: quanti giri (o che modalita') ha impostato chi ha
+     programmato la centralina. Arriva SOLO nel frame di partenza (fase 1), una
+     volta per gara, quindi va tenuto da parte: se lo lasci passare col frame,
+     lo perdi. Era l'informazione piu' importante che non si vedeva da nessuna
+     parte — c'era solo come esadecimale grezzo in fondo a una riga di eventi. */
+  function renderProg(f) {
+    if (!els.prog) return;
+    if (f === null) { els.prog.textContent = '—'; els.prog.title = ''; return; }
+    const tipo = t('dtype.' + f.dataType);
+    els.prog.textContent = f.programme == null ? tipo : f.programme + ' · ' + tipo;
+    els.prog.title = 'programHi=0x' + DS200.hex2(f.programHi) +
+                     ' programLo=0x' + DS200.hex2(f.programLo);
+  }
+
+  /* Ogni campo dell'ultimo frame, anche quelli che non usiamo: se la centralina
+     lo manda, qui si vede. Un debugger che mostra un riassunto costringe a
+     leggere l'esadecimale a mano — che e' esattamente il lavoro da cui dovrebbe
+     salvarti. */
+  const CAMPI = [
+    ['txCounter', (f) => '0x' + DS200.hex2(f.txCounter)],
+    ['length', (f) => '0x' + DS200.hex2(f.length)],
+    ['device', (f) => f.device + ' (0x' + DS200.hex2(f.deviceId) + ')'],
+    ['unused', (f) => '0x' + DS200.hex2(f.unused)],
+    ['password', (f) => '0x' + DS200.hex2(f.passwordHi) + DS200.hex2(f.passwordLo)],
+    ['dataType', (f) => f.dataType + ' (0x' + DS200.hex2(f.dataTypeId) + ')'],
+    ['function', (f) => (f.function || '—') + ' (0x' + DS200.hex2(f.functionId) + ')'],
+    ['identifier', (f) => f.identifier || '—'],
+    ['flags', (f) => [f.isFastLap ? 'fast_lap' : null,
+                      f.isFirstPosition ? 'first_position' : null].filter(Boolean).join(' ') || '—'],
+    ['laneMask', (f) => '0x' + DS200.hex2(f.laneMask) + (f.lane ? ' → ' + f.lane : '')],
+    ['programme', (f) => f.programme == null ? '—'
+       : f.programme + '  (0x' + DS200.hex2(f.programHi) + ' 0x' + DS200.hex2(f.programLo) + ')'],
+    ['laps', (f) => f.laps == null ? '—' : String(f.laps)],
+    ['time', (f) => f.noTime ? t('log.firstlap') : (f.timeText || '—')],
+    ['timeSeconds', (f) => f.timeSeconds == null ? '—' : String(f.timeSeconds)],
+    ['control', (f) => '0x' + DS200.hex2(f.control)],
+    ['checksum', (f) => (f.checksumOk ? 'OK ' : 'BAD ') + '0x' + DS200.hex2(f.actualChecksum) +
+                        (f.checksumOk ? '' : ' ≠ 0x' + DS200.hex2(f.expectedChecksum))],
+    ['warnings', (f) => f.warnings.length ? f.warnings.join('; ') : '—'],
+    ['raw', (f) => f.rawHex],
+  ];
+
+  function renderFields(f) {
+    if (!els.fields) return;
+    const tb = els.fields.tBodies[0];
+    tb.innerHTML = '';
+    if (!f) return;
+    for (const [nome, leggi] of CAMPI) {
+      const tr = document.createElement('tr');
+      const k = document.createElement('td');
+      k.className = 'muted'; k.textContent = nome;
+      const v = document.createElement('td');
+      v.className = 'mono'; v.textContent = leggi(f);
+      if (nome === 'checksum' && !f.checksumOk) v.classList.add('bad');
+      tr.appendChild(k); tr.appendChild(v);
+      tb.appendChild(tr);
+    }
+  }
+
   function renderClock() {
     const ms = raceClock.elapsedMs();
     els.clock.textContent = ms == null ? '—' : fmtElapsed(ms);
@@ -428,13 +491,24 @@
   function appendLog(f) {
     if (els.hideInvalid.checked && f.warnings.length) return;
     const cls = f.warnings.length ? 'bad' : 'ok';
+    /* Il registro porta TUTTO quello che il parser ha estratto, non un
+       riassunto: era il posto dove cercare quando qualcosa non torna, e ci
+       mancavano identificatore, bandierine, contatore, password, controllo e
+       il programma di gara — cioe' proprio il numero di giri impostato. */
     const line =
       '[' + clock(f.ts) + '] ' + f.device + ' ' + f.dataType +
       (f.function ? ' ' + f.function : '') +
+      (f.identifier ? ' ' + f.identifier : '') +
       (f.lane ? ' lane' + f.lane : '') +
       ' laps=' + (f.laps == null ? '?' : f.laps) +
       ' t=' + (f.timeText || (f.noTime ? t('log.firstlap') : '?')) +
-      ' cks=' + (f.checksumOk ? 'OK' : 'BAD') +
+      (f.programme != null ? ' prog=' + f.programme : '') +
+      (f.isFastLap ? ' FAST' : '') + (f.isFirstPosition ? ' FIRST' : '') +
+      ' tx=' + DS200.hex2(f.txCounter) +
+      ' pw=' + DS200.hex2(f.passwordHi) + DS200.hex2(f.passwordLo) +
+      ' ctl=' + DS200.hex2(f.control) +
+      ' cks=' + (f.checksumOk ? 'OK' : 'BAD ' + DS200.hex2(f.actualChecksum) +
+                 '≠' + DS200.hex2(f.expectedChecksum)) +
       (f.warnings.length ? '  ⚠ ' + f.warnings.join('; ') : '') +
       '\n  ' + f.rawHex + '\n';
     const span = document.createElement('span');
@@ -507,6 +581,8 @@
     els.dev.textContent = '—';
     renderClock();   // torna vuoto, non a zero: "—" dice che non sappiamo niente
     renderLink();
+    renderProg(null);
+    renderFields(null);
     els.lanes.innerHTML = '';
     els.events.innerHTML = '';
   }

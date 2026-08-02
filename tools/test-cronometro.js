@@ -35,8 +35,19 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok(await page.locator('.slotrow').count() === 4, 'roster predefinito: ' + await page.locator('.slotrow').count());
 
   console.log('\n== GUIDATORI MODIFICABILI ==');
-  await page.locator('.slotrow input').first().fill('Roberto');
+  /* ⭐ Si scrive LETTERA PER LETTERA, come farebbe una persona: `fill()` mette
+     tutto in un colpo e non avrebbe visto niente. Il difetto era che rinominare
+     emetteva 'roster', chi ascolta ridisegnava l'elenco da capo, e la casella
+     sotto le dita spariva col fuoco dentro: dopo ogni lettera bisognava
+     ricliccare, e nel campo restava solo l'ultima. */
+  const campo = page.locator('.slotrow input').first();
+  await campo.click();
+  await campo.pressSequentially('Roberto', { delay: 30 });
   await page.waitForTimeout(120);
+  ok((await campo.inputValue()) === 'Roberto',
+     'scrivendo lettera per lettera resta tutto: ' + await campo.inputValue());
+  ok(await page.evaluate(() => document.activeElement === document.querySelector('.slotrow input')),
+     'e il fuoco non se ne va dalla casella');
   ok((await page.locator('#board').innerText()).includes('Roberto'), 'il nome compare in classifica');
   await page.locator('#addDriver').click();
   ok(await page.locator('.slotrow').count() === 5, 'guidatore aggiunto');
@@ -247,8 +258,13 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
   let board = await ds.evaluate(() =>
     [...document.querySelectorAll('#board tr')].map(tr => [...tr.children].map(td => td.innerText.trim())));
   ok(board[0][2] === '2' && board[1][2] === '2', 'due corsie a 2 giri');
-  ok(board[0][3] === '0:05.03', 'ultimo giro corsia 1 = 5,03 s: ' + board[0][3]);
-  ok(board[1][3] === '0:05.05', 'ultimo giro corsia 2 = 5,05 s: ' + board[1][3]);
+  /* ⭐ QUATTRO decimali, non due: la centralina manda diecimillesimi di secondo
+     e li dichiara in `caps.timeDecimals`. Col Ninco (MMSSCC = centesimi) qui ne
+     comparirebbero due, ed e' giusto cosi': mostrare quattro cifre dove ne
+     arrivano due vuol dire inventarne due. */
+  ok(board[0][3] === '0:05.0393', 'ultimo giro corsia 1, ai diecimillesimi: ' + board[0][3]);
+  ok(board[1][3] === '0:05.0580', 'ultimo giro corsia 2, ai diecimillesimi: ' + board[1][3]);
+  ok(/^\d+:\d\d\.\d{4}$/.test(board[0][3]), 'sono proprio quattro decimali');
 
   console.log('\n-- LA PAUSA (il bug che hai trovato) --');
   await feed(frames[7]);            // A5 pausa
@@ -265,13 +281,13 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
     [...document.querySelectorAll('#board tr')].map(tr => [...tr.children].map(td => td.innerText.trim())));
   ok(board[0][2] === '2' && board[1][2] === '2',
      'dopo la ripresa i giri sono ancora 2, non azzerati: ' + board.map(r => r[2]).join(','));
-  ok(board[0][4] === '0:05.03', 'e il giro veloce è sopravvissuto: ' + board[0][4]);
+  ok(board[0][4] === '0:05.0393', 'e il giro veloce è sopravvissuto: ' + board[0][4]);
 
   await feed(frames[11]); await feed(frames[12]);
   board = await ds.evaluate(() =>
     [...document.querySelectorAll('#board tr')].map(tr => [...tr.children].map(td => td.innerText.trim())));
   ok(board[0][2] === '3' && board[1][2] === '3', 'i giri riprendono da 3: ' + board.map(r => r[2]).join(','));
-  ok(board[0][4] === '0:05.03', 'il giro veloce resta quello vero, non il giro lungo della pausa');
+  ok(board[0][4] === '0:05.0393', 'il giro veloce resta quello vero, non il giro lungo della pausa');
 
   console.log('\n-- frame rotti e fine gara --');
   const rotto = frames[11].slice(); rotto[18] ^= 0xff;
