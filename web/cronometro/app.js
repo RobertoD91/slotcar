@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "0.4.2";
+  var APP_VERSION = "0.4.3";
   var LS = { nomi: "cronometro.nomi", cfg: "cronometro.cfg" };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -16,7 +16,7 @@
   var els = {
     lang: $("lang"), tts: $("tts"),
     sys: $("sys"), sysDesc: $("sysDesc"), mode: $("mode"), laps: $("laps"),
-    lapsFld: $("lapsFld"), connect: $("connect"), sysOpts: $("sysOpts"),
+    lapsFld: $("lapsFld"), lapsHint: $("lapsHint"), connect: $("connect"), sysOpts: $("sysOpts"),
     roster: $("roster"), addDriver: $("addDriver"), slotNote: $("slotNote"),
     ctrlNote: $("ctrlNote"), raceNote: $("raceNote"),
     clock: $("clock"), stateVal: $("stateVal"), bestVal: $("bestVal"), targetVal: $("targetVal"),
@@ -276,9 +276,9 @@
     });
 
     els.bestVal.textContent = migliore ? tempo(migliore.bestLapMs) : "—";
-    els.targetVal.textContent = race.mode === "gp"
-      ? t("info.targetLaps", { n: race.targetLaps })
-      : t("mode.pratica");
+    els.targetVal.textContent = race.mode !== "gp" ? t("mode.pratica")
+      : giriNoti() ? t("info.targetLaps", { n: race.targetLaps })
+      : "—";
   }
 
   function renderState() {
@@ -315,6 +315,28 @@
      sulla Ninco, 20 auto su oXigen. Il limite non cancella niente — i nomi che
      hai scritto sono roba tua — ma spegne "aggiungi" e segnala chi resta fuori. */
   function limitePosti() { return caps && caps.slots > 0 ? caps.slots : 99; }
+
+  /* ⭐ Chi decide su quanti giri si corre.
+   *
+   * Se la gara la comanda la centralina, il traguardo e' SUO: lo programmi sulla
+   * scatola e lei lo annuncia nel frame di partenza. L'app non deve chiederlo —
+   * e soprattutto non deve ANNUNCIARE un numero che ha chiesto a te, perche'
+   * quello non e' un dato: e' un desiderio. Finche' la centralina non parla il
+   * traguardo e' semplicemente sconosciuto, e "—" e' l'unica cosa vera da
+   * scrivere. E' lo stesso motivo per cui al contagiri abbiamo tolto il
+   * cronometro che scorreva da solo. */
+  function traguardoDelSistema() { return race.authority === "sistema"; }
+
+  /* Il traguardo lo sappiamo? Con la centralina, solo dopo che l'ha detto. */
+  function giriNoti() { return race.targetLaps != null && race.targetLaps > 0; }
+
+  function renderTraguardo() {
+    var suo = traguardoDelSistema();
+    els.laps.disabled = suo;
+    els.lapsHint.hidden = !suo;
+    if (suo) els.laps.value = giriNoti() ? race.targetLaps : "";
+    els.lapsFld.hidden = race.mode !== "gp";
+  }
 
   function renderLimite() {
     var max = limitePosti();
@@ -410,9 +432,12 @@
         race.mode = "gp";
         race.targetLaps = ev.value;
         els.mode.value = "gp";
-        els.laps.value = ev.value;
-        els.lapsFld.hidden = false;
-        cfg.mode = "gp"; cfg.laps = ev.value; save(LS.cfg, cfg);
+        /* ⚠️ Non si salva in `cfg`: e' la programmazione DELLA CENTRALINA di
+           oggi, non una preferenza tua. Salvandola, alla riapertura successiva
+           l'app ripartirebbe con un traguardo che nessuno ha piu' confermato —
+           di nuovo un numero inventato con l'aria di un dato. */
+        cfg.mode = "gp"; save(LS.cfg, cfg);
+        renderTraguardo();
         nota(t("prog.laps", { n: ev.value }));
       }
     } else {
@@ -449,6 +474,11 @@
     /* Chi comanda: col DS200 la gara la fa partire la centralina, e il motore
        non deve nemmeno chiudere la gara per conto suo. Vedi registry.authority. */
     race.authority = SISTEMI.authority(caps);
+    /* Il numero che avevi scritto tu non vale piu': lo dira' la centralina.
+       Lasciarlo li' vorrebbe dire annunciare "gara a 20 giri" mentre sulla
+       scatola ne sono programmati 12. */
+    if (traguardoDelSistema()) race.targetLaps = null;
+    renderTraguardo();
 
     sistema.on("event", function (ev) {
       if (ev.type === "programme") return programmaGara(ev);
@@ -459,7 +489,7 @@
       caps = c;
       document.body.classList.toggle("has-fuel", !!caps.fuel);
       race.authority = SISTEMI.authority(caps);
-      renderRoster(); renderBoard(); renderState();
+      renderTraguardo(); renderRoster(); renderBoard(); renderState();
     });
     sistema.on("status", function (s) {
       logga("[" + s.state + "]" + (s.detail ? " " + s.detail : ""));
@@ -518,7 +548,7 @@
   els.mode.addEventListener("change", function () {
     race.mode = els.mode.value;
     cfg.mode = race.mode; save(LS.cfg, cfg);
-    els.lapsFld.hidden = race.mode !== "gp";
+    renderTraguardo();
     renderBoard(); renderState();
   });
   els.laps.addEventListener("change", function () {
@@ -559,7 +589,9 @@
          appena letto dal frame di partenza — sentirselo dire è l'unica
          conferma che quello che sta per correre è davvero quello programmato. */
       var via = t("tts.start");
-      if (race.mode === "gp" && race.targetLaps > 0) {
+      /* Solo se il numero e' un fatto. Col DS200 arriva col frame di fase 1,
+         cioe' PRIMA del via: se non e' arrivato, non lo sappiamo e si tace. */
+      if (race.mode === "gp" && giriNoti()) {
         via += ", " + t("tts.startLaps", { n: race.targetLaps });
       }
       speak(via, true);
@@ -648,7 +680,7 @@
     els.tts.checked = !!cfg.tts && ttsOk;
     if (!ttsOk) els.tts.parentElement.hidden = true;
     els.appver.textContent = APP_VERSION;
-    els.lapsFld.hidden = cfg.mode !== "gp";
+    renderTraguardo();
 
     race.setGuidatori((cfg.slots || [1, 2]).map(function (s) { return { slot: s, name: nomi[s] || null }; }));
 

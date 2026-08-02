@@ -205,10 +205,24 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
     });
     window.__port = port;
     window.__feed = (arr) => ctrl.enqueue(new Uint8Array(arr));
+    /* Finta sintesi vocale: registra quello che l'app AVREBBE detto. E' l'unico
+       modo di verificare il sintomo vero — "annuncia un numero di giri che ha
+       chiesto a me" — invece del solo stato dell'interfaccia. */
+    window.__detto = [];
+    Object.defineProperty(window, 'speechSynthesis', {
+      configurable: true,
+      value: {
+        pending: false, speaking: false,
+        getVoices: () => [],
+        cancel() {}, speak(u) { window.__detto.push(String(u.text)); }
+      }
+    });
+    window.SpeechSynthesisUtterance = function (t) { this.text = t; };
     try { localStorage.clear(); } catch (e) {}
   });
 
   await ds.goto(BASE + '/cronometro/', { waitUntil: 'networkidle' });
+  await ds.locator('#tts').check();          // la voce va accesa: speak() esce subito se è spenta
   await ds.selectOption('#sys', 'ds200');
   await ds.waitForTimeout(100);
   ok(await ds.locator('#opt-ds200-baud').count() === 1, 'le opzioni del DS200 compaiono da sole');
@@ -226,6 +240,34 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
      'i posti diventano corsie: ' + await ds.locator('.slotrow .num').first().innerText());
   ok(!(await ds.evaluate(() => document.body.classList.contains('has-fuel'))),
      'niente colonna benzina: il DS non la manda');
+
+  console.log('\n-- ⭐ il traguardo è della centralina, non tuo --');
+  /* Il numero di giri lo programmi sulla scatola: l'app non deve chiedertelo, e
+     soprattutto non deve ANNUNCIARE un numero che ha chiesto a te — quello non
+     è un dato, è un desiderio. Finché la centralina non parla, è sconosciuto. */
+  // in "pratica" non c'è traguardo: il caso da bloccare è GP col numero ignoto
+  await ds.selectOption('#mode', 'gp');
+  await ds.waitForTimeout(100);
+  ok(await ds.locator('#laps').isDisabled(), 'la casella dei giri è spenta: lo dice la centralina');
+  ok(await ds.locator('#lapsHint').isVisible(), 'e c\'è scritto da dove arriva: ' +
+     await ds.locator('#lapsHint').innerText());
+  ok((await ds.locator('#laps').inputValue()) === '',
+     'nessun numero inventato prima che lo dica lei: "' + await ds.locator('#laps').inputValue() + '"');
+  ok((await ds.locator('#targetVal').innerText()).trim() === '—',
+     'e il traguardo è sconosciuto, non un 20 avanzato da prima: ' +
+     await ds.locator('#targetVal').innerText());
+
+  /* ⭐ Il caso che smaschera il difetto: la fase 1 NON arriva. Succede davvero —
+     ti colleghi a gara già iniziata, oppure quel frame si perde. Il traguardo
+     resta sconosciuto, e la voce deve TACERE sul numero di giri invece di
+     annunciare quello che era rimasto nella casella. */
+  await ds.evaluate(() => { window.__detto = []; });
+  await feed(frames[1]); await feed(frames[2]);        // solo fasi 2 e 3, niente fase 1
+  const senzaProgramma = (await ds.evaluate(() => window.__detto)).join(' | ');
+  ok(senzaProgramma.length > 0, 'la partenza si annuncia comunque: "' + senzaProgramma + '"');
+  ok(!/\d/.test(senzaProgramma),
+     'ma senza numeri di giri, perché nessuno li ha detti: "' + senzaProgramma + '"');
+  await ds.evaluate(() => { window.__detto = []; });
 
   console.log('\n-- chi comanda la gara --');
   ok(await ds.locator('#start').isDisabled(), 'Via è spento: comanda la centralina');
@@ -247,11 +289,21 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
   await feed(frames[0]);            // fase 1 + programma
   ok((await ds.locator('#mode').inputValue()) === 'gp', 'la centralina dice "a giri" → modalità GP');
   ok((await ds.locator('#laps').inputValue()) === '25', 'e dice quanti: ' + await ds.locator('#laps').inputValue());
+  ok(/\b25\b/.test(await ds.locator('#targetVal').innerText()),
+     'e ora il traguardo è il SUO: ' + await ds.locator('#targetVal').innerText());
+  ok(await ds.locator('#laps').isDisabled(), 'la casella resta spenta: il numero non è tuo');
   ok(await ds.locator('#raceNote').isVisible(), 'ed è scritto a video: ' + await ds.locator('#raceNote').innerText());
 
   await feed(frames[1]); await feed(frames[2]);   // fasi 2 e 3
   const statoVia = await ds.locator('#stateVal').innerText();
   ok(/gara|racing|carrera|course|rennen/i.test(statoVia), 'dopo la fase 3 si corre: ' + statoVia);
+
+  /* ⭐ E la voce dice il numero della CENTRALINA, non quello dell'app. Prima
+     annunciava "gara a 20 giri" perché 20 era il valore rimasto nella casella:
+     un desiderio letto ad alta voce con l'aria di un fatto. */
+  const via = (await ds.evaluate(() => window.__detto)).find(x => /25|lap|giri|Runden|tour|vuelta/i.test(x)) || '';
+  ok(/\b25\b/.test(via), 'alla partenza la voce dice i giri della centralina: "' + via + '"');
+  ok(!/\b20\b/.test(via), 'e non il 20 che era rimasto nella casella');
 
   console.log('\n-- giri --');
   for (const i of [3, 4, 5, 6]) await feed(frames[i]);
