@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "0.4.3";
+  var APP_VERSION = "0.5.0";
   var LS = { nomi: "cronometro.nomi", cfg: "cronometro.cfg" };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -16,7 +16,8 @@
   var els = {
     lang: $("lang"), tts: $("tts"),
     sys: $("sys"), sysDesc: $("sysDesc"), mode: $("mode"), laps: $("laps"),
-    lapsFld: $("lapsFld"), lapsHint: $("lapsHint"), connect: $("connect"), sysOpts: $("sysOpts"),
+    lapsFld: $("lapsFld"), connect: $("connect"), sysOpts: $("sysOpts"),
+    modeFld: $("modeFld"), progVal: $("progVal"), modeHint: $("modeHint"),
     roster: $("roster"), addDriver: $("addDriver"), slotNote: $("slotNote"),
     ctrlNote: $("ctrlNote"), raceNote: $("raceNote"),
     clock: $("clock"), stateVal: $("stateVal"), bestVal: $("bestVal"), targetVal: $("targetVal"),
@@ -276,7 +277,13 @@
     });
 
     els.bestVal.textContent = migliore ? tempo(migliore.bestLapMs) : "—";
-    els.targetVal.textContent = race.mode !== "gp" ? t("mode.pratica")
+    /* Col DS la casella "Traguardo" riporta il programma DELLA CENTRALINA, non
+       la nostra modalità: prima che lei parli non sappiamo se sta correndo a
+       giri, a tempo o in F1, e scriverci "Pratica" sarebbe l'ennesimo dato
+       inventato — solo più discreto degli altri. */
+    els.targetVal.textContent =
+        traguardoDelSistema() ? testoProgramma()
+      : race.mode !== "gp" ? t("mode.pratica")
       : giriNoti() ? t("info.targetLaps", { n: race.targetLaps })
       : "—";
   }
@@ -327,15 +334,43 @@
    * cronometro che scorreva da solo. */
   function traguardoDelSistema() { return race.authority === "sistema"; }
 
+  /* Il programma dichiarato dalla centralina: {kind, value} oppure null se non
+     l'ha ancora detto. Vive qui e non nel motore perche' il motore sa fare due
+     modalita' — pratica e GP a giri — mentre la centralina ne sa fare quattro,
+     e le altre due le sappiamo solo RIPORTARE, non arbitrare. */
+  var programma = null;
+
+  function testoProgramma() {
+    if (!programma) return "—";
+    var k = "prog.kind." + programma.kind;
+    return programma.value > 0 ? t(k, { n: programma.value }) : t(k, { n: "?" });
+  }
+
   /* Il traguardo lo sappiamo? Con la centralina, solo dopo che l'ha detto. */
   function giriNoti() { return race.targetLaps != null && race.targetLaps > 0; }
 
   function renderTraguardo() {
     var suo = traguardoDelSistema();
+
+    /* ⭐ La MODALITA' non si sceglie quando la gara la programma la centralina:
+       lei sa correre a giri individuali, a giri totali, a tempo o in F1, e
+       quella che sta correndo la dice nel frame di partenza. Un menu che ti fa
+       scegliere fra "pratica" e "GP a giri" mentre la scatola sta correndo una
+       F1 non e' una scelta: e' un modo di raccontarti una gara diversa da
+       quella che hai davanti. Al suo posto compare quello che ha detto lei. */
+    els.mode.hidden = suo;
+    els.progVal.hidden = !suo;
+    els.modeHint.hidden = !suo;
+    els.modeHint.textContent = suo ? " — " + t("setup.modeFromBox") : "";
+    if (suo) els.progVal.textContent = testoProgramma();
+
+    /* ⭐ Col DS la casella dei giri sparisce del tutto, non si spegne soltanto:
+       il numero lo dice gia' il programma qui accanto ("25 giri individuali"),
+       e ripeterlo in una casella grigia vuol dire scrivere due volte lo stesso
+       fatto e invitare comunque a modificarlo. Un dato, un posto. */
     els.laps.disabled = suo;
-    els.lapsHint.hidden = !suo;
     if (suo) els.laps.value = giriNoti() ? race.targetLaps : "";
-    els.lapsFld.hidden = race.mode !== "gp";
+    els.lapsFld.hidden = suo || race.mode !== "gp";
   }
 
   function renderLimite() {
@@ -373,6 +408,7 @@
     els.sysOpts.hidden = false;
 
     var valori = valoriOpzioni(def);
+    var dettagli = null;
     def.options.forEach(function (o) {
       var lab = document.createElement("label");
       lab.className = "fld";
@@ -411,14 +447,30 @@
         save(LS.cfg, cfg);
       });
       lab.appendChild(ctl);
-      els.sysOpts.appendChild(lab);
+      (o.advanced ? avanzate() : els.sysOpts).appendChild(lab);
     });
 
-    if (def.optionsHintKey) {
+    if (def.optionsHintKey && dettagli) {
       var h = document.createElement("span");
       h.className = "hint";
       h.textContent = t(def.optionsHintKey);
-      els.sysOpts.appendChild(h);
+      dettagli.appendChild(h);
+    }
+    els.sysOpts.hidden = !els.sysOpts.children.length;
+
+    /* Le opzioni "avanzate" esistono ma non stanno addosso: il baud non si
+       sceglie piu' — lo porta il sistema — e serve solo se stai provando
+       qualcosa di strano. Creato pigramente: se non ce ne sono, niente riquadro. */
+    function avanzate() {
+      if (dettagli) return dettagli;
+      dettagli = document.createElement("details");
+      dettagli.className = "adv";
+      var sum = document.createElement("summary");
+      sum.textContent = t("setup.advanced");
+      dettagli.appendChild(sum);
+      els.sysOpts.hidden = false;
+      els.sysOpts.appendChild(dettagli);
+      return dettagli;
     }
   }
 
@@ -427,23 +479,29 @@
      numero. Se la centralina lo sa, e' inutile fartelo riscrivere: l'app si
      adegua e te lo dice. La regola di fine gara resta comunque sua. */
   function programmaGara(ev) {
-    if (ev.kind === "laps" || ev.kind === "lapsTotal") {
-      if (ev.value > 0) {
-        race.mode = "gp";
-        race.targetLaps = ev.value;
-        els.mode.value = "gp";
-        /* ⚠️ Non si salva in `cfg`: e' la programmazione DELLA CENTRALINA di
-           oggi, non una preferenza tua. Salvandola, alla riapertura successiva
-           l'app ripartirebbe con un traguardo che nessuno ha piu' confermato —
-           di nuovo un numero inventato con l'aria di un dato. */
-        cfg.mode = "gp"; save(LS.cfg, cfg);
-        renderTraguardo();
-        nota(t("prog.laps", { n: ev.value }));
-      }
+    programma = { kind: ev.kind, value: ev.value };
+
+    if ((ev.kind === "laps" || ev.kind === "lapsTotal") && ev.value > 0) {
+      /* Questa la sappiamo arbitrare: e' il nostro GP a giri. */
+      race.mode = "gp";
+      race.targetLaps = ev.value;
+      els.mode.value = "gp";
+      nota(t("prog.laps", { n: ev.value }));
     } else {
-      // a tempo o F1: non abbiamo ancora quelle modalita', e mentirei a fingere
-      nota(t("prog.other"));
+      /* A tempo o F1: il motore non sa fare quelle regole, e fingere sarebbe
+         peggio che ammetterlo. Ma RIPORTARE si puo' — giri, tempi, classifica —
+         e la bandiera la sventola comunque la centralina, che e' l'unica ad
+         avere titolo per farlo. Quindi niente traguardo nostro e nessuna
+         modalita' inventata: si registra e basta. */
+      race.mode = "pratica";
+      race.targetLaps = null;
+      nota(t("prog.other", { prog: testoProgramma() }));
     }
+    /* ⚠️ Non si salva in `cfg`: e' la programmazione DELLA CENTRALINA di oggi,
+       non una preferenza tua. Salvandola, alla riapertura successiva l'app
+       ripartirebbe con un traguardo che nessuno ha piu' confermato — di nuovo
+       un numero inventato con l'aria di un dato. */
+    renderTraguardo();
     renderBoard(); renderState();
   }
 
@@ -477,7 +535,7 @@
     /* Il numero che avevi scritto tu non vale piu': lo dira' la centralina.
        Lasciarlo li' vorrebbe dire annunciare "gara a 20 giri" mentre sulla
        scatola ne sono programmati 12. */
-    if (traguardoDelSistema()) race.targetLaps = null;
+    if (traguardoDelSistema()) { race.targetLaps = null; programma = null; }
     renderTraguardo();
 
     sistema.on("event", function (ev) {
@@ -573,7 +631,7 @@
     I18N.applyDom();
     pickVoice();
     fillSystems(); fillModes();
-    renderOpzioni();
+    renderOpzioni(); renderTraguardo();
     renderRoster(); renderBoard(); renderState();
   });
 

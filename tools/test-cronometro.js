@@ -223,12 +223,24 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
 
   await ds.goto(BASE + '/cronometro/', { waitUntil: 'networkidle' });
   await ds.locator('#tts').check();          // la voce va accesa: speak() esce subito se è spenta
+  /* ⭐ DS200 e DS300 sono due voci diverse, non un'opzione della stessa: 2
+     corsie contro 8, 4800 baud contro 57600. Il baud non si sceglie più — lo
+     porta la centralina — e scende fra le avanzate, dove si tocca solo per
+     provare. */
+  const sistemi = await ds.evaluate(() => [...document.querySelectorAll('#sys option')].map(o => o.value));
+  ok(sistemi.includes('ds200') && sistemi.includes('ds300'),
+     'DS200 e DS300 sono due sistemi distinti: ' + sistemi.join(', '));
+
+  await ds.selectOption('#sys', 'ds300');
+  await ds.waitForTimeout(100);
+  ok((await ds.locator('#opt-ds300-baud').inputValue()) === '57600', 'il DS300 porta il suo baud: 57600');
+
   await ds.selectOption('#sys', 'ds200');
   await ds.waitForTimeout(100);
   ok(await ds.locator('#opt-ds200-baud').count() === 1, 'le opzioni del DS200 compaiono da sole');
-  ok((await ds.locator('#opt-ds200-baud').inputValue()) === '4800', 'baud predefinito 4800 (DS 200)');
-  const bauds = await ds.evaluate(() => [...document.querySelectorAll('#opt-ds200-baud option')].map(o => o.textContent));
-  ok(bauds[0].includes('57600') && bauds[1].includes('4800'), 'elenco baud leggibile: ' + bauds.slice(0, 2).join(' / '));
+  ok((await ds.locator('#opt-ds200-baud').inputValue()) === '4800', 'e il DS200 il suo: 4800');
+  ok(!(await ds.locator('#opt-ds200-baud').isVisible()),
+     'ma sta nelle avanzate, chiuso: non è una scelta da fare ogni volta');
 
   await ds.locator('#connect').click();
   await ds.waitForTimeout(150);
@@ -245,17 +257,21 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
   /* Il numero di giri lo programmi sulla scatola: l'app non deve chiedertelo, e
      soprattutto non deve ANNUNCIARE un numero che ha chiesto a te — quello non
      è un dato, è un desiderio. Finché la centralina non parla, è sconosciuto. */
-  // in "pratica" non c'è traguardo: il caso da bloccare è GP col numero ignoto
-  await ds.selectOption('#mode', 'gp');
-  await ds.waitForTimeout(100);
-  ok(await ds.locator('#laps').isDisabled(), 'la casella dei giri è spenta: lo dice la centralina');
-  ok(await ds.locator('#lapsHint').isVisible(), 'e c\'è scritto da dove arriva: ' +
-     await ds.locator('#lapsHint').innerText());
-  ok((await ds.locator('#laps').inputValue()) === '',
-     'nessun numero inventato prima che lo dica lei: "' + await ds.locator('#laps').inputValue() + '"');
+  /* Nemmeno la MODALITÀ si sceglie: la centralina sa correre a giri
+     individuali, a giri totali, a tempo o in F1, e quale sia lo dice lei. Un
+     menu «pratica / GP a giri» mentre la scatola corre una F1 non è una scelta:
+     è raccontare una gara diversa da quella che hai davanti. */
+  ok(await ds.locator('#mode').isHidden(), 'il menu delle modalità sparisce: la decide lei');
+  ok(await ds.locator('#progVal').isVisible(), 'al suo posto c\'è quello che ha detto');
+  ok((await ds.locator('#progVal').innerText()).trim() === '—',
+     'e prima che parli è «—», non una modalità inventata: ' + await ds.locator('#progVal').innerText());
+  ok(await ds.locator('#modeHint').isVisible(), 'con scritto da dove arriva: ' +
+     await ds.locator('#modeHint').innerText());
   ok((await ds.locator('#targetVal').innerText()).trim() === '—',
-     'e il traguardo è sconosciuto, non un 20 avanzato da prima: ' +
+     'anche il traguardo è sconosciuto, non un 20 avanzato da prima: ' +
      await ds.locator('#targetVal').innerText());
+  ok(await ds.locator('#lapsFld').isHidden(),
+     'e la casella dei giri sparisce: il numero lo dirà il programma, in un posto solo');
 
   /* ⭐ Il caso che smaschera il difetto: la fase 1 NON arriva. Succede davvero —
      ti colleghi a gara già iniziata, oppure quel frame si perde. Il traguardo
@@ -287,11 +303,15 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
 
   console.log('\n-- partenza e programma di gara --');
   await feed(frames[0]);            // fase 1 + programma
-  ok((await ds.locator('#mode').inputValue()) === 'gp', 'la centralina dice "a giri" → modalità GP');
-  ok((await ds.locator('#laps').inputValue()) === '25', 'e dice quanti: ' + await ds.locator('#laps').inputValue());
+  const race200 = await ds.evaluate(() => document.getElementById('targetVal').textContent.match(/\d+/) ? +document.getElementById('targetVal').textContent.match(/\d+/)[0] : null);
+  ok((await ds.locator('#mode').inputValue()) === 'gp', 'internamente diventa GP a giri: quella regola la sappiamo arbitrare');
+  ok(race200 === 25, 'e il motore ha preso i suoi 25 giri: ' + race200);
   ok(/\b25\b/.test(await ds.locator('#targetVal').innerText()),
      'e ora il traguardo è il SUO: ' + await ds.locator('#targetVal').innerText());
-  ok(await ds.locator('#laps').isDisabled(), 'la casella resta spenta: il numero non è tuo');
+  ok(/25/.test(await ds.locator('#progVal').innerText()),
+     'il programma è scritto per esteso: ' + await ds.locator('#progVal').innerText());
+  ok(await ds.locator('#lapsFld').isHidden(),
+     'e resta sparita: il numero è scritto una volta sola, nel programma');
   ok(await ds.locator('#raceNote').isVisible(), 'ed è scritto a video: ' + await ds.locator('#raceNote').innerText());
 
   await feed(frames[1]); await feed(frames[2]);   // fasi 2 e 3

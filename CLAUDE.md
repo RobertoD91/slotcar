@@ -31,7 +31,7 @@ L'utente è italiano: **rispondere in italiano**.
 ### Cronometro web — le prossime tappe
 Motore, simulatore, modalità *pratica* e *GP a giri*, guidatori modificabili, voce, 5 lingue
 e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla volta:
-- ✅ **sistema DS200/DS300** (`sistemi/ds200.js`) — riusa il decoder di
+- ✅ **sistemi DS200 e DS300** (`sistemi/ds200.js`, due voci distinte) — riusano il decoder di
       `web/ds200-ds300/ds200.js` (caricato dalla pagina, non duplicato). **Provato su
       centralina vera** e sistemato con la cattura dell'utente (vedi sotto). Il record
       finale porta il tempo TOTALE, non un giro: resta a registro e non entra in classifica.
@@ -254,10 +254,31 @@ Tre pezzi, e la separazione è il punto:
 | posizione | calcolata | **la manda la base** | calcolata | calcolata |
 | benzina | — | **sì** | — | sì (finta) |
 | stato gara | **lo annuncia la centralina** | dedotto | **lo decide l'app** | l'app |
+| modalità e traguardo | **suoi** | dell'app | dell'app | dell'app |
 | comandi | no | no | **sì** | sì |
 
 ⇒ "Avvia gara" non può essere un bottone uguale per tutti: `comando()` in `app.js` manda
 sempre al motore, e al sistema **solo** se `caps.control`.
+
+⭐ **Chi possiede una cosa decide chi la scrive.** È la regola che tiene insieme il
+cronometro, e vale campo per campo:
+- il **traguardo** e la **modalità**, col DS200/DS300, sono della centralina: li programmi
+  sulla scatola e lei li annuncia nel frame di partenza. L'app **non li chiede** — niente
+  menu, niente casella — e prima che lei parli scrive «—», non un valore avanzato da prima.
+- La centralina sa correre in **quattro** modi (giri individuali, giri totali, a tempo, F1);
+  il motore ne sa arbitrare **due**. Gli altri due si **riportano**: giri, tempi e classifica
+  si registrano lo stesso, il traguardo non lo mettiamo noi e la bandiera la sventola lei.
+  Fingere una modalità che non sappiamo applicare sarebbe peggio che ammetterlo.
+- **Un dato, un posto**: il numero di giri sta scritto nel programma («25 giri
+  individuali») e la casella «Giri» sparisce. Ripeterlo in un campo grigio vuol dire dire
+  due volte la stessa cosa e invitare comunque a cambiarla.
+
+⚠️ **Passivo non vuol dire debugger.** La differenza fra il cronometro e il contagiri non è
+chi decide le regole — è *cosa mostrano e a chi*. Il contagiri mostra **frame**: byte,
+checksum, campi; serve a studiare il protocollo. Il cronometro mostra **la gara**: nomi dei
+guidatori, distacco, giro veloce, voce, CSV, il numero grande da leggere a due metri. Un
+tabellone a bordo pista è completamente passivo — non fa partire niente — e nessuno lo
+chiama debugger.
 
 **Chi comanda la gara** (`SISTEMI.authority`, da `caps`): se il sistema accetta comandi
 comanda l'app (simulazione, oXigen); se annuncia soltanto comanda lui (DS200/DS300); se non
@@ -277,6 +298,12 @@ sistema solo se li accetta.
   su un'altra programmazione).
 - `DS200 = 2 corsie, DS300 = 8`, e **quale dei due sia lo dice il byte 4 di ogni frame**:
   il limite di posti si aggiusta da solo, non serve chiederlo.
+- ⭐ **DS200 e DS300 sono DUE SISTEMI distinti** nel menu, non un'opzione dello stesso:
+  cambiano corsie (2 / 8) e baud (4800 / 57600). Una voce sola obbligava a scegliere il
+  **baud** — cioè a ricordare un numero — per dire una cosa che sai benissimo, cioè quale
+  scatola hai sul tavolo. Il baud è sceso fra le **avanzate**, si tocca solo per provare, e
+  se il byte 4 dice l'altro modello l'app lo **scrive nel registro** invece di correggere
+  in silenzio.
 
 ⭐ **La precisione è una proprietà del SISTEMA, non della grafica** (`caps.timeDecimals`):
 il DS200/DS300 trasmette `HH:MM:SS.dddd`, cioè **diecimillesimi**; il Ninco manda `MMSSCC`,
@@ -374,6 +401,14 @@ distinguibili e il giro veloce non è una lotteria. Il grande orologio resta a d
 - **`maxlength` tronca prima che il JS ripulisca**: su un campo MAC con `maxlength="4"`,
   incollare `52 5d` dà `52 5` e poi `525` — una cifra persa. Se il valore va normalizzato,
   il limite lo deve fare il filtro (prima togli, poi taglia), non l'attributo.
+- ⭐ **`hidden` è un attributo, e qualunque classe con `display:` lo scavalca.** Con
+  `.fld{display:flex}`, mettere `hidden` su un campo **non lo nascondeva** — e non lo diceva
+  nessuno: restava a video mentre il codice era convinto di averlo tolto. È la stessa
+  trappola delle fasce in `ui.css` vista dall'altro lato; nel cronometro la chiude
+  `[hidden]{display:none !important}` in cima al foglio.
+- **Una riga di suggerimento sotto un campo sfalsa tutta la fila**: i campi si allineano in
+  fondo (`align-items:flex-end`), quindi quello più alto alza la propria etichetta e le
+  altre restano indietro. Se la nota è corta, sta **nell'etichetta**, non sotto il campo.
 - **Nomi di classe che si scontrano fra `ui.css` e l'app**: `.note` è un riquadro giallo nel
   foglio condiviso e una riga smorzata nella guida oXigen. Riusare un nome per un'altra cosa
   richiede di azzerarlo per intero (sfondo, bordo, padding), o te lo porti dietro.

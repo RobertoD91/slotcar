@@ -58,11 +58,12 @@
   function Ds200Sistema(def, opts) {
     SISTEMI.Sistema.call(this, def, opts);
     var v = (opts && opts.values) || {};
-    this.baud = Number(v.baud) || 4800;
-    /* Prima ancora di collegarci il baud dice quale centralina ti aspetti:
-       57600 = DS300 (8 corsie), tutto il resto = DS200 (2). Poi il primo frame
-       valido conferma o corregge. */
-    this.setCaps({ slots: this.baud === 57600 ? 8 : 2 });
+    /* Il baud e le corsie li porta la DEFINIZIONE del sistema, non una scelta
+       da fare a mano: DS200 = 4800 e 2 corsie, DS300 = 57600 e 8. Restano
+       cambiabili nelle opzioni avanzate, per provare. Poi il primo frame valido
+       conferma o corregge: il modello sta nel byte 4 di OGNI frame. */
+    this.attesa = def.device || 0x02;
+    this.baud = Number(v.baud) || def.baudDflt || 4800;
     this.port = null;
     this.reader = null;
     this.leggo = false;
@@ -138,6 +139,13 @@
         this.setCaps({ slots: corsie });
         this.raw("centralina riconosciuta: " + f.device + " — " + corsie + " corsie");
       }
+      /* Hai scelto DS200 e risponde un DS300 (o viceversa): capita, e il baud
+         giusto lo hai comunque azzeccato. Non e' un errore da fermare tutto, ma
+         va detto — altrimenti ti chiedi perche' le corsie sono cambiate. */
+      if (f.deviceId !== this.attesa) {
+        this.attesa = f.deviceId;
+        this.raw("⚠ avevi scelto un'altra centralina: sta parlando un " + f.device);
+      }
     }
 
     /* Lo stato gara sta nel byte della FUNZIONE, che e' valido anche quando il
@@ -198,46 +206,63 @@
     this.setStatus(SISTEMI.STATUS.OFF, this.ok + "/" + this.tot + " frame validi");
   };
 
-  var def = {
-    id: "ds200",
-    labelKey: "sys.ds200",
-    descKey: "sys.ds200.desc",
-    bus: "serial",
-    optionsHintKey: "sys.ds200.baudHint",
-    options: [
-      /* Stesso elenco del contagiri: prima i due valori veri con scritto a che
-         apparecchio corrispondono, poi il resto solo per provare. */
-      { id: "baud", labelKey: "sys.ds200.baud", type: "select", dflt: 4800,
-        values: [
-          { v: 57600, label: "DS 300 — 57600" },
-          { v: 4800, label: "DS 200 — 4800" },
-          { v: 9600, label: "9600 (test)" },
-          { v: 19200, label: "19200 (test)" },
-          { v: 38400, label: "38400 (test)" },
-          { v: 115200, label: "115200 (test)" }
-        ] }
-    ],
-    caps: {
-      slotLabel: "lane",
-      /* 2 sul DS200, 8 sul DS300: parte dal baud scelto e viene corretto dal
-         primo frame valido, che dice quale delle due centraline sta parlando. */
-      slots: 2,
-      lapTime: true,
-      /* Quattro: la centralina manda HH:MM:SS.dddd, cioe' diecimillesimi. E'
-         l'unico sistema del gruppo che va oltre i centesimi (Ninco manda
-         MMSSCC, oXigen centesimi via telemetria). */
-      timeDecimals: 4,
-      position: false,
-      fuel: false,
-      pit: false,
-      battery: false,
-      raceState: true,
-      control: false,
-      needsUserGesture: true
-    },
-    create: function (opts) { return new Ds200Sistema(def, opts); }
+  /* ⭐ DS200 e DS300 sono DUE APPARECCHI DIVERSI, non un'opzione dello stesso:
+     2 corsie contro 8, 4800 baud contro 57600. Metterli in una voce sola
+     obbligava a scegliere il baud — cioe' a ricordare un numero — per dire una
+     cosa che sai benissimo, cioe' quale scatola hai sul tavolo. Ora sono due
+     voci, e il baud scende fra le avanzate: si tocca solo per provare.
+     Il modello vero lo dice comunque ogni frame (byte 4), e se non e' quello
+     che hai scelto l'app lo scrive nel registro invece di correggere in
+     silenzio. */
+  var BAUD = [
+    { v: 4800, label: "4800 (DS 200)" },
+    { v: 57600, label: "57600 (DS 300)" },
+    { v: 9600, label: "9600 (test)" },
+    { v: 19200, label: "19200 (test)" },
+    { v: 38400, label: "38400 (test)" },
+    { v: 115200, label: "115200 (test)" }
+  ];
+
+  /* Tutto quello che le due centraline hanno in comune. Cambiano solo il baud
+     e il numero di corsie. */
+  var CAPS_DS = {
+    slotLabel: "lane",
+    lapTime: true,
+    /* Quattro: la centralina manda HH:MM:SS.dddd, cioe' diecimillesimi. E'
+       l'unico sistema del gruppo che va oltre i centesimi (Ninco manda MMSSCC,
+       oXigen centesimi via telemetria). */
+    timeDecimals: 4,
+    position: false,
+    fuel: false,
+    pit: false,
+    battery: false,
+    raceState: true,
+    control: false,
+    needsUserGesture: true
   };
 
-  SISTEMI.register(def);
-  global.SIS_DS200 = { def: def, STATO: STATO };
+  function creaDef(id, device, baudDflt, corsie) {
+    var d = {
+      id: id,
+      device: device,          // byte 4 del frame: 0x02 = DS200, 0x03 = DS300
+      baudDflt: baudDflt,
+      labelKey: "sys." + id,
+      descKey: "sys." + id + ".desc",
+      bus: "serial",
+      optionsHintKey: "sys.ds.baudHint",
+      options: [
+        { id: "baud", labelKey: "sys.ds.baud", type: "select", dflt: baudDflt,
+          advanced: true, values: BAUD }
+      ],
+      caps: Object.assign({}, CAPS_DS, { slots: corsie }),
+      create: function (opts) { return new Ds200Sistema(d, opts); }
+    };
+    return d;
+  }
+
+  var defDs200 = creaDef("ds200", 0x02, 4800, 2);
+  var defDs300 = creaDef("ds300", 0x03, 57600, 8);
+  SISTEMI.register(defDs200);
+  SISTEMI.register(defDs300);
+  global.SIS_DS200 = { def: defDs200, defDs300: defDs300, STATO: STATO };
 })(typeof window !== "undefined" ? window : globalThis);
