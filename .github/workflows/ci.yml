@@ -123,10 +123,16 @@ jobs:
       # Il firmware serve il Cronometro web VERO da LittleFS: lo copia questo
       # script ad ogni build. Se si rompe, `pio run` fallirebbe comunque — ma
       # qui l'errore si legge, invece di essere sepolto nell'output di PlatformIO.
+      # ⚠️ Si lancia come uno SCRIPT NORMALE, cioè nel modo in cui NON lo lancia
+      # PlatformIO. Serve per avere l'errore in chiaro, ma la prova che conta è
+      # `pio run` qui sotto: la prima versione di questo controllo usava `runpy`
+      # e passava, mentre la build vera moriva su un `__file__` che sotto SCons
+      # non esiste. Un controllo che esegue il codice in un modo diverso da
+      # quello di produzione non sta controllando la stessa cosa.
       - name: La copia della web app per LittleFS
         run: |
           cd esp32
-          python -c "import builtins,runpy; builtins.Import=lambda n: None; runpy.run_path('scripts/copy_webapp.py')"
+          python scripts/copy_webapp.py
           test -f data/cronometro/index.html
           test -f data/ui.css
           test -f data/ds200-ds300/ds200.js

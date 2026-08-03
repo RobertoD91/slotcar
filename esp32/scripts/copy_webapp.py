@@ -22,10 +22,18 @@
 import os
 import shutil
 
-Import("env")  # noqa: F821  (lo inietta PlatformIO)
-
-QUI = os.path.dirname(os.path.abspath(__file__))
-ESP32 = os.path.dirname(QUI)
+# ⚠️ PlatformIO NON esegue questo file come uno script normale: lo passa a SCons,
+# che fa `exec(compile(...))` — e lì **`__file__` non esiste**. Il primo tentativo
+# usava `os.path.abspath(__file__)` e la build è morta con un NameError, mentre il
+# controllo in CI (che lo lanciava con `runpy`, dove `__file__` c'è) passava
+# tranquillo: validava un percorso di esecuzione diverso da quello vero.
+# Quindi: sotto PlatformIO si chiede a lui dov'è il progetto; lanciato a mano si
+# ricade su `__file__`, che in quel caso c'è.
+try:
+    Import("env")  # noqa: F821  (lo inietta SCons)
+    ESP32 = env["PROJECT_DIR"]  # noqa: F821
+except NameError:
+    ESP32 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB = os.path.join(os.path.dirname(ESP32), "web")
 DATA = os.path.join(ESP32, "data")
 
