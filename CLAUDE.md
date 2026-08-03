@@ -46,6 +46,17 @@ L'utente è italiano: **rispondere in italiano**.
 - [ ] **Nomi dei guidatori** — riprovare a scriverli di seguito, senza ricliccare dopo ogni
       lettera.
 
+**Ponte ESP32 (nuovo, mai provato)**
+- [ ] **Carica firmware E pagine**: dalla cartella `esp32/`, `pio run -t upload` **e poi**
+      `pio run -t uploadfs`. Sono due comandi: il primo mette il firmware, il secondo le
+      pagine in LittleFS. Se salti il secondo il ponte funziona lo stesso (i frame escono su
+      `/ws` e su MQTT) ma la radice te lo dice invece di dare un 404 muto.
+- [ ] **Apri `http://ds200.local/`** — deve rimandare al Cronometro web vero, con il sistema
+      «DS200/DS300 senza fili (ponte ESP32)» che si collega da solo, senza chiedere niente.
+- [ ] **Verifica che le API rispondano ancora**: `/state`, `/info`, `/config`. Servono le
+      pagine da `/` e quelle rotte devono restare raggiungibili (`serveStatic` è registrato
+      per ultimo apposta, ma vale la pena guardarlo dal vivo).
+
 **Ninco**
 - [ ] **Prova sul campo del contagiri** (il cavo ce l'ha già). Targhetta **mai provata**.
 - [ ] **Auto 8, cifre della benzina invertite** — l'ottava auto viene letta con le due cifre
@@ -65,6 +76,12 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
       finale porta il tempo TOTALE, non un giro: resta a registro e non entra in classifica.
 - [ ] **sistema Ninco** — parser in `web/ninco/ninco.js`. `caps`: `position` (la manda la
       base), `fuel`, `slotLabel:'car'`. Il tempo sul giro è per differenza fra due totali.
+- ✅ **sistema ponte ESP32** (`sistemi/esp32.js`) — la stessa centralina senza cavo al
+      computer. ⭐ **NON è un protocollo nuovo**: il firmware mette il frame GREZZO dentro
+      il JSON che manda su `/ws`, e il sistema lo dà allo **stesso decoder** del cavo,
+      ereditando da `Ds200Sistema`. Perciò il file è corto e non c'è un secondo formato da
+      tenere allineato. Il test E2E rigioca la **stessa cattura** per questa strada e
+      pretende la stessa identica classifica. **Mai provato su hardware.**
 - [ ] **sistema oXigen** — l'unico con `control:true`: la gara la comanda l'app
       (`race_status[10]`). Serve il dongle.
 - [ ] **GP a tempo** e **qualifiche** — dopo il GP a giri. La regola vive tutta in
@@ -73,6 +90,10 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
       rinviata a un'evolutiva. Oggi i nomi stanno in `localStorage`.
 
 ### Da fare nel codice
+- [ ] **OTA e partizioni**: `huge_app.csv` ha **una sola** partizione app (niente `ota_1`),
+      quindi l'aggiornamento via `/update` probabilmente non può funzionare — è così da
+      prima di LittleFS, non l'ha introdotto lui. Da verificare e, se confermato, scegliere:
+      partizioni con doppio slot (meno spazio per BLE+WiFi) oppure togliere la promessa.
 - [ ] **L'installer ESP32 è solo in italiano** — non è passato per `i18n.js` come il resto.
       (Era indicato come `flash.html`, un file che non esiste più: oggi è
       `web/esp32-installer/index.html`.)

@@ -120,6 +120,18 @@ jobs:
             ~/.cache/pip
           key: pio-${{ runner.os }}-${{ hashFiles('esp32/platformio.ini') }}
           restore-keys: pio-${{ runner.os }}-
+      # Il firmware serve il Cronometro web VERO da LittleFS: lo copia questo
+      # script ad ogni build. Se si rompe, `pio run` fallirebbe comunque — ma
+      # qui l'errore si legge, invece di essere sepolto nell'output di PlatformIO.
+      - name: La copia della web app per LittleFS
+        run: |
+          cd esp32
+          python -c "import builtins,runpy; builtins.Import=lambda n: None; runpy.run_path('scripts/copy_webapp.py')"
+          test -f data/cronometro/index.html
+          test -f data/ui.css
+          test -f data/ds200-ds300/ds200.js
+          test ! -f data/cronometro/sw.js      # la cache-first non va sul dispositivo
+
       - name: Build firmware ESP32
         run: |
           python -m pip install --upgrade pip platformio

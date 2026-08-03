@@ -390,6 +390,61 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
   ok((await ds.locator('#clock').innerText()) === orologio, 'cronometro fermo a fine gara');
 
 
+  /* ⭐ Il ponte ESP32 NON è un protocollo nuovo: il firmware mette il frame
+     grezzo dentro il JSON, e il sistema lo dà allo STESSO decoder del cavo. La
+     prova che lo dimostra è questa — la stessa cattura, per un'altra strada,
+     deve dare la stessa identica classifica. Se un giorno divergessero, qui si
+     vede subito. */
+  console.log('\n== PONTE ESP32: stessa cattura, altro trasporto ==');
+  const wsPage = await ctx.newPage();
+  wsPage.on('pageerror', (e) => errors.push(String(e)));
+  await wsPage.addInitScript(() => {
+    /* WebSocket finto: si apre da solo e accetta quello che gli diamo noi. */
+    class FakeWS {
+      constructor(url) {
+        this.url = url; this.readyState = 0;
+        window.__ws = this;
+        setTimeout(() => { this.readyState = 1; if (this.onopen) this.onopen({}); }, 5);
+      }
+      close() { this.readyState = 3; if (this.onclose) this.onclose({}); }
+    }
+    window.WebSocket = FakeWS;
+    window.__push = (json) => { if (window.__ws && window.__ws.onmessage) window.__ws.onmessage({ data: json }); };
+    try { localStorage.clear(); } catch (e) {}
+  });
+  await wsPage.goto(BASE + '/cronometro/', { waitUntil: 'networkidle' });
+
+  const sistemiWs = await wsPage.evaluate(() => [...document.querySelectorAll('#sys option')].map((o) => o.value));
+  ok(sistemiWs.includes('esp32'), 'il ponte compare fra i sistemi: ' + sistemiWs.join(', '));
+
+  await wsPage.selectOption('#sys', 'esp32');
+  await wsPage.waitForTimeout(120);
+  ok(await wsPage.locator('#mode').isHidden(),
+     'ed è un DS a tutti gli effetti: la modalità la decide la centralina');
+
+  await wsPage.locator('#connect').click();
+  await wsPage.waitForTimeout(200);
+  const url = await wsPage.evaluate(() => window.__ws && window.__ws.url);
+  ok(/^wss?:\/\/[^/]+\/ws$/.test(url || ''),
+     'si collega alla stessa origine della pagina, senza chiedere niente: ' + url);
+
+  // stessa cattura del cavo, impacchettata come fa il firmware
+  const hex = (f) => f.map((b) => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+  for (const f of frames) {
+    await wsPage.evaluate((h) => window.__push(JSON.stringify({ ts: 0, raw: h, device: 'DS200' })), hex(f));
+    await wsPage.waitForTimeout(160);
+  }
+  const boardWs = await wsPage.evaluate(() =>
+    [...document.querySelectorAll('#board tr')].map((tr) => [...tr.children].map((td) => td.innerText.trim())));
+  ok(boardWs.length >= 2, 'la classifica si popola: ' + boardWs.length + ' righe');
+  ok(boardWs[0][2] === '3' && boardWs[1][2] === '3',
+     'stessi giri del cavo (3 e 3): ' + boardWs.map((r) => r[2]).join(','));
+  ok(boardWs[0][4] === '0:05.0393',
+     'e lo stesso giro veloce, agli stessi diecimillesimi: ' + boardWs[0][4]);
+  ok((await wsPage.locator('.slotrow .num').first().innerText()).match(/corsia|lane/i) !== null,
+     'i posti sono corsie: la centralina è stata riconosciuta dal frame');
+  await wsPage.close();
+
   console.log('\n== ERRORI JS ==');
   const real = errors.filter(e => !/Failed to load resource/.test(e));
   if (real.length) { real.slice(0, 8).forEach(e => console.log('  ⚠️  ' + e)); fail += real.length; }

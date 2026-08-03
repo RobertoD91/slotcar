@@ -142,7 +142,12 @@
       /* Hai scelto DS200 e risponde un DS300 (o viceversa): capita, e il baud
          giusto lo hai comunque azzeccato. Non e' un errore da fermare tutto, ma
          va detto — altrimenti ti chiedi perche' le corsie sono cambiate. */
-      if (f.deviceId !== this.attesa) {
+      /* `attesa === null` = non hai scelto nessun modello (è il caso del ponte
+         ESP32: la centralina la vedi solo quando parla). Allora il primo frame
+         non contraddice niente — si adotta in silenzio. */
+      if (this.attesa == null) {
+        this.attesa = f.deviceId;
+      } else if (f.deviceId !== this.attesa) {
         this.attesa = f.deviceId;
         this.raw("⚠ avevi scelto un'altra centralina: sta parlando un " + f.device);
       }
@@ -264,5 +269,12 @@
   var defDs300 = creaDef("ds300", 0x03, 57600, 8);
   SISTEMI.register(defDs200);
   SISTEMI.register(defDs300);
-  global.SIS_DS200 = { def: defDs200, defDs300: defDs300, STATO: STATO };
+  /* Esportato perché `sistemi/esp32.js` riusa TUTTO tranne il trasporto: il
+     ponte ESP32 non è un protocollo nuovo, è lo stesso DS200 con i byte che
+     arrivano da un WebSocket invece che dal cavo. Stesso decoder, stessa
+     traduzione frame → eventi, stesse caps. */
+  global.SIS_DS200 = {
+    def: defDs200, defDs300: defDs300, STATO: STATO,
+    Sistema: Ds200Sistema, CAPS: CAPS_DS, creaDef: creaDef
+  };
 })(typeof window !== "undefined" ? window : globalThis);

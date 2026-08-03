@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "0.5.2";
+  var APP_VERSION = "0.5.3";
   var LS = { nomi: "cronometro.nomi", cfg: "cronometro.cfg" };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -462,6 +462,12 @@
         ctl = document.createElement("input");
         ctl.type = "checkbox";
         ctl.checked = !!valori[o.id];
+      } else if (o.type === "text") {
+        ctl = document.createElement("input");
+        ctl.type = "text";
+        ctl.value = valori[o.id] == null ? "" : valori[o.id];
+        ctl.placeholder = o.placeholderKey ? t(o.placeholderKey) : "";
+        ctl.autocomplete = "off";
       } else {
         ctl = document.createElement("input");
         ctl.type = "number";
@@ -474,6 +480,7 @@
       ctl.addEventListener("change", function () {
         if (!cfg.opts[def.id]) cfg.opts[def.id] = {};
         cfg.opts[def.id][o.id] = o.type === "checkbox" ? ctl.checked
+                               : o.type === "text" ? ctl.value
                                : (o.type === "select" ? (isNaN(+ctl.value) ? ctl.value : +ctl.value)
                                                       : (parseInt(ctl.value, 10) || o.dflt));
         save(LS.cfg, cfg);

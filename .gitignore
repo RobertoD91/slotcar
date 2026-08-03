@@ -33,3 +33,7 @@ node_modules/
 
 # --- Denylist personale per lo scanner segreti (resta sulla tua macchina) ----
 tools/secrets-denylist.local.txt
+
+# Artefatto di build: lo riempie esp32/scripts/copy_webapp.py ad ogni `pio run`.
+# La sorgente e` web/, qui ci finisce solo una copia per LittleFS.
+esp32/data/

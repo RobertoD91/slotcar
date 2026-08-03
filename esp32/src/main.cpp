@@ -25,7 +25,7 @@
 
 #include "config.h"
 #include "ds200.h"
-#include "web_index.h"
+#include <LittleFS.h>
 #if ENABLE_IMPROV_BLE
 #include "improv_ble.h"
 #endif
@@ -34,7 +34,7 @@
 #include <Update.h>
 #endif
 
-#define FW_VERSION "1.5.1"
+#define FW_VERSION "1.6.0"
 
 // ---- Runtime configuration (defaults from config.h, overridable in portal) --
 struct Config {
@@ -54,6 +54,11 @@ WiFiClient        net;
 PubSubClient      mqtt(net);
 AsyncWebServer    server(80);
 AsyncWebSocket    ws("/ws");
+/* LittleFS porta il Cronometro web (vedi scripts/copy_webapp.py). Se manca —
+   firmware caricato ma `uploadfs` no — il ponte funziona lo stesso: i frame
+   escono su /ws e su MQTT. Si perde solo la pagina, e la radice lo dice invece
+   di restituire un 404 muto. */
+bool fsPronto = false;
 WiFiManager       wm;
 ImprovWiFi        improvSerial(&Serial);
 
@@ -434,6 +439,12 @@ void setup() {
 
   loadConfig();
 
+  /* Le pagine stanno in LittleFS. Se il montaggio fallisce non ci si ferma: il
+     mestiere di questo firmware e' portare i frame dalla seriale alla rete, e
+     quello funziona anche senza pagine. */
+  fsPronto = LittleFS.begin(true);
+  Serial.printf("[fs] LittleFS %s\n", fsPronto ? "montato" : "NON montato (manca `pio run -t uploadfs`?)");
+
   // Improv-Serial: lets the ESP Web Tools flash page provision WiFi over USB.
   improvSerial.setDeviceInfo(ImprovTypes::ChipFamily::CF_ESP32,
                              "DS200 Bridge", FW_VERSION, HOSTNAME, "http://{LOCAL_IPV4}/");
@@ -447,8 +458,21 @@ void setup() {
   // Register HTTP routes once (server.begin() happens in startServices()).
   ws.onEvent(onWsEvent);
   server.addHandler(&ws);
+  /* La pagina e' il Cronometro web VERO, copiato in LittleFS al momento della
+     build (scripts/copy_webapp.py). Prima qui c'era una copia a mano dentro
+     src/web_index.h: e' invecchiata di mesi senza che nessuno se ne accorgesse.
+     La radice rimanda al cronometro; il resto lo serve serveStatic. */
   server.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
-    req->send_P(200, "text/html", INDEX_HTML);
+    if (!fsPronto) {
+      req->send(200, "text/html",
+                "<meta charset=utf-8><body style='font:15px sans-serif;padding:24px'>"
+                "<h2>Pagine non caricate</h2><p>Il firmware c'&egrave;, ma l'immagine "
+                "LittleFS no. Dalla cartella <code>esp32/</code>:</p>"
+                "<pre>pio run -t uploadfs</pre>"
+                "<p>Il flusso dei frame &egrave; comunque attivo su <code>/ws</code>.</p>");
+      return;
+    }
+    req->redirect("/cronometro/");
   });
   server.on("/state", HTTP_GET, [](AsyncWebServerRequest* req) {
     char buf[1024]; buildStateJson(buf, sizeof(buf));
@@ -568,6 +592,11 @@ void setup() {
       }
     });
 #endif
+
+  /* ⚠️ PER ULTIMO, sempre. `serveStatic("/")` ha prefisso vuoto: cattura QUALUNQUE
+     percorso. Registrato prima si mangerebbe /state, /info, /config e /update —
+     e il sintomo sarebbe «l'API non risponde piu'», non «i file non si servono». */
+  if (fsPronto) server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
 
   if (cfg.apMode) startAPMode();    // standalone, no router
   else connectWiFi();

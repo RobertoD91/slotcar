@@ -1,6 +1,6 @@
 {
   "name": "DS200 ESP32 Bridge",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "funding_url": "",
   "new_install_prompt_erase": true,
   "builds": [
@@ -8,7 +8,10 @@
       "chipFamily": "ESP32",
       "improv": true,
       "parts": [
-        { "path": "ds200-esp32-merged.bin", "offset": 0 }
+        {
+          "path": "ds200-esp32-merged.bin",
+          "offset": 0
+        }
       ]
     }
   ]
