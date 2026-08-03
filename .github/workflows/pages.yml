@@ -54,9 +54,22 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip platformio esptool
-          cd esp32 && pio run
+          cd esp32
+          pio run
+          # ⭐ ANCHE il filesystem: il firmware serve il Cronometro web da LittleFS,
+          # quindi un'immagine senza LittleFS installa un ponte che alla radice
+          # dice «pagine non caricate». Chi usa l'installer web non ha un
+          # `pio run -t uploadfs` da lanciare: o glielo diamo qui, o per lui la
+          # pagina non esiste.
+          pio run -t buildfs
           BUILD=.pio/build/esp32dev
           BOOT_APP0=$(find "$HOME/.platformio/packages" -name boot_app0.bin | head -n1)
+          # L'offset della partizione dati si LEGGE dalla tabella, non si scrive a
+          # mano: se un giorno cambia il layout (p.es. per riavere due slot OTA),
+          # un numero copiato qui dentro scriverebbe il filesystem sopra l'app.
+          CSV=$(find "$HOME/.platformio/packages" -path '*tools/partitions/huge_app.csv' | head -n1)
+          FS_OFF=$(awk -F, '$2 ~ /data/ && ($3 ~ /spiffs/ || $3 ~ /littlefs/) {gsub(/ /,"",$4); print $4; exit}' "$CSV")
+          test -n "$FS_OFF"
           mkdir -p ../web/esp32-installer/firmware
           python -m esptool --chip esp32 merge_bin \
             -o ../web/esp32-installer/firmware/ds200-esp32-merged.bin \
@@ -64,8 +77,10 @@ jobs:
             0x1000  "$BUILD/bootloader.bin" \
             0x8000  "$BUILD/partitions.bin" \
             0xe000  "$BOOT_APP0" \
-            0x10000 "$BUILD/firmware.bin"
-          cp "$BUILD/firmware.bin" ../web/esp32-installer/firmware/firmware.bin   # per l'OTA
+            0x10000 "$BUILD/firmware.bin" \
+            "$FS_OFF" "$BUILD/littlefs.bin"
+          cp "$BUILD/firmware.bin" ../web/esp32-installer/firmware/firmware.bin
+          cp "$BUILD/littlefs.bin" ../web/esp32-installer/firmware/littlefs.bin
           ls -la ../web/esp32-installer/firmware/
 
       - name: Report firmware status

@@ -43,10 +43,15 @@ details.card > summary{cursor:pointer;font-weight:600;font-size:14px}
 /* ---- controlli ---------------------------------------------------------- */
 .row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
 .sub-row{margin-top:12px;padding-top:12px;border-top:1px dashed var(--bd)}
-.fld{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mut)}
+/* ⚠️ `min-width:0` non è decorazione: un elemento flex non si restringe sotto il
+   proprio contenuto finché non glielo dici, e un <select> è largo quanto la sua
+   OPZIONE PIU' LUNGA. Aggiungere un sistema con un nome lungo bastava a far
+   scorrere di lato TUTTA la pagina a 320px — è successo davvero col ponte BLE.
+   Stessa trappola di .tbwrap con le tabelle, vista dall'altro lato. */
+.fld{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mut);min-width:0}
 select,input[type=number],input[type=text]{
   background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;
-  padding:8px 10px;font:inherit;font-size:14px;min-width:120px
+  padding:8px 10px;font:inherit;font-size:14px;min-width:120px;max-width:100%
 }
 input[type=number]{width:110px;min-width:0}
 select:focus,input:focus{outline:2px solid var(--acc);outline-offset:1px}

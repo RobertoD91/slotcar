@@ -8,6 +8,10 @@
  */
 #include <Arduino.h>
 
+// Sta nell'header e non nel .cpp perche' serve anche a nus.cpp, che nomina i
+// due servizi nell'annuncio BLE (uno nel pacchetto, uno nella risposta).
+#define IMPROV_SVC_UUID "00467768-6228-2272-4663-277478268000"
+
 namespace ImprovBLE {
 
 // Called when the client sends WiFi credentials. Return true if connected.

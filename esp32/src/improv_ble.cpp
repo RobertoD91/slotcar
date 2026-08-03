@@ -7,8 +7,7 @@
 #include <WiFi.h>
 #include <vector>
 
-// Improv BLE GATT UUIDs (per the Improv spec)
-#define IMPROV_SVC_UUID "00467768-6228-2272-4663-277478268000"
+// Improv BLE GATT UUIDs (per the Improv spec). IMPROV_SVC_UUID sta in improv_ble.h.
 #define UUID_CURRENT    "00467768-6228-2272-4663-277478268001"  // state, read/notify
 #define UUID_ERROR      "00467768-6228-2272-4663-277478268002"  // error, read/notify
 #define UUID_RPC        "00467768-6228-2272-4663-277478268003"  // command, write

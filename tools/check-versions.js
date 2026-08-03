@@ -89,6 +89,29 @@ const dichiarate = new Set(sorgenti.map(([rel, re, k]) => {
 }).filter(Boolean));
 const orfane = Object.keys(versioni.apps).filter((k) => !dichiarate.has(k));
 
+/* ⭐ Il FIRMWARE: `FW_VERSION` in esp32/src/main.cpp contro il manifest che
+ * l'installer dà a ESP Web Tools. Non è la stessa cosa delle app web (il
+ * firmware ha una vita sua, e non sta in version.json), ma il difetto è
+ * identico e ancora più difficile da vedere: il numero nel manifest è quello
+ * che l'installer MOSTRA a chi sta per premere «installa», e se resta indietro
+ * uno si convince di aver già la versione nuova. Il file .bin, intanto, è
+ * quello giusto: non c'è nessun sintomo. */
+{
+  const rel = 'esp32/src/main.cpp';
+  const mf = path.join(WEB, 'esp32-installer', 'firmware', 'manifest.json');
+  const src = path.join(__dirname, '..', rel);
+  if (fs.existsSync(src) && fs.existsSync(mf)) {
+    const m = fs.readFileSync(src, 'utf8').match(/#define FW_VERSION "([^"]+)"/);
+    const j = JSON.parse(fs.readFileSync(mf, 'utf8'));
+    if (!m) { console.log(`❌ ${rel}: non trovo FW_VERSION`); errori++; }
+    else if (m[1] !== j.version) {
+      console.log(`❌ firmware: ${rel} dichiara ${m[1]}, il manifest dell'installer ${j.version} ` +
+                  `(→ l'installer mostra la versione sbagliata a chi sta per installare)`);
+      errori++;
+    } else visti++;
+  }
+}
+
 /* Il sito: version.json contro la costante dell'indice. */
 const indice = fs.readFileSync(path.join(WEB, 'index.html'), 'utf8');
 const ms = indice.match(/const SITE_VERSION="([^"]+)"/);

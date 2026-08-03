@@ -141,4 +141,12 @@ jobs:
       - name: Build firmware ESP32
         run: |
           python -m pip install --upgrade pip platformio
-          cd esp32 && pio run
+          cd esp32
+          pio run
+          # ⭐ ANCHE il filesystem, perche' e' meta' del prodotto: le pagine non
+          # sono compilate dentro il firmware, stanno in LittleFS. Se
+          # `buildfs` si rompe (o l'app non ci sta piu' nella partizione) qui si
+          # vede, invece di scoprirlo davanti a un dispositivo muto. E' lo
+          # stesso passo che fa pages.yml per l'immagine dell'installer.
+          pio run -t buildfs
+          test -f .pio/build/esp32dev/littlefs.bin

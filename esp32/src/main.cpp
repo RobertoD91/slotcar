@@ -17,7 +17,6 @@
 #include <WiFiManager.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
-#include <ESPAsyncWebServer.h>
 #include <ESPmDNS.h>
 #include <Preferences.h>
 #include <ImprovWiFiLibrary.h>
@@ -25,16 +24,19 @@
 
 #include "config.h"
 #include "ds200.h"
+#include "web.h"
 #include <LittleFS.h>
 #if ENABLE_IMPROV_BLE
 #include "improv_ble.h"
 #endif
+#if ENABLE_BLE_NUS
+#include "nus.h"
+#endif
 #if ENABLE_OTA
 #include <ArduinoOTA.h>
-#include <Update.h>
 #endif
 
-#define FW_VERSION "1.6.0"
+#define FW_VERSION "1.7.0"
 
 // ---- Runtime configuration (defaults from config.h, overridable in portal) --
 struct Config {
@@ -52,12 +54,10 @@ Preferences prefs;
 // ---- Networking objects -----------------------------------------------------
 WiFiClient        net;
 PubSubClient      mqtt(net);
-AsyncWebServer    server(80);
-AsyncWebSocket    ws("/ws");
 /* LittleFS porta il Cronometro web (vedi scripts/copy_webapp.py). Se manca —
    firmware caricato ma `uploadfs` no — il ponte funziona lo stesso: i frame
-   escono su /ws e su MQTT. Si perde solo la pagina, e la radice lo dice invece
-   di restituire un 404 muto. */
+   escono su /ws, via Bluetooth e su MQTT. Si perde solo la pagina, e la radice
+   lo dice invece di restituire un 404 muto. */
 bool fsPronto = false;
 WiFiManager       wm;
 ImprovWiFi        improvSerial(&Serial);
@@ -125,15 +125,20 @@ String topic(const String& leaf) { return cfg.baseTopic + "/" + leaf; }
 // ---------------------------------------------------------------------------
 // Web stack (works in both STA and standalone-AP mode)
 // ---------------------------------------------------------------------------
+void avviaWeb();   // definita in fondo, dopo i costruttori delle pagine
+
 void startWeb() {
   if (webUp) return;
   webUp = true;
-  if (MDNS.begin(HOSTNAME)) MDNS.addService("http", "tcp", 80);
+  avviaWeb();                       // prima il server: mDNS annuncia cosa e' partito davvero
+  if (MDNS.begin(HOSTNAME)) {
+    MDNS.addService("http", "tcp", 80);
+    if (Web::tlsAttivo()) MDNS.addService("https", "tcp", 443);
+  }
 #if ENABLE_OTA
   ArduinoOTA.setHostname(HOSTNAME);
   ArduinoOTA.begin();   // network OTA: pio run -t upload --upload-port ds200.local
 #endif
-  server.begin();
 }
 
 // Network services that need an internet/router connection (STA only).
@@ -366,7 +371,7 @@ void publishAnnounce(const ds200::Frame& fr, bool newBest) {
 // ---------------------------------------------------------------------------
 // Handle one parsed frame: update state, publish MQTT, broadcast WS
 // ---------------------------------------------------------------------------
-void handleFrame(const ds200::Frame& fr) {
+void handleFrame(const ds200::Frame& fr, const uint8_t* grezzo) {
 #if ENABLE_SERIAL_HEX
   Serial.print("DS200 RX: "); Serial.println(fr.rawHex);
 #endif
@@ -412,19 +417,101 @@ void handleFrame(const ds200::Frame& fr) {
   publishAnnounce(fr, newBestLap);
 #endif
 
-  if (ws.count()) ws.textAll(json);
+  Web::trasmetti(json);
+
+#if ENABLE_BLE_NUS
+  /* ⭐ Via Bluetooth non si manda il JSON: si mandano **i 21 byte com'erano sul
+     cavo**. Dall'altra parte li decodifica lo stesso parser del cavo, quindi
+     non nasce un secondo formato da tenere allineato — nasce un secondo
+     trasporto. (Il WebSocket manda il JSON perché ci mette dentro anche `raw`,
+     e il sistema web usa quello: stessa idea, altra confezione.) */
+  NusBridge::send(grezzo, ds200::TOTAL_BYTES);
+#endif
 }
 
 // ---------------------------------------------------------------------------
-// WebSocket
+// Le pagine che dipendono dallo stato — lo stato vive qui, non in web.cpp
 // ---------------------------------------------------------------------------
-void onWsEvent(AsyncWebSocket* s, AsyncWebSocketClient* c, AwsEventType type,
-               void* arg, uint8_t* data, size_t len) {
-  if (type == WS_EVT_CONNECT) {
-    char buf[1024];
-    buildStateJson(buf, sizeof(buf));
-    c->text(buf);
-  }
+String infoJson() {
+  JsonDocument doc;
+  doc["version"]   = FW_VERSION;
+  doc["hostname"]  = HOSTNAME;
+  doc["ip"]        = WiFi.localIP().toString();
+  doc["ssid"]      = WiFi.SSID();
+  doc["rssi"]      = WiFi.RSSI();
+  doc["mqtt_host"] = cfg.mqttHost;
+  doc["mqtt_port"] = cfg.mqttPort;
+  doc["mqtt_connected"] = mqtt.connected();
+  doc["base_topic"] = cfg.baseTopic;
+  doc["https"]     = Web::tlsAttivo();
+  doc["ws_clients"] = Web::clientWs();
+#if ENABLE_BLE_NUS
+  doc["ble_clients"] = NusBridge::listeners();
+#endif
+  String out;
+  serializeJson(doc, out);
+  return out;
+}
+
+String paginaConfig() {
+  String mode = cfg.apMode ? String("AP standalone")
+                           : ("STA " + WiFi.SSID() + " (" + WiFi.localIP().toString() + ")");
+  String h = "<h2>Impostazioni DS200</h2>";
+  h += "<p class=mut>v" FW_VERSION " &middot; " + mode + " &middot; MQTT " +
+       (mqtt.connected() ? "connesso" : "non connesso") + " &middot; " +
+       (Web::tlsAttivo() ? "https attivo" : "solo http") + "</p>";
+  h += "<form method='POST' action='/config'>";
+  h += "<div class=row><input type=checkbox name=mqtt_en " + String(cfg.mqttEnabled ? "checked" : "") + "><span>MQTT attivo</span></div>";
+  h += "<label>MQTT host</label><input name=host value='" + cfg.mqttHost + "'>";
+  h += "<label>MQTT port</label><input name=port type=number value='" + String(cfg.mqttPort) + "'>";
+  h += "<label>MQTT user</label><input name=user value='" + cfg.mqttUser + "'>";
+  h += "<label>MQTT password</label><input name=pass type=password value='" + cfg.mqttPass + "'>";
+  h += "<label>Base topic</label><input name=base value='" + cfg.baseTopic + "'>";
+  h += "<div class=row><input type=checkbox name=ap_mode " + String(cfg.apMode ? "checked" : "") +
+       "><span>Modalit&agrave; AP standalone (nessun router) &mdash; richiede riavvio</span></div>";
+  h += "<button type=submit>Salva</button></form>";
+  h += "<p style='margin-top:18px'><a href='/cert'>Certificato TLS (https)</a>";
+  h += " &middot; <a href='/config?do=1' onclick=\"return confirm('Riavviare in setup per cambiare WiFi?')\">Cambia WiFi (riavvia in setup)</a>";
+#if ENABLE_OTA
+  h += " &middot; <a href='/update'>Aggiornamento firmware</a>";
+#endif
+  h += " &middot; <a href='/'>Cronometro / tempi live</a></p>";
+  return Web::cornice(h);
+}
+
+// Torna true se serve riavviare (solo il cambio di modalità AP lo richiede).
+bool salvaConfigDa(const String& corpo) {
+  bool wasAp = cfg.apMode;
+  /* ⚠️ Una casella non spuntata NON viene inviata dal browser: la sua assenza è
+     il valore «no». Cercare `mqtt_en=0` non troverebbe mai niente e le caselle
+     non si spegnerebbero più. */
+  cfg.mqttEnabled = corpo.indexOf("mqtt_en=") >= 0;
+  cfg.apMode      = corpo.indexOf("ap_mode=") >= 0;
+  /* I campi di testo il browser li manda SEMPRE, anche vuoti: si assegnano
+     senza guardie, così svuotarne uno lo svuota davvero. La porta no: vuota
+     diventerebbe 0, e uno zero non è una scelta, è un modulo compilato male. */
+  cfg.mqttHost  = Web::campo(corpo, "host");
+  cfg.mqttUser  = Web::campo(corpo, "user");
+  cfg.mqttPass  = Web::campo(corpo, "pass");
+  cfg.baseTopic = Web::campo(corpo, "base");
+  int porta = Web::campo(corpo, "port").toInt();
+  if (porta > 0 && porta < 65536) cfg.mqttPort = porta;
+  saveConfig();
+  if (cfg.apMode != wasAp) return true;
+  if (mqtt.connected()) mqtt.disconnect();     // si riconnette con le nuove impostazioni
+  mqtt.setServer(cfg.mqttHost.c_str(), cfg.mqttPort);
+  return false;
+}
+
+void avviaWeb() {
+  Web::Ganci g;
+  g.statoJson     = buildStateJson;
+  g.infoJson      = infoJson;
+  g.paginaConfig  = paginaConfig;
+  g.salvaConfig   = salvaConfigDa;
+  g.chiediRiavvio = []() { rebootRequested = true; };
+  g.dimenticaWifi = []() { reconfigRequested = true; };
+  Web::begin(g, fsPronto);
 }
 
 // ---------------------------------------------------------------------------
@@ -454,149 +541,15 @@ void setup() {
   // Improv-BLE: provision WiFi from a phone (improv-wifi.com / Home Assistant).
   ImprovBLE::begin(HOSTNAME, "http://{LOCAL_IPV4}/", connectWithCreds);
 #endif
-
-  // Register HTTP routes once (server.begin() happens in startServices()).
-  ws.onEvent(onWsEvent);
-  server.addHandler(&ws);
-  /* La pagina e' il Cronometro web VERO, copiato in LittleFS al momento della
-     build (scripts/copy_webapp.py). Prima qui c'era una copia a mano dentro
-     src/web_index.h: e' invecchiata di mesi senza che nessuno se ne accorgesse.
-     La radice rimanda al cronometro; il resto lo serve serveStatic. */
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
-    if (!fsPronto) {
-      req->send(200, "text/html",
-                "<meta charset=utf-8><body style='font:15px sans-serif;padding:24px'>"
-                "<h2>Pagine non caricate</h2><p>Il firmware c'&egrave;, ma l'immagine "
-                "LittleFS no. Dalla cartella <code>esp32/</code>:</p>"
-                "<pre>pio run -t uploadfs</pre>"
-                "<p>Il flusso dei frame &egrave; comunque attivo su <code>/ws</code>.</p>");
-      return;
-    }
-    req->redirect("/cronometro/");
-  });
-  server.on("/state", HTTP_GET, [](AsyncWebServerRequest* req) {
-    char buf[1024]; buildStateJson(buf, sizeof(buf));
-    req->send(200, "application/json", buf);
-  });
-  // Current settings (read-only) as JSON.
-  server.on("/info", HTTP_GET, [](AsyncWebServerRequest* req) {
-    JsonDocument doc;
-    doc["version"]   = FW_VERSION;
-    doc["hostname"]  = HOSTNAME;
-    doc["ip"]        = WiFi.localIP().toString();
-    doc["ssid"]      = WiFi.SSID();
-    doc["rssi"]      = WiFi.RSSI();
-    doc["mqtt_host"] = cfg.mqttHost;
-    doc["mqtt_port"] = cfg.mqttPort;
-    doc["mqtt_connected"] = mqtt.connected();
-    doc["base_topic"] = cfg.baseTopic;
-    char buf[384]; serializeJson(doc, buf, sizeof(buf));
-    req->send(200, "application/json", buf);
-  });
-  // Settings page (no reboot for MQTT). ?do=1 forgets WiFi and reboots to setup.
-  server.on("/config", HTTP_GET, [](AsyncWebServerRequest* req) {
-    if (req->hasParam("do") && req->getParam("do")->value() == "1") {
-      req->send(200, "text/html",
-                "<meta charset=utf-8><body style='font-family:sans-serif;background:#0b0f17;color:#e6edf6'>"
-                "<h3>Riavvio in modalit&agrave; setup&hellip;</h3><p>Collega l'AP <b>" AP_NAME
-                "</b> e apri <a href='http://192.168.4.1/'>http://192.168.4.1/</a>.</p></body>");
-      reconfigRequested = true;
-      return;
-    }
-    String mode = cfg.apMode ? String("AP standalone")
-                             : ("STA " + WiFi.SSID() + " (" + WiFi.localIP().toString() + ")");
-    String h = "<meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
-      "<body style='font-family:sans-serif;background:#0b0f17;color:#e6edf6;max-width:640px;margin:auto;padding:20px'>"
-      "<style>label{display:block;margin:10px 0 3px;color:#8aa0bd}input,button{font-size:15px;padding:8px;border-radius:8px;border:1px solid #243044;background:#1a2332;color:#e6edf6;width:100%}button{background:#ff3b3b;border-color:#ff3b3b;color:#fff;font-weight:600;cursor:pointer;margin-top:14px}a{color:#2ea3ff}.row{display:flex;gap:10px;align-items:center;margin-top:12px}.row input{width:auto}</style>"
-      "<h2>Impostazioni DS200</h2>";
-    h += "<p style='color:#8aa0bd'>v" FW_VERSION " · " + mode + " · MQTT " + (mqtt.connected() ? "connesso" : "non connesso") + "</p>";
-    h += "<form method='POST' action='/config'>";
-    h += "<div class=row><input type=checkbox name=mqtt_en " + String(cfg.mqttEnabled ? "checked" : "") + "><span>MQTT attivo</span></div>";
-    h += "<label>MQTT host</label><input name=host value='" + cfg.mqttHost + "'>";
-    h += "<label>MQTT port</label><input name=port type=number value='" + String(cfg.mqttPort) + "'>";
-    h += "<label>MQTT user</label><input name=user value='" + cfg.mqttUser + "'>";
-    h += "<label>MQTT password</label><input name=pass type=password value='" + cfg.mqttPass + "'>";
-    h += "<label>Base topic</label><input name=base value='" + cfg.baseTopic + "'>";
-    h += "<div class=row><input type=checkbox name=ap_mode " + String(cfg.apMode ? "checked" : "") + "><span>Modalit&agrave; AP standalone (nessun router) &mdash; richiede riavvio</span></div>";
-    h += "<button type=submit>Salva</button></form>";
-    h += "<p style='margin-top:18px'><a href='/config?do=1' onclick=\"return confirm('Riavviare in setup per cambiare WiFi?')\">Cambia WiFi (riavvia in setup)</a>";
-#if ENABLE_OTA
-    h += " &middot; <a href='/update'>Aggiorna firmware (OTA)</a>";
-#endif
-    h += " &middot; <a href='/'>Console / tempi live</a></p></body>";
-    req->send(200, "text/html", h);
-  });
-  // Save settings (no reboot, unless AP-mode toggled).
-  server.on("/config", HTTP_POST, [](AsyncWebServerRequest* req) {
-    auto val = [&](const char* n) -> String {
-      return req->hasParam(n, true) ? req->getParam(n, true)->value() : String();
-    };
-    bool wasAp = cfg.apMode;
-    cfg.mqttEnabled = req->hasParam("mqtt_en", true);
-    cfg.apMode      = req->hasParam("ap_mode", true);
-    if (req->hasParam("host", true)) cfg.mqttHost = val("host");
-    if (req->hasParam("port", true)) cfg.mqttPort = val("port").toInt();
-    if (req->hasParam("user", true)) cfg.mqttUser = val("user");
-    if (req->hasParam("pass", true)) cfg.mqttPass = val("pass");
-    if (req->hasParam("base", true)) cfg.baseTopic = val("base");
-    saveConfig();
-    if (cfg.apMode != wasAp) {
-      req->send(200, "text/html",
-                "<meta charset=utf-8><body style='font-family:sans-serif;background:#0b0f17;color:#e6edf6'>"
-                "<h3>Salvato. Riavvio&hellip;</h3></body>");
-      rebootRequested = true;     // plain reboot (apply AP-mode change)
-      return;
-    }
-    if (mqtt.connected()) mqtt.disconnect();   // reconnect with new settings
-    mqtt.setServer(cfg.mqttHost.c_str(), cfg.mqttPort);
-    req->send(200, "text/html",
-              "<meta charset=utf-8><meta http-equiv='refresh' content='1;url=/config'>"
-              "<body style='font-family:sans-serif;background:#0b0f17;color:#e6edf6'><h3>Salvato.</h3></body>");
-  });
-
-#if ENABLE_OTA
-  // Web OTA: GET shows an upload form, POST receives the firmware .bin.
-  server.on("/update", HTTP_GET, [](AsyncWebServerRequest* req) {
-    req->send(200, "text/html",
-              "<meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
-              "<body style='font-family:sans-serif;background:#0b0f17;color:#e6edf6;max-width:640px;margin:auto;padding:20px'>"
-              "<h2>OTA &mdash; aggiorna firmware</h2>"
-              "<p>Carica <code>ds200-esp32-merged.bin</code> non &egrave; adatto: usa <code>firmware.bin</code> "
-              "(da <code>esp32/.pio/build/esp32dev/firmware.bin</code>).</p>"
-              "<form method='POST' action='/update' enctype='multipart/form-data'>"
-              "<input type='file' name='firmware' accept='.bin'> "
-              "<input type='submit' value='Aggiorna'></form>"
-              "<p><a href='/config' style='color:#2ea3ff'>&larr; Impostazioni</a></p></body>");
-  });
-  server.on("/update", HTTP_POST,
-    [](AsyncWebServerRequest* req) {
-      bool ok = !Update.hasError();
-      AsyncWebServerResponse* res = req->beginResponse(200, "text/html",
-        ok ? "<meta charset=utf-8><body style='font-family:sans-serif;background:#0b0f17;color:#e6edf6'>"
-             "<h3>OK, riavvio&hellip;</h3></body>"
-           : "<meta charset=utf-8><body style='font-family:sans-serif;background:#0b0f17;color:#e6edf6'>"
-             "<h3>Aggiornamento fallito.</h3></body>");
-      res->addHeader("Connection", "close");
-      req->send(res);
-      if (ok) rebootRequested = true;
-    },
-    [](AsyncWebServerRequest* req, String filename, size_t index, uint8_t* data, size_t len, bool final) {
-      if (index == 0) {
-        Serial.printf("[ota] start: %s\n", filename.c_str());
-        if (!Update.begin(UPDATE_SIZE_UNKNOWN)) Update.printError(Serial);
-      }
-      if (len) Update.write(data, len);
-      if (final) {
-        if (Update.end(true)) Serial.printf("[ota] done: %u bytes\n", (unsigned)(index + len));
-        else Update.printError(Serial);
-      }
-    });
+#if ENABLE_BLE_NUS
+  /* Dopo Improv, che e' chi inizializza NimBLE: qui si aggiunge il secondo
+     servizio e si rifa' l'annuncio per nominarli tutti e due. */
+  NusBridge::begin(HOSTNAME);
 #endif
 
-  /* ⚠️ PER ULTIMO, sempre. `serveStatic("/")` ha prefisso vuoto: cattura QUALUNQUE
-     percorso. Registrato prima si mangerebbe /state, /info, /config e /update —
-     e il sintomo sarebbe «l'API non risponde piu'», non «i file non si servono». */
-  if (fsPronto) server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
+  // Le pagine e le rotte le tiene web.cpp: un elenco solo, registrato su TUTTI
+  // gli ascoltatori (:80 in chiaro e :443 in TLS). Qui si passano solo i ganci
+  // verso lo stato, che vive qui.
 
   if (cfg.apMode) startAPMode();    // standalone, no router
   else connectWiFi();
@@ -616,7 +569,6 @@ void loop() {
 #if ENABLE_OTA
     ArduinoOTA.handle();
 #endif
-    ws.cleanupClients();
   } else {
     if (portalActive) wm.process();   // captive-portal pump
     if (WiFi.status() == WL_CONNECTED) {
@@ -627,7 +579,6 @@ void loop() {
 #endif
       mqttReconnect();
       mqtt.loop();
-      ws.cleanupClients();
     }
   }
 
@@ -638,7 +589,7 @@ void loop() {
     if (framer.push(b, out)) {
       ds200::Frame fr;
       ds200::parse(out, fr);
-      handleFrame(fr);
+      handleFrame(fr, out);
     }
   }
 }

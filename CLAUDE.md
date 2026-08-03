@@ -46,16 +46,31 @@ L'utente è italiano: **rispondere in italiano**.
 - [ ] **Nomi dei guidatori** — riprovare a scriverli di seguito, senza ricliccare dopo ogni
       lettera.
 
-**Ponte ESP32 (nuovo, mai provato)**
+**Ponte ESP32 (nuovo, mai provato — e ora c'è anche il TLS e il Bluetooth)**
 - [ ] **Carica firmware E pagine**: dalla cartella `esp32/`, `pio run -t upload` **e poi**
       `pio run -t uploadfs`. Sono due comandi: il primo mette il firmware, il secondo le
       pagine in LittleFS. Se salti il secondo il ponte funziona lo stesso (i frame escono su
-      `/ws` e su MQTT) ma la radice te lo dice invece di dare un 404 muto.
+      `/ws`, via Bluetooth e su MQTT) ma la radice te lo dice invece di dare un 404 muto.
+      ⚠️ Chi installa dal browser non ha questo problema: da ora l'immagine unita
+      dell'installer **contiene anche LittleFS**.
 - [ ] **Apri `http://ds200.local/`** — deve rimandare al Cronometro web vero, con il sistema
       «DS200/DS300 senza fili (ponte ESP32)» che si collega da solo, senza chiedere niente.
-- [ ] **Verifica che le API rispondano ancora**: `/state`, `/info`, `/config`. Servono le
-      pagine da `/` e quelle rotte devono restare raggiungibili (`serveStatic` è registrato
-      per ultimo apposta, ma vale la pena guardarlo dal vivo).
+- [ ] **Verifica che le API rispondano ancora**: `/state`, `/info`, `/config`. ⚠️ Il server è
+      **cambiato del tutto** (`esp_https_server` al posto di ESPAsyncWebServer): sono le
+      rotte più a rischio, perché la regola «la rotta jolly va registrata per ultima» è stata
+      riscritta da zero. Se `/state` restituisse una pagina HTML invece del JSON, è quello.
+- [ ] **Prova il sistema Bluetooth** (`sistemi/ble.js` ↔ `esp32/src/nus.cpp`): nel Cronometro
+      scegli «DS200/DS300 via Bluetooth», il dispositivo deve comparire col suo nome `ds200`.
+      È l'unica strada che funziona **dal sito pubblicato** senza configurare niente.
+- [ ] **Prova l'https con un certificato tuo**: hai un sottodominio che punta all'indirizzo
+      privato → prendi un certificato Let's Encrypt in **DNS-01** e incolla i due PEM su
+      `http://ds200.local/cert`. Dopo il riavvio deve rispondere anche su `https://…/`, e dal
+      sito pubblicato deve funzionare `wss://<il tuo nome>/ws` nelle opzioni avanzate del
+      sistema «senza fili». Se l'https non parte, il motivo è sulla seriale.
+- [ ] **Decidi sulle partizioni** — `/update` ora dice la verità guardando il dispositivo:
+      con `huge_app.csv` c'è una sola area applicativa, quindi **nessun** aggiornamento via
+      rete può funzionare (né web né ArduinoOTA). O si passa a due slot (togliendo spazio a
+      BLE+WiFi+TLS), o resta l'aggiornamento via USB. È una scelta tua.
 
 **Ninco**
 - [ ] **Prova sul campo del contagiri** (il cavo ce l'ha già). Targhetta **mai provata**.
@@ -82,6 +97,16 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
       ereditando da `Ds200Sistema`. Perciò il file è corto e non c'è un secondo formato da
       tenere allineato. Il test E2E rigioca la **stessa cattura** per questa strada e
       pretende la stessa identica classifica. **Mai provato su hardware.**
+- ✅ **sistema BLE** (`sistemi/ble.js`) — lo **stesso ponte**, per Bluetooth invece che per
+      rete. Eredita anch'esso da `Ds200Sistema`: cambia solo il trasporto. ⭐ Esiste per una
+      ragione sola ma pesante — **il contenuto misto**: una pagina `https://` non può aprire
+      un `ws://` verso un indirizzo di LAN, e nessuna autorità firma un certificato per un IP
+      privato. Web Bluetooth invece parla al dispositivo direttamente, senza rete e senza
+      certificati: è **l'unico trasporto che funziona dal sito pubblicato** senza configurare
+      niente. In cambio niente iOS, un client per volta, una decina di metri — cioè
+      esattamente i tre casi che copre il WebSocket. Non sono alternative: il ponte le espone
+      **tutte e due insieme**. Il test E2E rigioca la stessa cattura anche per questa strada,
+      spezzando i frame **20+1 byte** come fa il NUS. **Mai provato su hardware.**
 - [ ] **sistema oXigen** — l'unico con `control:true`: la gara la comanda l'app
       (`race_status[10]`). Serve il dongle.
 - [ ] **GP a tempo** e **qualifiche** — dopo il GP a giri. La regola vive tutta in
@@ -90,10 +115,11 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
       rinviata a un'evolutiva. Oggi i nomi stanno in `localStorage`.
 
 ### Da fare nel codice
-- [ ] **OTA e partizioni**: `huge_app.csv` ha **una sola** partizione app (niente `ota_1`),
-      quindi l'aggiornamento via `/update` probabilmente non può funzionare — è così da
-      prima di LittleFS, non l'ha introdotto lui. Da verificare e, se confermato, scegliere:
-      partizioni con doppio slot (meno spazio per BLE+WiFi) oppure togliere la promessa.
+- [ ] **OTA e partizioni** — *verificato*: `huge_app.csv` ha una sola area applicativa, e
+      `/update` ora lo **dice guardando il dispositivo** (`esp_ota_get_next_update_partition()`
+      torna NULL) invece di offrire un modulo che fallisce. Resta la scelta: partizioni a
+      doppio slot (meno spazio per BLE+WiFi+TLS, e con il TLS il firmware è a 1,4 MB su 1,75
+      che ne avanzerebbero) oppure tenersi l'aggiornamento via USB. **Decisione dell'utente.**
 - [ ] **L'installer ESP32 è solo in italiano** — non è passato per `i18n.js` come il resto.
       (Era indicato come `flash.html`, un file che non esiste più: oggi è
       `web/esp32-installer/index.html`.)
@@ -132,6 +158,22 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   `master`. Percorsi **sempre relativi**: il sito sta in un sottopercorso.
 - **Tutto è sorgente: si modifica qui, e basta.** Non c'è più niente di copiato da altre
   repo, quindi niente sync e niente patch: si aprono i file e si cambiano.
+- ⭐ **Il firmware NON contiene una copia del sito.** Le pagine stanno in LittleFS e ce le
+  mette `esp32/scripts/copy_webapp.py` ad ogni `pio run`. C'era un `src/web_index.h`
+  incollato a mano ed è invecchiato per mesi in silenzio: quando l'abbiamo tolto aveva
+  ancora la tavolozza rossa, un suo dizionario a 5 lingue e il cronometro che scorreva da
+  solo — cioè proprio l'antipattern appena eliminato dall'app vera. Conseguenza pratica:
+  **il filesystem fa parte del prodotto**. `pio run -t upload` da solo installa un ponte
+  senza interfaccia; serve anche `uploadfs`, e l'immagine unita dell'installer include
+  `littlefs.bin`.
+- ⭐ **Il server dell'ESP32 è `esp_https_server`, non ESPAsyncWebServer.** Quello non sa
+  fare TLS e il ponte deve terminare lui l'https (niente proxy davanti: richiesta esplicita
+  dell'utente). L'alternativa era tenere l'async su :80 e affiancargli un secondo server
+  per :443 — cioè **due elenchi di rotte**, la stessa copia-che-invecchia di `web_index.h`
+  spostata di un metro. `esp_https_server` sta già nell'SDK (nessuna libreria in più,
+  WebSocket compreso) e ha il trasporto come **campo di configurazione**: `registraRotte()`
+  gira su entrambi gli ascoltatori e l'elenco esiste una volta sola. Il perché disteso è in
+  cima a `esp32/src/web.cpp`.
 - ⚠️ **I TRE PARSER DEL DS200 devono restare equivalenti**: `web/ds200-ds300/ds200.js` (JS),
   `cli/ds_slot_serial.py` (Python) ed `esp32/src/ds200.h` (C++). Se cambia il protocollo si
   aggiornano tutti e tre insieme ai test. Ora stanno nella stessa repo e li verifica un
@@ -244,7 +286,7 @@ cosa che gli serve — se vale la pena provarci.
 
 ```bash
 node tools/check-links.js                     # link interni + nessun percorso assoluto
-node tools/check-versions.js                  # versioni nel codice == version.json
+node tools/check-versions.js                  # versioni nel codice == version.json (+ FW_VERSION == manifest)
 node tools/check-style.js                     # i colori vengono TUTTI da ui.css
 python3 tools/scan-secrets.py                 # segreti nei file
 python3 tools/scan-secrets.py --history       # segreti in tutta la storia
@@ -253,7 +295,7 @@ node web/ds200-ds300/ds200.test.js            # parser DS200 — JS
 cd cli && python3 -m pytest tests/ -q         # parser DS200 — Python
 g++ -std=c++17 -I esp32/test_host -I esp32/src esp32/test_host/test_ds200.cpp -o /tmp/t && /tmp/t
 node web/ninco/ninco.test.js                  # parser Ninco
-cd esp32 && pio run                           # firmware
+cd esp32 && pio run && pio run -t buildfs      # firmware + immagine LittleFS
 
 # col sito servito in locale (servono Playwright e NODE_PATH=/opt/node22/lib/node_modules)
 cd web && python3 -m http.server 8099 &
@@ -292,6 +334,11 @@ strumenti non esistono più.
   in `web/esp32-installer/` (separati apposta: il secondo è molto più acerbo).
   I **tre** parser (JS, Python, C++) devono restare
   equivalenti — vedi le regole d'oro.
+- **Ponte ESP32** → `esp32/README.md`. Non è un protocollo: il firmware decodifica con lo
+  stesso parser e riespone **gli stessi byte** su tre trasporti (WebSocket con il frame
+  grezzo dentro il JSON, Bluetooth NUS con i 21 byte nudi, MQTT). Per questo i sistemi
+  `esp32.js` e `ble.js` ereditano da `Ds200Sistema` e sono corti: cambia solo come
+  arrivano i byte, non cosa sono.
 - **Slot.it / oXigen** → `docs/slot.it/`. Lo studio del protocollo sta nella repo privata.
   La **guida rapida** (tasti, LED, pairing, DFU) è la web app `web/guida-oxigen/`, che si
   chiamava `modes/`: il vecchio percorso resta come stub che rimanda.
@@ -435,6 +482,12 @@ distinguibili e il giro veloce non è una lotteria. Il grande orologio resta a d
   test lo vedeva: nel browser dei test la Web Serial non c'è, quindi la fascia si accendeva
   per un motivo legittimo. Ora lo smoke test controlla la cosa **strutturale** — ogni
   `.banner` deve avere `hidden` nel markup — che è l'invariante vera.
+- ⭐ **Un `<select>` è largo quanto la sua opzione più lunga**, e in un contenitore flex
+  senza `min-width:0` quella larghezza diventa la larghezza della PAGINA. Aggiungere il
+  sistema BLE — un nome lungo in un menu a tendina — bastava a far scorrere di lato tutto
+  il cronometro a 320 px. La cosa notevole è che il difetto non sta dove sta la modifica:
+  il file toccato era `sistemi/ble.js`, il sintomo in `styles.css`. Lo prende lo smoke test,
+  che misura `scrollWidth` su ogni pagina; nessuna lettura del diff l'avrebbe visto.
 - ⭐ **Grid e flex non si restringono sotto il proprio contenuto** finché non gli dici
   `min-width:0`. Con una tabella dentro, la colonna si allarga fino a contenerla e a
   scorrere in orizzontale diventa **tutta la pagina**: si sposta tutto — titoli, testo,

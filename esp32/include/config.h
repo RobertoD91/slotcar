@@ -92,6 +92,14 @@
 #define ENABLE_IMPROV_BLE    1
 #endif
 
+// Pubblica i frame GREZZI su un Nordic UART Service, così il Cronometro web si
+// collega via Web Bluetooth. È l'unica strada che funziona dal sito pubblicato
+// in HTTPS senza certificato (vedi src/nus.cpp). Richiede ENABLE_IMPROV_BLE o
+// almeno NimBLE compilato: se lo spegni resta il WebSocket.
+#ifndef ENABLE_BLE_NUS
+#define ENABLE_BLE_NUS       1
+#endif
+
 // Publish a ready-to-speak phrase on <base>/announce for Home Assistant + Piper
 // TTS (see homeassistant/ds200_tts.yaml). Set to 0 to disable.
 #ifndef ENABLE_ANNOUNCE

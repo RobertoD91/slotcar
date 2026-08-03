@@ -445,6 +445,82 @@ E0 2C 15 02 00 00 00 1B 00 00 02 00 03 00 00 22 31 08 BE 00 EB   corsia 2, giro 
      'i posti sono corsie: la centralina è stata riconosciuta dal frame');
   await wsPage.close();
 
+
+  /* ⭐ E il BLE è la TERZA strada per gli STESSI byte. Qui però c'è una cosa in
+     più da dimostrare: il NUS spezza i dati in pacchetti da ~20 byte, quindi un
+     frame da 21 arriva quasi sempre in DUE notifiche. Questa prova li spezza
+     apposta (20 + 1) e pretende la stessa classifica: se il riassemblaggio si
+     rompesse, un decoder che riceve mezzo frame non se ne accorgerebbe — si
+     limiterebbe a non contare mai un giro. */
+  console.log('\n== PONTE BLE: stessi byte, spezzati come li spezza il NUS ==');
+  const blePage = await ctx.newPage();
+  blePage.on('pageerror', (e) => errors.push(String(e)));
+  await blePage.addInitScript(() => {
+    class Ch {
+      constructor() { this.h = []; }
+      addEventListener(_t, f) { this.h.push(f); }
+      async startNotifications() { window.__notif = true; return this; }
+      async stopNotifications() { window.__notif = false; return this; }
+      emit(bytes) {
+        const u = Uint8Array.from(bytes);
+        const v = new DataView(u.buffer, 0, u.length);
+        this.h.forEach((f) => f({ target: { value: v } }));
+      }
+    }
+    const ch = new Ch();
+    const dev = {
+      name: 'DS200 bridge',
+      addEventListener() {},
+      gatt: {
+        connected: false,
+        async connect() {
+          this.connected = true;
+          return { getPrimaryService: async () => ({ getCharacteristic: async () => ch }) };
+        },
+        disconnect() { this.connected = false; },
+      },
+    };
+    Object.defineProperty(navigator, 'bluetooth', {
+      configurable: true,
+      value: {
+        async requestDevice(opts) { window.__bleOpts = opts; return dev; },
+        async getAvailability() { return true; },
+      },
+    });
+    /* Spezzato come lo spezza il NUS: 20 byte, poi il ventunesimo. */
+    window.__ble = (arr) => { ch.emit(arr.slice(0, 20)); ch.emit(arr.slice(20)); };
+    try { localStorage.clear(); } catch (e) {}
+  });
+  await blePage.goto(BASE + '/cronometro/', { waitUntil: 'networkidle' });
+
+  const sistemiBle = await blePage.evaluate(() => [...document.querySelectorAll('#sys option')].map((o) => o.value));
+  ok(sistemiBle.includes('ble'), 'il ponte BLE compare fra i sistemi: ' + sistemiBle.join(', '));
+
+  await blePage.selectOption('#sys', 'ble');
+  await blePage.waitForTimeout(120);
+  ok(await blePage.locator('#mode').isHidden(),
+     'ed è un DS a tutti gli effetti: la modalità la decide la centralina');
+
+  await blePage.locator('#connect').click();
+  await blePage.waitForTimeout(250);
+  const filtri = await blePage.evaluate(() => window.__bleOpts);
+  ok(filtri && filtri.filters && filtri.filters[0].services[0] === '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+     'cerca il SERVIZIO, non il nome (il nome lo puoi cambiare, il servizio no)');
+  ok(await blePage.evaluate(() => window.__notif === true), 'e si mette in ascolto delle notifiche');
+
+  for (const f of frames) {
+    await blePage.evaluate((a) => window.__ble(a), Array.from(f));
+    await blePage.waitForTimeout(160);
+  }
+  const boardBle = await blePage.evaluate(() =>
+    [...document.querySelectorAll('#board tr')].map((tr) => [...tr.children].map((td) => td.innerText.trim())));
+  ok(boardBle.length >= 2, 'la classifica si popola: ' + boardBle.length + ' righe');
+  ok(boardBle[0][2] === '3' && boardBle[1][2] === '3',
+     'stessi giri delle altre due strade (3 e 3): ' + boardBle.map((r) => r[2]).join(','));
+  ok(boardBle[0][4] === '0:05.0393',
+     'e lo stesso giro veloce, agli stessi diecimillesimi: ' + boardBle[0][4]);
+  await blePage.close();
+
   console.log('\n== ERRORI JS ==');
   const real = errors.filter(e => !/Failed to load resource/.test(e));
   if (real.length) { real.slice(0, 8).forEach(e => console.log('  ⚠️  ' + e)); fail += real.length; }

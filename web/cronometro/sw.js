@@ -4,21 +4,22 @@
  * ⚠️ Ad ogni pubblicazione va alzato CACHE **e** le query ?v= qui sotto e in
  * index.html: con la cache-first, se non cambia il nome, chi ha gia' aperto la
  * pagina resta sulla copia vecchia per sempre. */
-const CACHE = 'cronometro-v0.5.3';
+const CACHE = 'cronometro-v0.5.4';
 const ASSETS = [
   './',
   './index.html',
   '../ui.css?v=2',
-  '../tema.js?v=0.5.3',
-  './styles.css?v=0.5.3',
-  './i18n.js?v=0.5.3',
-  './race.js?v=0.5.3',
-  './sistemi/registry.js?v=0.5.3',
-  './sistemi/sim.js?v=0.5.3',
-  '../ds200-ds300/ds200.js?v=0.5.3',
-  './sistemi/ds200.js?v=0.5.3',
-  './sistemi/esp32.js?v=0.5.3',
-  './app.js?v=0.5.3',
+  '../tema.js?v=0.5.4',
+  './styles.css?v=0.5.4',
+  './i18n.js?v=0.5.4',
+  './race.js?v=0.5.4',
+  './sistemi/registry.js?v=0.5.4',
+  './sistemi/sim.js?v=0.5.4',
+  '../ds200-ds300/ds200.js?v=0.5.4',
+  './sistemi/ds200.js?v=0.5.4',
+  './sistemi/esp32.js?v=0.5.4',
+  './sistemi/ble.js?v=0.5.4',
+  './app.js?v=0.5.4',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',

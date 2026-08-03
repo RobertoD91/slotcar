@@ -79,8 +79,32 @@
     <div class="step">
       <h2>3 · Apri l'interfaccia del dispositivo</h2>
       <p>Dopo la connessione, l'ESP32 mostra il suo indirizzo IP sulla seriale. Apri
-      <code>http://&lt;ip&gt;/</code> oppure <code>http://ds200.local/</code> per i tempi in tempo reale.
-      I dati vengono anche pubblicati su MQTT con timestamp NTP.</p>
+      <code>http://&lt;ip&gt;/</code> oppure <code>http://ds200.local/</code>: il ponte serve il
+      <b>Cronometro web</b> vero, quello di questo sito, e si collega da solo. I dati vengono
+      anche pubblicati su MQTT con timestamp NTP.</p>
+      <p class="hint">Il ponte espone la centralina in <b>tre</b> modi, tutti insieme: pagina servita
+      da lui, WebSocket <code>/ws</code> e <b>Bluetooth</b> (servizio NUS). Il Bluetooth è l'unico che
+      funziona <i>dal sito pubblicato</i> senza configurare niente — vedi il passo qui sotto.</p>
+    </div>
+
+    <div class="step">
+      <h2>4 · Usarlo dal sito pubblicato (facoltativo)</h2>
+      <p>Una pagina servita in <code>https://</code> non può aprire un <code>ws://</code> verso un
+      indirizzo di rete locale: il browser lo blocca, ed è una regola di sicurezza, non un difetto
+      da aggirare. Ci sono due strade:</p>
+      <ul>
+        <li><b>Bluetooth</b> — nel Cronometro scegli il sistema «DS200/DS300 via Bluetooth»: parla
+        al dispositivo direttamente, senza rete e senza certificati. Non su iPhone/iPad.</li>
+        <li><b>Certificato TLS sul dispositivo</b> — se hai un <b>nome di dominio</b> che punta
+        all'indirizzo privato dell'ESP32 (es. <code>ds200.tuodominio.it</code> → 192.168.x.y),
+        puoi ottenere un certificato Let's Encrypt con la verifica <b>DNS-01</b> e caricarlo su
+        <code>http://ds200.local/cert</code>. Da lì il ponte risponde anche in
+        <code>https://</code>, e il Cronometro pubblicato può collegarsi in
+        <code>wss://ds200.tuodominio.it/ws</code>.</li>
+      </ul>
+      <p class="hint">Nessuna autorità firma un indirizzo IP privato: serve per forza un nome. E la
+      chiave privata resta in chiaro nella memoria del dispositivo — va bene per una centralina da
+      pista, non per altro.</p>
     </div>
 
     <div class="step">
@@ -88,15 +112,18 @@
       <p>File (presenti quando la pagina è ospitata su GitHub Pages / build CI):</p>
       <ul>
         <li><a href="firmware/ds200-esp32-merged.bin" download>ds200-esp32-merged.bin</a> — immagine completa (offset 0, per il flasher qui sopra e per esptool).</li>
-        <li><a href="firmware/firmware.bin" download>firmware.bin</a> — solo applicazione, per l'<b>OTA</b> (<code>http://ds200.local/update</code>).</li>
+        <li><a href="firmware/firmware.bin" download>firmware.bin</a> — solo applicazione.</li>
         <li><a href="firmware/manifest.json" download>manifest.json</a> — manifest ESP Web Tools.</li>
       </ul>
       <p><b>Flash completo via esptool</b> (immagine unita):</p>
       <pre>esptool.py --chip esp32 --baud 921600 write_flash 0x0 ds200-esp32-merged.bin</pre>
       <p><b>Factory reset</b> (cancella tutto: WiFi/MQTT salvati incl.):</p>
       <pre>esptool.py --chip esp32 erase_flash</pre>
-      <p><b>OTA da CLI</b> (PlatformIO, via rete):</p>
-      <pre>pio run -t upload --upload-port ds200.local</pre>
+      <p class="hint"><b>Aggiornamento via rete: non funziona</b>, e non è un difetto di questa
+      pagina. La tabella delle partizioni in uso ha una sola area applicativa, quindi non esiste uno
+      slot dove scrivere il firmware nuovo mentre gira quello vecchio — né da browser né con
+      ArduinoOTA. Si aggiorna via USB. La pagina <code>/update</code> del dispositivo lo dice
+      guardando le partizioni vere, invece di offrire un modulo che fallisce.</p>
       <p><b>Build locale</b>: <code>cd esp32 &amp;&amp; pio run</code> — i .bin sono in
       <code>esp32/.pio/build/esp32dev/</code>; l'immagine unita si crea con lo script di merge in
       <a href="https://github.com/RobertoD91/slotcar/blob/master/esp32/README.md" target="_blank" rel="noopener">esp32/README</a>.</p>
