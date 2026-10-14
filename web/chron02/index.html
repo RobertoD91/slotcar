@@ -43,7 +43,8 @@
       <button class="rs" data-st="run" data-i18n="rsStart" disabled></button>
       <button class="sec rs" data-st="pause" data-i18n="rsPause" disabled></button>
       <button class="warn rs" data-st="stop" data-i18n="rsStop" disabled></button>
-      <button class="sec rs" data-st="flag" data-i18n="rsFlag" disabled></button>
+      <button class="sec rs" data-st="pace" data-i18n="rsPace" disabled></button>
+      <button class="sec rs" data-st="analog" data-i18n="rsAnalog" disabled></button>
       <span id="stateP" class="pill"></span>
     </div>
     <div class="row">
@@ -61,15 +62,18 @@
     <p class="cardtitle" data-i18n="titleCarCmd"></p>
     <div class="row">
       <label style="min-width:60px" data-i18n="lblCarId"></label>
-      <input id="ccId" type="number" min="0" max="39" value="1" style="width:70px">
+      <input id="ccId" type="number" min="1" max="24" value="1" style="width:70px">
       <label style="min-width:80px" data-i18n="lblArg"></label>
       <input id="ccArg" type="number" min="0" max="255" value="0" style="width:80px">
+      <label><input id="ccAll" type="checkbox"> <span data-i18n="lblAllCars"></span></label>
     </div>
     <div class="row">
       <button class="sec cc" data-cmd="1" data-i18n="actPit" disabled></button>
       <button class="sec cc" data-cmd="2" data-i18n="actMaxSpeed" disabled></button>
       <button class="sec cc" data-cmd="5" data-i18n="actMaxBrake" disabled></button>
       <button class="sec cc" data-cmd="3" data-i18n="actMinSpeed" disabled></button>
+      <button class="sec cc" data-cmd="4" data-i18n="actTxPwr" disabled></button>
+      <button class="sec cc" data-cmd="6" data-i18n="actClrPit" disabled></button>
     </div>
     <div class="warnbox" data-i18n="carCmdHint"></div>
   </div>
@@ -86,7 +90,7 @@
         <th class="num" data-i18n="thBestLap"></th>
         <th data-i18n="thTrigger"></th>
         <th data-i18n="thPit"></th>
-        <th>↑↓○</th>
+        <th>↑↓✋</th>
         <th data-i18n="thVer"></th>
         <th data-i18n="thUpdate"></th>
       </tr></thead><tbody id="boardRows"></tbody></table>
@@ -142,7 +146,8 @@ window.I18N_STRINGS = {
   rsStart:{it:"▶ Avvia",en:"▶ Start",es:"▶ Iniciar"},
   rsPause:{it:"⏸ Pausa",en:"⏸ Pause",es:"⏸ Pausa"},
   rsStop:{it:"⏹ Stop (ferma auto)",en:"⏹ Stop (halt cars)",es:"⏹ Stop (parar coches)"},
-  rsFlag:{it:"🚩 Bandiera",en:"🚩 Flag",es:"🚩 Bandera"},
+  rsPace:{it:"🐢 Pace car",en:"🐢 Pace car",es:"🐢 Pace car"},
+  rsAnalog:{it:"🔌 Gara analogica",en:"🔌 Analog race",es:"🔌 Carrera analógica"},
   lblTimer:{it:"Cronometro",en:"Race timer",es:"Cronómetro"},
   lblMaxSpeed:{it:"Velocità max globale",en:"Global max speed",es:"Velocidad máx. global"},
   txLabel:{it:"ultimo race_status:",en:"last race_status:",es:"último race_status:"},
@@ -150,14 +155,17 @@ window.I18N_STRINGS = {
   titleCarCmd:{it:"Comandi per-auto — race_status[5]",en:"Per-car commands — race_status[5]",es:"Comandos por coche — race_status[5]"},
   lblCarId:{it:"ID auto",en:"Car ID",es:"ID coche"},
   lblArg:{it:"argomento",en:"argument",es:"argumento"},
+  lblAllCars:{it:"a tutte le auto",en:"to all cars",es:"a todos los coches"},
+  actTxPwr:{it:"Potenza TX",en:"TX power",es:"Potencia TX"},
+  actClrPit:{it:"Azzera pit-lane",en:"Clear pit lane",es:"Borrar pit-lane"},
   actPit:{it:"Velocità pit-lane",en:"Pit lane speed",es:"Velocidad pit-lane"},
   actMaxSpeed:{it:"Velocità massima",en:"Maximum speed",es:"Velocidad máxima"},
   actMaxBrake:{it:"Freno massimo",en:"Maximum brake",es:"Freno máximo"},
   actMinSpeed:{it:"Penalità (vel. minima)",en:"Penalty (minimum speed)",es:"Penalización (vel. mínima)"},
   carCmdHint:{
-    it:"Imposta ID + argomento, poi premi un comando: viene inviato all'auto (raffica breve).",
-    en:"Set ID + argument, then press a command: it's sent to the car (short burst).",
-    es:"Ajusta ID + argumento, luego pulsa un comando: se envía al coche (ráfaga breve)."
+    it:"Imposta ID + argomento, poi premi un comando: viene inviato all'auto (raffica breve). L'<b>ID parte da 1</b>: il dongle scarta ID 0 (usa l'auto come <code>Car[ID−1]</code>, max 24). Con <b>a tutte le auto</b> il comando va in <code>race_status[3]/[4]</code> (globale) invece di <code>[5]/[6]</code> (individuale). Argomenti di default dal firmware: pit-lane <code>0x22</code>, vel. max <code>0xff</code>, vel. min <code>0x00</code>, potenza TX <code>0x03</code> (0 dBm), freno max <code>0xff</code>.",
+    en:"Set ID + argument, then press a command: it's sent to the car (short burst). The <b>ID starts at 1</b>: the dongle drops ID 0 (it uses <code>Car[ID−1]</code>, max 24). With <b>to all cars</b> the command goes into <code>race_status[3]/[4]</code> (global) instead of <code>[5]/[6]</code> (individual). Firmware defaults: pit lane <code>0x22</code>, max speed <code>0xff</code>, min speed <code>0x00</code>, TX power <code>0x03</code> (0 dBm), max brake <code>0xff</code>.",
+    es:"Ajusta ID + argumento, luego pulsa un comando: se envía al coche (ráfaga breve). El <b>ID empieza en 1</b>: el dongle descarta el ID 0 (usa <code>Car[ID−1]</code>, máx 24). Con <b>a todos los coches</b> el comando va en <code>race_status[3]/[4]</code> (global) en lugar de <code>[5]/[6]</code> (individual). Valores por defecto del firmware: pit-lane <code>0x22</code>, vel. máx <code>0xff</code>, vel. mín <code>0x00</code>, potencia TX <code>0x03</code> (0 dBm), freno máx <code>0xff</code>."
   },
 
   titleBoard:{it:"Classifica live",en:"Live leaderboard",es:"Clasificación en vivo"},
@@ -203,16 +211,19 @@ window.I18N_STRINGS = {
   stRunning:{it:"in gara",en:"running",es:"en carrera"},
   stPaused:{it:"in pausa",en:"paused",es:"en pausa"},
   stStopped:{it:"ferma",en:"stopped",es:"parada"},
-  stFlagged:{it:"bandiera",en:"flagged",es:"bandera"}
+  stPace:{it:"pace car",en:"pace car",es:"pace car"},
+  stAnalog:{it:"gara analogica",en:"analog race",es:"carrera analógica"}
 };
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="chron02",APP_VERSION="1.2.0";
+const APP="chron02",APP_VERSION="1.3.0";
 const VID=0x1fee,PID=0x0002;
 
-/* stati race_status[0] = 0x60 | enum (1=stop,3=run,4=pause,5=flag) */
-const S_STOP=0x61, S_RUN=0x63, S_PAUSE=0x64, S_FLAG=0x65;
+/* race_status[0] = 0x60 | enum. Enum (nomi ufficiali S_RACE_*, maschera 0x1f):
+ *   1 = stop, 2 = gara ANALOGICA, 3 = gara DIGITALE, 4 = pausa, 5 = PACE CAR
+ * (il 5 non e' una "bandiera": e' la condizione di limitazione velocita'). */
+const S_STOP=0x61, S_ANALOG=0x62, S_RUN=0x63, S_PAUSE=0x64, S_PACE=0x65;
 
 let port,writer,reader,acc=[],reading=false;
 let connState=false, txActive=false, txTimer=null, tickTimer=null, boardTimer=null, boardDirty=false;
@@ -296,10 +307,15 @@ function buildRaceStatus(){
   const b=new Array(11).fill(0);
   b[0]=(raceState==null?S_STOP:raceState);         // [0] stato = 0x60|enum
   b[1]=+$("rsMax").value&0xff;                      // [1] velocità max globale
-  if(pending&&pending.left>0){                      // [2]/[5]/[6] comando car-specifico (raffica)
-    b[2]=pending.id&0xff;
-    b[5]=0x80|(pending.cmd&0x7f);
-    b[6]=pending.arg&0xff;
+  if(pending&&pending.left>0){
+    if(pending.all){                                // [3]/[4] = comando GLOBALE (bit7 a 0)
+      b[3]=pending.cmd&0x7f;
+      b[4]=pending.arg&0xff;
+    }else{                                          // [2] = auto bersaglio (1-based), [5]/[6] = comando individuale
+      b[2]=pending.id&0xff;
+      b[5]=0x80|(pending.cmd&0x7f);
+      b[6]=pending.arg&0xff;
+    }
     if(--pending.left<=0)pending=null;
   }
   b[7]=0;                                           // [7] = 0
@@ -313,7 +329,8 @@ function setRaceState(kind){
   if(kind==="run"){if(raceState==null||raceState===S_STOP)raceCs=0;raceState=S_RUN;}
   else if(kind==="pause")raceState=S_PAUSE;
   else if(kind==="stop")raceState=S_STOP;           // ferma le auto (inviato in continuo)
-  else if(kind==="flag")raceState=S_FLAG;
+  else if(kind==="pace")raceState=S_PACE;
+  else if(kind==="analog"){if(raceState==null||raceState===S_STOP)raceCs=0;raceState=S_ANALOG;}
   txActive=true;renderRaceState();sendRaceStatus();
 }
 function renderRaceState(){
@@ -321,13 +338,15 @@ function renderRaceState(){
   if(raceState===S_RUN){k="stRunning";cls=" run";}
   else if(raceState===S_PAUSE){k="stPaused";cls=" pause";}
   else if(raceState===S_STOP){k="stStopped";cls=" stop";}
-  else if(raceState===S_FLAG){k="stFlagged";cls=" flag";}
+  else if(raceState===S_PACE){k="stPace";cls=" flag";}
+  else if(raceState===S_ANALOG){k="stAnalog";cls=" run";}
   p.textContent=I18N.t(k);p.className="pill"+cls;
 }
 function queueCarCmd(cmd){
-  const id=Math.max(0,Math.min(0x27,+$("ccId").value||0));
+  /* ID 1-based: il dongle indicizza Car[ID-1] e scarta lo 0 (MAX_NUM_CAR = 24). */
+  const id=Math.max(1,Math.min(24,+$("ccId").value||1));
   const arg=Math.max(0,Math.min(255,+$("ccArg").value||0));
-  pending={id,cmd,arg,left:6};                       // raffica breve
+  pending={id,cmd,arg,all:$("ccAll").checked,left:6};  // raffica breve
   txActive=true;
   sendRaceStatus();                                  // invio immediato
 }
@@ -343,14 +362,24 @@ function parseRx(){
   }
   acc=acc.slice(i);                                   // conserva la coda parziale
 }
+/* rf_data_x[13] - layout confermato byte per byte sul firmware del dongle:
+ *   [0] misc AUTO | 0x80   bit0 reset auto, bit1 auto caduta/persa, bit4 PIT-LANE
+ *   [1] ID auto (1..24, 1-based: lo stesso numero da usare nei comandi)
+ *   [2]/[3] tempo giro cs (hi, lo)      [4] Speed (usato dal cronometro ufficiale)
+ *   [5]/[6] numero giri (LO, HI)        [7] grilletto (bit0..6) + bit7
+ *   [8] versione sw: bit7=0 telecomando / bit7=1 auto, valore nei bit0..6
+ *   [9] misc TELECOMANDO: bit2 batteria scarica, bit3 track-call, bit5 freccia su,
+ *       bit6 freccia giu', bit7 FRENO A MANO (tasto tondo) - non "luci"
+ *   [10..12] cronometro gara, big-endian */
 function handleFrame(f){
   const id=f[1];
   const lapCs=f[2]*256+f[3];
   const laps=f[6]*256+f[5];
-  const pit=(f[0]>>4)&1, carReset=f[0]&1, linkRe=(f[0]>>1)&1;
+  const pit=(f[0]>>4)&1, carReset=f[0]&1, carDrop=(f[0]>>1)&1;
+  const speed=f[4];
   const power=f[7]&0x7f, onTrack=(f[7]>>7)&1;
   const ver=f[8]&0x7f, isCar=(f[8]>>7)&1;
-  const batt=(f[9]>>2)&1, trackCall=(f[9]>>3)&1, up=(f[9]>>5)&1, dn=(f[9]>>6)&1, ro=(f[9]>>7)&1;
+  const batt=(f[9]>>2)&1, trackCall=(f[9]>>3)&1, up=(f[9]>>5)&1, dn=(f[9]>>6)&1, brk=(f[9]>>7)&1;
   const raceT=f[10]*65536+f[11]*256+f[12];
 
   let c=cars[id];
@@ -365,7 +394,7 @@ function handleFrame(f){
   c.laps=laps;
   if(lapCs>0)c.lastLapCs=lapCs;
   c.power=power;c.onTrack=onTrack;c.pit=pit;c.batt=batt;c.trackCall=trackCall;
-  c.up=up;c.dn=dn;c.ro=ro;c.raceT=raceT;c.carReset=carReset;c.linkRe=linkRe;
+  c.up=up;c.dn=dn;c.brk=brk;c.raceT=raceT;c.carReset=carReset;c.carDrop=carDrop;c.speed=speed;
   if(isCar)c.carVer=ver;else c.ctrlVer=ver;
   c.at=Date.now();
   boardDirty=true;
@@ -376,7 +405,8 @@ function verCell(c){let s="";
   if(c.ctrlVer!=null)s+="🎮0x"+c.ctrlVer.toString(16).padStart(2,"0");
   if(c.carVer!=null)s+=(s?" ":"")+"🚗0x"+c.carVer.toString(16).padStart(2,"0");
   return s||"–";}
-function btnCell(c){return (c.up?"↑":"")+(c.dn?"↓":"")+(c.ro?"○":"")+(c.trackCall?" 🏳️":"")+(c.batt?" 🔋":"");}
+/* ↑↓ frecce, ✋ freno a mano (tasto tondo), 🏳️ track-call, 🔋 batteria scarica, 🅧 auto persa */
+function btnCell(c){return (c.up?"↑":"")+(c.dn?"↓":"")+(c.brk?"✋":"")+(c.trackCall?" 🏳️":"")+(c.batt?" 🔋":"")+(c.carDrop?" 🅧":"");}
 function renderBoard(){
   const ids=Object.keys(cars);
   $("boardEmpty").style.display=ids.length?"none":"block";
@@ -395,7 +425,8 @@ function renderBoard(){
       `<td class="num">${c.laps||0}</td>`+
       `<td class="num">${fmtSec(c.lastLapCs)}</td>`+
       `<td class="num">${c.bestCs===undefined?"–":csToSec(c.bestCs).toFixed(2)}</td>`+
-      `<td><span class="tbar"><span style="width:${pw}%"></span></span>${c.power}</td>`+
+      `<td><span class="tbar"><span style="width:${pw}%"></span></span>${c.power}`+
+        (c.speed?` <span class="val">(spd ${c.speed})</span>`:"")+`</td>`+
       `<td>${c.pit?"🅿️":""}</td>`+
       `<td>${btnCell(c)}</td>`+
       `<td class="kv">${verCell(c)}</td>`+

@@ -58,6 +58,7 @@
         <option value="" data-i18n="brakeNone"></option>
         <option value="0" data-i18n="brakeDefault"></option>
         <option value="1" data-i18n="brakeLinear"></option>
+        <option value="2" data-i18n="brakeSweep"></option>
       </select></div>
     <div class="row"><button class="cfg" data-fn="write" disabled data-i18n="btnWrite"></button>
       <span class="hint" data-i18n-html="writeHint"></span></div>
@@ -74,7 +75,8 @@
   <div class="card">
     <p class="cardtitle" data-i18n="cardClone"></p>
     <div class="row"><label data-i18n="lblMac"></label><input id="cMac" size="6" inputmode="latin" autocomplete="off" spellcheck="false" placeholder="525D" aria-describedby="macHint">
-      <button class="warn cfg" data-fn="clone" disabled data-i18n="btnClone"></button></div>
+      <button class="warn cfg" data-fn="clone" disabled data-i18n="btnClone"></button>
+      <button class="sec cfg" data-fn="rstmac" disabled data-i18n="btnRstMac"></button></div>
     <div class="warnbox" data-i18n-html="cloneWarn"></div>
   </div>
 
@@ -119,7 +121,8 @@ window.I18N_STRINGS = {
   lblBrake:{it:"Impostazione freno",en:"Brake setting",es:"Ajuste de freno"},
   brakeNone:{it:"— (leggi configurazione)",en:"— (read configuration)",es:"— (leer configuración)"},
   brakeDefault:{it:"Default",en:"Default",es:"Predeterminado"},
-  brakeLinear:{it:"Lineare",en:"Linear",es:"Lineal"},
+  brakeLinear:{it:"Manopola (trimmer)",en:"Knob (trimmer)",es:"Mando (trimmer)"},
+  brakeSweep:{it:"Sweep",en:"Sweep",es:"Sweep"},
   btnWrite:{it:"Scrivi (Nome + Freno)",en:"Write (Name + Brake)",es:"Escribir (Nombre + Freno)"},
   writeHint:{
     it:"come il tasto <b>Scrivi</b> dell'app: scrive Nome (0x83) e Impostazione freno (0x8c)",
@@ -131,10 +134,16 @@ window.I18N_STRINGS = {
   cardClone:{it:"Clonazione (O2 MAC)",en:"Cloning (O2 MAC)",es:"Clonación (O2 MAC)"},
   lblMac:{it:"O2 MAC (2 byte)",en:"O2 MAC (2 bytes)",es:"O2 MAC (2 bytes)"},
   btnClone:{it:"Scrivi MAC (clonazione)",en:"Write MAC (cloning)",es:"Escribir MAC (clonación)"},
+  btnRstMac:{it:"Ripristina di fabbrica",en:"Restore factory value",es:"Restaurar de fábrica"},
+  confirmRstMac:{
+    it:"Ripristinare il MAC O2 di fabbrica (registro 0x9f)? Il controller torna alla propria identità di chip.",
+    en:"Restore the factory O2 MAC (register 0x9f)? The handset goes back to its own chip identity.",
+    es:"¿Restaurar el MAC O2 de fábrica (registro 0x9f)? El mando vuelve a su propia identidad de chip."
+  },
   cloneWarn:{
-    it:"⚠️ Il MAC è l'<b>identità</b> con cui il device si presenta: riscriverlo lo fa passare per un altro. C'è una conferma. Scrive <code>0x90</code> e poi il commit <code>0x9f</code>. (<code>0x80</code>=DFU non è esposto qui apposta.)",
-    en:"⚠️ The MAC is the <b>identity</b> the device presents: rewriting it makes it pass for another one. There is a confirmation. Writes <code>0x90</code> then the commit <code>0x9f</code>. (<code>0x80</code>=DFU is deliberately not exposed here.)",
-    es:"⚠️ La MAC es la <b>identidad</b> con la que se presenta el dispositivo: reescribirla hace que pase por otro. Hay una confirmación. Escribe <code>0x90</code> y luego el commit <code>0x9f</code>. (<code>0x80</code>=DFU no se expone aquí a propósito.)"
+    it:"⚠️ Il MAC è l'<b>identità</b> con cui il device si presenta: riscriverlo lo fa passare per un altro. C'è una conferma. Scrive <b>solo</b> <code>0x90</code> (<code>DEV_O2_MAC</code>): sono i 2 byte O2 da cui il firmware costruisce l'indirizzo radio. <b>Non</b> va scritto <code>0x9f</code> dopo — quello è <code>RST_O2_MAC</code> e <b>annulla</b> la scrittura rimettendo il MAC del chip (è il pulsante <i>Ripristina di fabbrica</i>). (<code>0x80</code>=DFU non è esposto qui apposta.)",
+    en:"⚠️ The MAC is the <b>identity</b> the device presents: rewriting it makes it pass for another one. There is a confirmation. Writes <b>only</b> <code>0x90</code> (<code>DEV_O2_MAC</code>): the 2 O2 bytes the firmware builds the radio address from. Do <b>not</b> write <code>0x9f</code> afterwards — that is <code>RST_O2_MAC</code> and <b>undoes</b> the write by restoring the chip MAC (it is the <i>Restore factory value</i> button). (<code>0x80</code>=DFU is deliberately not exposed here.)",
+    es:"⚠️ La MAC es la <b>identidad</b> con la que se presenta el dispositivo: reescribirla hace que pase por otro. Hay una confirmación. Escribe <b>solo</b> <code>0x90</code> (<code>DEV_O2_MAC</code>): los 2 bytes O2 con los que el firmware construye la dirección de radio. <b>No</b> se debe escribir <code>0x9f</code> después — ese es <code>RST_O2_MAC</code> y <b>anula</b> la escritura restaurando el MAC del chip (es el botón <i>Restaurar de fábrica</i>). (<code>0x80</code>=DFU no se expone aquí a propósito.)"
   },
   advSummary:{it:"Avanzato — registri grezzi",en:"Advanced — raw registers",es:"Avanzado — registros en bruto"},
   lblRawRead:{it:"Leggi reg",en:"Read reg",es:"Leer reg"},
@@ -183,13 +192,32 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="remote-config",APP_VERSION="1.3.0";
+const APP="remote-config",APP_VERSION="1.4.0";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const PFX=0x0a;                                  // header di frame del CONTROLLER (il chip auto usa 0x09)
 const TYPE_STR="SCP3 Handle", VER_STR="O2 / Analog";   // display fissi della schermata SCP3
-// registri leggibili di config/info del controller — 2° elem = chiave i18n del nome
-const REGS=[[0x00,"regFw"],[0x81,"regDate"],[0x83,"regName"],[0x8c,"regBrake"],
-  [0x8e,"regConfig"],[0x8f,"regId"],[0x90,"regMac"]];
+/* Registri del CONTROLLER con i nomi ufficiali del firmware (OPCODE_*).
+ * ⚠️ Non sono gli stessi numeri dell'auto: qui 0x8e/0x8f/0x92..0x94 sono registri HN_*.
+ * 0x80 = DFU: non esposto apposta. */
+const REGS=[
+  [0x00,"SW_REL — versione sw"],
+  [0x01,"CHIP_MAC — MAC del chip (sola lettura)"],
+  [0x81,"ACT_DATE — data attivazione"],
+  [0x82,"ACT_LOCK — blocco attivazione"],
+  [0x83,"ACT_NAME — nome"],
+  [0x88,"HN_SPD_MODE — modo velocità"],
+  [0x89,"HN_SPD_MAX — velocità max"],
+  [0x8a,"HN_SPD_MIN — velocità min"],
+  [0x8b,"HN_BRK_VLE — valore freno"],
+  [0x8c,"HN_BRK_MODE — modo freno"],
+  [0x8e,"HN_CODE_TYPE — tipo codice"],
+  [0x8f,"HN_O2_ID — ID"],
+  [0x90,"DEV_O2_MAC — identità O2 (hi, lo)"],
+  [0x92,"HN_SPD_LIM — limite velocità"],
+  [0x93,"HN_CRV_PNT — punto di curva"],
+  [0x94,"HN_RMP_THR — rampa grilletto"],
+  [0x9f,"RST_O2_MAC — ripristina MAC di fabbrica"]
+];
 let dev,rxc,txc,waiter=null;
 const $=id=>document.getElementById(id);
 const hx=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -266,15 +294,17 @@ const fns={
     else await writeReg(0x8c,[parseInt(b)]);
   },
   id:()=>writeReg(0x8f,[Math.max(1,Math.min(20,parseInt($("cId").value)||1))]),
+  /* Scrive SOLO 0x90. Il vecchio "commit" su 0x9f era un errore: 0x9f = RST_O2_MAC,
+   * cioe' il firmware rimette l'identita' di fabbrica dal MAC del chip -> annullava la scrittura. */
   clone:()=>{const b=parseVal($("cMac").value);if(b.length!==2)return alert(I18N.t("alertMac"));
-    if(confirm(I18N.t("confirmClone")))
-      return (async()=>{await writeReg(0x90,b);await writeReg(0x9f,[0x00]);})();},
+    if(confirm(I18N.t("confirmClone")))return writeReg(0x90,b);},
+  rstmac:()=>{if(confirm(I18N.t("confirmRstMac")))return writeReg(0x9f,[0x00]);},
   rawread:async()=>{const r=parseInt($("rReg").value,16);if(!isNaN(r))await readReg(r);},
   rawwrite:async()=>{const r=parseInt($("wReg").value,16);if(!isNaN(r))await writeReg(r,parseVal($("wVal").value));},
 };
 document.querySelectorAll(".cfg").forEach(b=>b.dataset.fn&&(b.onclick=()=>fns[b.dataset.fn]&&fns[b.dataset.fn]()));
 (function(){const tb=$("regtab").querySelector("tbody");for(const[r,n]of REGS){const tr=document.createElement("tr");
-  tr.innerHTML=`<td><code>${h2(r)}</code></td><td data-i18n="${n}"></td><td class="val" id="v${r}"></td>
+  tr.innerHTML=`<td><code>${h2(r)}</code></td><td>${n}</td><td class="val" id="v${r}"></td>
     <td><button class="sec" disabled data-i18n="regReadBtn"></button></td>`;tb.appendChild(tr);
   const bt=tr.querySelector("button");bt.classList.add("cfg");
   bt.onclick=async()=>{const v=await readReg(r);$("v"+r).textContent=v?hx(v)+" |"+asc(v)+"|":I18N.t("noResp");};}})();
