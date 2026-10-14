@@ -25,8 +25,10 @@ CASES = [
     ('MQTT_PASS=hunter2hunter', True, "password MQTT"),                           # allow-secret
     ('api_key: "abcd1234efgh5678"', True, "api key in yaml"),                     # allow-secret
     ('client_secret = "9f8e7d6c5b4a3210"', True, "client secret"),                # allow-secret
-    ('MAC del mio dongle: A7:B9:F3:0B:81:E7', True, "indirizzo MAC"),             # allow-secret
-    ('addr = "e2:ff:e4:7b:52:5d"', True, "MAC minuscolo"),                        # allow-secret
+    # MAC INVENTATI: quelli veri dei dispositivi dell'utente stanno solo nella
+    # denylist locale e nel secret SECRET_SCAN_EXTRA, mai in un file committato.
+    ('MAC del mio dongle: 12:34:56:78:9A:BC', True, "indirizzo MAC"),             # allow-secret
+    ('addr = "de:ad:be:ef:00:01"', True, "MAC minuscolo"),                        # allow-secret
     ('-----BEGIN RSA PRIVATE KEY-----', True, "chiave privata"),                  # allow-secret
     ('AKIAIOSFODNN7EXAMPLE', True, "AWS access key"),                             # allow-secret
     ('token = ghp_0123456789abcdefghijklmnopqrstuvwxyz', True, "token GitHub"),   # allow-secret
