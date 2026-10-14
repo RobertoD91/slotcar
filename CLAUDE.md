@@ -22,8 +22,11 @@ L'utente è italiano: **rispondere in italiano**.
 **oXigen — hardware Slot.it** (le targhette dell'indice dicono di quali ci si può fidare)
 - [ ] **Configuratore auto** (`car-config/`, BLE sul chip) — targhetta **mai provata**: non
       sappiamo se funziona. Da provare su un chip vero.
-- [ ] **Configuratore controller** (`remote-config/`, BLE sull'SCP-3) — targhetta
-      **parziale**: il cambio ID funziona, il MAC no. Da riprovare.
+- [ ] ⭐ **Configuratore controller** (`remote-config/`, BLE sull'SCP-3) — **TROVATO IL PERCHÉ
+      il MAC non funzionava** (14/10/2026, dai sorgenti): l'app scriveva `0x90` e subito dopo
+      `0x9f` come "commit", ma `0x9f` è `RST_O2_MAC`, che **rimette il MAC di fabbrica** →
+      annullava la scrittura appena fatta. Ora scrive solo `0x90`, e `0x9f` è un pulsante a
+      parte («Ripristina di fabbrica»). **Da riprovare: il cambio MAC adesso dovrebbe tenere.**
 - [ ] **Configuratore dongle** (`o2-bootloader/`, USB) — connette e i pulsanti rispondono,
       ma i campi **ID / MAC / velocità box su chip e controller** non sono mai stati provati
       su hardware.
@@ -34,6 +37,9 @@ L'utente è italiano: **rispondere in italiano**.
       boot col target giusto e leggi l'**ID** di un SCP-3, poi di un chip auto.
 - [ ] **Contagiri oXigen** (`chron02/`, USB) — da riprovare dopo la correzione del filtro
       porte (`requestPort` non filtra più: mostrava una finestra vuota).
+- [ ] ⭐ **Riprovare i comandi per-auto di `chron02`** (14/10/2026): l'ID partiva da **0**, ma il
+      dongle indicizza `Car[ID−1]` e **scarta lo 0** → il comando non arrivava mai. Ora 1..24.
+      Da provare: metti ID 1, premi «Velocità pit-lane» e guarda se l'auto rallenta in corsia box.
 
 **DS200 / DS300**
 - [ ] **Prova la voce nuova del DS200** — ora DS200 e DS300 sono due sistemi distinti: il
