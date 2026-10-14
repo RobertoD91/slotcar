@@ -158,6 +158,11 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   `master`. Percorsi **sempre relativi**: il sito sta in un sottopercorso.
 - **Tutto è sorgente: si modifica qui, e basta.** Non c'è più niente di copiato da altre
   repo, quindi niente sync e niente patch: si aprono i file e si cambiano.
+- ⭐ **Niente materiale proprietario: questa repo è PUBBLICA.** Non ci va **nulla** di ciò
+  che Slot.it / Galileo Engineering ci ha dato in via riservata: **codice sorgente dei
+  firmware**, documentazione interna, dettagli su **licenza e attivazione**. Dalle altre repo
+  del progetto si portano qui solo **conclusioni già pubblicabili** (es. "il dongle risponde
+  così"), mai codice copiato né citazioni dei sorgenti. Regola fissa dell'utente (14/10/2026).
 - ⭐ **Il firmware NON contiene una copia del sito.** Le pagine stanno in LittleFS e ce le
   mette `esp32/scripts/copy_webapp.py` ad ogni `pio run`. C'era un `src/web_index.h`
   incollato a mano ed è invecchiato per mesi in silenzio: quando l'abbiamo tolto aveva
