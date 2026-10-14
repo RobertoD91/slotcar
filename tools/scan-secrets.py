@@ -95,6 +95,10 @@ ALLOW_FILE = os.path.join(ROOT, "tools", "secret-scan-allow.txt")
 # Marcatore da mettere sulla riga per dire "lo so, non e' un segreto".
 INLINE_ALLOW = "allow-secret"
 
+# Etichette delle regole che vengono dalla denylist personale: per queste il
+# marcatore e l'allow-list non valgono (vedi scan_text).
+PERSONAL = ("denylist-locale", "denylist-CI")
+
 
 def load_lines(path):
     out = []
@@ -155,11 +159,14 @@ def scan_text(path, text, rules, allow, findings, only_added=False):
             if not line.startswith("+") or line.startswith("+++"):
                 continue
             line = line[1:]
-        if INLINE_ALLOW in line:
-            continue
-        if any(a.search(line) for a in allow):
-            continue
+        # Il marcatore e l'allow-list esentano dalle regole GENERICHE, mai dalla
+        # denylist personale: un valore che l'utente ha dichiarato suo resta un
+        # segreto anche su una riga marcata. Era il buco da cui erano passati i MAC
+        # veri di due dispositivi, scritti come "esempio" nel test dello scanner.
+        exempt = INLINE_ALLOW in line or any(a.search(line) for a in allow)
         for name, rx, desc in rules:
+            if exempt and name not in PERSONAL:
+                continue
             m = rx.search(line)
             if m:
                 val = m.group(m.lastindex or 0)
@@ -255,7 +262,11 @@ Cosa fare:
   • se e' un segreto VERO: toglilo dal file, mettilo in un .env locale (git-ignored)
     o nei GitHub Secrets, e cambia la credenziale — considerala compromessa.
   • se e' un falso allarme: aggiungi il commento  %s  sulla riga,
-    oppure una regex in  tools/secret-scan-allow.txt .""" % INLINE_ALLOW)
+    oppure una regex in  tools/secret-scan-allow.txt .
+    Non vale per i valori della denylist personale (denylist-locale / denylist-CI):
+    quelli sono tuoi per definizione, e vanno tolti dal file.
+  • se e' nella STORIA: va riscritta (git filter-repo --replace-text) e pushata
+    con --force; poi chi ha un clone lo deve rifare.""" % INLINE_ALLOW)
     return 1
 
 

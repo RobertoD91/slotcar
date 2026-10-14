@@ -67,7 +67,25 @@ def main():
         else:
             print("  ✅ %-38s %s" % (what, "scatta" if hit else "silenzio"))
 
-    print("\n%d casi, %d sbagliati" % (len(CASES), bad))
+    # La denylist personale vince sul marcatore: un valore dichiarato "mio" resta un
+    # segreto anche su una riga marcata (era il buco da cui erano passati due MAC veri).
+    # Il valore qui sotto e' inventato e viene costruito a pezzi, cosi' questo file non
+    # contiene la stringa intera.
+    personale = "-".join(["Valore", "Personale", "Finto"])
+    regole = rules + scan.compile_extra([personale], "denylist-locale")
+    for text, should_hit, what in [
+        ("x = '%s'  # allow-secret" % personale, True, "denylist personale vince sul marcatore"),
+        ("MAC 12:34:56:78:9A:BC  # allow-secret", False, "regola generica: il marcatore vale"),
+    ]:
+        found = []
+        scan.scan_text("test", text, regole, allow, found)
+        if bool(found) != should_hit:
+            bad += 1
+            print("  ❌ %-38s atteso=%s" % (what, "scatta" if should_hit else "silenzio"))
+        else:
+            print("  ✅ %-38s %s" % (what, "scatta" if should_hit else "silenzio"))
+
+    print("\n%d casi, %d sbagliati" % (len(CASES) + 2, bad))
     return 1 if bad else 0
 
 
