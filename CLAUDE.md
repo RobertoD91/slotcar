@@ -27,6 +27,11 @@ L'utente è italiano: **rispondere in italiano**.
 - [ ] **Configuratore dongle** (`o2-bootloader/`, USB) — connette e i pulsanti rispondono,
       ma i campi **ID / MAC / velocità box su chip e controller** non sono mai stati provati
       su hardware.
+- [ ] ⭐ **Riprovare `o2-bootloader` dopo la correzione dei target (14/10/2026)**: «Chip auto» e
+      «Controller SCP-3» erano **invertiti**, quindi i comandi finivano sul dispositivo sbagliato —
+      e spiega perché quei campi non sembravano funzionare. Ora `0x09` = SCP-3 e `0x0a` = auto
+      (header di dispositivo del dongle, che NON è la numerazione del BLE). Da provare: entra in
+      boot col target giusto e leggi l'**ID** di un SCP-3, poi di un chip auto.
 - [ ] **Contagiri oXigen** (`chron02/`, USB) — da riprovare dopo la correzione del filtro
       porte (`requestPort` non filtra più: mostrava una finestra vuota).
 

@@ -575,7 +575,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="o2-bootloader",APP_VERSION="1.4.0";
+const APP="o2-bootloader",APP_VERSION="1.5.0";
 const VID=0x1fee,PID=0x0002;
 /* Il programma ufficiale apre la COM a 9600 8N1 (visto nelle catture USB). Sul
    dongle è una COM virtuale, quindi il valore è nominale — ma se un giorno in
@@ -584,11 +584,17 @@ const BAUD=9600;
 
 /* Un dispositivo per riga: il byte che lo seleziona dopo BOOT è lo stesso che poi
    fa da prefisso ai frame a registri. Il dongle fa storia a sé: due comandi per
-   entrare in boot, e un frame di forma diversa. */
+   entrare in boot, e un frame di forma diversa.
+
+   ⚠️ chip e controller erano INVERTITI fino al 14/10/2026. Questi numeri sono quelli
+   dell'header di dispositivo usato dal dongle (0x09 = SCP-3, 0x0a = auto tipo C) e
+   NON coincidono con quelli del BLE, dove 0x09 è il chip auto e 0x0a l'SCP-3: due
+   numerazioni diverse con gli stessi due numeri, scambiarle è facilissimo.
+   Prova: le catture di un SCP-3 (cambio ID, MAC, velocità pit lane) usano tutte 0x09. */
 const TARGETS={
   dongle:    {pfx:0x0c, boot:[0x05,0x0c], fwReg:0x11},
-  chip:      {pfx:0x09, boot:[0x09],      fwReg:0x80},
-  controller:{pfx:0x0a, boot:[0x0a],      fwReg:0x80}
+  controller:{pfx:0x09, boot:[0x09],      fwReg:0x80},
+  chip:      {pfx:0x0a, boot:[0x0a],      fwReg:0x80}
 };
 
 let port,writer,reader,acc=[],reading=false;
