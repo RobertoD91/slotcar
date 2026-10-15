@@ -495,9 +495,9 @@ window.I18N_STRINGS = {
   chip_modes_r5_note:{it:`Ibrido SSD: scambi SSD <b>e</b> oXigen insieme. Non ha una lettera sul display: si imposta solo a registro.`,en:`SSD hybrid: SSD <b>and</b> oXigen lane changers together. No display letter: register only.`,es:`Híbrido SSD: cambios SSD <b>y</b> oXigen juntos. Sin letra en pantalla: solo por registro.`},
   chip_modes_r6_note:{it:`Ibrido Carrera. Non ha una lettera sul display: si imposta solo a registro.`,en:`Carrera hybrid. No display letter: register only.`,es:`Híbrido Carrera. Sin letra en pantalla: solo por registro.`},
   chip_modes_hint:{
-    it:`La colonna <code>0x91</code> è il valore del registro <b>CAR_LED_MODE</b> (<code>IR_led_work</code>) del chip: lo si legge e scrive col <a href="../car-config/">Configuratore auto</a>. Default di fabbrica: <b>2</b> (oXigen puro). I valori <b>1</b> e <b>5</b> esistono nel firmware ma non hanno una lettera sul display del controller. Attenzione: <code>0x91</code> è la modalità del LED IR, <b>non</b> il tipo di firmware (quello è <code>0x8e</code>, che il chip riscrive da sé).`,
-    en:`The <code>0x91</code> column is the value of the chip's <b>CAR_LED_MODE</b> register (<code>IR_led_work</code>): read and write it with the <a href="../car-config/">Car configurator</a>. Factory default: <b>2</b> (pure oXigen). Values <b>1</b> and <b>5</b> exist in the firmware but have no letter on the handset display. Note: <code>0x91</code> is the IR LED mode, <b>not</b> the firmware type (that is <code>0x8e</code>, which the chip rewrites by itself).`,
-    es:`La columna <code>0x91</code> es el valor del registro <b>CAR_LED_MODE</b> (<code>IR_led_work</code>) del chip: se lee y escribe con el <a href="../car-config/">Configurador de coche</a>. Por defecto: <b>2</b> (oXigen puro). Los valores <b>1</b> y <b>5</b> existen en el firmware pero no tienen letra en la pantalla del mando. Atención: <code>0x91</code> es el modo del LED IR, <b>no</b> el tipo de firmware (ese es <code>0x8e</code>, que el chip reescribe por su cuenta).`
+    it:`La colonna <code>0x91</code> è il valore del registro <b>modo del LED IR</b> del chip: lo si legge e scrive col <a href="../car-config/">Configuratore auto</a>. Valore iniziale sui chip con firmware 4.14: <b>3</b> (oXigen ibrido). I valori <b>1</b> e <b>5</b> esistono nel firmware ma non hanno una lettera sul display del controller. Attenzione: <code>0x91</code> è la modalità del LED IR, <b>non</b> il tipo di firmware (quello è <code>0x8e</code>, che il chip riscrive da sé).`,
+    en:`The <code>0x91</code> column is the value of the chip's <b>IR LED mode</b> register: read and write it with the <a href="../car-config/">Car configurator</a>. Initial value on chips with firmware 4.14: <b>3</b> (oXigen hybrid). Values <b>1</b> and <b>5</b> exist in the firmware but have no letter on the handset display. Note: <code>0x91</code> is the IR LED mode, <b>not</b> the firmware type (that is <code>0x8e</code>, which the chip rewrites by itself).`,
+    es:`La columna <code>0x91</code> es el valor del registro <b>modo del LED IR</b> del chip: se lee y escribe con el <a href="../car-config/">Configurador de coche</a>. Valor inicial en los chips con firmware 4.14: <b>3</b> (oXigen híbrido). Los valores <b>1</b> y <b>5</b> existen en el firmware pero no tienen letra en la pantalla del mando. Atención: <code>0x91</code> es el modo del LED IR, <b>no</b> el tipo de firmware (ese es <code>0x8e</code>, que el chip reescribe por su cuenta).`
   },
   chip_modes_r3_note:{it:`Modo Hornby SSD per chip tipo B.`,en:`Hornby SSD mode for type B chips.`,es:`Modo Hornby SSD para chips tipo B.`},
   chip_modes_r4_note:{it:`Modo Carrera Digital per chip tipo B.`,en:`Carrera Digital mode for type B chips.`,es:`Modo Carrera Digital para chips tipo B.`},
@@ -566,7 +566,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="guida-oxigen",APP_VERSION="1.4.0";
+const APP="guida-oxigen",APP_VERSION="1.4.1";
 
 /* --- indice sezioni --- */
 (function(){

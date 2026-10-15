@@ -61,6 +61,19 @@
         "hardware real; la <b>escritura del MAC</b> aún no se ha verificado. " +
         "Trátala como <b>herramienta de diagnóstico</b>, no como algo para usar en pista.",
     },
+    // Per le app oXigen rifatte sulla specifica del protocollo ma non ancora
+    // provate su un dispositivo vero: è la targhetta gialla "mai provata".
+    oxigenUntested: {
+      it: "🧪 <b>Rifatta sulla specifica del protocollo, mai provata su hardware vero.</b> " +
+        "I frame sono quelli giusti sulla carta: se qualcosa non va, il registro in fondo alla " +
+        "pagina mostra cosa è partito e cosa è tornato.",
+      en: "🧪 <b>Rebuilt on the protocol specification, never tried on real hardware.</b> " +
+        "The frames are right on paper: if something goes wrong, the log at the bottom of the " +
+        "page shows what was sent and what came back.",
+      es: "🧪 <b>Rehecha según la especificación del protocolo, nunca probada en hardware real.</b> " +
+        "Las tramas son correctas sobre el papel: si algo falla, el registro al final de la " +
+        "página muestra qué se envió y qué volvió."
+    },
     oxigenBroken: {
       it: "🚧 <b>Questa app al momento NON funziona.</b> È rimasta indietro rispetto all'hardware e " +
         "non è stata rivalidata: aspettati che non si colleghi, o che legga valori sbagliati. " +

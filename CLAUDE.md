@@ -20,13 +20,20 @@ L'utente è italiano: **rispondere in italiano**.
 > codice che l'ha resa necessaria.
 
 **oXigen — hardware Slot.it** (le targhette dell'indice dicono di quali ci si può fidare)
-- [ ] **Configuratore auto** (`car-config/`, BLE sul chip) — targhetta **mai provata**: non
-      sappiamo se funziona. Da provare su un chip vero.
+- [ ] **Configuratore auto** (`car-config/`, BLE sul chip, v1.5.0) — targhetta **mai provata**.
+      Da provare su un chip vero: «Leggi configurazione» deve arrivare in fondo (`0xA1`) e
+      mostrare la versione (es. 4.14c); scrivi un nome corto e dopo il riavvio deve comparire
+      uguale nella lista Bluetooth e in rilettura; l'abbinamento al telecomando deve tenere dopo
+      il riavvio.
 - [ ] ⭐ **Configuratore controller** (`remote-config/`, BLE sull'SCP-3) — **TROVATO IL PERCHÉ
-      il MAC non funzionava** (14/10/2026, dai sorgenti): l'app scriveva `0x90` e subito dopo
-      `0x9f` come "commit", ma `0x9f` è `RST_O2_MAC`, che **rimette il MAC di fabbrica** →
-      annullava la scrittura appena fatta. Ora scrive solo `0x90`, e `0x9f` è un pulsante a
-      parte («Ripristina di fabbrica»). **Da riprovare: il cambio MAC adesso dovrebbe tenere.**
+      il MAC non funzionava** (14/10/2026): l'app scriveva `0x90` e subito dopo `0x9f` come
+      "commit", ma `0x9f` è il **ripristino del MAC di fabbrica** → annullava la scrittura appena
+      fatta. Ora scrive solo `0x90`, e `0x9f` è un pulsante a parte («Ripristina di fabbrica»).
+      **Da riprovare: il cambio MAC adesso dovrebbe tenere.**
+- [ ] **`remote-config` v1.5.0 sull'SCP-3**: «Leggi configurazione» completa con la versione;
+      scrivi «Roberto Scp3 A» e rileggi dopo il riavvio (deve tornare «Roberto Scp3.A»: il
+      telecomando trasforma in punti gli spazi in posizione pari, contando da 0); modo freno 0 e 1 devono
+      restare dopo il riavvio. Dopo ogni scrittura aspetta un paio di secondi prima di spegnere.
 - [ ] **Configuratore dongle** (`o2-bootloader/`, USB) — connette e i pulsanti rispondono,
       ma i campi **ID / MAC / velocità box su chip e controller** non sono mai stati provati
       su hardware.
@@ -35,11 +42,24 @@ L'utente è italiano: **rispondere in italiano**.
       e spiega perché quei campi non sembravano funzionare. Ora `0x09` = SCP-3 e `0x0a` = auto
       (header di dispositivo del dongle, che NON è la numerazione del BLE). Da provare: entra in
       boot col target giusto e leggi l'**ID** di un SCP-3, poi di un chip auto.
-- [ ] **Contagiri oXigen** (`chron02/`, USB) — da riprovare dopo la correzione del filtro
-      porte (`requestPort` non filtra più: mostrava una finestra vuota).
-- [ ] ⭐ **Riprovare i comandi per-auto di `chron02`** (14/10/2026): l'ID partiva da **0**, ma il
-      dongle indicizza `Car[ID−1]` e **scarta lo 0** → il comando non arrivava mai. Ora 1..24.
-      Da provare: metti ID 1, premi «Velocità pit-lane» e guarda se l'auto rallenta in corsia box.
+- [ ] ⭐ **Riprovare `chron02` dopo il rifacimento (v1.4.0, 14/10/2026)**: prima non mandava lo
+      `0x06` all'avvio, quindi il dongle teneva la radio spenta. Ora all'avvio deve mostrare
+      «dongle v4.xx · agganciato» e le auto devono guidare subito (lo stato iniziale è la gara
+      libera, non più STOP). Prova poi Avvia, Pausa, Stop e Gara libera: da Stop o Pausa, «Gara
+      libera» deve rimettere le auto a velocità piena (passa 0,6 s in pace car, perché il
+      telecomando da solo le lascerebbe ferme).
+- [ ] **Comandi per auto in `chron02`**: «una sola auto, ID 1», comando «Velocità in pit-lane»,
+      un valore basso, «Invia» → l'auto deve rallentare in corsia box. Poi Stop e Avvia: il
+      limite deve restare (l'app lo rimanda da sola).
+- [ ] **Velocità minima in `chron02`**: per tutte, valore 32 → il limite effettivo deve essere
+      128 (il telecomando moltiplica per 4, non per 2 come dice il PDF).
+- [ ] **Fattore del tempo sul giro**: cronometra a mano 5-10 giri e confronta con i «conteggi»
+      del log giri di `chron02`, per decidere fra 99,25 e 97,7 (si cambia nelle avanzate).
+- [ ] **Giri scartati in `chron02`**: dopo Stop passa sul traguardo → il giro non deve contare;
+      un giro fatto in pausa non deve comparire alla ripresa; il giro di chi taglia il
+      traguardo un attimo prima dello Stop deve contare.
+- [ ] **Riapertura senza staccare il dongle**: chiudi e riapri `chron02` senza staccare il
+      dongle → deve comparire la fascia «non ha risposto alla richiesta di versione».
 
 **DS200 / DS300**
 - [ ] **Prova la voce nuova del DS200** — ora DS200 e DS300 sono due sistemi distinti: il
@@ -169,11 +189,16 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   `master`. Percorsi **sempre relativi**: il sito sta in un sottopercorso.
 - **Tutto è sorgente: si modifica qui, e basta.** Non c'è più niente di copiato da altre
   repo, quindi niente sync e niente patch: si aprono i file e si cambiano.
-- ⭐ **Niente materiale proprietario: questa repo è PUBBLICA.** Non ci va **nulla** di ciò
-  che Slot.it / Galileo Engineering ci ha dato in via riservata: **codice sorgente dei
-  firmware**, documentazione interna, dettagli su **licenza e attivazione**. Dalle altre repo
-  del progetto si portano qui solo **conclusioni già pubblicabili** (es. "il dongle risponde
-  così"), mai codice copiato né citazioni dei sorgenti. Regola fissa dell'utente (14/10/2026).
+- ⭐ **Niente materiale proprietario: questa repo è PUBBLICA** (regola fissa dell'utente,
+  rivista e confermata il 14/10/2026). Le web app diventeranno programmi **ufficiali**
+  Slot.it, quindi devono saper fare tutto quello che serve: qui va **tutto quello che serve
+  a un client** per parlare con i dispositivi (formati dei frame, registri e loro
+  significato, tempi, come evitare i bug noti), scritto come comportamento ("il dongle
+  accetta ID da 1 a 24"). Non ci vanno mai: **codice dei firmware** o citazioni dei
+  sorgenti (nomi interni di variabili e costanti, "dai sorgenti", numeri di issue della repo
+  privata); l'**algoritmo della licenza** o come aggirarla (l'app inoltra la chiave che
+  l'utente ha ricevuto da Slot.it, non la calcola mai); analisi delle **debolezze di
+  sicurezza** o come sfruttarle; i **MAC e i dati personali** dei dispositivi dell'utente.
 - ⭐ **Il firmware NON contiene una copia del sito.** Le pagine stanno in LittleFS e ce le
   mette `esp32/scripts/copy_webapp.py` ad ogni `pio run`. C'era un `src/web_index.h`
   incollato a mano ed è invecchiato per mesi in silenzio: quando l'abbiamo tolto aveva

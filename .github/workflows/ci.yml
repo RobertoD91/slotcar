@@ -104,6 +104,10 @@ jobs:
         run: node tools/test-ninco-ui.js
       - name: Configuratore dongle
         run: node tools/test-o2bootloader.js
+      - name: Contagiri oXigen (avvio, frame di gara, giri scartati)
+        run: node tools/test-chron02.js
+      - name: Configuratori Bluetooth (auto e telecomando)
+        run: node tools/test-ble-config.js
 
   firmware:
     runs-on: ubuntu-latest

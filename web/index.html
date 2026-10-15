@@ -109,7 +109,7 @@
       <div class="tech"><span>Web Bluetooth</span></div>
     </a>
     <a class="card" href="chron02/">
-      <span class="badge broken" data-i18n="badgeBroken"></span>
+      <span class="badge untested" data-i18n="badgeUntested"></span>
       <div class="ico">🏁</div>
       <h3 data-i18n="lapsTitle"></h3>
       <p data-i18n-html="lapsDesc"></p>
@@ -240,9 +240,9 @@ window.I18N_STRINGS = {
   techPwa:{it:"PWA offline",en:"offline PWA",es:"PWA sin conexión"},
   carTitle:{it:"Configuratore auto BLE",en:"Car configurator BLE",es:"Configurador de coche BLE"},
   carDesc:{
-    it:"Legge/scrive i registri del chip via BLE: nome, ID, modalità, velocità, freno, limiti, clone MAC, test motore/luci/hall.",
-    en:"Reads/writes the chip's registers over BLE: name, ID, mode, speed, brake, limits, MAC clone, motor/lights/hall test.",
-    es:"Lee/escribe los registros del chip por BLE: nombre, ID, modo, velocidad, freno, límites, clon MAC, prueba de motor/luces/hall."
+    it:"Legge/scrive i registri del chip via BLE: nome, ID, modalità, velocità, freno, limiti, abbinamento al telecomando, test motore/luci/hall.",
+    en:"Reads/writes the chip's registers over BLE: name, ID, mode, speed, brake, limits, pairing to the handset, motor/lights/hall test.",
+    es:"Lee/escribe los registros del chip por BLE: nombre, ID, modo, velocidad, freno, límites, vinculación al mando, prueba de motor/luces/hall."
   },
   ctrlTitle:{it:"Configuratore controller BLE",en:"Controller configurator BLE",es:"Configurador del mando BLE"},
   ctrlDesc:{
@@ -286,7 +286,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.25.0";
+const SITE_VERSION="2.26.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // Il selettore lingua sta in alto a sinistra su tutte le pagine (vedi i18n.js):
 // qui non serve nessuna eccezione, il nastro "Fork me on GitHub" è dall'altra parte.

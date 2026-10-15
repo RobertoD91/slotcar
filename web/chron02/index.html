@@ -10,23 +10,32 @@
   /* Qui dentro solo quello che è di QUESTA pagina: la cornice sta in ../ui.css. */
   :root{--wrap:920px}
   label{min-width:120px}
+  select{max-width:100%}
   .timer{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:30px;font-weight:700;letter-spacing:1px}
   /* La tabella della gara ha molte colonne strette: scorre nel suo riquadro,
      altrimenti a scorrere di lato è tutta la pagina. */
   table{font-size:12.5px;min-width:560px}
+  table.lim{min-width:0}
   td,th{padding:5px 7px;white-space:nowrap}
   td.num,th.num{text-align:right;font-family:ui-monospace,Menlo,Consolas,monospace}
   /* Barra del grilletto: si legge di colpo, il numero no. */
   .tbar{display:inline-block;width:70px;height:9px;background:var(--bd);border-radius:5px;overflow:hidden;vertical-align:middle;margin-right:6px}
   .tbar>span{display:block;height:100%;background:var(--acc)}
   .empty{color:var(--mut);font-size:13px;padding:6px 2px}
+  /* Lo stato che il dongle sta trasmettendo adesso. */
+  .rs[aria-pressed="true"]{outline:2px solid var(--acc);outline-offset:2px}
+  /* Giri arrivati ma scartati (STOP, PAUSA, ripresa): restano visibili, smorzati. */
+  tr.lapx td{color:var(--mut)}
+  #ccMsg:empty,#ccPrev:empty{display:none}
 </style>
 </head>
 <body class="app">
   <div id="nobt" class="banner nope" hidden data-i18n-html="noSerial"></div>
+  <div id="notact" class="banner nope" hidden data-i18n-html="notActBanner"></div>
+  <div id="nover" class="banner error" hidden data-i18n-html="noVerBanner"></div>
   <div id="upd" class="banner upd" hidden><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
-  <div class="note" data-i18n-html="oxigenBroken"></div>
+  <div class="note" data-i18n-html="oxigenUntested"></div>
   <h1><span data-i18n="h1title"></span> <span id="st" class="pill"></span></h1>
   <p class="sub" data-i18n-html="sub"></p>
 
@@ -34,48 +43,78 @@
     <button id="btnConn" data-i18n="btnConnectDongle"></button>
     <button id="btnDisc" class="sec" data-i18n="btnDisconnect" disabled></button>
     <span id="devname" class="val"></span>
+    <span id="hs" class="pill" hidden></span>
   </div></div>
 
   <!-- ===== Controllo gara ===== -->
   <div class="card">
     <p class="cardtitle" data-i18n="titleRaceCtrl"></p>
     <div class="row">
+      <button class="sec rs" data-st="free" data-i18n="rsFree" disabled></button>
       <button class="rs" data-st="run" data-i18n="rsStart" disabled></button>
       <button class="sec rs" data-st="pause" data-i18n="rsPause" disabled></button>
       <button class="warn rs" data-st="stop" data-i18n="rsStop" disabled></button>
       <button class="sec rs" data-st="pace" data-i18n="rsPace" disabled></button>
-      <button class="sec rs" data-st="analog" data-i18n="rsAnalog" disabled></button>
-      <span id="stateP" class="pill"></span>
+      <button class="sec rs" data-st="pacelc" data-i18n="rsPaceLc" disabled></button>
+      <span id="stateP" class="pill" hidden></span>
     </div>
+    <div id="syncHint" class="warnbox" data-i18n="needSync"></div>
+    <div class="row"><label for="pitSel" data-i18n="lblPit"></label>
+      <select id="pitSel">
+        <option value="96" data-i18n="optPit60"></option>
+        <option value="0" data-i18n="optPit00"></option>
+        <option value="32" data-i18n="optPit20"></option>
+      </select></div>
+    <div class="row"><label for="rsMax" data-i18n="lblMaxSpeed"></label>
+      <input id="rsMax" type="range" min="0" max="255" value="255" style="flex:1;min-width:150px">
+      <span id="rsMaxV" class="val">255</span></div>
     <div class="row">
       <span class="timer" id="timerVal">00:00.00</span>
       <span class="val" data-i18n="lblTimer"></span>
     </div>
-    <div class="row"><label data-i18n="lblMaxSpeed"></label>
-      <input id="rsMax" type="range" min="0" max="255" value="255" style="flex:1;min-width:150px">
-      <span id="rsMaxV" class="val">255</span></div>
     <div class="row"><span class="val"><span data-i18n="txLabel"></span> <code id="txHex">–</code></span></div>
+    <div class="warnbox" data-i18n-html="raceHint"></div>
   </div>
 
-  <!-- ===== Comandi per-auto ===== -->
+  <!-- ===== Limiti e comandi alle auto ===== -->
   <div class="card">
     <p class="cardtitle" data-i18n="titleCarCmd"></p>
     <div class="row">
-      <label style="min-width:60px" data-i18n="lblCarId"></label>
-      <input id="ccId" type="number" min="1" max="24" value="1" style="width:70px">
-      <label style="min-width:80px" data-i18n="lblArg"></label>
-      <input id="ccArg" type="number" min="0" max="255" value="0" style="width:80px">
-      <label><input id="ccAll" type="checkbox"> <span data-i18n="lblAllCars"></span></label>
+      <label for="ccTo" data-i18n="lblTo"></label>
+      <select id="ccTo">
+        <option value="all" data-i18n="optToAll"></option>
+        <option value="one" data-i18n="optToOne"></option>
+      </select>
+      <input id="ccId" type="number" min="1" max="24" step="1" value="1" style="width:70px" aria-label="ID" disabled>
     </div>
     <div class="row">
-      <button class="sec cc" data-cmd="1" data-i18n="actPit" disabled></button>
-      <button class="sec cc" data-cmd="2" data-i18n="actMaxSpeed" disabled></button>
-      <button class="sec cc" data-cmd="5" data-i18n="actMaxBrake" disabled></button>
-      <button class="sec cc" data-cmd="3" data-i18n="actMinSpeed" disabled></button>
-      <button class="sec cc" data-cmd="4" data-i18n="actTxPwr" disabled></button>
-      <button class="sec cc" data-cmd="6" data-i18n="actClrPit" disabled></button>
+      <label for="ccCmd" data-i18n="lblCmd"></label>
+      <select id="ccCmd">
+        <option value="1" data-i18n="cmd1"></option>
+        <option value="2" data-i18n="cmd2"></option>
+        <option value="3" data-i18n="cmd3"></option>
+        <option value="5" data-i18n="cmd5"></option>
+        <option value="7" data-i18n="cmd7"></option>
+        <option value="4" data-i18n="cmd4"></option>
+      </select>
     </div>
-    <div class="warnbox" data-i18n="carCmdHint"></div>
+    <div class="row">
+      <label for="ccArg" data-i18n="lblArg"></label>
+      <input id="ccArg" type="number" min="0" max="255" step="1" value="34" style="width:90px">
+      <button id="ccSend" data-i18n="btnSend" disabled></button>
+    </div>
+    <div id="ccHint" class="hint"></div>
+    <div id="ccPrev" class="val"></div>
+    <div id="ccMsg" class="warnbox"></div>
+
+    <p class="cardtitle" style="margin-top:14px" data-i18n="titleLimits"></p>
+    <div class="tbwrap">
+      <table class="lim"><thead><tr>
+        <th data-i18n="thTo"></th><th data-i18n="thCmd"></th><th class="num" data-i18n="thVal"></th><th></th>
+      </tr></thead><tbody id="limRows"></tbody></table>
+    </div>
+    <div id="limEmpty" class="empty" data-i18n="limEmpty"></div>
+    <div class="warnbox" data-i18n-html="carCmdHint"></div>
   </div>
 
   <!-- ===== Classifica live ===== -->
@@ -90,7 +129,7 @@
         <th class="num" data-i18n="thBestLap"></th>
         <th data-i18n="thTrigger"></th>
         <th data-i18n="thPit"></th>
-        <th>↑↓✋</th>
+        <th data-i18n-attr="title:thFlagsTitle">↑↓●</th>
         <th data-i18n="thVer"></th>
         <th data-i18n="thUpdate"></th>
       </tr></thead><tbody id="boardRows"></tbody></table>
@@ -107,14 +146,24 @@
         <th data-i18n="llWhen"></th><th>ID</th>
         <th class="num" data-i18n="llLapN"></th>
         <th class="num" data-i18n="llTime"></th>
+        <th class="num" data-i18n="llCount"></th>
+        <th data-i18n="llNote"></th>
       </tr></thead><tbody id="lapRows"></tbody></table>
     </div>
     <div id="lapEmpty" class="empty" data-i18n="lapLogEmpty"></div>
   </div>
 
-  <!-- ===== Raw / Log ===== -->
+  <!-- ===== Avanzate e registro ===== -->
   <div class="card">
-    <details><summary style="cursor:pointer;color:var(--mut)" data-i18n="sumRawLog"></summary>
+    <details><summary style="cursor:pointer;color:var(--mut)" data-i18n="sumAdv"></summary>
+      <div class="row"><label for="lapK" data-i18n="lblFactor"></label>
+        <input id="lapK" type="number" min="50" max="200" step="0.01" value="99.25" style="width:100px"></div>
+      <div class="hint" data-i18n-html="factorHint"></div>
+      <div class="row"><label for="b7" data-i18n="lblB7"></label>
+        <select id="b7">
+          <option value="0" data-i18n="optB7trig"></option>
+          <option value="128" data-i18n="optB7pwm"></option>
+        </select></div>
       <div id="log" style="margin-top:8px"></div>
     </details>
   </div>
@@ -128,44 +177,149 @@ window.I18N_STRINGS = {
     es:"Puerto {id}: es el dongle oXigen esperado."
   },
   portOther:{
-    it:"⚠️ Porta {id}: non è il VID/PID del dongle oXigen (1fee/0002). Provo lo stesso — potrebbe essere un adattatore seriale in mezzo, o un dongle diverso. Se non risponde a BOOT, hai scelto la porta sbagliata.",
-    en:"⚠️ Port {id}: this is not the oXigen dongle VID/PID (1fee/0002). Trying anyway — it may be a serial adapter in between, or a different dongle. If it does not answer BOOT, you picked the wrong port.",
-    es:"⚠️ Puerto {id}: no es el VID/PID del dongle oXigen (1fee/0002). Lo intento igualmente — puede ser un adaptador serie por medio, o un dongle distinto. Si no responde a BOOT, has elegido el puerto equivocado."
+    it:"⚠️ Porta {id}: non è il VID/PID del dongle oXigen (1fee/0002). Provo lo stesso — potrebbe essere un adattatore seriale in mezzo, o un dongle diverso. Se non risponde alla richiesta di versione, hai scelto la porta sbagliata.",
+    en:"⚠️ Port {id}: this is not the oXigen dongle VID/PID (1fee/0002). Trying anyway — it may be a serial adapter in between, or a different dongle. If it does not answer the version request, you picked the wrong port.",
+    es:"⚠️ Puerto {id}: no es el VID/PID del dongle oXigen (1fee/0002). Lo intento igualmente — puede ser un adaptador serie por medio, o un dongle distinto. Si no responde a la petición de versión, has elegido el puerto equivocado."
   },
 
   sub:{
-    it:"Contagiri e gestione gara oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002). Comandi gara <code>race_status</code>, telemetria e classifica live da <code>rf_data_x</code>. <b>Solo su hardware tuo.</b>",
-    en:"oXigen lap counter and race manager over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002). Race commands <code>race_status</code>, live telemetry and leaderboard from <code>rf_data_x</code>. <b>Only on your own hardware.</b>",
-    es:"Cuentavueltas y gestor de carrera oXigen por <b>USB serie</b> (Web Serial, VID 1FEE/PID 0002). Comandos de carrera <code>race_status</code>, telemetría y clasificación en vivo desde <code>rf_data_x</code>. <b>Solo en tu propio hardware.</b>"
+    it:"Contagiri e gestione gara oXigen col dongle USB Slot.it (<b>Web Serial</b>, VID 1FEE/PID 0002): comanda la gara, manda i limiti ai telecomandi e mostra telemetria e classifica dal vivo. <b>Solo su hardware tuo.</b>",
+    en:"oXigen lap counter and race manager with the Slot.it USB dongle (<b>Web Serial</b>, VID 1FEE/PID 0002): it runs the race, sends limits to the controllers and shows live telemetry and leaderboard. <b>Only on your own hardware.</b>",
+    es:"Cuentavueltas y gestor de carrera oXigen con el dongle USB Slot.it (<b>Web Serial</b>, VID 1FEE/PID 0002): manda la carrera, envía los límites a los mandos y muestra telemetría y clasificación en vivo. <b>Solo en tu propio hardware.</b>"
   },
   h1title:{it:"Contagiri / gestione gara",en:"Lap counter / race manager",es:"Cuentavueltas / gestor de carrera"},
   btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle"},
   btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
 
-  titleRaceCtrl:{it:"Controllo gara — race_status",en:"Race control — race_status",es:"Control de carrera — race_status"},
-  rsStart:{it:"▶ Avvia",en:"▶ Start",es:"▶ Iniciar"},
+  notActBanner:{
+    it:"⚠️ Questo dongle <b>non è attivato</b>: risponde <code>ACTIVENOT</code> e la radio di gara resta spenta, quindi qui non si può fare niente. L'attivazione si fa dal <a href=\"../o2-bootloader/\">configuratore dongle</a> (premi prima Disconnetti: la porta la può usare una pagina alla volta).",
+    en:"⚠️ This dongle is <b>not activated</b>: it answers <code>ACTIVENOT</code> and the race radio stays off, so nothing can be done here. Activation is done from the <a href=\"../o2-bootloader/\">dongle configurator</a> (press Disconnect first: only one page at a time can use the port).",
+    es:"⚠️ Este dongle <b>no está activado</b>: responde <code>ACTIVENOT</code> y la radio de carrera queda apagada, así que aquí no se puede hacer nada. La activación se hace desde el <a href=\"../o2-bootloader/\">configurador del dongle</a> (pulsa antes Desconectar: el puerto solo lo puede usar una página a la vez)."
+  },
+  noVerBanner:{
+    it:"⚠️ Il dongle <b>non ha risposto alla richiesta di versione</b> entro un secondo, e senza quella risposta non si avvia la radio. Succede quando la porta viene riaperta senza staccare il dongle: resta agganciato alla sessione precedente e ignora un nuovo avvio. Premi Disconnetti, <b>stacca e riattacca il dongle</b>, poi Connetti (in alternativa, il reset del <a href=\"../o2-bootloader/\">configuratore dongle</a>).",
+    en:"⚠️ The dongle <b>did not answer the version request</b> within one second, and without that answer the radio does not start. It happens when the port is reopened without unplugging the dongle: it stays locked to the previous session and ignores a new start. Press Disconnect, <b>unplug and replug the dongle</b>, then Connect (or use the reset in the <a href=\"../o2-bootloader/\">dongle configurator</a>).",
+    es:"⚠️ El dongle <b>no ha respondido a la petición de versión</b> en un segundo, y sin esa respuesta la radio no arranca. Pasa cuando el puerto se reabre sin desenchufar el dongle: sigue enganchado a la sesión anterior e ignora un nuevo arranque. Pulsa Desconectar, <b>desenchufa y vuelve a enchufar el dongle</b> y luego Conectar (o usa el reset del <a href=\"../o2-bootloader/\">configurador del dongle</a>)."
+  },
+  hsWait:{it:"attendo la versione…",en:"waiting for the version…",es:"esperando la versión…"},
+  hsSynced:{it:"dongle v{v} · agganciato",en:"dongle v{v} · locked",es:"dongle v{v} · enganchado"},
+  hsNoVer:{it:"nessuna risposta",en:"no answer",es:"sin respuesta"},
+  hsNotAct:{it:"dongle non attivato",en:"dongle not activated",es:"dongle no activado"},
+
+  titleRaceCtrl:{it:"Controllo gara",en:"Race control",es:"Control de carrera"},
+  rsFree:{it:"🟢 Gara libera",en:"🟢 Free run",es:"🟢 Carrera libre"},
+  rsStart:{it:"▶ Avvia gara",en:"▶ Start race",es:"▶ Iniciar carrera"},
   rsPause:{it:"⏸ Pausa",en:"⏸ Pause",es:"⏸ Pausa"},
   rsStop:{it:"⏹ Stop (ferma auto)",en:"⏹ Stop (halt cars)",es:"⏹ Stop (parar coches)"},
   rsPace:{it:"🐢 Pace car",en:"🐢 Pace car",es:"🐢 Pace car"},
-  rsAnalog:{it:"🔌 Gara analogica",en:"🔌 Analog race",es:"🔌 Carrera analógica"},
+  rsPaceLc:{it:"🐢 Pace car, corsia bloccata",en:"🐢 Pace car, lane change locked",es:"🐢 Pace car, cambio de carril bloqueado"},
+  needSync:{
+    it:"I pulsanti si accendono quando il dongle ha risposto con la versione: connettilo prima.",
+    en:"The buttons turn on once the dongle has answered with its version: connect it first.",
+    es:"Los botones se activan cuando el dongle ha respondido con su versión: conéctalo primero."
+  },
+  lblPit:{it:"Giri in pit-lane",en:"Laps in the pit lane",es:"Vueltas en el pit-lane"},
+  optPit60:{it:"non contati",en:"not counted",es:"no contadas"},
+  optPit00:{it:"contati all'entrata",en:"counted at the entry",es:"contadas a la entrada"},
+  optPit20:{it:"contati all'uscita",en:"counted at the exit",es:"contadas a la salida"},
+  lblMaxSpeed:{it:"Velocità max (gara e pace car)",en:"Max speed (race and pace car)",es:"Velocidad máx. (carrera y pace car)"},
   lblTimer:{it:"Cronometro",en:"Race timer",es:"Cronómetro"},
-  lblMaxSpeed:{it:"Velocità max globale",en:"Global max speed",es:"Velocidad máx. global"},
-  txLabel:{it:"ultimo race_status:",en:"last race_status:",es:"último race_status:"},
+  txLabel:{it:"ultimo frame inviato:",en:"last frame sent:",es:"última trama enviada:"},
+  raceHint:{
+    it:"All'avvio il dongle è in <b>gara libera</b>: i telecomandi guidano senza limiti e la velocità max qui sopra non conta. <b>Stop</b> e <b>Pausa</b> fermano tutte le auto. <b>Avvia</b> dopo uno Stop (o la prima volta) azzera giri, tempi e comandi nel dongle: l'app rimanda da sola i limiti che hai impostato. In gara libera i telecomandi tengono la velocità che avevano, che dopo Stop o Pausa è zero: per questo, tornando in gara libera da lì, l'app passa per mezzo secondo da pace car a velocità piena. Il dongle non ha timeout: <b>Disconnetti</b> durante una gara manda prima uno Stop.",
+    en:"At startup the dongle is in <b>free run</b>: the controllers drive with no limit and the max speed above does not apply. <b>Stop</b> and <b>Pause</b> halt every car. <b>Start</b> after a Stop (or the first time) clears laps, times and commands in the dongle: the app re-sends the limits you set on its own. In free run the controllers keep the speed they had, which is zero after Stop or Pause: so, going back to free run from there, the app goes through pace car at full speed for half a second. The dongle has no timeout: <b>Disconnect</b> during a race sends a Stop first.",
+    es:"Al arrancar el dongle está en <b>carrera libre</b>: los mandos conducen sin límites y la velocidad máx. de arriba no cuenta. <b>Stop</b> y <b>Pausa</b> paran todos los coches. <b>Iniciar</b> después de un Stop (o la primera vez) pone a cero vueltas, tiempos y comandos en el dongle: la app reenvía sola los límites que has puesto. En carrera libre los mandos mantienen la velocidad que tenían, que después de Stop o Pausa es cero: por eso, al volver a carrera libre desde ahí, la app pasa medio segundo por pace car a velocidad máxima. El dongle no tiene timeout: <b>Desconectar</b> durante una carrera envía antes un Stop."
+  },
 
-  titleCarCmd:{it:"Comandi per-auto — race_status[5]",en:"Per-car commands — race_status[5]",es:"Comandos por coche — race_status[5]"},
-  lblCarId:{it:"ID auto",en:"Car ID",es:"ID coche"},
-  lblArg:{it:"argomento",en:"argument",es:"argumento"},
-  lblAllCars:{it:"a tutte le auto",en:"to all cars",es:"a todos los coches"},
-  actTxPwr:{it:"Potenza TX",en:"TX power",es:"Potencia TX"},
-  actClrPit:{it:"Azzera pit-lane",en:"Clear pit lane",es:"Borrar pit-lane"},
-  actPit:{it:"Velocità pit-lane",en:"Pit lane speed",es:"Velocidad pit-lane"},
-  actMaxSpeed:{it:"Velocità massima",en:"Maximum speed",es:"Velocidad máxima"},
-  actMaxBrake:{it:"Freno massimo",en:"Maximum brake",es:"Freno máximo"},
-  actMinSpeed:{it:"Penalità (vel. minima)",en:"Penalty (minimum speed)",es:"Penalización (vel. mínima)"},
+  titleCarCmd:{it:"Limiti e comandi ai telecomandi",en:"Limits and commands to the controllers",es:"Límites y comandos a los mandos"},
+  lblTo:{it:"Destinatario",en:"Recipient",es:"Destinatario"},
+  optToAll:{it:"tutte le auto",en:"all cars",es:"todos los coches"},
+  optToOne:{it:"una sola auto, ID",en:"one car, ID",es:"un solo coche, ID"},
+  lblCmd:{it:"Comando",en:"Command",es:"Comando"},
+  lblArg:{it:"Valore",en:"Value",es:"Valor"},
+  btnSend:{it:"Invia",en:"Send",es:"Enviar"},
+  cmd1:{it:"Velocità in pit-lane",en:"Pit lane speed",es:"Velocidad en pit-lane"},
+  cmd2:{it:"Velocità massima",en:"Maximum speed",es:"Velocidad máxima"},
+  cmd3:{it:"Velocità minima (penalità)",en:"Minimum speed (penalty)",es:"Velocidad mínima (penalización)"},
+  cmd4:{it:"Potenza radio",en:"Radio power",es:"Potencia de radio"},
+  cmd5:{it:"Freno massimo",en:"Maximum brake",es:"Freno máximo"},
+  cmd7:{it:"Tempo minimo sul giro",en:"Minimum lap time",es:"Tiempo mínimo por vuelta"},
+  hint1:{
+    it:"0–255. Vale l'ultima ricevuta, che sia per tutte o per una sola auto.",
+    en:"0–255. The last one received wins, whether for all cars or for one.",
+    es:"0–255. Vale la última recibida, sea para todos o para un solo coche."
+  },
+  hint2:{
+    it:"0–255, 255 = nessun limite. Fra il valore per tutte e quello per l'auto vale il più basso.",
+    en:"0–255, 255 = no limit. Between the all-cars value and the per-car one, the lower wins.",
+    es:"0–255, 255 = sin límite. Entre el valor para todos y el del coche vale el más bajo."
+  },
+  hint3:{
+    it:"0–63: il telecomando lo moltiplica per 4 (63 → 252). Da 64 in su (bit 6 e 7) si accende anche il <b>cambio corsia forzato</b>. 0 = nessuna penalità. Un valore per tutte diverso da 0 ha la precedenza, e mandarlo azzera quelli per auto.",
+    en:"0–63: the controller multiplies it by 4 (63 → 252). From 64 up (bits 6 and 7) it also turns on the <b>forced lane change</b>. 0 = no penalty. An all-cars value other than 0 takes precedence, and sending it clears the per-car ones.",
+    es:"0–63: el mando lo multiplica por 4 (63 → 252). Desde 64 (bits 6 y 7) se activa también el <b>cambio de carril forzado</b>. 0 = sin penalización. Un valor para todos distinto de 0 tiene prioridad, y enviarlo pone a cero los de cada coche."
+  },
+  hint4:{
+    it:"0 = −8 dBm, 1 = −4 dBm, 2 = 0 dBm, 3 = +4 dBm (il massimo). Solo per tutte le auto: per una sola i telecomandi la ignorano.",
+    en:"0 = −8 dBm, 1 = −4 dBm, 2 = 0 dBm, 3 = +4 dBm (the maximum). All cars only: the controllers ignore it for a single car.",
+    es:"0 = −8 dBm, 1 = −4 dBm, 2 = 0 dBm, 3 = +4 dBm (el máximo). Solo para todos: para un solo coche los mandos la ignoran."
+  },
+  hint5:{
+    it:"0–255, 255 = nessun limite. Fra il valore per tutte e quello per l'auto vale il più basso.",
+    en:"0–255, 255 = no limit. Between the all-cars value and the per-car one, the lower wins.",
+    es:"0–255, 255 = sin límite. Entre el valor para todos y el del coche vale el más bajo."
+  },
+  hint7:{
+    it:"In decimi di secondo (0 = nessuno): i giri più corti non vengono contati.",
+    en:"In tenths of a second (0 = none): shorter laps are not counted.",
+    es:"En décimas de segundo (0 = ninguno): las vueltas más cortas no se cuentan."
+  },
+  prevG:{it:"byte 3/4 = {c} {a}",en:"bytes 3/4 = {c} {a}",es:"bytes 3/4 = {c} {a}"},
+  prevI:{it:"byte 2 = {id}, byte 5/6 = {c} {a}",en:"byte 2 = {id}, bytes 5/6 = {c} {a}",es:"byte 2 = {id}, bytes 5/6 = {c} {a}"},
+  prevMin:{it:" → minimo {v}, cambio corsia forzato: {lc}",en:" → minimum {v}, forced lane change: {lc}",es:" → mínimo {v}, cambio de carril forzado: {lc}"},
+  prevPwr:{it:" → {d} dBm",en:" → {d} dBm",es:" → {d} dBm"},
+  prevMinLap:{it:" → {s} s",en:" → {s} s",es:" → {s} s"},
+  wordYes:{it:"sì",en:"yes",es:"sí"},
+  wordNo:{it:"no",en:"no",es:"no"},
+  errId:{
+    it:"ID «{id}» non valido: il dongle accetta destinatari da 1 a 24. Niente inviato.",
+    en:"ID “{id}” is not valid: the dongle accepts recipients from 1 to 24. Nothing sent.",
+    es:"ID «{id}» no válido: el dongle acepta destinatarios del 1 al 24. No se ha enviado nada."
+  },
+  errArg:{
+    it:"Valore fuori intervallo (0–{max}). Niente inviato.",
+    en:"Value out of range (0–{max}). Nothing sent.",
+    es:"Valor fuera de rango (0–{max}). No se ha enviado nada."
+  },
+  errPwrInd:{
+    it:"La potenza radio vale solo per tutte le auto: per una sola i telecomandi la ignorano. Niente inviato.",
+    en:"Radio power only applies to all cars: the controllers ignore it for a single car. Nothing sent.",
+    es:"La potencia de radio solo vale para todos los coches: para uno solo los mandos la ignoran. No se ha enviado nada."
+  },
+  errFull:{
+    it:"Il dongle tiene al massimo 5 comandi diversi per destinatario e questo verrebbe scartato senza avviso. Le code si svuotano con Stop e poi Avvia. Niente inviato.",
+    en:"The dongle keeps at most 5 different commands per recipient, and this one would be dropped silently. The queues are emptied by Stop then Start. Nothing sent.",
+    es:"El dongle guarda como máximo 5 comandos distintos por destinatario y este se descartaría sin aviso. Las colas se vacían con Stop y luego Iniciar. No se ha enviado nada."
+  },
+  msgQueued:{it:"Inviato: {what}. Il dongle lo ripete finché non lo cambi.",en:"Sent: {what}. The dongle repeats it until you change it.",es:"Enviado: {what}. El dongle lo repite hasta que lo cambies."},
+  msgDropped:{it:"Tolto: {what}, rimandato col valore neutro {v}.",en:"Removed: {what}, re-sent with the neutral value {v}.",es:"Quitado: {what}, reenviado con el valor neutro {v}."},
+  msgDroppedPit:{
+    it:"Tolto dall'elenco: {what}. La velocità pit-lane non ha un valore neutro: il dongle continua a ripetere l'ultima finché non ne mandi un'altra, o fino al prossimo Avvia dopo uno Stop.",
+    en:"Removed from the list: {what}. Pit lane speed has no neutral value: the dongle keeps repeating the last one until you send another, or until the next Start after a Stop.",
+    es:"Quitado de la lista: {what}. La velocidad en pit-lane no tiene valor neutro: el dongle sigue repitiendo la última hasta que envíes otra, o hasta el próximo Iniciar después de un Stop."
+  },
+  titleLimits:{it:"Limiti attivi — l'app li rimanda dopo ogni Avvia da Stop",en:"Active limits — the app re-sends them after every Start from Stop",es:"Límites activos — la app los reenvía tras cada Iniciar desde Stop"},
+  thTo:{it:"destinatario",en:"recipient",es:"destinatario"},
+  thCmd:{it:"comando",en:"command",es:"comando"},
+  thVal:{it:"valore",en:"value",es:"valor"},
+  limAll:{it:"tutte",en:"all",es:"todos"},
+  limCar:{it:"auto {id}",en:"car {id}",es:"coche {id}"},
+  btnDrop:{it:"togli",en:"remove",es:"quitar"},
+  limEmpty:{it:"Nessun limite impostato.",en:"No limit set.",es:"Ningún límite puesto."},
   carCmdHint:{
-    it:"Imposta ID + argomento, poi premi un comando: viene inviato all'auto (raffica breve). L'<b>ID parte da 1</b>: il dongle scarta ID 0 (usa l'auto come <code>Car[ID−1]</code>, max 24). Con <b>a tutte le auto</b> il comando va in <code>race_status[3]/[4]</code> (globale) invece di <code>[5]/[6]</code> (individuale). Argomenti di default dal firmware: pit-lane <code>0x22</code>, vel. max <code>0xff</code>, vel. min <code>0x00</code>, potenza TX <code>0x03</code> (0 dBm), freno max <code>0xff</code>.",
-    en:"Set ID + argument, then press a command: it's sent to the car (short burst). The <b>ID starts at 1</b>: the dongle drops ID 0 (it uses <code>Car[ID−1]</code>, max 24). With <b>to all cars</b> the command goes into <code>race_status[3]/[4]</code> (global) instead of <code>[5]/[6]</code> (individual). Firmware defaults: pit lane <code>0x22</code>, max speed <code>0xff</code>, min speed <code>0x00</code>, TX power <code>0x03</code> (0 dBm), max brake <code>0xff</code>.",
-    es:"Ajusta ID + argumento, luego pulsa un comando: se envía al coche (ráfaga breve). El <b>ID empieza en 1</b>: el dongle descarta el ID 0 (usa <code>Car[ID−1]</code>, máx 24). Con <b>a todos los coches</b> el comando va en <code>race_status[3]/[4]</code> (global) en lugar de <code>[5]/[6]</code> (individual). Valores por defecto del firmware: pit-lane <code>0x22</code>, vel. máx <code>0xff</code>, vel. mín <code>0x00</code>, potencia TX <code>0x03</code> (0 dBm), freno máx <code>0xff</code>."
+    it:"Il dongle <b>ripete ogni comando all'infinito</b>, finché non lo cambi: per annullarlo si rimanda lo stesso comando col valore neutro (velocità massima e freno 255, velocità minima e tempo minimo 0, potenza radio 3), ed è quello che fa «togli». Tiene al massimo <b>5 comandi diversi</b> per destinatario; le code si svuotano solo con <b>Avvia dopo uno Stop</b>, e a quel punto l'app rimanda l'elenco qui sopra. Un comando per una sola auto arriva entro circa 300 ms, uno per tutte entro 10 ms.",
+    en:"The dongle <b>repeats every command forever</b>, until you change it: to cancel one you re-send the same command with its neutral value (max speed and brake 255, min speed and min lap time 0, radio power 3), which is what “remove” does. It keeps at most <b>5 different commands</b> per recipient; the queues are emptied only by <b>Start after a Stop</b>, and at that point the app re-sends the list above. A command for one car arrives within about 300 ms, one for all cars within 10 ms.",
+    es:"El dongle <b>repite cada comando indefinidamente</b>, hasta que lo cambies: para anularlo se reenvía el mismo comando con su valor neutro (velocidad máxima y freno 255, velocidad mínima y tiempo mínimo 0, potencia de radio 3), y eso es lo que hace «quitar». Guarda como máximo <b>5 comandos distintos</b> por destinatario; las colas solo se vacían con <b>Iniciar después de un Stop</b>, y entonces la app reenvía la lista de arriba. Un comando para un solo coche llega en unos 300 ms, uno para todos en 10 ms."
   },
 
   titleBoard:{it:"Classifica live",en:"Live leaderboard",es:"Clasificación en vivo"},
@@ -175,76 +329,172 @@ window.I18N_STRINGS = {
   thBestLap:{it:"miglior giro (s)",en:"best lap (s)",es:"mejor vuelta (s)"},
   thTrigger:{it:"grilletto",en:"trigger",es:"gatillo"},
   thPit:{it:"pit",en:"pit",es:"pit"},
-  thVer:{it:"versione",en:"version",es:"versión"},
+  thFlagsTitle:{it:"frecce, pulsante tondo e segnalazioni",en:"arrows, round button and flags",es:"flechas, botón redondo y avisos"},
+  thVer:{it:"versioni",en:"versions",es:"versiones"},
   thUpdate:{it:"aggiorn.",en:"updated",es:"actualiz."},
   boardEmpty:{
-    it:"Nessun controller/auto ancora. Accendi un controller (o premi il grilletto) e premi Avvia.",
-    en:"No controller/car yet. Turn on a controller (or pull the trigger) and press Start.",
-    es:"Aún no hay mando/coche. Enciende un mando (o aprieta el gatillo) y pulsa Iniciar."
+    it:"Nessun telecomando ancora. Connetti il dongle e accendi un telecomando: compare entro mezzo secondo.",
+    en:"No controller yet. Connect the dongle and turn on a controller: it shows up within half a second.",
+    es:"Aún no hay mandos. Conecta el dongle y enciende un mando: aparece en medio segundo."
   },
   noteHint:{
-    it:"⚠️ Da banco (senza auto in pista) i <b>giri</b> restano 0, ma il <b>grilletto</b> <code>[7]</code> si muove: è normale, la telemetria è comunque live.",
-    en:"⚠️ On the bench (no car on track) the <b>laps</b> stay 0, but the <b>trigger</b> <code>[7]</code> moves: that's normal, telemetry is still live.",
-    es:"⚠️ En banco (sin coche en pista) las <b>vueltas</b> quedan en 0, pero el <b>gatillo</b> <code>[7]</code> se mueve: es normal, la telemetría sigue en vivo."
+    it:"⚠️ Da banco (senza auto in pista) i <b>giri</b> restano 0, ma il <b>grilletto</b> si muove: la telemetria è comunque dal vivo. I giri che arrivano in <b>Stop o Pausa non contano</b>: il dongle li passa lo stesso (e quelli fatti in pausa li consegna tutti insieme alla ripresa), quindi li scarta l'app — restano nel log giri come «scartati» e il numero fra parentesi li conta. Dopo lo Stop c'è una tolleranza di 0,6 s per il giro appena chiuso, perché il dongle aggiorna ogni auto circa ogni 300 ms.",
+    en:"⚠️ On the bench (no car on track) the <b>laps</b> stay 0, but the <b>trigger</b> moves: telemetry is live anyway. Laps arriving during <b>Stop or Pause do not count</b>: the dongle passes them on anyway (and hands over the ones made during a pause all at once on resume), so the app drops them — they stay in the lap log as “dropped” and the number in brackets counts them. After a Stop there is a 0.6 s tolerance for the lap just completed, because the dongle refreshes each car about every 300 ms.",
+    es:"⚠️ En banco (sin coche en pista) las <b>vueltas</b> quedan en 0, pero el <b>gatillo</b> se mueve: la telemetría sigue en vivo. Las vueltas que llegan en <b>Stop o Pausa no cuentan</b>: el dongle las pasa igualmente (y las hechas en pausa las entrega todas juntas al reanudar), así que las descarta la app — quedan en el registro como «descartadas» y el número entre paréntesis las cuenta. Tras el Stop hay una tolerancia de 0,6 s para la vuelta recién cerrada, porque el dongle actualiza cada coche cada unos 300 ms."
   },
+  trigNoCar:{it:"nessuna auto",en:"no car",es:"sin coche"},
+  verUnknown:{it:"non nota",en:"unknown",es:"desconocida"},
+  fReset:{it:"telecomando riavviato",en:"controller restarted",es:"mando reiniciado"},
+  fLink:{it:"collegamento con l'auto perso o ritrovato",en:"link with the car lost or regained",es:"enlace con el coche perdido o recuperado"},
+  fBatt:{it:"batteria scarica",en:"low battery",es:"batería baja"},
+  fCall:{it:"richiesta track call",en:"track call request",es:"petición de track call"},
+  fUp:{it:"freccia su",en:"up arrow",es:"flecha arriba"},
+  fDn:{it:"freccia giù",en:"down arrow",es:"flecha abajo"},
+  fRound:{it:"pulsante tondo",en:"round button",es:"botón redondo"},
+  fPit:{it:"in pit-lane",en:"in the pit lane",es:"en el pit-lane"},
+  fDisc:{it:"giri scartati (Stop, Pausa o ripresa)",en:"dropped laps (Stop, Pause or resume)",es:"vueltas descartadas (Stop, Pausa o reanudación)"},
 
   titleLapLog:{it:"Log giri",en:"Lap log",es:"Registro de vueltas"},
   llWhen:{it:"orario",en:"time",es:"hora"},
   llLapN:{it:"giro n°",en:"lap #",es:"vuelta n.º"},
   llTime:{it:"tempo (s)",en:"time (s)",es:"tiempo (s)"},
+  llCount:{it:"conteggi",en:"counts",es:"cuentas"},
+  llNote:{it:"nota",en:"note",es:"nota"},
   lapLogEmpty:{it:"Nessun giro registrato.",en:"No laps recorded.",es:"Ninguna vuelta registrada."},
+  lapDiscStop:{it:"scartato: arrivato in Stop",en:"dropped: arrived during Stop",es:"descartada: llegó en Stop"},
+  lapDiscPause:{it:"scartato: arrivato in Pausa",en:"dropped: arrived during Pause",es:"descartada: llegó en Pausa"},
+  lapDiscResume:{it:"scartato: fatto in pausa, arrivato alla ripresa",en:"dropped: made during the pause, arrived on resume",es:"descartada: hecha en pausa, llegó al reanudar"},
 
-  sumRawLog:{it:"Raw & log",en:"Raw & log",es:"Datos crudos y registro"},
+  sumAdv:{it:"Avanzate e registro grezzo",en:"Advanced and raw log",es:"Avanzado y registro en bruto"},
+  lblFactor:{it:"Conteggi al secondo",en:"Counts per second",es:"Cuentas por segundo"},
+  factorHint:{
+    it:"Il tempo sul giro arriva in <b>conteggi</b> del telecomando (colonna «conteggi» del log). Il documento ufficiale dice di dividere per <b>99,25</b>, ma il contatore del telecomando ne fa circa <b>97,7</b> al secondo: il valore giusto va misurato in pista, cronometrando a mano qualche giro. Predefinito 99,25; il valore resta salvato in questo browser.",
+    en:"The lap time arrives in controller <b>counts</b> (the “counts” column of the log). The official document says to divide by <b>99.25</b>, but the controller counter does about <b>97.7</b> per second: the right value must be measured on the track, timing a few laps by hand. Default 99.25; the value is saved in this browser.",
+    es:"El tiempo por vuelta llega en <b>cuentas</b> del mando (columna «cuentas» del registro). El documento oficial dice dividir por <b>99,25</b>, pero el contador del mando hace unas <b>97,7</b> por segundo: el valor correcto se mide en pista, cronometrando a mano algunas vueltas. Por defecto 99,25; el valor queda guardado en este navegador."
+  },
+  lblB7:{it:"Colonna grilletto",en:"Trigger column",es:"Columna gatillo"},
+  optB7trig:{it:"media del grilletto",en:"trigger average",es:"media del gatillo"},
+  optB7pwm:{it:"media del PWM",en:"PWM average",es:"media del PWM"},
 
   /* ---- stringhe dinamiche (JS) ---- */
   stConnected:{it:"connesso",en:"connected",es:"conectado"},
   stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
   logConnected:{it:"[connesso]",en:"[connected]",es:"[conectado]"},
   logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]"},
+  logLost:{it:"[la porta si è chiusa da sola: dongle staccato?]",en:"[the port closed by itself: dongle unplugged?]",es:"[el puerto se cerró solo: ¿dongle desenchufado?]"},
   errWord:{it:"errore",en:"error",es:"error"},
   noSerialLog:{
     it:"[!] Web Serial non supportato: usa Chrome/Edge su computer.",
     en:"[!] Web Serial not supported: use Chrome/Edge on a computer.",
     es:"[!] Web Serial no compatible: usa Chrome/Edge en un ordenador."
   },
-  stIdle:{it:"in attesa",en:"idle",es:"en espera"},
+  logDtr:{it:"[DTR non impostato: {e}]",en:"[DTR not set: {e}]",es:"[DTR no activado: {e}]"},
+  logVer:{it:"versione dongle {v}",en:"dongle version {v}",es:"versión del dongle {v}"},
+  logSync:{it:"frame di aggancio inviato",en:"lock-on frame sent",es:"trama de enganche enviada"},
+  logNotAct:{it:"il dongle risponde ACTIVENOT: non è attivato",en:"the dongle answers ACTIVENOT: it is not activated",es:"el dongle responde ACTIVENOT: no está activado"},
+  logShortVer:{it:"versione {v} da dongle non attivato",en:"version {v} from a dongle that is not activated",es:"versión {v} de un dongle no activado"},
+  logNoVer:{it:"nessuna versione entro 1 s",en:"no version within 1 s",es:"ninguna versión en 1 s"},
+  logStopOnDisc:{it:"Stop inviato prima di chiudere: il dongle non ha timeout",en:"Stop sent before closing: the dongle has no timeout",es:"Stop enviado antes de cerrar: el dongle no tiene timeout"},
+  logBadId:{it:"dati con ID {id}, fuori da 1..24: ignorati",en:"data with ID {id}, outside 1..24: ignored",es:"datos con ID {id}, fuera de 1..24: ignorados"},
+  logUnknown:{it:"messaggio non riconosciuto ({n} byte): {hex}",en:"unrecognised message ({n} bytes): {hex}",es:"mensaje no reconocido ({n} bytes): {hex}"},
+  logToken:{it:"risposta testuale: {s}",en:"text answer: {s}",es:"respuesta de texto: {s}"},
+  logResend:{it:"Avvia dopo Stop: il dongle ha svuotato le code, rimando {n} limiti",en:"Start after Stop: the dongle emptied its queues, re-sending {n} limits",es:"Iniciar tras Stop: el dongle vació sus colas, reenvío {n} límites"},
+  logTooLong:{it:"scrittura di {n} byte rifiutata: il dongle ne accetta al massimo 32",en:"write of {n} bytes refused: the dongle accepts at most 32",es:"escritura de {n} bytes rechazada: el dongle acepta como máximo 32"},
+  stFree:{it:"gara libera",en:"free run",es:"carrera libre"},
   stRunning:{it:"in gara",en:"running",es:"en carrera"},
   stPaused:{it:"in pausa",en:"paused",es:"en pausa"},
-  stStopped:{it:"ferma",en:"stopped",es:"parada"},
+  stStopped:{it:"ferma (Stop)",en:"stopped (Stop)",es:"parada (Stop)"},
   stPace:{it:"pace car",en:"pace car",es:"pace car"},
-  stAnalog:{it:"gara analogica",en:"analog race",es:"carrera analógica"}
+  stPaceLc:{it:"pace car, corsia bloccata",en:"pace car, lane locked",es:"pace car, carril bloqueado"}
 };
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="chron02",APP_VERSION="1.3.0";
+const APP="chron02",APP_VERSION="1.4.0";
 const VID=0x1fee,PID=0x0002;
 
-/* race_status[0] = 0x60 | enum. Enum (nomi ufficiali S_RACE_*, maschera 0x1f):
- *   1 = stop, 2 = gara ANALOGICA, 3 = gara DIGITALE, 4 = pausa, 5 = PACE CAR
- * (il 5 non e' una "bandiera": e' la condizione di limitazione velocita'). */
-const S_STOP=0x61, S_ANALOG=0x62, S_RUN=0x63, S_PAUSE=0x64, S_PACE=0x65;
+/* ===== Protocollo, per quello che serve a questa pagina =====
+ *
+ * PC → dongle: un frame di 11 byte per scrittura. Il dongle legge i byte 0..7;
+ * l'8, il 9 e il 10 li ignora e vanno a ZERO (vedi «aggancio» più sotto).
+ *   [0] bit 0..4 stato gara, bit 5..7 giri in pit-lane
+ *   [1] velocità massima      [2] ID dell'auto per il comando singolo (1..24)
+ *   [3]/[4] comando per tutte e argomento (bit 7 del codice a 0)
+ *   [5]/[6] comando per una sola auto e argomento (bit 7 del codice a 1)
+ *   [7] bit 7: il campo grilletto riporta la media del PWM invece del grilletto
+ *
+ * Stati (bit 0..4 del byte 0). Il dongle parte in gara libera. Lo 0 vuol dire
+ * «nessuna azione» ed è lecito; il 2 viene trattato come il 3, quindi non c'è un
+ * pulsante a parte; un valore fuori elenco i telecomandi lo scartano (mai FFh). */
+const ST={FREE:0x0F,STOP:0x01,RUN:0x03,PAUSE:0x04,PACE:0x05,PACE_LC:0x15};
+const KEY_OF={free:ST.FREE,run:ST.RUN,pause:ST.PAUSE,stop:ST.STOP,pace:ST.PACE,pacelc:ST.PACE_LC};
+const RUNNING=new Set([ST.RUN,ST.PACE,ST.PACE_LC]);   // auto in gara, cronometro acceso
+const HALTED=new Set([ST.STOP,ST.PAUSE]);              // auto ferme, giri che non contano
 
-let port,writer,reader,acc=[],reading=false;
-let connState=false, txActive=false, txTimer=null, tickTimer=null, boardTimer=null, boardDirty=false;
-let raceState=null;                 // null = in attesa (idle)
-let raceCs=0, lastTickMs=0;         // cronometro locale, centisecondi
-let pending=null;                   // {id,cmd,arg,left}  comando car-specifico in raffica
-const cars={};                      // id -> stato classifica
-let lapLog=[];                      // {id,lapNum,timeCs,at}
+const FRAME_LEN=11, MAX_WRITE=32;
+const PUMP_MS=50;          // al massimo un frame ogni 50 ms: il dongle li tratta uno per volta
+const KEEPALIVE_MS=1000;   // ripete lo stato corrente: è innocuo e copre un frame perso
+const VER_TIMEOUT_MS=1000; // la versione arriva in pochi ms; dopo 1 s qualcosa non va
+const FREE_HOLD_MS=600;    // pace car a velocità piena prima di tornare in gara libera
+const GRACE_MS=600;        // tolleranza dopo Stop/Pausa per il giro appena chiuso
+const RESUME_MS=1000;      // il primo dato dopo la ripresa porta i giri fatti in pausa
+const ID_MIN=1, ID_MAX=24;
+const LAPK_DEF=99.25;
+
+/* Comandi ai telecomandi: codice → intervallo, valore neutro (quello che toglie
+ * il limite) e valore proposto quando lo si sceglie. Il 6 non c'è apposta: i
+ * telecomandi non lo gestiscono. */
+const CMD={
+  1:{max:255,neutral:null,sug:34},
+  2:{max:255,neutral:255,sug:255},
+  3:{max:255,neutral:0,sug:0},
+  4:{max:3,neutral:3,sug:3,globalOnly:true},
+  5:{max:255,neutral:255,sug:255},
+  7:{max:255,neutral:0,sug:0},
+};
+const QUEUE_MAX=5;         // codici diversi per destinatario che il dongle tiene in coda
+
+let port=null,writer=null,reader=null,reading=false,userClosing=false,wq=Promise.resolve();
+let connState=false, phase="idle";   // idle | version | synced | nover | notact
+let dongleVer="", verTimer=null, timers=[];
+let raceSt=ST.FREE, holdUntil=0, dirty=false, bareNext=false, lastTxAt=0, lastLogged="";
+let dongleRacing=false;              // il dongle ha già avuto un Avvia dopo l'ultimo Stop
+let blockedSince=0, resumeAt=0;
+let raceCs=0, lastTickMs=0, boardDirty=false;
+let outQ=[];                         // comandi da mandare: {scope,id,code,arg,neutral}
+let queued={g:new Set(),cars:{}};    // codici che il dongle ha in coda, per destinatario
+const limits=new Map();              // limiti impostati dall'utente, da rimandare
+const cars={};                       // id -> stato classifica
+let lapLog=[];                       // {id,at,n,cnt,why}
+let lapK=LAPK_DEF;
 
 const $=id=>document.getElementById(id);
 const hx=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join(" ");
+const h2=x=>x.toString(16).padStart(2,"0");
 const log=s=>{const l=$("log");l.textContent+=s+"\n";if(l.textContent.length>16000)l.textContent=l.textContent.slice(-8000);l.scrollTop=l.scrollHeight;};
 const pad2=n=>String(n).padStart(2,"0");
-const csToSec=cs=>cs/99.25;
-const fmtSec=cs=>cs>0?csToSec(cs).toFixed(2):"–";
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const fmtLap=cnt=>cnt>0?(cnt/lapK).toFixed(2):"–";
+const clock=t=>{const d=new Date(t);return pad2(d.getHours())+":"+pad2(d.getMinutes())+":"+pad2(d.getSeconds());};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+try{const v=parseFloat(localStorage.getItem("chron02.lapK"));if(v>=50&&v<=200)lapK=v;}catch(e){}
 
 /* ---------- connessione ---------- */
 function renderStatus(){const on=connState;$("st").textContent=on?I18N.t("stConnected"):I18N.t("stDisconnected");$("st").className="pill"+(on?" on":"");}
-function setConn(on){connState=on;renderStatus();
-  $("btnConn").disabled=on;$("btnDisc").disabled=!on;
-  document.querySelectorAll(".rs,.cc").forEach(b=>b.disabled=!on);}
+function setConn(on){connState=on;renderStatus();$("btnConn").disabled=on;$("btnDisc").disabled=!on;}
+
+function setPhase(p){
+  phase=p;
+  const hs=$("hs");
+  const m={version:["hsWait"," warn"],synced:["hsSynced"," on"],nover:["hsNoVer"," bad"],notact:["hsNotAct"," bad"]}[p];
+  if(!m){hs.hidden=true;hs.textContent="";}
+  else{hs.hidden=false;hs.textContent=I18N.t(m[0],{v:dongleVer});hs.className="pill"+m[1];}
+  /* Le due fasce restano accese anche dopo Disconnetti: dicono cosa fare dopo,
+     e una delle due ha il link al configuratore. Si spengono al nuovo avvio. */
+  if(p!=="idle"){$("nover").hidden=(p!=="nover");$("notact").hidden=(p!=="notact");}
+  renderRaceState();renderCmdUI();
+}
 
 async function connect(){
   if(!navigator.serial){$("nobt").style.display="block";return;}
@@ -254,193 +504,441 @@ async function connect(){
        IMPONE, e il browser mostra soltanto chi combacia. Basta che il dongle
        si presenti con un VID/PID diverso — un adattatore seriale in mezzo, un
        bootloader diverso, un dongle di un'altra generazione — e la finestra
-       esce VUOTA, senza spiegare niente. È il difetto per cui l'utente vedeva
-       il dispositivo su altri siti (che non filtrano) e non qui.
-       Quindi: mostriamo tutte le porte, e dopo diciamo se quella scelta ha
-       l'aria giusta — un avviso, non un divieto. */
+       esce VUOTA, senza spiegare niente. Quindi: mostriamo tutte le porte, e
+       dopo diciamo se quella scelta ha l'aria giusta — un avviso, non un divieto. */
     port=await navigator.serial.requestPort();
-    await port.open({baudRate:115200});
-    writer=port.writable.getWriter();
+    await port.open({baudRate:9600});      // il baud non conta: è una COM virtuale
+    /* Senza DTR il dongle non legge e non scrive. */
+    try{if(port.setSignals)await port.setSignals({dataTerminalReady:true});}
+    catch(e){log(I18N.t("logDtr",{e:String(e)}));}
+    writer=port.writable.getWriter();wq=Promise.resolve();
     const i=port.getInfo?port.getInfo():{};
     const atteso=(i.usbVendorId===VID&&i.usbProductId===PID);
     const idtxt=i.usbVendorId!=null
       ?("VID "+i.usbVendorId.toString(16).padStart(4,"0")+"/PID "+i.usbProductId.toString(16).padStart(4,"0"))
       :I18N.t("portNoId");
     $("devname").textContent=idtxt;
-    setConn(true);log(I18N.t("logConnected"));
+    resetSession();
+    userClosing=false;setConn(true);log(I18N.t("logConnected"));
     log(atteso?I18N.t("portOk",{id:idtxt}):I18N.t("portOther",{id:idtxt}));
-    startTimers();readLoop();
+    readLoop();startTimers();
+    /* Avvio: il PRIMO messaggio deve contenere un byte 0x06. Accende la radio
+       verso i telecomandi e il dongle risponde con la versione; senza, la radio
+       resta spenta. Un dongle non attivato risponde ACTIVENOT (o 2 byte). */
+    setPhase("version");
+    await write([0x06,0x06,0x06,0x06]);
+    log("-> 06 06 06 06");
+    verTimer=setTimeout(()=>{if(phase==="version"){setPhase("nover");log(I18N.t("logNoVer"));}},VER_TIMEOUT_MS);
   }catch(e){log("["+I18N.t("errWord")+": "+e+"]");}
 }
-async function disconnect(){
-  try{reading=false;txActive=false;stopTimers();
-    if(reader){await reader.cancel().catch(()=>{});}
-    if(writer){writer.releaseLock();}
-    await port.close();
-  }catch(e){}
-  setConn(false);raceState=null;renderRaceState();$("devname").textContent="";log(I18N.t("logDisconnected"));
-}
-async function readLoop(){reading=true;
-  while(reading&&port.readable){reader=port.readable.getReader();
-    try{while(true){const{value,done}=await reader.read();if(done)break;
-      for(const b of value)acc.push(b);if(acc.length>4000)acc=acc.slice(-2000);
-      parseRx();}}
-    catch(e){}finally{try{reader.releaseLock();}catch(e){}}}
-}
-async function write(bytes){if(!writer)return;await writer.write(new Uint8Array(bytes));}
 
-/* ---------- timer TX + cronometro ---------- */
-function startTimers(){
-  lastTickMs=Date.now();
-  txTimer=setInterval(()=>{if(txActive&&connState)sendRaceStatus();},200);   // TX periodico ~200 ms
-  tickTimer=setInterval(tickClock,100);                                       // cronometro locale
-  boardTimer=setInterval(()=>{if(boardDirty){boardDirty=false;renderBoard();}},250);
+/* Stato di una sessione: si riparte da zero ad ogni connessione, perché ogni
+   avvio riuscito vuol dire un dongle appena acceso (gara libera, code vuote). */
+function resetSession(){
+  raceSt=ST.FREE;holdUntil=0;dirty=false;bareNext=false;lastTxAt=0;lastLogged="";
+  dongleRacing=false;blockedSince=0;resumeAt=0;dongleVer="";
+  outQ=[];queued={g:new Set(),cars:{}};
+  $("txHex").textContent="–";
 }
-function stopTimers(){[txTimer,tickTimer,boardTimer].forEach(t=>t&&clearInterval(t));txTimer=tickTimer=boardTimer=null;}
+
+async function disconnect(){
+  userClosing=true;
+  try{
+    /* Il dongle non ha timeout: chiuso il programma continuerebbe a trasmettere
+       l'ultimo stato. Durante una gara si ferma tutto prima di andarsene. */
+    if(phase==="synced"&&RUNNING.has(raceSt)){
+      raceSt=ST.STOP;holdUntil=0;
+      const b=buildFrame(null,null);
+      await write(b);$("txHex").textContent=hx(b);log("-> "+hx(b));log(I18N.t("logStopOnDisc"));
+      await sleep(80);
+    }
+  }catch(e){}
+  await closePort();
+  log(I18N.t("logDisconnected"));
+}
+async function closePort(){
+  reading=false;stopTimers();
+  try{if(reader)await reader.cancel().catch(()=>{});}catch(e){}
+  try{if(writer)writer.releaseLock();}catch(e){}
+  try{if(port)await port.close();}catch(e){}
+  reader=writer=null;port=null;
+  setConn(false);setPhase("idle");$("devname").textContent="";
+}
+async function readLoop(){
+  reading=true;
+  while(reading&&port&&port.readable){
+    reader=port.readable.getReader();
+    try{while(true){const{value,done}=await reader.read();if(done)break;if(value&&value.length)onMessage(value);}}
+    catch(e){}finally{try{reader.releaseLock();}catch(e){}}
+  }
+  if(!userClosing&&connState){log(I18N.t("logLost"));await closePort();}
+}
+/* Al massimo 32 byte per scrittura: oltre, il dongle smette di seguire il PC
+   finché non si riapre la porta, Stop compreso. Le scritture vanno in fila. */
+function write(bytes){
+  if(!writer)return Promise.resolve();
+  if(bytes.length>MAX_WRITE){log(I18N.t("logTooLong",{n:bytes.length}));return Promise.resolve();}
+  const w=writer,u=new Uint8Array(bytes);
+  wq=wq.then(()=>w.write(u)).catch(e=>log("["+I18N.t("errWord")+": "+e+"]"));
+  return wq;
+}
+
+/* ---------- timer: invio dei frame + cronometro ---------- */
+function startTimers(){
+  stopTimers();lastTickMs=Date.now();
+  timers=[setInterval(pump,PUMP_MS),setInterval(tickClock,100),
+          setInterval(()=>{if(boardDirty){boardDirty=false;renderBoard();}},250)];
+}
+function stopTimers(){timers.forEach(t=>clearInterval(t));timers=[];if(verTimer){clearTimeout(verTimer);verTimer=null;}}
 function tickClock(){const now=Date.now();const dt=now-lastTickMs;lastTickMs=now;
-  if(raceState===S_RUN||raceState===S_FLAG)raceCs+=dt/10;
+  if(RUNNING.has(raceSt))raceCs+=dt/10;
   $("timerVal").textContent=fmtCs(raceCs);}
 function fmtCs(cs){cs=Math.floor(cs);const c=cs%100,s=Math.floor(cs/100)%60,m=Math.floor(cs/6000);return pad2(m)+":"+pad2(s)+"."+pad2(c);}
 
-/* ---------- TX: race_status = 11 byte RAW ---------- */
-function buildRaceStatus(){
-  const b=new Array(11).fill(0);
-  b[0]=(raceState==null?S_STOP:raceState);         // [0] stato = 0x60|enum
-  b[1]=+$("rsMax").value&0xff;                      // [1] velocità max globale
-  if(pending&&pending.left>0){
-    if(pending.all){                                // [3]/[4] = comando GLOBALE (bit7 a 0)
-      b[3]=pending.cmd&0x7f;
-      b[4]=pending.arg&0xff;
-    }else{                                          // [2] = auto bersaglio (1-based), [5]/[6] = comando individuale
-      b[2]=pending.id&0xff;
-      b[5]=0x80|(pending.cmd&0x7f);
-      b[6]=pending.arg&0xff;
-    }
-    if(--pending.left<=0)pending=null;
-  }
-  b[7]=0;                                           // [7] = 0
-  const cs=Math.min(Math.floor(raceCs),0xffffff);   // [8..10] race timer cs, big-endian
-  b[8]=(cs>>16)&0xff;b[9]=(cs>>8)&0xff;b[10]=cs&0xff;
+/* ---------- TX: frame di gara ---------- */
+const pitBits=()=>(+$("pitSel").value)&0xE0;
+function buildFrame(g,i){
+  const holding=holdUntil&&Date.now()<holdUntil;
+  const st=holding?ST.PACE:raceSt;
+  const b=new Array(FRAME_LEN).fill(0);              // 8..10 restano a zero
+  b[0]=(st&0x1F)|pitBits();
+  /* In gara libera il byte 1 non conta per i telecomandi: ci va FFh, così il
+     frame contiene sempre il pattern di aggancio «0x0F, FFh» al byte 0. In Stop
+     va 0, come fa il cronometro ufficiale (61 00 …). */
+  b[1]=(st===ST.FREE||holding)?0xFF:st===ST.STOP?0x00:(+$("rsMax").value&0xFF);
+  if(g){b[3]=g.code&0x7F;b[4]=g.arg&0xFF;}
+  if(i){b[2]=i.id;b[5]=0x80|(i.code&0x7F);b[6]=i.arg&0xFF;}
+  b[7]=(+$("b7").value)&0x80;
   return b;
 }
-async function sendRaceStatus(){const b=buildRaceStatus();$("txHex").textContent=hx(b);await write(b);log("-> "+hx(b));}
+function takeCmd(scope){const k=outQ.findIndex(q=>q.scope===scope);return k<0?null:outQ.splice(k,1)[0];}
+function pump(){
+  if(phase!=="synced"||!writer)return;
+  const now=Date.now();
+  if(now-lastTxAt<PUMP_MS-10)return;
+  if(holdUntil&&now>=holdUntil){holdUntil=0;dirty=true;renderRaceState();}
+  let g=null,i=null;
+  if(!bareNext){g=takeCmd("g");i=takeCmd("i");}
+  bareNext=false;
+  if(!dirty&&!g&&!i&&now-lastTxAt<KEEPALIVE_MS)return;
+  dirty=false;
+  sendFrame(buildFrame(g,i));
+}
+function sendFrame(b){
+  lastTxAt=Date.now();
+  const s=hx(b);$("txHex").textContent=s;
+  if(s!==lastLogged){log("-> "+s);lastLogged=s;}          // le ripetizioni identiche non intasano il registro
+  return write(b);
+}
+
+/* Aggancio. Dopo la versione il dongle cerca nel frame un pattern: un byte con
+   bit 0..4 = 0x0F seguito da FFh (oppure 0x61). Se lo trova più volte vince
+   l'ULTIMO, e da lì prende l'allineamento dei frame successivi: per questo sta
+   al byte 0, i comandi in questo primo frame non ci sono, e i byte 8..10 sono
+   zero invece che un timer che potrebbe valere 0x06 o 0x61 per caso. */
+function sendSync(){
+  raceSt=ST.FREE;holdUntil=0;
+  sendFrame(buildFrame(null,null));
+  log(I18N.t("logSync"));
+}
 
 function setRaceState(kind){
-  if(kind==="run"){if(raceState==null||raceState===S_STOP)raceCs=0;raceState=S_RUN;}
-  else if(kind==="pause")raceState=S_PAUSE;
-  else if(kind==="stop")raceState=S_STOP;           // ferma le auto (inviato in continuo)
-  else if(kind==="pace")raceState=S_PACE;
-  else if(kind==="analog"){if(raceState==null||raceState===S_STOP)raceCs=0;raceState=S_ANALOG;}
-  txActive=true;renderRaceState();sendRaceStatus();
+  if(phase!=="synced")return;
+  const st=KEY_OF[kind];if(st==null)return;
+  const prev=raceSt, now=Date.now();
+  holdUntil=0;
+  /* Gara libera da Stop o Pausa: lì i telecomandi hanno velocità zero, e in gara
+     libera tengono quella che avevano. Un passaggio breve in pace car a velocità
+     piena la rimette al massimo; poi si va in gara libera. */
+  if(st===ST.FREE&&(raceSt===ST.STOP||raceSt===ST.PAUSE))holdUntil=now+FREE_HOLD_MS;
+  if(HALTED.has(st)&&!HALTED.has(prev))blockedSince=now;
+  if(prev===ST.PAUSE&&!HALTED.has(st)){resumeAt=now;for(const k in cars)cars[k].resumePending=true;}
+  let clears=false;
+  if(st===ST.RUN&&!dongleRacing){clears=true;dongleRacing=true;}
+  if(st===ST.STOP)dongleRacing=false;
+  raceSt=st;dirty=true;
+  if(clears){
+    /* Avvia dopo Stop (o il primo Avvia): il dongle azzera giri, tempi e code
+       dei comandi. Il frame di Avvia parte da solo, poi si rimandano i limiti. */
+    newRace();bareNext=true;resendLimits();
+  }
+  renderRaceState();
+  pump();
 }
 function renderRaceState(){
-  const p=$("stateP");let k="stIdle",cls="";
-  if(raceState===S_RUN){k="stRunning";cls=" run";}
-  else if(raceState===S_PAUSE){k="stPaused";cls=" pause";}
-  else if(raceState===S_STOP){k="stStopped";cls=" stop";}
-  else if(raceState===S_PACE){k="stPace";cls=" flag";}
-  else if(raceState===S_ANALOG){k="stAnalog";cls=" run";}
-  p.textContent=I18N.t(k);p.className="pill"+cls;
-}
-function queueCarCmd(cmd){
-  /* ID 1-based: il dongle indicizza Car[ID-1] e scarta lo 0 (MAX_NUM_CAR = 24). */
-  const id=Math.max(1,Math.min(24,+$("ccId").value||1));
-  const arg=Math.max(0,Math.min(255,+$("ccArg").value||0));
-  pending={id,cmd,arg,all:$("ccAll").checked,left:6};  // raffica breve
-  txActive=true;
-  sendRaceStatus();                                  // invio immediato
+  const p=$("stateP"),synced=(phase==="synced");
+  if(!synced){p.hidden=true;}
+  else{
+    const m={[ST.FREE]:["stFree",""],[ST.RUN]:["stRunning"," run"],[ST.PAUSE]:["stPaused"," pause"],
+             [ST.STOP]:["stStopped"," stop"],[ST.PACE]:["stPace"," flag"],[ST.PACE_LC]:["stPaceLc"," flag"]}[raceSt]||["stFree",""];
+    p.hidden=false;p.textContent=I18N.t(m[0]);p.className="pill"+m[1];
+  }
+  document.querySelectorAll(".rs").forEach(b=>{
+    b.disabled=!synced;
+    b.setAttribute("aria-pressed",String(synced&&KEY_OF[b.dataset.st]===raceSt));
+  });
+  $("syncHint").hidden=synced;
 }
 
-/* ---------- RX: rf_data_x = 13 byte ---------- */
-function parseRx(){
-  let i=0;
-  while(i+13<=acc.length){
-    if((acc[i]&0x80)&&acc[i+1]<=0x27){                // sync: bit7=1 + ID<=0x27
-      handleFrame(acc.slice(i,i+13));
-      i+=13;
-    }else i++;
+/* ---------- comandi ai telecomandi ---------- */
+const limKey=(scope,id,code)=>scope==="g"?"g:"+code:"i:"+id+":"+code;
+function carSet(id){return queued.cars[id]||(queued.cars[id]=new Set());}
+/* Mette un comando in uscita. Controlla la coda del dongle (5 codici diversi per
+   destinatario: il sesto lo butterebbe senza dirlo). Torna un errore o null. */
+function enqueue(item,opts){
+  opts=opts||{};
+  const set=item.scope==="g"?queued.g:carSet(item.id);
+  if(!set.has(item.code)&&set.size>=QUEUE_MAX)return I18N.t("errFull");
+  set.add(item.code);
+  /* La velocità minima per tutte azzera nel dongle quelle per auto: lo stesso
+     codice entra nella coda di ogni auto, e i valori per auto non valgono più. */
+  if(item.scope==="g"&&item.code===3){
+    for(let id=ID_MIN;id<=ID_MAX;id++)carSet(id).add(3);
+    if(!opts.resend)for(const k of [...limits.keys()])if(/^i:\d+:3$/.test(k))limits.delete(k);
+    outQ=outQ.filter(q=>!(q.scope==="i"&&q.code===3));
   }
-  acc=acc.slice(i);                                   // conserva la coda parziale
+  const same=outQ.find(q=>q.scope===item.scope&&q.id===item.id&&q.code===item.code);
+  if(same){same.arg=item.arg;same.neutral=item.neutral;}
+  else outQ.push(Object.assign({},item));
+  return null;
 }
-/* rf_data_x[13] - layout confermato byte per byte sul firmware del dongle:
- *   [0] misc AUTO | 0x80   bit0 reset auto, bit1 auto caduta/persa, bit4 PIT-LANE
- *   [1] ID auto (1..24, 1-based: lo stesso numero da usare nei comandi)
- *   [2]/[3] tempo giro cs (hi, lo)      [4] Speed (usato dal cronometro ufficiale)
- *   [5]/[6] numero giri (LO, HI)        [7] grilletto (bit0..6) + bit7
- *   [8] versione sw: bit7=0 telecomando / bit7=1 auto, valore nei bit0..6
- *   [9] misc TELECOMANDO: bit2 batteria scarica, bit3 track-call, bit5 freccia su,
- *       bit6 freccia giu', bit7 FRENO A MANO (tasto tondo) - non "luci"
- *   [10..12] cronometro gara, big-endian */
-function handleFrame(f){
+function resendLimits(){
+  const keep=outQ.filter(q=>q.neutral);
+  outQ=[];queued={g:new Set(),cars:{}};
+  /* prima quelli per tutte: una velocità minima per tutte azzera quelle per auto */
+  const all=[...keep,...limits.values()].sort((a,b)=>(a.scope==="g"?0:1)-(b.scope==="g"?0:1));
+  for(const it of all)enqueue(it,{resend:true});
+  if(all.length)log(I18N.t("logResend",{n:all.length}));
+}
+function describe(it){
+  const who=it.scope==="g"?I18N.t("limAll"):I18N.t("limCar",{id:it.id});
+  return I18N.t("cmd"+it.code)+" ("+who+") = "+it.arg;
+}
+function readTarget(){
+  if($("ccTo").value==="all")return{scope:"g",id:0};
+  const s=$("ccId").value.trim(),n=Number(s);
+  if(!/^\d+$/.test(s)||n<ID_MIN||n>ID_MAX)return{err:I18N.t("errId",{id:s||"?"})};
+  return{scope:"i",id:n};
+}
+function readArg(code){
+  const s=$("ccArg").value.trim(),n=Number(s);
+  if(!/^\d+$/.test(s)||n>CMD[code].max)return{err:I18N.t("errArg",{max:CMD[code].max})};
+  return{arg:n};
+}
+function say(s,bad){const m=$("ccMsg");m.textContent=s;m.className=bad?"warnbox":"hint";}
+function sendCmd(){
+  if(phase!=="synced")return;
+  const code=+$("ccCmd").value,t=readTarget();
+  if(t.err)return say(t.err,true);
+  const a=readArg(code);
+  if(a.err)return say(a.err,true);
+  if(CMD[code].globalOnly&&t.scope!=="g")return say(I18N.t("errPwrInd"),true);
+  const it={scope:t.scope,id:t.id,code,arg:a.arg,neutral:a.arg===CMD[code].neutral};
+  const err=enqueue(it);
+  if(err)return say(err,true);
+  const k=limKey(it.scope,it.id,code);
+  if(it.neutral)limits.delete(k);else limits.set(k,{scope:it.scope,id:it.id,code,arg:it.arg});
+  say(I18N.t("msgQueued",{what:describe(it)}),false);
+  renderLimits();pump();
+}
+function dropLimit(k){
+  const L=limits.get(k);if(!L)return;
+  const nv=CMD[L.code].neutral;
+  if(nv==null){limits.delete(k);say(I18N.t("msgDroppedPit",{what:describe(L)}),false);renderLimits();return;}
+  const it={scope:L.scope,id:L.id,code:L.code,arg:nv,neutral:true};
+  const err=enqueue(it);
+  if(err)return say(err,true);
+  limits.delete(k);
+  say(I18N.t("msgDropped",{what:describe(L),v:nv}),false);
+  renderLimits();pump();
+}
+function renderLimits(){
+  const tb=$("limRows");tb.innerHTML="";
+  const arr=[...limits.entries()].sort((a,b)=>(a[1].scope===b[1].scope?(a[1].id-b[1].id)||(a[1].code-b[1].code):a[1].scope==="g"?-1:1));
+  $("limEmpty").hidden=arr.length>0;
+  for(const [k,L] of arr){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${L.scope==="g"?esc(I18N.t("limAll")):esc(I18N.t("limCar",{id:L.id}))}</td>`+
+      `<td>${esc(I18N.t("cmd"+L.code))}</td><td class="num">${L.arg}</td>`+
+      `<td><button class="sec" data-k="${esc(k)}">${esc(I18N.t("btnDrop"))}</button></td>`;
+    tr.querySelector("button").disabled=(phase!=="synced");
+    tr.querySelector("button").onclick=()=>dropLimit(k);
+    tb.appendChild(tr);
+  }
+}
+function renderCmdUI(){
+  const code=+$("ccCmd").value,c=CMD[code],synced=(phase==="synced");
+  if(c.globalOnly)$("ccTo").value="all";
+  $("ccTo").disabled=!!c.globalOnly;
+  $("ccId").disabled=($("ccTo").value==="all");
+  $("ccArg").max=String(c.max);
+  $("ccSend").disabled=!synced;
+  $("ccHint").innerHTML=I18N.t("hint"+code);
+  /* anteprima dei byte e dell'effetto, per i comandi che vanno decodificati */
+  const t=readTarget(),a=readArg(code);let s="";
+  if(!t.err&&!a.err){
+    s=t.scope==="g"?I18N.t("prevG",{c:h2(code),a:h2(a.arg)}):I18N.t("prevI",{id:t.id,c:h2(0x80|code),a:h2(a.arg)});
+    if(code===3)s+=I18N.t("prevMin",{v:(a.arg&0x3F)*4,lc:I18N.t(a.arg>63?"wordYes":"wordNo")});
+    if(code===4)s+=I18N.t("prevPwr",{d:["−8","−4","0","+4"][a.arg]});
+    if(code===7)s+=I18N.t("prevMinLap",{s:(a.arg/10).toFixed(1)});
+  }
+  $("ccPrev").textContent=s;
+  renderLimits();
+}
+
+/* ---------- RX: si distingue per lunghezza e primo byte ----------
+ * 13 o 26 byte = dati di 1 o 2 auto (primo byte con bit 7 a 1)
+ *  5 byte      = versione «MAIN SUB 00 00 00»
+ *  2 byte      = versione da un dongle non attivato
+ *  9 byte      = risposta testuale (ACTIVENOT, …)
+ * Ogni lettura è trattata come un messaggio a sé; se due arrivano attaccati si
+ * separano col primo byte, e quello che non si riconosce si scarta, senza
+ * trascinarlo nella lettura dopo. */
+function onMessage(u8){
+  let a=[...u8];
+  while(a.length){
+    if(a[0]&0x80){
+      if(a.length<13){log(I18N.t("logUnknown",{n:a.length,hex:hx(a)}));break;}
+      onCar(a.slice(0,13));a=a.slice(13);continue;
+    }
+    if(a[0]===0x41&&a.length>=9){                         // 'A': ACTIVENOT, ACTIVDONE, ACT+6…
+      const tok=a.slice(0,9),s=String.fromCharCode(...tok.slice(0,3));
+      const txt=s==="ACT"&&tok.slice(3).some(x=>x<32||x>126)?"ACT "+hx(tok.slice(3)):String.fromCharCode(...tok);
+      if(txt==="ACTIVENOT")onNotActivated(I18N.t("logNotAct"));else log(I18N.t("logToken",{s:txt}));
+      a=a.slice(9);continue;
+    }
+    if(a[0]===0x42&&a.length>=6&&String.fromCharCode(...a.slice(0,6))==="BOOTOK"){log(I18N.t("logToken",{s:"BOOTOK"}));a=a.slice(6);continue;}
+    if(a[0]>=1&&a[0]<=15&&a.length>=5&&a[2]===0&&a[3]===0&&a[4]===0){onVersion(a[0],a[1]);a=a.slice(5);continue;}
+    if(a[0]>=1&&a[0]<=15&&a.length===2){onNotActivated(I18N.t("logShortVer",{v:a[0]+"."+pad2(a[1])}));a=[];continue;}
+    log(I18N.t("logUnknown",{n:a.length,hex:hx(a)}));break;
+  }
+}
+function onVersion(main,sub){
+  dongleVer=main+"."+pad2(sub);
+  log("<- "+I18N.t("logVer",{v:dongleVer}));
+  if(phase!=="version"&&phase!=="nover")return;
+  if(verTimer){clearTimeout(verTimer);verTimer=null;}
+  setPhase("synced");
+  sendSync();
+}
+function onNotActivated(msg){
+  log("<- "+msg);
+  if(verTimer){clearTimeout(verTimer);verTimer=null;}
+  if(phase!=="notact")setPhase("notact");
+}
+
+/* Dati di un'auto, 13 byte:
+ *   [0] 80h + bit 0 telecomando riavviato, bit 1 collegamento con l'auto perso O
+ *       ritrovato (un evento, non uno stato), bit 4 auto in pit-lane
+ *   [1] ID 1..24        [2]/[3] ultimo tempo sul giro, conteggi, big-endian
+ *   [4] sempre 0: non è una velocità, e non si mostra
+ *   [5]/[6] giri, little-endian
+ *   [7] bit 7 auto collegata, bit 0..6 media del grilletto (o del PWM) ÷ 2
+ *   [8] versione: bit 7 a 0 telecomando, a 1 auto (80h = non ancora nota);
+ *       negli altri bit (main−4)·32 + sub
+ *   [9] bit 2 batteria scarica, bit 3 track call, bit 5/6 frecce su/giù,
+ *       bit 7 pulsante tondo     [10..12] timer gara del dongle, centesimi */
+function onCar(f){
   const id=f[1];
-  const lapCs=f[2]*256+f[3];
-  const laps=f[6]*256+f[5];
-  const pit=(f[0]>>4)&1, carReset=f[0]&1, carDrop=(f[0]>>1)&1;
-  const speed=f[4];
-  const power=f[7]&0x7f, onTrack=(f[7]>>7)&1;
-  const ver=f[8]&0x7f, isCar=(f[8]>>7)&1;
-  const batt=(f[9]>>2)&1, trackCall=(f[9]>>3)&1, up=(f[9]>>5)&1, dn=(f[9]>>6)&1, brk=(f[9]>>7)&1;
-  const raceT=f[10]*65536+f[11]*256+f[12];
-
+  if(id<ID_MIN||id>ID_MAX){log(I18N.t("logBadId",{id}));return;}
+  const now=Date.now();
+  const cnt=f[2]*256+f[3];
+  const raw=f[5]|(f[6]<<8);
   let c=cars[id];
-  if(!c){c={id,laps:undefined,lastLapCs:0,bestCs:undefined,ctrlVer:null,carVer:null};cars[id]=c;}
-  // giro = quando il campo giri di quell'ID AUMENTA → registro il tempo [2][3]
-  if(c.laps!==undefined && laps>c.laps){
-    lapLog.push({id,lapNum:laps,timeCs:lapCs,at:Date.now()});
-    if(lapLog.length>300)lapLog=lapLog.slice(-300);
-    if(lapCs>0 && (c.bestCs===undefined||lapCs<c.bestCs))c.bestCs=lapCs;
-    renderLapLog();
+  if(!c){c={id,raw:undefined,discard:0,lastCnt:0,bestCnt:undefined,ctrlVer:null,carVer:null,resumePending:false};cars[id]=c;}
+  const resumeHit=c.resumePending&&(now-resumeAt<=RESUME_MS);c.resumePending=false;
+  /* Il numero di giri che manda il dongle non torna mai indietro, salvo quando
+     lui stesso azzera (Avvia dopo Stop): allora si riparte da lì. */
+  if(c.raw===undefined||raw<c.raw){c.raw=raw;c.discard=0;}
+  else if(raw>c.raw){
+    const d=raw-c.raw;c.raw=raw;
+    let why=null;
+    if(HALTED.has(raceSt)&&now-blockedSince>GRACE_MS)why=raceSt===ST.STOP?"Stop":"Pause";
+    else if(resumeHit)why="Resume";
+    if(why){c.discard+=d;pushLap({id,at:now,n:null,cnt,why});}
+    else{
+      c.lastCnt=cnt;
+      if(cnt>0&&(c.bestCnt===undefined||cnt<c.bestCnt))c.bestCnt=cnt;
+      pushLap({id,at:now,n:c.raw-c.discard,cnt,why:null});
+    }
   }
-  c.laps=laps;
-  if(lapCs>0)c.lastLapCs=lapCs;
-  c.power=power;c.onTrack=onTrack;c.pit=pit;c.batt=batt;c.trackCall=trackCall;
-  c.up=up;c.dn=dn;c.brk=brk;c.raceT=raceT;c.carReset=carReset;c.carDrop=carDrop;c.speed=speed;
-  if(isCar)c.carVer=ver;else c.ctrlVer=ver;
-  c.at=Date.now();
+  c.pit=(f[0]>>4)&1;c.reset=f[0]&1;c.link=(f[0]>>1)&1;
+  c.connected=(f[7]>>7)&1;c.power=f[7]&0x7F;
+  if(f[8]&0x80)c.carVer=f[8];else c.ctrlVer=f[8];
+  c.batt=(f[9]>>2)&1;c.call=(f[9]>>3)&1;c.up=(f[9]>>5)&1;c.dn=(f[9]>>6)&1;c.round=(f[9]>>7)&1;
+  c.raceT=(f[10]<<16)|(f[11]<<8)|f[12];
+  c.at=now;
+  boardDirty=true;
+}
+function pushLap(e){lapLog.push(e);if(lapLog.length>300)lapLog=lapLog.slice(-300);renderLapLog();}
+/* Avvia dopo Stop: il dongle ricomincia da zero, la classifica anche. Il log
+   giri resta: è la storia di quello che è arrivato. */
+function newRace(){
+  raceCs=0;
+  for(const k in cars){const c=cars[k];c.raw=undefined;c.discard=0;c.lastCnt=0;c.bestCnt=undefined;c.resumePending=false;}
   boardDirty=true;
 }
 
 /* ---------- render classifica / log ---------- */
-function verCell(c){let s="";
-  if(c.ctrlVer!=null)s+="🎮0x"+c.ctrlVer.toString(16).padStart(2,"0");
-  if(c.carVer!=null)s+=(s?" ":"")+"🚗0x"+c.carVer.toString(16).padStart(2,"0");
-  return s||"–";}
-/* ↑↓ frecce, ✋ freno a mano (tasto tondo), 🏳️ track-call, 🔋 batteria scarica, 🅧 auto persa */
-function btnCell(c){return (c.up?"↑":"")+(c.dn?"↓":"")+(c.brk?"✋":"")+(c.trackCall?" 🏳️":"")+(c.batt?" 🔋":"")+(c.carDrop?" 🅧":"");}
+function verTxt(v){
+  if(v==null)return null;
+  const x=v&0x7F;
+  if(x===0)return I18N.t("verUnknown");
+  return (4+((x>>5)&3))+"."+pad2(x&0x1F);
+}
+function verCell(c){
+  const p=[];
+  const cv=verTxt(c.ctrlVer),av=verTxt(c.carVer);
+  if(cv)p.push(`<span title="0x${h2(c.ctrlVer)}">🎮 ${esc(cv)}</span>`);
+  if(av)p.push(`<span title="0x${h2(c.carVer)}">🚗 ${esc(av)}</span>`);
+  return p.join(" ")||"–";
+}
+function flag(on,sym,key){return on?`<span title="${esc(I18N.t(key))}">${sym}</span>`:"";}
+function btnCell(c){
+  return flag(c.up,"↑","fUp")+flag(c.dn,"↓","fDn")+flag(c.round,"●","fRound")+
+    flag(c.call," 🏳️","fCall")+flag(c.batt," 🔋","fBatt")+flag(c.reset," ⟲","fReset")+flag(c.link," ↯","fLink");
+}
+function trigCell(c){
+  if(!c.connected)return `<span class="val">${esc(I18N.t("trigNoCar"))}</span>`;
+  const pw=Math.round(c.power/127*100);
+  return `<span class="tbar"><span style="width:${pw}%"></span></span>${c.power}`;
+}
+const counted=c=>c.raw===undefined?0:c.raw-c.discard;
 function renderBoard(){
   const ids=Object.keys(cars);
-  $("boardEmpty").style.display=ids.length?"none":"block";
+  $("boardEmpty").hidden=ids.length>0;
   const arr=ids.map(k=>cars[k]).sort((a,b)=>{
-    const la=a.laps||0,lb=b.laps||0;if(lb!==la)return lb-la;
-    const ba=a.bestCs===undefined?Infinity:a.bestCs, bb=b.bestCs===undefined?Infinity:b.bestCs;
-    return ba-bb || a.id-b.id;});
+    const la=counted(a),lb=counted(b);if(lb!==la)return lb-la;
+    const ba=a.bestCnt===undefined?Infinity:a.bestCnt, bb=b.bestCnt===undefined?Infinity:b.bestCnt;
+    return ba-bb||a.id-b.id;});
   const tb=$("boardRows");tb.innerHTML="";
   arr.forEach((c,idx)=>{
     const tr=document.createElement("tr");
-    const pw=Math.round(c.power/127*100);
-    const d=new Date(c.at);const ut=pad2(d.getHours())+":"+pad2(d.getMinutes())+":"+pad2(d.getSeconds());
+    tr.dataset.id=c.id;
+    const disc=c.discard?` <span class="val" title="${esc(I18N.t("fDisc"))}">(${c.discard})</span>`:"";
     tr.innerHTML=
       `<td class="num">${idx+1}</td>`+
       `<td>${c.id}</td>`+
-      `<td class="num">${c.laps||0}</td>`+
-      `<td class="num">${fmtSec(c.lastLapCs)}</td>`+
-      `<td class="num">${c.bestCs===undefined?"–":csToSec(c.bestCs).toFixed(2)}</td>`+
-      `<td><span class="tbar"><span style="width:${pw}%"></span></span>${c.power}`+
-        (c.speed?` <span class="val">(spd ${c.speed})</span>`:"")+`</td>`+
-      `<td>${c.pit?"🅿️":""}</td>`+
+      `<td class="num laps">${counted(c)}${disc}</td>`+
+      `<td class="num">${fmtLap(c.lastCnt)}</td>`+
+      `<td class="num best">${c.bestCnt===undefined?"–":fmtLap(c.bestCnt)}</td>`+
+      `<td>${trigCell(c)}</td>`+
+      `<td>${flag(c.pit,"🅿️","fPit")}</td>`+
       `<td>${btnCell(c)}</td>`+
       `<td class="kv">${verCell(c)}</td>`+
-      `<td class="val">${ut}</td>`;
+      `<td class="val">${clock(c.at)}</td>`;
     tb.appendChild(tr);
   });
 }
 function renderLapLog(){
   const tb=$("lapRows");tb.innerHTML="";
-  $("lapEmpty").style.display=lapLog.length?"none":"block";
+  $("lapEmpty").hidden=lapLog.length>0;
   lapLog.slice(-60).reverse().forEach(e=>{
-    const d=new Date(e.at);const t=pad2(d.getHours())+":"+pad2(d.getMinutes())+":"+pad2(d.getSeconds());
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td class="val">${t}</td><td>${e.id}</td><td class="num">${e.lapNum}</td><td class="num">${fmtSec(e.timeCs)}</td>`;
+    if(e.why)tr.className="lapx";
+    tr.innerHTML=`<td class="val">${clock(e.at)}</td><td>${e.id}</td>`+
+      `<td class="num">${e.n==null?"–":e.n}</td><td class="num">${fmtLap(e.cnt)}</td>`+
+      `<td class="num">${e.cnt}</td><td>${e.why?esc(I18N.t("lapDisc"+e.why)):""}</td>`;
     tb.appendChild(tr);
   });
 }
@@ -449,13 +947,29 @@ function resetData(){for(const k in cars)delete cars[k];lapLog=[];raceCs=0;$("ti
 /* ---------- wiring ---------- */
 $("btnConn").onclick=connect;$("btnDisc").onclick=disconnect;
 document.querySelectorAll(".rs").forEach(b=>b.onclick=()=>setRaceState(b.dataset.st));
-document.querySelectorAll(".cc").forEach(b=>b.onclick=()=>queueCarCmd(+b.dataset.cmd));
-$("rsMax").oninput=e=>{$("rsMaxV").textContent=e.target.value;};
+$("rsMax").oninput=e=>{$("rsMaxV").textContent=e.target.value;dirty=true;};
+$("pitSel").onchange=()=>{dirty=true;};
+$("b7").onchange=()=>{dirty=true;};
+$("ccTo").onchange=renderCmdUI;
+$("ccId").oninput=renderCmdUI;
+$("ccArg").oninput=renderCmdUI;
+$("ccCmd").onchange=()=>{$("ccArg").value=String(CMD[+$("ccCmd").value].sug);$("ccMsg").textContent="";renderCmdUI();};
+$("ccSend").onclick=sendCmd;
 $("btnReset").onclick=resetData;
+$("lapK").value=String(lapK);
+$("lapK").onchange=()=>{const v=parseFloat($("lapK").value);
+  if(v>=50&&v<=200){lapK=v;try{localStorage.setItem("chron02.lapK",String(v));}catch(e){}}
+  else $("lapK").value=String(lapK);
+  renderBoard();renderLapLog();};
+/* Pagina chiusa durante una gara: tentativo di Stop, senza garanzie. */
+window.addEventListener("pagehide",()=>{if(phase==="synced"&&RUNNING.has(raceSt)){raceSt=ST.STOP;holdUntil=0;write(buildFrame(null,null));}});
+try{if(navigator.serial&&navigator.serial.addEventListener)navigator.serial.addEventListener("disconnect",e=>{
+  if(port&&e.target===port&&connState){userClosing=true;log(I18N.t("logLost"));closePort();}});}catch(e){}
 
 /* ri-render del dinamico al cambio lingua */
-document.addEventListener("i18n:changed",()=>{renderStatus();renderRaceState();renderBoard();renderLapLog();});
-function boot(){renderStatus();renderRaceState();renderBoard();renderLapLog();$("timerVal").textContent=fmtCs(0);}
+function renderAll(){renderStatus();setPhase(phase);renderBoard();renderLapLog();}
+document.addEventListener("i18n:changed",renderAll);
+function boot(){renderAll();$("timerVal").textContent=fmtCs(0);}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 
 /* compat + sw + versione */

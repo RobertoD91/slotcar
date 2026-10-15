@@ -52,13 +52,18 @@
   <!-- ===== Configurazione (Nome + Brake) ===== -->
   <div class="card">
     <p class="cardtitle" data-i18n="cardConfig"></p>
-    <div class="row"><label data-i18n="lblName"></label><input id="cName" size="16" maxlength="14" data-i18n-attr="placeholder:phName" placeholder=""></div>
+    <div class="hint" data-i18n-html="rebootHint"></div>
+    <!-- Niente maxlength sul nome: il limite lo fa il filtro (prima ripulisce, poi
+         taglia), altrimenti il browser tronca prima che il JS tolga i caratteri
+         non ASCII e il conto dei 14 non torna. -->
+    <div class="row"><label data-i18n="lblName"></label><input id="cName" size="16" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:phName" placeholder=""></div>
+    <div class="hint" data-i18n-html="nameHint"></div>
+    <!-- Solo i modi 0 e 1: il 2 (Sweep) non si rilegge e si perde al riavvio. -->
     <div class="row"><label data-i18n="lblBrake"></label>
       <select id="cBrake">
         <option value="" data-i18n="brakeNone"></option>
         <option value="0" data-i18n="brakeDefault"></option>
         <option value="1" data-i18n="brakeLinear"></option>
-        <option value="2" data-i18n="brakeSweep"></option>
       </select></div>
     <div class="row"><button class="cfg" data-fn="write" disabled data-i18n="btnWrite"></button>
       <span class="hint" data-i18n-html="writeHint"></span></div>
@@ -71,7 +76,7 @@
       <button class="sec cfg" data-fn="id" disabled data-i18n="btnSetId"></button></div>
   </div>
 
-  <!-- ===== Clonazione MAC ===== -->
+  <!-- ===== Identità radio O2 (registro 0x90) ===== -->
   <div class="card">
     <p class="cardtitle" data-i18n="cardClone"></p>
     <div class="row"><label data-i18n="lblMac"></label><input id="cMac" size="6" inputmode="latin" autocomplete="off" spellcheck="false" placeholder="1A2B" aria-describedby="macHint">
@@ -83,11 +88,13 @@
   <!-- ===== Avanzato ===== -->
   <div class="card">
     <details><summary style="cursor:pointer;color:var(--mut)" data-i18n="advSummary"></summary>
+      <div class="hint" style="margin-top:8px" data-i18n-html="rawHint"></div>
       <div class="row" style="margin-top:8px"><label data-i18n="lblRawRead"></label><input id="rReg" size="6" placeholder="0x8f">
         <button class="sec cfg" data-fn="rawread" disabled data-i18n="btnRawRead"></button></div>
       <div class="row"><label data-i18n="lblRawWrite"></label><input id="wReg" size="6" placeholder="0x8c"><input id="wVal" size="14" data-i18n-attr="placeholder:phRawWrite" placeholder="">
         <button class="sec cfg" data-fn="rawwrite" disabled data-i18n="btnRawWrite"></button></div>
-      <table id="regtab" style="margin-top:8px"><thead><tr><th>reg</th><th data-i18n="thName"></th><th data-i18n="thValue"></th><th></th></tr></thead><tbody></tbody></table>
+      <div id="rawMsg" class="warnbox" aria-live="polite"></div>
+      <div class="tbwrap"><table id="regtab" style="margin-top:8px"><thead><tr><th>reg</th><th data-i18n="thName"></th><th data-i18n="thValue"></th><th></th></tr></thead><tbody></tbody></table></div>
     </details>
   </div>
 
@@ -116,44 +123,111 @@ window.I18N_STRINGS = {
   fldVer:{it:"Versione",en:"Version",es:"Versión"},
   fldDate:{it:"Data attivazione",en:"Activation date",es:"Fecha de activación"},
   cardConfig:{it:"Configurazione",en:"Configuration",es:"Configuración"},
+  rebootHint:{
+    it:"Ogni scrittura viene salvata, ma il telecomando la <b>applica dal prossimo riavvio</b>. Il «DO» arriva <b>prima</b> che il telecomando salvi in memoria: dopo una scrittura aspetta un paio di secondi prima di spegnerlo.",
+    en:"Every write is saved, but the handset <b>applies it from the next restart</b>. The \"DO\" arrives <b>before</b> the handset saves to memory: after a write, wait a couple of seconds before switching it off.",
+    es:"Cada escritura se guarda, pero el mando la <b>aplica desde el próximo reinicio</b>. El «DO» llega <b>antes</b> de que el mando guarde en memoria: después de una escritura espera un par de segundos antes de apagarlo."
+  },
   lblName:{it:"Nome dispositivo",en:"Device name",es:"Nombre del dispositivo"},
   phName:{it:"es. Il mio controller",en:"e.g. My controller",es:"p. ej. Mi mando"},
+  nameHint:{
+    it:"Registro <code>0x83</code>: <b>14 caratteri ASCII</b> esatti, il resto si completa con spazi; le lettere accentate perdono l'accento e gli altri simboli non ASCII si scartano. ⚠️ Il telecomando trasforma in <b>«.»</b> gli spazi in 1ª, 3ª, 5ª… posizione, compresi quelli di riempimento: «Roberto Scp3 A» diventa «Roberto Scp3.A» e un nome corto finisce con «. . .». In rilettura il nome può quindi essere diverso da quello scritto; per evitarlo usa tutti e 14 i caratteri, senza spazi in quelle posizioni.",
+    en:"Register <code>0x83</code>: exactly <b>14 ASCII characters</b>, padded with spaces; accented letters lose the accent and other non-ASCII symbols are dropped. ⚠️ The handset turns the spaces in the 1st, 3rd, 5th… position into <b>\".\"</b>, padding included: \"Roberto Scp3 A\" becomes \"Roberto Scp3.A\" and a short name ends with \". . .\". When read back the name may therefore differ from what you wrote; to avoid it, use all 14 characters with no spaces in those positions.",
+    es:"Registro <code>0x83</code>: exactamente <b>14 caracteres ASCII</b>, completados con espacios; las letras acentuadas pierden el acento y los demás símbolos no ASCII se descartan. ⚠️ El mando convierte en <b>«.»</b> los espacios en 1.ª, 3.ª, 5.ª… posición, incluidos los de relleno: «Roberto Scp3 A» se convierte en «Roberto Scp3.A» y un nombre corto termina en «. . .». Al releerlo el nombre puede ser distinto del escrito; para evitarlo usa los 14 caracteres, sin espacios en esas posiciones."
+  },
   lblBrake:{it:"Impostazione freno",en:"Brake setting",es:"Ajuste de freno"},
   brakeNone:{it:"— (leggi configurazione)",en:"— (read configuration)",es:"— (leer configuración)"},
   brakeDefault:{it:"Default",en:"Default",es:"Predeterminado"},
   brakeLinear:{it:"Manopola (trimmer)",en:"Knob (trimmer)",es:"Mando (trimmer)"},
-  brakeSweep:{it:"Sweep",en:"Sweep",es:"Sweep"},
   btnWrite:{it:"Scrivi (Nome + Freno)",en:"Write (Name + Brake)",es:"Escribir (Nombre + Freno)"},
   writeHint:{
-    it:"come il tasto <b>Scrivi</b> dell'app: scrive Nome (0x83) e Impostazione freno (0x8c)",
-    en:"like the app's <b>Write</b> button: writes Name (0x83) and Brake setting (0x8c)",
-    es:"como el botón <b>Escribir</b> de la app: escribe Nombre (0x83) y Ajuste de freno (0x8c)"
+    it:"come il tasto <b>Scrivi</b> dell'app: scrive Nome (0x83, se non è vuoto) e Impostazione freno (0x8c). Il modo freno 2 (Sweep) non è offerto: non si rilegge e si perde al riavvio",
+    en:"like the app's <b>Write</b> button: writes Name (0x83, if not empty) and Brake setting (0x8c). Brake mode 2 (Sweep) is not offered: it does not read back and is lost on restart",
+    es:"como el botón <b>Escribir</b> de la app: escribe Nombre (0x83, si no está vacío) y Ajuste de freno (0x8c). El modo de freno 2 (Sweep) no se ofrece: no se relee y se pierde al reiniciar"
   },
   cardId:{it:"ID controller",en:"Controller ID",es:"ID del mando"},
   btnSetId:{it:"Imposta ID",en:"Set ID",es:"Establecer ID"},
-  cardClone:{it:"Clonazione (O2 MAC)",en:"Cloning (O2 MAC)",es:"Clonación (O2 MAC)"},
+  cardClone:{it:"Identità radio O2 (registro 0x90)",en:"O2 radio identity (register 0x90)",es:"Identidad de radio O2 (registro 0x90)"},
   lblMac:{it:"O2 MAC (2 byte)",en:"O2 MAC (2 bytes)",es:"O2 MAC (2 bytes)"},
-  btnClone:{it:"Scrivi MAC (clonazione)",en:"Write MAC (cloning)",es:"Escribir MAC (clonación)"},
+  btnClone:{it:"Scrivi MAC O2",en:"Write O2 MAC",es:"Escribir MAC O2"},
   btnRstMac:{it:"Ripristina di fabbrica",en:"Restore factory value",es:"Restaurar de fábrica"},
   confirmRstMac:{
-    it:"Ripristinare il MAC O2 di fabbrica (registro 0x9f)? Il controller torna alla propria identità di chip.",
-    en:"Restore the factory O2 MAC (register 0x9f)? The handset goes back to its own chip identity.",
-    es:"¿Restaurar el MAC O2 de fábrica (registro 0x9f)? El mando vuelve a su propia identidad de chip."
+    it:"Ripristinare l'identità radio O2 di fabbrica (registro 0x9F)? Il telecomando torna ai 2 byte ricavati dal MAC del proprio chip. Ha effetto dal prossimo riavvio.",
+    en:"Restore the factory O2 radio identity (register 0x9F)? The handset goes back to the 2 bytes derived from its own chip MAC. Takes effect from the next restart.",
+    es:"¿Restaurar la identidad de radio O2 de fábrica (registro 0x9F)? El mando vuelve a los 2 bytes derivados del MAC de su propio chip. Tiene efecto desde el próximo reinicio."
   },
   cloneWarn:{
-    it:"⚠️ Il MAC è l'<b>identità</b> con cui il device si presenta: riscriverlo lo fa passare per un altro. C'è una conferma. Scrive <b>solo</b> <code>0x90</code> (<code>DEV_O2_MAC</code>): sono i 2 byte O2 da cui il firmware costruisce l'indirizzo radio. <b>Non</b> va scritto <code>0x9f</code> dopo — quello è <code>RST_O2_MAC</code> e <b>annulla</b> la scrittura rimettendo il MAC del chip (è il pulsante <i>Ripristina di fabbrica</i>). (<code>0x80</code>=DFU non è esposto qui apposta.)",
-    en:"⚠️ The MAC is the <b>identity</b> the device presents: rewriting it makes it pass for another one. There is a confirmation. Writes <b>only</b> <code>0x90</code> (<code>DEV_O2_MAC</code>): the 2 O2 bytes the firmware builds the radio address from. Do <b>not</b> write <code>0x9f</code> afterwards — that is <code>RST_O2_MAC</code> and <b>undoes</b> the write by restoring the chip MAC (it is the <i>Restore factory value</i> button). (<code>0x80</code>=DFU is deliberately not exposed here.)",
-    es:"⚠️ La MAC es la <b>identidad</b> con la que se presenta el dispositivo: reescribirla hace que pase por otro. Hay una confirmación. Escribe <b>solo</b> <code>0x90</code> (<code>DEV_O2_MAC</code>): los 2 bytes O2 con los que el firmware construye la dirección de radio. <b>No</b> se debe escribir <code>0x9f</code> después — ese es <code>RST_O2_MAC</code> y <b>anula</b> la escritura restaurando el MAC del chip (es el botón <i>Restaurar de fábrica</i>). (<code>0x80</code>=DFU no se expone aquí a propósito.)"
+    it:"⚠️ Il registro <code>0x90</code> contiene i <b>2 byte dell'identità radio O2</b> del telecomando (prima il byte alto, poi il basso): da questi si ricava l'indirizzo con cui parla alle auto, e le auto abbinate rispondono a quei 2 byte. <b>Due telecomandi con gli stessi 2 byte comandano le stesse auto.</b> C'è una conferma, e si scrive <b>solo</b> <code>0x90</code>. <b>Ripristina di fabbrica</b> scrive <code>0x9F</code>, che rimette i 2 byte ricavati dal MAC del chip: per questo non va mai mandato subito dopo una scrittura di <code>0x90</code>, la annullerebbe. (<code>0x80</code>, l'aggiornamento firmware, non è esposto qui apposta.)",
+    en:"⚠️ Register <code>0x90</code> holds the <b>2 bytes of the handset's O2 radio identity</b> (high byte first, then low): the address it uses to talk to the cars is derived from them, and the bound cars answer to those 2 bytes. <b>Two handsets with the same 2 bytes control the same cars.</b> There is a confirmation, and <b>only</b> <code>0x90</code> is written. <b>Restore factory value</b> writes <code>0x9F</code>, which puts back the 2 bytes derived from the chip MAC: that is why it must never be sent right after a write of <code>0x90</code>, it would undo it. (<code>0x80</code>, the firmware update, is deliberately not exposed here.)",
+    es:"⚠️ El registro <code>0x90</code> contiene los <b>2 bytes de la identidad de radio O2</b> del mando (primero el byte alto, luego el bajo): de ellos se obtiene la dirección con la que habla a los coches, y los coches vinculados responden a esos 2 bytes. <b>Dos mandos con los mismos 2 bytes controlan los mismos coches.</b> Hay una confirmación, y se escribe <b>solo</b> <code>0x90</code>. <b>Restaurar de fábrica</b> escribe <code>0x9F</code>, que devuelve los 2 bytes derivados del MAC del chip: por eso nunca debe enviarse justo después de una escritura de <code>0x90</code>, la anularía. (<code>0x80</code>, la actualización de firmware, no se expone aquí a propósito.)"
   },
   advSummary:{it:"Avanzato — registri grezzi",en:"Advanced — raw registers",es:"Avanzado — registros en bruto"},
+  rawHint:{
+    it:"La console accetta solo i registri della tabella, con il numero di byte giusto per ciascuno. Il motivo: a un registro che non gestisce il telecomando risponde <b>«DO»</b> lo stesso, senza aver scritto niente — e dopo una lettura o scrittura del freno (<code>0x8B</code>/<code>0x8C</code>) quella scrittura finisce nel valore del freno. Valori in esadecimale (<code>32</code>, <code>1a 2b</code>); per <code>0x83</code> si scrive il nome in chiaro. Bloccati apposta anche <code>0x80</code> (aggiornamento firmware), i registri di attivazione <code>0x81</code>/<code>0x82</code> e il modo freno 2.",
+    en:"The console only accepts the registers in the table, with the right number of bytes for each one. The reason: the handset answers <b>\"DO\"</b> even to a register it does not handle, without writing anything — and after a brake read or write (<code>0x8B</code>/<code>0x8C</code>) that write ends up in the brake value. Values in hex (<code>32</code>, <code>1a 2b</code>); for <code>0x83</code> type the name as plain text. Also blocked on purpose: <code>0x80</code> (firmware update), the activation registers <code>0x81</code>/<code>0x82</code> and brake mode 2.",
+    es:"La consola solo acepta los registros de la tabla, con el número de bytes correcto para cada uno. El motivo: a un registro que no gestiona el mando responde <b>«DO»</b> igualmente, sin haber escrito nada — y después de una lectura o escritura del freno (<code>0x8B</code>/<code>0x8C</code>) esa escritura acaba en el valor del freno. Valores en hexadecimal (<code>32</code>, <code>1a 2b</code>); para <code>0x83</code> se escribe el nombre en claro. Bloqueados a propósito también <code>0x80</code> (actualización de firmware), los registros de activación <code>0x81</code>/<code>0x82</code> y el modo de freno 2."
+  },
   lblRawRead:{it:"Leggi reg",en:"Read reg",es:"Leer reg"},
   btnRawRead:{it:"Leggi",en:"Read",es:"Leer"},
   lblRawWrite:{it:"Scrivi reg",en:"Write reg",es:"Escribir reg"},
-  phRawWrite:{it:"0x01 / 1a2b / testo",en:"0x01 / 1a2b / text",es:"0x01 / 1a2b / texto"},
+  phRawWrite:{it:"01 / 1a2b / nome per 0x83",en:"01 / 1a2b / name for 0x83",es:"01 / 1a2b / nombre para 0x83"},
   btnRawWrite:{it:"Scrivi",en:"Write",es:"Escribir"},
   thName:{it:"nome",en:"name",es:"nombre"},
   thValue:{it:"valore",en:"value",es:"valor"},
   regReadBtn:{it:"leggi",en:"read",es:"leer"},
+  // --- nomi dei registri (tabella) ---
+  rgVer:{it:"versione firmware (si legge con un frame da 5 byte)",en:"firmware version (read with a 5-byte frame)",es:"versión de firmware (se lee con una trama de 5 bytes)"},
+  rgChipMac:{it:"MAC del chip (sola lettura)",en:"chip MAC (read-only)",es:"MAC del chip (solo lectura)"},
+  rgActDate:{it:"data di attivazione (qui solo lettura)",en:"activation date (read-only here)",es:"fecha de activación (aquí solo lectura)"},
+  rgActLock:{it:"blocco di attivazione (qui solo lettura)",en:"activation lock (read-only here)",es:"bloqueo de activación (aquí solo lectura)"},
+  rgName:{it:"nome (14 caratteri ASCII; gli spazi in 1ª, 3ª… posizione diventano «.»)",en:"name (14 ASCII characters; spaces in the 1st, 3rd… position become \".\")",es:"nombre (14 caracteres ASCII; los espacios en 1.ª, 3.ª… posición se vuelven «.»)"},
+  rgSpdMode:{it:"modo velocità: senza effetto",en:"speed mode: no effect",es:"modo de velocidad: sin efecto"},
+  rgSpdMax:{it:"velocità massima: senza effetto",en:"max speed: no effect",es:"velocidad máxima: sin efecto"},
+  rgBrkVal:{it:"valore massimo del freno",en:"maximum brake value",es:"valor máximo del freno"},
+  rgBrkMode:{it:"modo freno: 0 default, 1 lineare (manopola)",en:"brake mode: 0 default, 1 linear (knob)",es:"modo de freno: 0 predeterminado, 1 lineal (mando)"},
+  rgCode:{it:"tipo di codifica: 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (torna a O2 all'avvio)",en:"coding type: 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (back to O2 at startup)",es:"tipo de codificación: 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (vuelve a O2 al arrancar)"},
+  rgId:{it:"ID (1–20)",en:"ID (1–20)",es:"ID (1–20)"},
+  rgIdent:{it:"identità radio O2 (alto, basso)",en:"O2 radio identity (high, low)",es:"identidad de radio O2 (alto, bajo)"},
+  rgSpdLim:{it:"limite velocità: non usato",en:"speed limit: not used",es:"límite de velocidad: no se usa"},
+  rgCurve:{it:"curva del grilletto [max, medio 2, medio 1, min, offset fine corsa]; valori non decrescenti forzano la ricalibrazione all'avvio",en:"trigger curve [max, mid 2, mid 1, min, end-of-travel offset]; non-decreasing values force a recalibration at startup",es:"curva del gatillo [máx, medio 2, medio 1, mín, offset fin de carrera]; valores no decrecientes fuerzan la recalibración al arrancar"},
+  rgRamp:{it:"soglia rampa: non usata",en:"ramp threshold: not used",es:"umbral de rampa: no se usa"},
+  rgRstId:{it:"ripristina identità di fabbrica (comando)",en:"restore factory identity (command)",es:"restaurar identidad de fábrica (comando)"},
+  // --- motivi dei blocchi della console ---
+  blkBadReg:{it:"numero di registro non valido (es. 8f).",en:"invalid register number (e.g. 8f).",es:"número de registro no válido (p. ej. 8f)."},
+  blkBadVal:{it:"valore non valido: scrivi i byte in esadecimale (es. 01 oppure 1a 2b).",en:"invalid value: write the bytes in hex (e.g. 01 or 1a 2b).",es:"valor no válido: escribe los bytes en hexadecimal (p. ej. 01 o 1a 2b)."},
+  blkUnknown:{
+    it:"registro fuori tabella, non lo mando: il telecomando risponderebbe «DO» senza scrivere niente, e dopo un accesso al freno (0x8B/0x8C) la scrittura finirebbe nel valore del freno.",
+    en:"register not in the table, not sent: the handset would answer \"DO\" without writing anything, and after a brake access (0x8B/0x8C) the write would end up in the brake value.",
+    es:"registro fuera de la tabla, no lo envío: el mando respondería «DO» sin escribir nada, y después de un acceso al freno (0x8B/0x8C) la escritura acabaría en el valor del freno."
+  },
+  blkUnknownR:{
+    it:"registro fuori tabella, non lo leggo: a un registro che non gestisce il telecomando non risponde, e non è provato che la lettura sia innocua.",
+    en:"register not in the table, not read: the handset does not answer for a register it does not handle, and reading it has not been proven harmless.",
+    es:"registro fuera de la tabla, no lo leo: a un registro que no gestiona el mando no responde, y no está probado que leerlo sea inocuo."
+  },
+  blkRO:{it:"registro di sola lettura.",en:"read-only register.",es:"registro de solo lectura."},
+  blkWO:{it:"è un comando, non un valore: si scrive soltanto.",en:"it is a command, not a value: it can only be written.",es:"es un comando, no un valor: solo se escribe."},
+  blkDfu:{
+    it:"0x80 riguarda l'aggiornamento firmware: questa app non lo manda (sul telecomando si entra in aggiornamento dal menu pulsanti).",
+    en:"0x80 is about the firmware update: this app does not send it (on the handset the update mode is entered from the button menu).",
+    es:"0x80 tiene que ver con la actualización de firmware: esta app no lo envía (en el mando se entra en actualización desde el menú de botones)."
+  },
+  blkAct:{
+    it:"registro dell'attivazione: qui si legge soltanto.",
+    en:"activation register: here it can only be read.",
+    es:"registro de activación: aquí solo se lee."
+  },
+  blkSweep:{
+    it:"il modo freno 2 (Sweep) non si rilegge e si perde al riavvio: usa 0 o 1.",
+    en:"brake mode 2 (Sweep) does not read back and is lost on restart: use 0 or 1.",
+    es:"el modo de freno 2 (Sweep) no se relee y se pierde al reiniciar: usa 0 o 1."
+  },
+  blkLen:{
+    it:"{reg} vuole {n} byte, ne hai dati {m}: con un frame di lunghezza diversa il dispositivo salva byte a caso.",
+    en:"{reg} wants {n} bytes, you gave {m}: with a frame of a different length the device saves random bytes.",
+    es:"{reg} quiere {n} bytes, has dado {m}: con una trama de otra longitud el dispositivo guarda bytes al azar."
+  },
+  blkRange:{it:"valore fuori intervallo ({min}–{max}).",en:"value out of range ({min}–{max}).",es:"valor fuera de rango ({min}–{max})."},
   regFw:{it:"FIRMWARE",en:"FIRMWARE",es:"FIRMWARE"},
   regDate:{it:"DATA ATTIV.",en:"ACTIV. DATE",es:"FECHA ACTIV."},
   regName:{it:"NOME",en:"NAME",es:"NOMBRE"},
@@ -176,48 +250,73 @@ window.I18N_STRINGS = {
   logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]"},
   logConnPrefix:{it:"connesso a",en:"connected to",es:"conectado a"},
   logErrorPrefix:{it:"errore:",en:"error:",es:"error:"},
+  logBlocked:{it:"non inviato",en:"not sent",es:"no enviado"},
+  logDo:{it:"(DO: frame accettato)",en:"(DO: frame accepted)",es:"(DO: trama aceptada)"},
+  logAb:{it:"(AB: frame rifiutato)",en:"(AB: frame rejected)",es:"(AB: trama rechazada)"},
   logBrakeUnset:{
     it:"[freno non impostato: scegli Default/Lineare o premi 'Leggi configurazione']",
     en:"[brake not set: choose Default/Linear or press 'Read configuration']",
     es:"[freno no establecido: elige Predeterminado/Lineal o pulsa 'Leer configuración']"
   },
-  alertMac:{it:"O2 MAC = 2 byte, es. 1a2b",en:"O2 MAC = 2 bytes, e.g. 1a2b",es:"O2 MAC = 2 bytes, p. ej. 1a2b"},
+  logBrakeOdd:{
+    it:"[modo freno letto = {v}: non è 0 né 1. Il modo 2 (Sweep) non si rilegge in modo affidabile e si perde al riavvio: scegli Default o Manopola e scrivi]",
+    en:"[brake mode read = {v}: it is neither 0 nor 1. Mode 2 (Sweep) does not read back reliably and is lost on restart: choose Default or Knob and write]",
+    es:"[modo de freno leído = {v}: no es 0 ni 1. El modo 2 (Sweep) no se relee de forma fiable y se pierde al reiniciar: elige Predeterminado o Mando y escribe]"
+  },
+  logNameSkip:{
+    it:"[nome vuoto: non lo scrivo]",
+    en:"[empty name: not written]",
+    es:"[nombre vacío: no lo escribo]"
+  },
+  alertMac:{
+    it:"Servono 2 byte, cioè 4 cifre esadecimali (es. 1A2B).",
+    en:"2 bytes are needed, i.e. 4 hex digits (e.g. 1A2B).",
+    es:"Hacen falta 2 bytes, es decir 4 cifras hexadecimales (p. ej. 1A2B)."
+  },
   confirmClone:{
-    it:"Riscrivo il MAC: da qui in poi il device si presenterà con questa identità. Faccio anche il commit. Sicuro?",
-    en:"I will rewrite the MAC: from now on the device will present this identity. I will commit it too. Are you sure?",
-    es:"Voy a reescribir la MAC: a partir de ahora el dispositivo se presentará con esta identidad. También la confirmo. ¿Seguro?"
+    it:"Scrivo {mac} nel registro 0x90 (identità radio O2 del telecomando). Dal prossimo riavvio il telecomando comanderà le auto abbinate a questa identità, e non più quelle abbinate alla precedente. Procedo?",
+    en:"Write {mac} to register 0x90 (the handset's O2 radio identity)? From the next restart the handset will control the cars bound to this identity, and no longer those bound to the previous one. Proceed?",
+    es:"Escribo {mac} en el registro 0x90 (identidad de radio O2 del mando). Desde el próximo reinicio el mando controlará los coches vinculados a esta identidad, y ya no los vinculados a la anterior. ¿Continúo?"
   },
   noResp:{it:"(nessuna risposta)",en:"(no response)",es:"(sin respuesta)"}
 };
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="remote-config",APP_VERSION="1.4.0";
+const APP="remote-config",APP_VERSION="1.5.0";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
-const PFX=0x0a;                                  // header di frame del CONTROLLER (il chip auto usa 0x09)
+const PFX=0x0a;                                  // byte del dispositivo in BLE: 0x0a = telecomando (l'auto usa 0x09)
 const TYPE_STR="SCP3 Handle", VER_STR="O2 / Analog";   // display fissi della schermata SCP3
-/* Registri del CONTROLLER con i nomi ufficiali del firmware (OPCODE_*).
- * ⚠️ Non sono gli stessi numeri dell'auto: qui 0x8e/0x8f/0x92..0x94 sono registri HN_*.
- * 0x80 = DFU: non esposto apposta. */
+/* I registri del TELECOMANDO. Solo questi si leggono e si scrivono, e ciascuno
+ * con la sua lunghezza.
+ * ⚠️ Non sono gli stessi numeri dell'auto: qui 0x8e/0x94 hanno un altro significato.
+ * ⚠️ Fuori da questa lista il telecomando risponde "DO" senza scrivere niente, e
+ *    dopo un accesso a 0x8b/0x8c una scrittura su un registro che non gestisce
+ *    finisce nel valore del freno: per questo la console non va oltre la tabella.
+ *   r  = byte restituiti in lettura      w  = byte da mandare in scrittura
+ *   noR / noW = chiave del motivo per cui quel verso è bloccato
+ *   min / max (+ rangeK) = intervallo ammesso per i registri a un byte
+ *   hide = non compare in tabella (serve solo a spiegare il blocco) */
 const REGS=[
-  [0x00,"SW_REL — versione sw"],
-  [0x01,"CHIP_MAC — MAC del chip (sola lettura)"],
-  [0x81,"ACT_DATE — data attivazione"],
-  [0x82,"ACT_LOCK — blocco attivazione"],
-  [0x83,"ACT_NAME — nome"],
-  [0x88,"HN_SPD_MODE — modo velocità"],
-  [0x89,"HN_SPD_MAX — velocità max"],
-  [0x8a,"HN_SPD_MIN — velocità min"],
-  [0x8b,"HN_BRK_VLE — valore freno"],
-  [0x8c,"HN_BRK_MODE — modo freno"],
-  [0x8e,"HN_CODE_TYPE — tipo codice"],
-  [0x8f,"HN_O2_ID — ID"],
-  [0x90,"DEV_O2_MAC — identità O2 (hi, lo)"],
-  [0x92,"HN_SPD_LIM — limite velocità"],
-  [0x93,"HN_CRV_PNT — punto di curva"],
-  [0x94,"HN_RMP_THR — rampa grilletto"],
-  [0x9f,"RST_O2_MAC — ripristina MAC di fabbrica"]
+  {reg:0x00,k:"rgVer",r:3,noW:"blkRO"},
+  {reg:0x01,k:"rgChipMac",r:6,noW:"blkRO"},
+  {reg:0x81,k:"rgActDate",r:5,noW:"blkAct"},
+  {reg:0x82,k:"rgActLock",r:4,noW:"blkAct"},
+  {reg:0x83,k:"rgName",r:14,w:14},
+  {reg:0x88,k:"rgSpdMode",r:1,w:1},
+  {reg:0x89,k:"rgSpdMax",r:1,w:1},
+  {reg:0x8b,k:"rgBrkVal",r:1,w:1},
+  {reg:0x8c,k:"rgBrkMode",r:1,w:1,min:0,max:1,rangeK:"blkSweep"},   // il 2 (Sweep) si perde al riavvio
+  {reg:0x8e,k:"rgCode",r:1,w:1},
+  {reg:0x8f,k:"rgId",r:1,w:1,min:1,max:20},
+  {reg:0x90,k:"rgIdent",r:2,w:2},
+  {reg:0x92,k:"rgSpdLim",r:1,w:1},
+  {reg:0x93,k:"rgCurve",r:5,w:5},
+  {reg:0x94,k:"rgRamp",r:1,w:1},
+  {reg:0x9f,k:"rgRstId",w:1,noR:"blkWO"},          // rimette l'identità di fabbrica: mai dopo una scrittura di 0x90
+  {reg:0x80,noR:"blkDfu",noW:"blkDfu",hide:true}   // aggiornamento firmware: non esposto
 ];
+const REG={};for(const d of REGS)REG[d.reg]=d;
 let dev,rxc,txc,waiter=null;
 const $=id=>document.getElementById(id);
 const hx=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join("");
@@ -226,6 +325,29 @@ const log=s=>{const l=$("log");l.textContent+=s+"\n";l.scrollTop=l.scrollHeight;
 const xorsum=a=>{let x=0;for(const b of a)x^=b;return x&0xff;};
 const h2=n=>"0x"+n.toString(16).padStart(2,"0");
 const p2=n=>String(n).padStart(2,"0");
+
+/* Perché un registro non si può leggere o scrivere da qui (chiave i18n +
+   parametri), oppure null se si può. Lo usano sia la console sia readReg e
+   writeReg: un frame vietato non parte da nessuna strada. */
+function vietaLettura(reg){const d=REG[reg];if(!d)return["blkUnknownR"];if(d.noR)return[d.noR];if(!d.r)return["blkWO"];return null;}
+function vietaScrittura(reg,val){const d=REG[reg];if(!d)return["blkUnknown"];if(d.noW)return[d.noW];if(!d.w)return["blkRO"];
+  if(val.length!==d.w)return["blkLen",{reg:h2(reg),n:d.w,m:val.length}];
+  if(d.min!=null&&(val[0]<d.min||val[0]>d.max))return[d.rangeK||"blkRange",{min:d.min,max:d.max}];
+  return null;}
+
+/* Il nome (0x83) è di 14 caratteri ASCII esatti, completati con spazi. Prima
+   partiva in UTF-8 e senza riempimento: il telecomando copia comunque 14 byte, e
+   in coda finivano il checksum e quel che restava nel buffer. Le lettere
+   accentate perdono l'accento (à → a), il resto che non è ASCII stampabile si scarta. */
+const NAME_LEN=14;
+const pulisciNome=s=>(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\x20-\x7e]/g,"").slice(0,NAME_LEN);
+function byteNome(s){const p=pulisciNome(s);if(!p.trim())return null;return[...p.padEnd(NAME_LEN," ")].map(c=>c.charCodeAt(0));}
+/* In rilettura via il riempimento in coda. Il telecomando trasforma in "." gli
+   spazi in posizione pari (contando da 0), riempimento compreso: un "." in coda
+   in posizione pari era uno spazio, e se ne va con gli altri. */
+function leggiNome(v){const b=[...v];
+  while(b.length){const i=b.length-1,x=b[i];if(x===0x20||x===0xff||x===0x00||(x===0x2e&&i%2===0))b.pop();else break;}
+  return b.map(x=>x>=32&&x<127?String.fromCharCode(x):"?").join("");}
 
 let _conn=false;
 function renderStatus(){$("st").textContent=I18N.t(_conn?"stConnected":"stDisconnected");$("st").className="pill"+(_conn?" on":"");}
@@ -245,33 +367,52 @@ async function connect(){
 }
 function onNotify(e){
   const v=new Uint8Array(e.target.value.buffer);
-  log("  <- "+hx(v)+"  |"+asc(v)+"|"+(hx(v)==="444f"?"  (DO=ok)":""));
-  if(waiter){waiter(v);waiter=null;}
+  /* "DO" dice che il frame è stato accettato, non che il registro esista né
+     che sia già in memoria (il telecomando risponde prima di salvare). */
+  const ann=hx(v)==="444f"?"  "+I18N.t("logDo"):hx(v)==="4142"?"  "+I18N.t("logAb"):"";
+  log("  <- "+hx(v)+"  |"+asc(v)+"|"+ann);
+  if(waiter)waiter(v);
 }
-const wait=(ms=1200)=>new Promise(r=>{waiter=r;setTimeout(()=>{if(waiter){waiter=null;r(null);}},ms);});
+/* Ogni attesa ha il SUO gestore e il SUO timer. Prima il timer di un'attesa già
+   risolta, scadendo più tardi, trovava il gestore della richiesta successiva, lo
+   azzerava e risolveva la promessa vecchia: quella nuova restava appesa per sempre
+   e «Leggi configurazione» si fermava a metà, senza errori. */
+const wait=(ms=1200)=>new Promise(r=>{
+  const w=v=>{clearTimeout(t);if(waiter===w)waiter=null;r(v);};
+  waiter=w;const t=setTimeout(()=>w(null),ms);});
 const send=b=>rxc.writeValueWithoutResponse(new Uint8Array(b));
 async function readReg(reg){
+  const no=vietaLettura(reg);
+  if(no){log("READ "+h2(reg)+" — "+I18N.t("logBlocked")+": "+I18N.t(no[0],no[1]));return null;}
   log("READ "+h2(reg));
-  // il firmware (reg 0x00) l'app lo legge come '0a 12 00 00 02'; gli altri sono '0a 12 <reg>'
+  // la versione (0x00) risponde solo al frame da 5 byte '0a 12 00 00 02'; gli altri sono '0a 12 <reg>'
   await send(reg===0x00?[PFX,0x12,0x00,0x00,0x02]:[PFX,0x12,reg]);
   return await wait();
 }
-async function writeReg(reg,val){const body=[PFX,0x02,reg,...val];body.push(xorsum(body));
+async function writeReg(reg,val){
+  const no=vietaScrittura(reg,val);
+  if(no){log("WRITE "+h2(reg)+" — "+I18N.t("logBlocked")+": "+I18N.t(no[0],no[1]));return null;}
+  const body=[PFX,0x02,reg,...val];body.push(xorsum(body));
   log("WRITE "+h2(reg)+" = "+hx(val)+(asc(val).match(/^[ -~]+$/)?" |"+asc(val)+"|":""));await send(body);return await wait();}
 
 /* decodifiche leggibili */
 function fwStr(v){return v&&v.length>=3?v[0]+"."+v[1]+(v[2]>=32&&v[2]<127?String.fromCharCode(v[2]).toUpperCase():""):"—";}
 function dateStr(v){return v&&v.length>=5?p2(v[0])+"/"+p2(v[1])+"/"+(2000+v[2])+" "+p2(v[3])+":"+p2(v[4]):"—";}
-function brakeStr(v){return v&&v.length>=1?(v[0]===1?I18N.t("brakeLinear"):I18N.t("brakeDefault")):"—";}
+function fmt(reg,v){if(!v)return I18N.t("noResp");if(reg===0x00)return hx(v)+" → "+fwStr(v);return hx(v)+" |"+asc(v)+"|";}
 
-/* leggi tutta la config e popola i campi */
+/* leggi tutta la config e popola i campi (solo i registri leggibili della tabella) */
 async function readAll(){
-  for(const[r]of REGS){const v=await readReg(r);const c=$("v"+r);if(c)c.textContent=v?hx(v)+" |"+asc(v)+"|":I18N.t("noResp");
+  for(const d of REGS){if(!d.r||d.noR)continue;const r=d.reg;
+    const v=await readReg(r);const c=$("v"+r);if(c)c.textContent=fmt(r,v);
     if(v){
       if(r===0x00)$("fFw").textContent=fwStr(v);
       if(r===0x81)$("fDate").textContent=dateStr(v);
-      if(r===0x83)$("cName").value=asc(v).replace(/\.+$/,"");
-      if(r===0x8c){$("cBrake").value=String(v[0]);}
+      if(r===0x83)$("cName").value=leggiNome(v);
+      if(r===0x8c){
+        /* Solo 0 e 1 sono offerti: un altro valore lascia il menu vuoto e lo dice. */
+        if(v[0]===0||v[0]===1)$("cBrake").value=String(v[0]);
+        else{$("cBrake").value="";log(I18N.t("logBrakeOdd",{v:v[0]}));}
+      }
       if(r===0x8f){$("cId").value=v[0];$("fId").textContent=v[0];}
       if(r===0x90){$("cMac").value=hx(v);$("cMac").dispatchEvent(new Event("input"));$("fMac").textContent=[...v].map(x=>x.toString(16).padStart(2,"0")).join(" ").toUpperCase();}
     }
@@ -279,35 +420,55 @@ async function readAll(){
   }
   $("fType").textContent=TYPE_STR;$("fVer").textContent=VER_STR;   // display fissi della schermata SCP3
 }
-function parseVal(s){s=(s||"").trim();
-  if(/^0x[0-9a-f]{2}$/i.test(s))return[parseInt(s,16)];
-  const hexs=s.replace(/ /g,"");
-  if(/^[0-9a-f]+$/i.test(hexs)&&hexs.length%2===0&&hexs.length>=2)return[...hexs.matchAll(/../g)].map(m=>parseInt(m[0],16));
-  if(/^\d+$/.test(s))return[parseInt(s)&0xff];
-  return[...new TextEncoder().encode(s)];}
+/* Byte in esadecimale: "32", "0x32", "1a 2b", "1a:2b". Una cifra sola vale un byte ("5" → 05). */
+function parseHex(s){s=(s||"").trim().replace(/0x/gi,"").replace(/[\s:,.-]/g,"");
+  if(!s||!/^[0-9a-f]+$/i.test(s))return null;if(s.length%2)s="0"+s;
+  return[...s.matchAll(/../g)].map(m=>parseInt(m[0],16));}
+function parseReg(s){const m=(s||"").trim().replace(/^0x/i,"");return/^[0-9a-f]{1,2}$/i.test(m)?parseInt(m,16):null;}
+
+/* Messaggio della console: si ricorda chiave e parametri per ridisegnarsi al cambio lingua. */
+let rawMsg=null;
+function setRawMsg(m){rawMsg=m;renderRawMsg();}
+function renderRawMsg(){$("rawMsg").textContent=rawMsg?(rawMsg.reg!=null?h2(rawMsg.reg)+": ":"")+I18N.t(rawMsg.k,rawMsg.p):"";}
 const fns={
-  /* "Scrivi": Nome (0x83) + Brake Setting (0x8c), come il tasto Scrivi dell'app */
+  /* "Scrivi": Nome (0x83) + modo freno (0x8c), come il tasto Scrivi dell'app */
   write:async()=>{
-    await writeReg(0x83,[...new TextEncoder().encode($("cName").value)]);
+    const nb=byteNome($("cName").value);
+    if(nb)await writeReg(0x83,nb);else log(I18N.t("logNameSkip"));
     const b=$("cBrake").value;
     if(b==="")log(I18N.t("logBrakeUnset"));
     else await writeReg(0x8c,[parseInt(b)]);
   },
   id:()=>writeReg(0x8f,[Math.max(1,Math.min(20,parseInt($("cId").value)||1))]),
-  /* Scrive SOLO 0x90. Il vecchio "commit" su 0x9f era un errore: 0x9f = RST_O2_MAC,
-   * cioe' il firmware rimette l'identita' di fabbrica dal MAC del chip -> annullava la scrittura. */
-  clone:()=>{const b=parseVal($("cMac").value);if(b.length!==2)return alert(I18N.t("alertMac"));
-    if(confirm(I18N.t("confirmClone")))return writeReg(0x90,b);},
+  /* Scrive SOLO 0x90. 0x9f rimette l'identità di fabbrica (ricavata dal MAC del
+   * chip): mandato dopo, annullerebbe la scrittura. È il pulsante a parte. */
+  clone:()=>{const b=parseHex($("cMac").value);if(!b||b.length!==2)return alert(I18N.t("alertMac"));
+    if(confirm(I18N.t("confirmClone",{mac:hx(b).toUpperCase()})))return writeReg(0x90,b);},
   rstmac:()=>{if(confirm(I18N.t("confirmRstMac")))return writeReg(0x9f,[0x00]);},
-  rawread:async()=>{const r=parseInt($("rReg").value,16);if(!isNaN(r))await readReg(r);},
-  rawwrite:async()=>{const r=parseInt($("wReg").value,16);if(!isNaN(r))await writeReg(r,parseVal($("wVal").value));},
+  rawread:async()=>{const r=parseReg($("rReg").value);
+    if(r==null)return setRawMsg({k:"blkBadReg"});
+    const no=vietaLettura(r);if(no)return setRawMsg({reg:r,k:no[0],p:no[1]});
+    setRawMsg(null);const v=await readReg(r);const c=$("v"+r);if(c)c.textContent=fmt(r,v);},
+  rawwrite:async()=>{const r=parseReg($("wReg").value);
+    if(r==null)return setRawMsg({k:"blkBadReg"});
+    const s=$("wVal").value;
+    const val=r===0x83?(byteNome(s)||[]):parseHex(s);   // il nome si scrive in chiaro
+    if(!val)return setRawMsg({reg:r,k:"blkBadVal"});
+    const no=vietaScrittura(r,val);if(no)return setRawMsg({reg:r,k:no[0],p:no[1]});
+    setRawMsg(null);await writeReg(r,val);},
 };
-document.querySelectorAll(".cfg").forEach(b=>b.dataset.fn&&(b.onclick=()=>fns[b.dataset.fn]&&fns[b.dataset.fn]()));
-(function(){const tb=$("regtab").querySelector("tbody");for(const[r,n]of REGS){const tr=document.createElement("tr");
-  tr.innerHTML=`<td><code>${h2(r)}</code></td><td>${n}</td><td class="val" id="v${r}"></td>
-    <td><button class="sec" disabled data-i18n="regReadBtn"></button></td>`;tb.appendChild(tr);
-  const bt=tr.querySelector("button");bt.classList.add("cfg");
-  bt.onclick=async()=>{const v=await readReg(r);$("v"+r).textContent=v?hx(v)+" |"+asc(v)+"|":I18N.t("noResp");};}})();
+document.querySelectorAll("[data-fn]").forEach(b=>b.onclick=()=>fns[b.dataset.fn]&&fns[b.dataset.fn]());
+/* Tabella dei registri. Il pulsante "leggi" c'è solo dove leggere è lecito. */
+(function(){const tb=$("regtab").querySelector("tbody");for(const d of REGS){if(d.hide)continue;const r=d.reg;
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td><code>${h2(r)}</code></td><td data-i18n="${d.k}"></td><td class="val" id="v${r}"></td><td></td>`;tb.appendChild(tr);
+  if(!d.r||d.noR)continue;
+  const bt=document.createElement("button");bt.className="sec cfg";bt.disabled=true;bt.setAttribute("data-i18n","regReadBtn");
+  bt.onclick=async()=>{const v=await readReg(r);$("v"+r).textContent=fmt(r,v);};tr.lastElementChild.appendChild(bt);}})();
+
+/* Nome: si ripulisce mentre lo scrivi, così vedi subito cosa partirà. */
+(function(){const c=$("cName");c.addEventListener("input",()=>{const v=c.value,p=pulisciNome(v);if(p===v)return;
+  const pos=Math.max(0,(c.selectionStart||0)-(v.length-p.length));c.value=p;try{c.setSelectionRange(pos,pos);}catch(e){}});})();
 
 $("btnConn").onclick=connect;
 $("btnDisc").onclick=()=>{if(dev&&dev.gatt.connected)dev.gatt.disconnect();};
@@ -321,7 +482,7 @@ if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").cat
 function initDynamic(){renderStatus();if(!navigator.bluetooth)log(I18N.t("logNoBt2"));}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initDynamic);
 else initDynamic();
-document.addEventListener("i18n:changed",renderStatus);
+document.addEventListener("i18n:changed",()=>{renderStatus();renderRawMsg();});
 
 /* prompt aggiornamento versione */
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
