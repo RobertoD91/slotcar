@@ -115,6 +115,12 @@ L'utente è italiano: **rispondere in italiano**.
       BLE+WiFi+TLS), o resta l'aggiornamento via USB. È una scelta tua.
 
 **Repo e segreti**
+- [ ] ⭐ **Aggiungi i MAC dei tuoi dispositivi al secret `SECRET_SCAN_EXTRA`** (uno per riga:
+      i dongle, l'SCP-3, i chip auto). *Verificato il 15/10/2026*: con lo scanner corretto
+      (riconosce un MAC anche in minuscolo, a byte rovesciati o senza separatori) la scansione
+      della storia passa verde, eppure i MAC del dongle e dell'SCP-3 nella storia ci sono —
+      quindi il secret non li contiene. Dopo averli aggiunti la scansione diventa **rossa**
+      finché la storia non viene riscritta: è il comportamento giusto.
 - [ ] **Ripulisci la storia dai MAC veri** (force push) — *rinviato dall'utente il 15/10/2026:
       «poi ne parliamo»*. I MAC del dongle e dell'SCP-3 sono in `tools/test-scan-secrets.py`
       dal commit `1699c79` a `fac5a05` (non nei messaggi di commit). Finché non è fatto,
