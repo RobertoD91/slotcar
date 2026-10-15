@@ -259,6 +259,63 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   }
   await stretta.close();
 
+  /* ⭐ La cornice è la stessa su tutte le pagine: titolo = h1 + « — Slot Car
+     Web Tools», h1 = titolo della card nell'indice (nella stessa lingua), piè
+     con la versione che sta girando, fascia «Aggiorna». Ognuna di queste cose
+     si era persa su qualche pagina — la guida perdeva il suffisso traducendo,
+     il DS200 metteva la versione nel titolo, solo tre pagine la mostravano nel
+     piè, e le due PWA non avevano la fascia — e nessun test lo vedeva perché
+     ogni pagina, da sola, funzionava. */
+  console.log('\n== CORNICE: TITOLO, PIÈ, «AGGIORNA» ==');
+  const versioni = await (await fetch(BASE + '/version.json')).json();
+  const card = {
+    'cronometro/': '.hero h3', 'car-config/': 'a.card[href="car-config/"] h3',
+    'remote-config/': 'a.card[href="remote-config/"] h3', 'chron02/': 'a.card[href="chron02/"] h3',
+    'o2-bootloader/': 'a.card[href="o2-bootloader/"] h3', 'guida-oxigen/': 'a.card[href="guida-oxigen/"] h3',
+    'ds200-ds300/': 'a.card[href="ds200-ds300/"] h3', 'esp32-installer/': 'a.card[href="esp32-installer/"] h3',
+    'ninco/': 'a.card[href="ninco/"] h3',
+  };
+  const cornice2 = await ctx.newPage();
+  const leggiCornice = () => cornice2.evaluate(() => {
+    const h1 = document.querySelector('h1');
+    const nome = h1 ? (h1.querySelector('[data-i18n]') || h1).textContent.trim() : '';
+    const ver = document.querySelector('body > footer .ver');
+    const upd = document.getElementById('upd');
+    return { titolo: document.title, h1: nome, ver: ver ? ver.textContent.trim() : null,
+             upd: !!(upd && upd.classList.contains('banner')), updVisibile: !!(upd && upd.offsetParent) };
+  });
+  for (const lingua of ['it', 'en', 'es']) {
+    await cornice2.goto(BASE + '/', { waitUntil: 'networkidle' });
+    await cornice2.selectOption('#__langsel', lingua);
+    const titoli = {};
+    for (const [p, sel] of Object.entries(card)) titoli[p] = (await cornice2.locator(sel).innerText()).trim();
+    for (const p of Object.keys(card)) {
+      /* L'installer è solo in italiano (decisione dell'utente): si confronta
+         solo con la card italiana. */
+      if (p === 'esp32-installer/' && lingua !== 'it') continue;
+      await cornice2.goto(BASE + '/' + p, { waitUntil: 'networkidle' });
+      const c = await leggiCornice();
+      ok(c.titolo === c.h1 + ' — Slot Car Web Tools' && c.h1 === titoli[p],
+        `${lingua} ${p.padEnd(17)} titolo «${c.titolo}», card «${titoli[p]}»`);
+      if (lingua !== 'it') continue;
+      const attesa = 'v' + versioni.apps[p.replace(/\/$/, '')];
+      ok(c.ver === attesa && c.upd && !c.updVisibile,
+        `${p.padEnd(18)} piè «${c.ver}» (atteso ${attesa}), fascia «Aggiorna» presente e spenta`);
+    }
+  }
+  /* E la fascia si accende davvero quando version.json pubblica un'altra
+     versione — su TUTTE le pagine, PWA comprese. */
+  await cornice2.route('**/version.json*', (r) => r.fulfill({
+    contentType: 'application/json',
+    body: JSON.stringify({ site: '0.0.0', apps: Object.fromEntries(Object.keys(versioni.apps).map((k) => [k, '0.0.0'])) }),
+  }));
+  for (const p of [''].concat(Object.keys(card))) {
+    await cornice2.goto(BASE + '/' + p, { waitUntil: 'networkidle' });
+    const c = await leggiCornice();
+    ok(c.updVisibile, `${(p || 'indice/').padEnd(18)} con una versione nuova pubblicata compare «Aggiorna»`);
+  }
+  await cornice2.close();
+
   /* ⭐ Le cache stanno per ORIGINE, non per cartella: Cronometro e DS200 le
      tengono nello stesso posto. Ognuno all'attivazione cancellava «tutto quello
      che non si chiama come me», quindi aperto il DS200 spariva la cache del

@@ -377,7 +377,8 @@ cosa che gli serve — se vale la pena provarci.
 ```bash
 node tools/check-links.js                     # link interni + nessun percorso assoluto
 node tools/check-versions.js                  # versioni nel codice == version.json (+ FW_VERSION == manifest)
-node tools/check-style.js                     # i colori vengono TUTTI da ui.css
+node tools/check-style.js                     # i colori vengono TUTTI da ui.css (anche nel JS)
+node tools/check-i18n.js                      # ogni chiave in tutte le lingue del suo motore, niente testo non tradotto
 python3 tools/scan-secrets.py                 # segreti nei file
 python3 tools/scan-secrets.py --history       # segreti in tutta la storia
 python3 tools/test-scan-secrets.py            # le regole dello scanner
@@ -548,7 +549,13 @@ distinguibili e il giro veloce non è una lotteria. Il grande orologio resta a d
 - **i18n**: `i18n.js` costruisce il dizionario su `DOMContentLoaded`. Chi disegna prima
   vede la **chiave** al posto del testo, e agganciarsi solo a `i18n:changed` non basta
   (nessuno cambia lingua per leggere lo stato). Ri-disegna anche su `DOMContentLoaded`.
-  Lo smoke test controlla le chiavi grezze su tutte le pagine.
+  Lo smoke test controlla le chiavi grezze su tutte le pagine — ma in una lingua sola. Per
+  il resto c'è `tools/check-i18n.js`, senza browser: ogni chiave ha tutte le lingue del suo
+  motore (3 per `i18n.js`, 5 per cronometro e DS200), ogni chiave usata nel markup esiste, e
+  nelle pagine che traducono nessun `<option>`/`<summary>`/`<th>` ha testo senza
+  `data-i18n` (le modalità del configuratore auto e il «Log» del controller restavano in
+  italiano in ogni lingua). Eccezione motivata: `data-i18n-no="<perché>"` sull'elemento o su
+  un antenato — per esempio i nomi delle lingue nel selettore.
 - **Web Serial/Bluetooth solo in contesto sicuro**: su `http` non esistono, e il messaggio
   «browser non supportato» è fuorviante. L'indice passa da sé a `https`.
 - **La power base Ninco ripete i pacchetti**: un totale non crescente va ignorato, o si

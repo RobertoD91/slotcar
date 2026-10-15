@@ -42,6 +42,13 @@ jobs:
       - name: Una sola tavolozza
         run: node tools/check-style.js
 
+      # Una chiave senza lo spagnolo, o un <option> scritto in italiano nel
+      # markup, a video non si vedono finché qualcuno non cambia lingua: lo
+      # smoke test gira in una lingua sola. Questo controllo legge i dizionari
+      # e le pagine, senza browser.
+      - name: Traduzioni complete
+        run: node tools/check-i18n.js
+
   parsers:
     runs-on: ubuntu-latest
     steps:

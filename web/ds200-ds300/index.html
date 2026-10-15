@@ -35,7 +35,8 @@
     <!-- Niente più <label> con il globo attorno: il selettore è quello di tutte
          le altre pagine (`.langsel` in ui.css), e il globo era l'unica
          differenza visibile. -->
-    <select id="lang" class="langsel" data-i18n-title="lang_title" title="Lingua">
+    <select id="lang" class="langsel" data-i18n-title="lang_title" title="Lingua"
+            data-i18n-no="i nomi delle lingue si scrivono ciascuno nella sua lingua">
       <!-- ⚠️ Su Windows le bandierine non esistono nel font di sistema e si
            vedono le due lettere (IT, EN…): per questo accanto resta il nome. -->
       <option value="it">🇮🇹 Italiano</option>
@@ -56,7 +57,7 @@
     <div class="conn">
       <label class="baud" title="DS200: 4800 · DS300: 57600">
         <span data-i18n="baud">Baud</span>
-        <select id="baud" autocomplete="off">
+        <select id="baud" autocomplete="off" data-i18n-no="modelli e velocità della seriale: uguali in ogni lingua">
           <option value="57600">DS 300 — 57600</option>
           <option value="4800" selected>DS 200 — 4800</option>
           <option value="9600">9600 (test)</option>
@@ -149,7 +150,7 @@
       <p class="hint" data-i18n="cmd.warn">Il protocollo è documentato solo in ricezione: questi comandi sono sperimentali.</p>
       <div class="cmdrow">
         <label class="baud"><span data-i18n="stat.device">Dispositivo</span>
-          <select id="cmdDev"><option value="2">DS200</option><option value="3">DS300</option></select>
+          <select id="cmdDev" data-i18n-no="nomi dei modelli"><option value="2">DS200</option><option value="3">DS300</option></select>
         </label>
         <button class="btn small cmd" data-cmd="0xA1" data-i18n="func.start_race_phase_1">Start fase 1</button>
         <button class="btn small cmd" data-cmd="0xA2" data-i18n="func.start_race_phase_2">Start fase 2</button>
