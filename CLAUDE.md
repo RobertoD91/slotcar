@@ -108,6 +108,16 @@ L'utente è italiano: **rispondere in italiano**.
       rete può funzionare (né web né ArduinoOTA). O si passa a due slot (togliendo spazio a
       BLE+WiFi+TLS), o resta l'aggiornamento via USB. È una scelta tua.
 
+**Repo e segreti**
+- [ ] ⭐ **Riattiva la workflow «Scansione segreti»**: GitHub l'ha spenta per inattività il
+      5/10/2026 e da allora non gira più (né a settimana né ai push). Actions → «Scansione
+      segreti» → «Enable workflow». La scansione dei file ora c'è anche nella CI di ogni push;
+      quella della **storia** resta solo lì.
+- [ ] ⭐ **Ripulisci la storia dai MAC veri** (force push): i MAC del dongle e dell'SCP-3 sono
+      in `tools/test-scan-secrets.py` dal commit `1699c79` a `fac5a05` (non nei messaggi di
+      commit). Finché non è fatto, «Scansione segreti» fallisce sulla storia se il secret
+      `SECRET_SCAN_EXTRA` li elenca — ed è giusto così. Dopo il force push ogni clone va rifatto.
+
 **Ninco**
 - [ ] **Prova sul campo del contagiri** (il cavo ce l'ha già). Targhetta **mai provata**.
 - [ ] **Auto 8, cifre della benzina invertite** — l'ottava auto viene letta con le due cifre

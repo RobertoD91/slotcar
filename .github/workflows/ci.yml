@@ -49,6 +49,18 @@ jobs:
       - name: Traduzioni complete
         run: node tools/check-i18n.js
 
+      # La workflow «Scansione segreti» gira anche una volta a settimana, e GitHub
+      # spegne da solo le workflow programmate quando la repo resta ferma: è
+      # successo il 5/10/2026, e da allora non partiva più nemmeno ai push. La
+      # scansione dei file sta quindi anche qui, nella CI di ogni push, che non
+      # si spegne per inattività. La storia la controlla solo «Scansione segreti».
+      - name: Segreti (regole dello scanner)
+        run: python3 tools/test-scan-secrets.py
+      - name: Segreti nei file
+        env:
+          SECRET_SCAN_EXTRA: ${{ secrets.SECRET_SCAN_EXTRA }}
+        run: python3 tools/scan-secrets.py
+
   parsers:
     runs-on: ubuntu-latest
     steps:
