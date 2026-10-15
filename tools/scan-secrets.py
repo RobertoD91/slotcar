@@ -111,13 +111,36 @@ def load_lines(path):
     return out
 
 
+# Un MAC scritto nella denylist: sei byte con ":" o "-" o niente in mezzo.
+MAC_VALUE = re.compile(r"^[0-9A-Fa-f]{2}(?:[:-]?[0-9A-Fa-f]{2}){5}$")
+
+
+def mac_pattern(raw):
+    """Un MAC personale va riconosciuto in TUTTE le forme in cui si scrive, non solo
+    in quella della denylist. Era il buco: nella storia della repo i due MAC
+    dell'utente c'erano, ma uno con i byte rovesciati (l'ordine "interno", quello
+    della memoria del chip e di READACTIV) e l'altro in minuscolo, e lo scan della
+    storia passava verde. Quindi: maiuscole e minuscole, separatori ":" "-" " " o
+    nessuno, e i byte in tutti e due gli ordini."""
+    b = re.findall(r"[0-9A-Fa-f]{2}", raw)
+    sep = r"[:\- ]?"
+    forme = [sep.join(b), sep.join(reversed(b))]
+    return re.compile(r"(?<![0-9A-Fa-f])(?:%s)(?![0-9A-Fa-f])" % "|".join(forme), re.IGNORECASE)
+
+
 def compile_extra(raw_lines, label):
+    """I valori personali scattano anche se scritti con maiuscole diverse: un
+    segreto resta tale comunque lo si scriva, e un falso allarme in più costa
+    meno di un MAC pubblicato."""
     pats = []
     for raw in raw_lines:
+        if MAC_VALUE.match(raw):
+            pats.append((label, mac_pattern(raw), "MAC nella denylist privata"))
+            continue
         try:
-            pats.append((label, re.compile(raw), "valore nella denylist privata"))
+            pats.append((label, re.compile(raw, re.IGNORECASE), "valore nella denylist privata"))
         except re.error:
-            pats.append((label, re.compile(re.escape(raw)), "valore nella denylist privata"))
+            pats.append((label, re.compile(re.escape(raw), re.IGNORECASE), "valore nella denylist privata"))
     return pats
 
 

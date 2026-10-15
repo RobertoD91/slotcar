@@ -85,7 +85,34 @@ def main():
         else:
             print("  ✅ %-38s %s" % (what, "scatta" if should_hit else "silenzio"))
 
-    print("\n%d casi, %d sbagliati" % (len(CASES) + 2, bad))
+    # Un MAC personale scatta in ogni forma in cui si scrive: nella storia della repo
+    # quelli veri c'erano con i byte rovesciati e in minuscolo, e lo scan passava.
+    # Anche qui il MAC e' inventato e costruito a pezzi; sulle righe c'e' il
+    # marcatore, perche' la regola generica dei MAC non c'entra: deve scattare la
+    # denylist da sola.
+    mac = ":".join(["12", "34", "56", "78", "9A", "BC"])
+    regole = rules + scan.compile_extra([mac], "denylist-locale")
+    casi_mac = [
+        ("x = '%s'  # allow-secret" % mac, True, "MAC personale, forma della lista"),
+        ("x = '%s'  # allow-secret" % mac.lower(), True, "MAC personale in minuscolo"),
+        ("x = '%s'  # allow-secret" % ":".join(reversed(mac.split(":"))), True,
+         "MAC personale, byte rovesciati"),
+        ("x = '%s'  # allow-secret" % mac.replace(":", "").lower(), True, "MAC personale senza separatori"),
+        ("x = '%s'  # allow-secret" % mac.replace(":", "-"), True, "MAC personale con i trattini"),
+        ("x = 'ff%sff'  # allow-secret" % mac.replace(":", ""), False, "MAC dentro un esadecimale più lungo"),
+        ("x = '%s'  # allow-secret" % ":".join(["12", "34", "56", "78", "9A", "BD"]), False,
+         "un altro MAC non scatta"),
+    ]
+    for text, should_hit, what in casi_mac:
+        found = []
+        scan.scan_text("test", text, regole, allow, found)
+        if bool(found) != should_hit:
+            bad += 1
+            print("  ❌ %-38s atteso=%s" % (what, "scatta" if should_hit else "silenzio"))
+        else:
+            print("  ✅ %-38s %s" % (what, "scatta" if should_hit else "silenzio"))
+
+    print("\n%d casi, %d sbagliati" % (len(CASES) + 2 + len(casi_mac), bad))
     return 1 if bad else 0
 
 
