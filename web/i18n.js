@@ -52,13 +52,13 @@
     // invece di lasciare che l'utente lo scopra provando.
     oxigenPartial: {
       it: "🔬 <b>Questa app funziona solo in parte.</b> Lettura e cambio ID sono confermati su " +
-        "hardware vero; la <b>scrittura del MAC</b> non è ancora stata verificata. " +
+        "hardware vero; la <b>scrittura del MAC</b> è stata corretta e va riprovata. " +
         "Trattala come <b>strumento di diagnostica</b>, non come cosa da usare in pista.",
       en: "🔬 <b>This app only partly works.</b> Reading and changing the ID are confirmed on real " +
-        "hardware; <b>writing the MAC</b> has not been verified yet. " +
+        "hardware; <b>writing the MAC</b> has been fixed and needs retesting. " +
         "Treat it as a <b>diagnostic tool</b>, not as something to use at the track.",
       es: "🔬 <b>Esta app funciona solo en parte.</b> La lectura y el cambio de ID están confirmados en " +
-        "hardware real; la <b>escritura del MAC</b> aún no se ha verificado. " +
+        "hardware real; la <b>escritura del MAC</b> se ha corregido y hay que volver a probarla. " +
         "Trátala como <b>herramienta de diagnóstico</b>, no como algo para usar en pista.",
     },
     // Per le app oXigen rifatte sulla specifica del protocollo ma non ancora

@@ -29,7 +29,6 @@
   .hero .ico{font-size:38px;line-height:1}
   .hero h3{margin:10px 0 6px;font-size:22px;font-weight:800;letter-spacing:-.01em}
   .hero p{margin:0;color:var(--mut);font-size:14px;line-height:1.6}
-  .hero .badge{border-color:var(--acc);color:var(--acc)}
   .rest{color:var(--mut);font-size:13px;margin:18px 0 0}
   .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
   a.card,div.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
@@ -88,7 +87,7 @@
     <div class="ico">⏱️</div>
     <h3 data-i18n="chronoTitle"></h3>
     <p data-i18n-html="chronoDesc"></p>
-    <div class="tech"><span data-i18n="techPwa"></span><span data-i18n="techSim"></span><span>Web Serial</span></div>
+    <div class="tech"><span data-i18n="techPwa"></span><span data-i18n="techSim"></span><span>Web Serial</span><span>Web Bluetooth</span></div>
   </a>
   <p class="rest" data-i18n-html="restIntro"></p>
 
@@ -166,9 +165,9 @@
 <script>
 window.I18N_STRINGS = {
   sub:{
-    it:"Strumenti web per slot car digitali: <b>oXigen</b> (Slot.it), cronometri <b>DS Electronic</b> e <b>Ninco Digital</b>.<br>Girano nel browser, senza installare nulla. Usare Chrome/Edge desktop o Chrome Android.",
-    en:"Web tools for digital slot cars: <b>oXigen</b> (Slot.it), <b>DS Electronic</b> lap timers and <b>Ninco Digital</b>.<br>They run in the browser, nothing to install. Use Chrome/Edge on desktop or Chrome on Android.",
-    es:"Herramientas web para slot cars digitales: <b>oXigen</b> (Slot.it), cronómetros <b>DS Electronic</b> y <b>Ninco Digital</b>.<br>Funcionan en el navegador, sin instalar nada. Usa Chrome/Edge en escritorio o Chrome en Android."
+    it:"Strumenti web per slot car digitali: <b>oXigen</b> (Slot.it), centraline <b>DS Electronic</b> e <b>Ninco Digital</b>.<br>Girano nel browser, senza installare nulla. Usare Chrome/Edge desktop o Chrome Android.",
+    en:"Web tools for digital slot cars: <b>oXigen</b> (Slot.it), <b>DS Electronic</b> timer boxes and <b>Ninco Digital</b>.<br>They run in the browser, nothing to install. Use Chrome/Edge on desktop or Chrome on Android.",
+    es:"Herramientas web para slot cars digitales: <b>oXigen</b> (Slot.it), centrales <b>DS Electronic</b> y <b>Ninco Digital</b>.<br>Funcionan en el navegador, sin instalar nada. Usa Chrome/Edge en escritorio o Chrome en Android."
   },
   noSsl:{
     it:"🔒 Questa pagina è aperta in <b>http</b>, non in <b>https</b>. Web Bluetooth e Web Serial " +
@@ -202,9 +201,9 @@ window.I18N_STRINGS = {
     es:"oXigen — Slot.it <small>(mando SCP-3, chip del coche, dongle)</small>"
   },
   secDs:{
-    it:"DS Electronic <small>(cronometri DS200 / DS300)</small>",
-    en:"DS Electronic <small>(DS200 / DS300 lap timers)</small>",
-    es:"DS Electronic <small>(cronómetros DS200 / DS300)</small>"
+    it:"DS Electronic <small>(centraline DS200 / DS300)</small>",
+    en:"DS Electronic <small>(DS200 / DS300 timer boxes)</small>",
+    es:"DS Electronic <small>(centrales DS200 / DS300)</small>"
   },
   secNinco:{
     it:"Ninco Digital <small>(power base)</small>",
@@ -217,7 +216,7 @@ window.I18N_STRINGS = {
     en:"Reads the N-Digital power base over <b>RS-232</b>: positions, laps, fuel and reserve, amateur/professional mode, lap times (firmware ≥ 1.08) and exportable raw data. <b>→ will be folded into the Web lap timer.</b>",
     es:"Lee la power base N-Digital por <b>RS-232</b>: posiciones, vueltas, combustible y reserva, modo amateur/profesional, tiempos por vuelta (firmware ≥ 1.08) y datos en crudo exportables. <b>→ se integrará en el Cronómetro web.</b>"
   },
-  badgeActive:{it:"attivo",en:"active",es:"activo"},
+  badgeActive:{it:"funziona",en:"works",es:"funciona"},
   badgeWip:{it:"in sviluppo",en:"in progress",es:"en desarrollo"},
   badgeBroken:{it:"non funzionante",en:"not working",es:"no funciona"},
   badgePartial:{it:"funziona in parte",en:"partly working",es:"funciona en parte"},
@@ -225,9 +224,9 @@ window.I18N_STRINGS = {
   badgeAlpha:{it:"molto acerbo",en:"very rough",es:"muy verde"},
   chronoTitle:{it:"Cronometro web",en:"Web lap timer",es:"Cronómetro web"},
   chronoDesc:{
-    it:"<b>Un cronometro solo, per tutti e tre i sistemi.</b> Gestire una gara — giri, tempi, classifica, benzina — con la stessa interfaccia, che la pista sia <b>oXigen</b> (via dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modalità <b>pratica</b> e <b>GP a giri</b>, guidatori con nome, annunci vocali, cinque lingue.<br><b>Si può già usare</b> con una <b>pista simulata</b> (nessun hardware) e con un <b>DS200/DS300</b> via RS-232. Ninco e oXigen arrivano dopo, e allora prenderà il posto dei <b>tre contagiri separati</b> qui sotto.",
-    en:"<b>One lap timer for all three systems.</b> Run a race — laps, times, standings, fuel — from the same interface, whether the track is <b>oXigen</b> (via the dongle), a <b>DS200/DS300</b> or a <b>Ninco power base</b>. <b>Practice</b> and <b>GP by laps</b> modes, named drivers, voice announcements, five languages.<br><b>You can already use it</b> with a <b>simulated track</b> (no hardware) and with a <b>DS200/DS300</b> over RS-232. Ninco and oXigen come next, and then it will replace the <b>three separate lap counters</b> below.",
-    es:"<b>Un solo cronómetro para los tres sistemas.</b> Gestionar una carrera — vueltas, tiempos, clasificación, combustible — con la misma interfaz, ya sea la pista <b>oXigen</b> (vía dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modos <b>práctica</b> y <b>GP a vueltas</b>, pilotos con nombre, anuncios de voz, cinco idiomas.<br><b>Ya se puede usar</b> con una <b>pista simulada</b> (sin hardware) y con un <b>DS200/DS300</b> por RS-232. Ninco y oXigen llegan después, y entonces sustituirá a los <b>tres cuentavueltas separados</b> de abajo."
+    it:"<b>Un cronometro solo, per tutti e tre i sistemi.</b> Gestire una gara — giri, tempi, classifica, benzina — con la stessa interfaccia, che la pista sia <b>oXigen</b> (via dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modalità <b>pratica</b> e <b>GP a giri</b>, guidatori con nome, annunci vocali, cinque lingue.<br><b>Si può già usare</b> con una <b>pista simulata</b> (nessun hardware) e con un <b>DS200/DS300</b>: via cavo RS-232 oppure senza fili, attraverso il <b>ponte ESP32</b> (rete o Bluetooth). Ninco e oXigen arrivano dopo: la gara si gestirà da qui, e i contagiri qui sotto resteranno strumenti per leggere i dati grezzi.",
+    en:"<b>One lap timer for all three systems.</b> Run a race — laps, times, standings, fuel — from the same interface, whether the track is <b>oXigen</b> (via the dongle), a <b>DS200/DS300</b> or a <b>Ninco power base</b>. <b>Practice</b> and <b>GP by laps</b> modes, named drivers, voice announcements, five languages.<br><b>You can already use it</b> with a <b>simulated track</b> (no hardware) and with a <b>DS200/DS300</b>: over the RS-232 cable or wirelessly, through the <b>ESP32 bridge</b> (network or Bluetooth). Ninco and oXigen come next: races will be run from here, and the lap counters below will stay as tools for reading the raw data.",
+    es:"<b>Un solo cronómetro para los tres sistemas.</b> Gestionar una carrera — vueltas, tiempos, clasificación, combustible — con la misma interfaz, ya sea la pista <b>oXigen</b> (vía dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modos <b>práctica</b> y <b>GP a vueltas</b>, pilotos con nombre, anuncios de voz, cinco idiomas.<br><b>Ya se puede usar</b> con una <b>pista simulada</b> (sin hardware) y con un <b>DS200/DS300</b>: por cable RS-232 o sin cables, a través del <b>puente ESP32</b> (red o Bluetooth). Ninco y oXigen llegan después: la carrera se gestionará desde aquí, y los cuentavueltas de abajo seguirán siendo herramientas para leer los datos en crudo."
   },
   techSim:{it:"pista simulata",en:"simulated track",es:"pista simulada"},
   restIntro:{
@@ -246,9 +245,9 @@ window.I18N_STRINGS = {
   },
   ctrlTitle:{it:"Configuratore controller BLE",en:"Controller configurator BLE",es:"Configurador del mando BLE"},
   ctrlDesc:{
-    it:"Config del controller SCP-3 via BLE: nome, brake setting, ID, MAC; legge firmware, versione e data attivazione. <b>Lettura e cambio ID confermati su hardware; la scrittura del MAC no.</b>",
-    en:"SCP-3 controller config over BLE: name, brake setting, ID, MAC; reads firmware, version and activation date. <b>Reading and changing the ID are confirmed on hardware; writing the MAC is not.</b>",
-    es:"Configuración del mando SCP-3 por BLE: nombre, ajuste de freno, ID, MAC; lee firmware, versión y fecha de activación. <b>Lectura y cambio de ID confirmados en hardware; la escritura del MAC no.</b>"
+    it:"Config del controller SCP-3 via BLE: nome, brake setting, ID, MAC; legge firmware, versione e data attivazione. <b>Lettura e cambio ID confermati su hardware; la scrittura del MAC è stata corretta e va riprovata.</b>",
+    en:"SCP-3 controller config over BLE: name, brake setting, ID, MAC; reads firmware, version and activation date. <b>Reading and changing the ID are confirmed on hardware; writing the MAC has been fixed and needs retesting.</b>",
+    es:"Configuración del mando SCP-3 por BLE: nombre, ajuste de freno, ID, MAC; lee firmware, versión y fecha de activación. <b>Lectura y cambio de ID confirmados en hardware; la escritura del MAC se ha corregido y hay que volver a probarla.</b>"
   },
   modesTitle:{it:"Guida rapida oXigen",en:"oXigen quick guide",es:"Guía rápida oXigen"},
   modesDesc:{
@@ -270,15 +269,15 @@ window.I18N_STRINGS = {
   },
   dsTitle:{it:"Contagiri DS200 / DS300",en:"DS200 / DS300 lap counter",es:"Cuentavueltas DS200 / DS300"},
   dsDesc:{
-    it:"Monitor del cronometro via <b>RS-232</b>: giri, tempi, classifica live, giro veloce, annunci vocali, export CSV. Installabile e funziona offline. <b>→ confluirà nel Cronometro web.</b>",
-    en:"Lap-timer monitor over <b>RS-232</b>: laps, times, live leaderboard, fast lap, voice announcements, CSV export. Installable and works offline. <b>→ will be folded into the Web lap timer.</b>",
-    es:"Monitor del cronómetro por <b>RS-232</b>: vueltas, tiempos, clasificación en vivo, vuelta rápida, anuncios de voz, exportación CSV. Instalable y funciona sin conexión. <b>→ se integrará en el Cronómetro web.</b>"
+    it:"Legge la centralina via <b>RS-232</b> e mostra quello che trasmette: ogni frame decodificato campo per campo, giri e tempi per corsia, eventi, registro grezzo ed export CSV. Installabile e funziona offline. <b>La gara si gestisce dal Cronometro web</b>: questo resta lo strumento per leggere i frame.",
+    en:"Reads the timer box over <b>RS-232</b> and shows what it sends: every frame decoded field by field, laps and times per lane, events, raw log and CSV export. Installable and works offline. <b>Races are run from the Web lap timer</b>: this stays the tool for reading the frames.",
+    es:"Lee la central por <b>RS-232</b> y muestra lo que transmite: cada trama decodificada campo por campo, vueltas y tiempos por carril, eventos, registro en crudo y exportación CSV. Instalable y funciona sin conexión. <b>La carrera se gestiona desde el Cronómetro web</b>: esta sigue siendo la herramienta para leer las tramas."
   },
   dsFlashTitle:{it:"Installer ESP32",en:"ESP32 installer",es:"Instalador ESP32"},
   dsFlashDesc:{
-    it:"Installa dal browser il firmware del ponte <b>ESP32</b> (DS200/DS300 → WiFi/MQTT) e configura la rete, senza toolchain. <b>È la cosa più acerba del sito</b>: provalo solo se sai cosa stai facendo.",
-    en:"Install the <b>ESP32</b> bridge firmware (DS200/DS300 → WiFi/MQTT) straight from the browser and set up the network, no toolchain needed. <b>It is the roughest thing here</b>: only try it if you know what you are doing.",
-    es:"Instala desde el navegador el firmware del puente <b>ESP32</b> (DS200/DS300 → WiFi/MQTT) y configura la red, sin toolchain. <b>Es lo más verde del sitio</b>: pruébalo solo si sabes lo que haces."
+    it:"Installa dal browser il firmware del <b>ponte ESP32</b> e configura il WiFi, senza toolchain. Il ponte legge la centralina DS200/DS300 e la porta senza cavo al <b>Cronometro web</b>, che serve per vedere la gara: in rete (pagina servita dal ponte, WebSocket) o via <b>Bluetooth</b>, e pubblica i dati su MQTT. <b>È la cosa più acerba del sito</b>: provalo solo se sai cosa stai facendo.",
+    en:"Install the <b>ESP32 bridge</b> firmware straight from the browser and set up WiFi, no toolchain needed. The bridge reads the DS200/DS300 timer box and brings it, with no cable, to the <b>Web lap timer</b>, which you need to follow the race: over the network (page served by the bridge, WebSocket) or over <b>Bluetooth</b>; it also publishes the data on MQTT. <b>It is the roughest thing here</b>: only try it if you know what you are doing.",
+    es:"Instala desde el navegador el firmware del <b>puente ESP32</b> y configura el WiFi, sin toolchain. El puente lee la central DS200/DS300 y la lleva sin cable al <b>Cronómetro web</b>, que hace falta para seguir la carrera: por red (página servida por el puente, WebSocket) o por <b>Bluetooth</b>, y publica los datos por MQTT. <b>Es lo más verde del sitio</b>: pruébalo solo si sabes lo que haces."
   },
   footSite:{it:"sito v",en:"site v",es:"sitio v"},
   footUpd:{it:"aggiornato",en:"updated",es:"actualizado"}

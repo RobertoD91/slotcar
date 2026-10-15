@@ -9,7 +9,7 @@
     "chron02": "1.4.0",
     "o2-bootloader": "1.7.0",
     "ds200-ds300": "1.7.3",
-    "esp32-installer": "1.1.0",
+    "esp32-installer": "1.1.1",
     "guida-oxigen": "1.4.1"
   }
 }

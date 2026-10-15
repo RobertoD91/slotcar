@@ -37,9 +37,9 @@
       "sys.sim.seed": "Seme",
       "sys.sim.seedHint": "Con lo stesso seme esce sempre la stessa gara.",
       "sys.ds200": "DS200",
-      "sys.ds200.desc": "Cronometro DS Electronic DS200 — 2 corsie, RS-232 a 4800 baud.",
+      "sys.ds200.desc": "Centralina DS Electronic DS200 — 2 corsie, RS-232 a 4800 baud.",
       "sys.ds300": "DS300",
-      "sys.ds300.desc": "Cronometro DS Electronic DS300 — fino a 8 corsie, RS-232 a 57600 baud.",
+      "sys.ds300.desc": "Centralina DS Electronic DS300 — fino a 8 corsie, RS-232 a 57600 baud.",
       "sys.esp32": "DS200/DS300 senza fili (ponte ESP32)",
       "sys.esp32.desc": "La stessa centralina, ma i frame arrivano da un ESP32 collegato alla seriale: niente cavo al computer. Si usa aprendo la pagina servita dal ponte.",
       "sys.esp32.url": "Indirizzo del ponte",
@@ -128,7 +128,7 @@
       "foot.text": "Applicazione statica · funziona offline · nessun dato lascia il dispositivo.",
       "foot.disc": "Progetto indipendente, non ufficiale, senza legami con Slot.it / Galileo Engineering, DS Electronic o Ninco. Marchi dei rispettivi proprietari. Da usare solo su hardware di tua proprietà.",
       "install": "Installa questa pagina offline",
-      "wip": "In costruzione. Funzionano la <b>simulazione</b> e il <b>DS200/DS300</b> — quest'ultimo però non è ancora stato provato su una centralina vera. <b>Ninco</b> e <b>oXigen</b> arrivano dopo."
+      "wip": "In costruzione. Funzionano la <b>simulazione</b> e il <b>DS200/DS300 via cavo</b>, provato su una centralina vera. Il <b>ponte ESP32</b> (rete e Bluetooth) non è ancora stato provato su hardware. <b>Ninco</b> e <b>oXigen</b> arrivano dopo."
     },
 
     en: {
@@ -152,9 +152,9 @@
       "sys.sim.seed": "Seed",
       "sys.sim.seedHint": "The same seed always produces the same race.",
       "sys.ds200": "DS200",
-      "sys.ds200.desc": "DS Electronic DS200 timer — 2 lanes, RS-232 at 4800 baud.",
+      "sys.ds200.desc": "DS Electronic DS200 timer box — 2 lanes, RS-232 at 4800 baud.",
       "sys.ds300": "DS300",
-      "sys.ds300.desc": "DS Electronic DS300 timer — up to 8 lanes, RS-232 at 57600 baud.",
+      "sys.ds300.desc": "DS Electronic DS300 timer box — up to 8 lanes, RS-232 at 57600 baud.",
       "sys.esp32": "DS200/DS300 wireless (ESP32 bridge)",
       "sys.esp32.desc": "The same timer box, but the frames arrive from an ESP32 wired to its serial port: no cable to the computer. Use it from the page the bridge serves.",
       "sys.esp32.url": "Bridge address",
@@ -162,14 +162,14 @@
       "sys.ble": "DS200/DS300 over Bluetooth (ESP32 bridge)",
       "sys.ble.desc": "The same bridge, without the network: the page talks straight to the device. It is the only way that works from the published site, because it needs neither wifi nor a certificate. ⚠️ Not on iPhone/iPad: Safari has no Web Bluetooth.",
       "sys.ds.baud": "Baud",
-      "sys.ds.baudHint": "The baud comes with the box you picked: change it only for testing.",
+      "sys.ds.baudHint": "The baud comes with the timer box you picked: change it only for testing.",
       "setup.advanced": "Advanced",
       "setup.modeFromBox": "the timer box decides",
       "prog.kind.laps": "{n} laps (individual)",
       "prog.kind.lapsTotal": "{n} laps (total)",
       "prog.kind.time": "by time",
       "prog.kind.f1": "F1 mode",
-      "prog.other": "The timer box is running: {prog}. We cannot arbitrate that rule, so the app just records — laps, times and standings — and the box waves the flag.",
+      "prog.other": "The timer box is running: {prog}. We cannot arbitrate that rule, so the app just records — laps, times and standings — and the timer box waves the flag.",
       "sys.noBus": "not available in this browser",
 
       "mode.pratica": "Practice",
@@ -243,7 +243,7 @@
       "foot.text": "Static app · works offline · no data leaves your device.",
       "foot.disc": "Independent, unofficial project, not affiliated with Slot.it / Galileo Engineering, DS Electronic or Ninco. Trademarks belong to their owners. Use only on hardware you own.",
       "install": "Install this page offline",
-      "wip": "Work in progress. The <b>simulation</b> and the <b>DS200/DS300</b> work — the latter has not been tried on a real timer yet, though. <b>Ninco</b> and <b>oXigen</b> come next."
+      "wip": "Work in progress. The <b>simulation</b> and the <b>DS200/DS300 over the cable</b> work, the latter tried on a real timer box. The <b>ESP32 bridge</b> (network and Bluetooth) has not been tried on hardware yet. <b>Ninco</b> and <b>oXigen</b> come next."
     },
 
     es: {
@@ -267,9 +267,9 @@
       "sys.sim.seed": "Semilla",
       "sys.sim.seedHint": "Con la misma semilla sale siempre la misma carrera.",
       "sys.ds200": "DS200",
-      "sys.ds200.desc": "Cronómetro DS Electronic DS200 — 2 carriles, RS-232 a 4800 baudios.",
+      "sys.ds200.desc": "Central DS Electronic DS200 — 2 carriles, RS-232 a 4800 baudios.",
       "sys.ds300": "DS300",
-      "sys.ds300.desc": "Cronómetro DS Electronic DS300 — hasta 8 carriles, RS-232 a 57600 baudios.",
+      "sys.ds300.desc": "Central DS Electronic DS300 — hasta 8 carriles, RS-232 a 57600 baudios.",
       "sys.esp32": "DS200/DS300 sin cables (puente ESP32)",
       "sys.esp32.desc": "La misma central, pero las tramas llegan de un ESP32 conectado a su serie: sin cable al ordenador. Se usa desde la página que sirve el puente.",
       "sys.esp32.url": "Dirección del puente",
@@ -302,10 +302,10 @@
       "btn.csv": "Exportar CSV",
       "btn.clear": "Limpiar",
 
-      "ctrl.systemRuns": "La carrera la manda el cronómetro: salida, pausa y final se dan con sus teclas. La app sigue y registra. «Reiniciar» sigue disponible y es solo local.",
+      "ctrl.systemRuns": "La carrera la manda la central: salida, pausa y final se dan con sus teclas. La app sigue y registra. «Reiniciar» sigue disponible y es solo local.",
       "setup.atMax": "Estás en el máximo: esta pista gestiona {n} puestos.",
       "setup.tooMany": "Esta pista gestiona {n} puestos y tienes más: {extra} no recibirán pasos. No los quito yo — decides tú.",
-      "prog.laps": "Programa leído del cronómetro: carrera a {n} vueltas.",
+      "prog.laps": "Programa leído de la central: carrera a {n} vueltas.",
       "state.idle": "Esperando",
       "state.countdown": "Preparados…",
       "state.running": "En carrera",
@@ -358,7 +358,7 @@
       "foot.text": "Aplicación estática · funciona sin conexión · ningún dato sale del dispositivo.",
       "foot.disc": "Proyecto independiente, no oficial, sin vínculo con Slot.it / Galileo Engineering, DS Electronic o Ninco. Las marcas son de sus propietarios. Úsalo solo en hardware de tu propiedad.",
       "install": "Instalar esta página sin conexión",
-      "wip": "En construcción. Funcionan la <b>simulación</b> y el <b>DS200/DS300</b>, aunque este último todavía no se ha probado con un cronómetro real. <b>Ninco</b> y <b>oXigen</b> vienen después."
+      "wip": "En construcción. Funcionan la <b>simulación</b> y el <b>DS200/DS300 por cable</b>, probado con una central real. El <b>puente ESP32</b> (red y Bluetooth) todavía no se ha probado en hardware. <b>Ninco</b> y <b>oXigen</b> vienen después."
     },
 
     fr: {
@@ -382,9 +382,9 @@
       "sys.sim.seed": "Graine",
       "sys.sim.seedHint": "Avec la même graine, la course est toujours identique.",
       "sys.ds200": "DS200",
-      "sys.ds200.desc": "Chronomètre DS Electronic DS200 — 2 couloirs, RS-232 à 4800 bauds.",
+      "sys.ds200.desc": "Centrale DS Electronic DS200 — 2 couloirs, RS-232 à 4800 bauds.",
       "sys.ds300": "DS300",
-      "sys.ds300.desc": "Chronomètre DS Electronic DS300 — jusqu'à 8 couloirs, RS-232 à 57600 bauds.",
+      "sys.ds300.desc": "Centrale DS Electronic DS300 — jusqu'à 8 couloirs, RS-232 à 57600 bauds.",
       "sys.esp32": "DS200/DS300 sans fil (pont ESP32)",
       "sys.esp32.desc": "La même centrale, mais les trames viennent d\'un ESP32 relié à sa liaison série : aucun câble vers l\'ordinateur. À utiliser depuis la page servie par le pont.",
       "sys.esp32.url": "Adresse du pont",
@@ -417,10 +417,10 @@
       "btn.csv": "Exporter CSV",
       "btn.clear": "Effacer",
 
-      "ctrl.systemRuns": "C'est le chrono qui mène la course : départ, pause et arrivée se donnent avec ses touches. L'application suit et enregistre. « Réinitialiser » reste disponible et n'agit qu'en local.",
+      "ctrl.systemRuns": "C'est la centrale qui mène la course : départ, pause et arrivée se donnent avec ses touches. L'application suit et enregistre. « Réinitialiser » reste disponible et n'agit qu'en local.",
       "setup.atMax": "Au maximum : cette piste gère {n} places.",
       "setup.tooMany": "Cette piste gère {n} places et tu en as davantage : {extra} ne recevront aucun passage. Je ne les enlève pas — c'est à toi de décider.",
-      "prog.laps": "Programme lu sur le chrono : course en {n} tours.",
+      "prog.laps": "Programme lu sur la centrale : course en {n} tours.",
       "state.idle": "En attente",
       "state.countdown": "Prêts…",
       "state.running": "En course",
@@ -473,7 +473,7 @@
       "foot.text": "Application statique · fonctionne hors ligne · aucune donnée ne quitte l'appareil.",
       "foot.disc": "Projet indépendant, non officiel, sans lien avec Slot.it / Galileo Engineering, DS Electronic ou Ninco. Marques déposées par leurs propriétaires. À utiliser uniquement sur du matériel qui t'appartient.",
       "install": "Installer cette page hors ligne",
-      "wip": "En construction. La <b>simulation</b> et le <b>DS200/DS300</b> fonctionnent — ce dernier n'a toutefois pas encore été essayé sur un vrai chrono. <b>Ninco</b> et <b>oXigen</b> arrivent ensuite."
+      "wip": "En construction. La <b>simulation</b> et le <b>DS200/DS300 par câble</b> fonctionnent, ce dernier essayé sur une vraie centrale. Le <b>pont ESP32</b> (réseau et Bluetooth) n'a pas encore été essayé sur du matériel. <b>Ninco</b> et <b>oXigen</b> arrivent ensuite."
     },
 
     de: {
@@ -497,9 +497,9 @@
       "sys.sim.seed": "Startwert",
       "sys.sim.seedHint": "Gleicher Startwert, gleiches Rennen.",
       "sys.ds200": "DS200",
-      "sys.ds200.desc": "DS Electronic DS200 — 2 Spuren, RS-232 mit 4800 Baud.",
+      "sys.ds200.desc": "Zentrale DS Electronic DS200 — 2 Spuren, RS-232 mit 4800 Baud.",
       "sys.ds300": "DS300",
-      "sys.ds300.desc": "DS Electronic DS300 — bis zu 8 Spuren, RS-232 mit 57600 Baud.",
+      "sys.ds300.desc": "Zentrale DS Electronic DS300 — bis zu 8 Spuren, RS-232 mit 57600 Baud.",
       "sys.esp32": "DS200/DS300 kabellos (ESP32-Brücke)",
       "sys.esp32.desc": "Dieselbe Zentrale, aber die Frames kommen von einem ESP32 an ihrer seriellen Schnittstelle: kein Kabel zum Rechner. Über die von der Brücke ausgelieferte Seite verwenden.",
       "sys.esp32.url": "Adresse der Brücke",
@@ -532,10 +532,10 @@
       "btn.csv": "CSV-Export",
       "btn.clear": "Leeren",
 
-      "ctrl.systemRuns": "Das Rennen führt die Zeitmessanlage: Start, Pause und Ziel kommen von ihren Tasten. Die App folgt und protokolliert. „Zurücksetzen“ bleibt verfügbar und wirkt nur lokal.",
+      "ctrl.systemRuns": "Das Rennen führt die Zentrale: Start, Pause und Ziel kommen von ihren Tasten. Die App folgt und protokolliert. „Zurücksetzen“ bleibt verfügbar und wirkt nur lokal.",
       "setup.atMax": "Am Limit: diese Bahn verwaltet {n} Plätze.",
       "setup.tooMany": "Diese Bahn verwaltet {n} Plätze, du hast mehr: {extra} bekommen keine Durchfahrten. Ich entferne sie nicht — das entscheidest du.",
-      "prog.laps": "Rennprogramm von der Anlage gelesen: {n} Runden.",
+      "prog.laps": "Rennprogramm von der Zentrale gelesen: {n} Runden.",
       "state.idle": "Wartet",
       "state.countdown": "Achtung…",
       "state.running": "Im Rennen",
@@ -588,7 +588,7 @@
       "foot.text": "Statische App · funktioniert offline · keine Daten verlassen das Gerät.",
       "foot.disc": "Unabhängiges, inoffizielles Projekt, ohne Verbindung zu Slot.it / Galileo Engineering, DS Electronic oder Ninco. Marken gehören ihren Inhabern. Nur auf eigener Hardware verwenden.",
       "install": "Diese Seite offline installieren",
-      "wip": "Im Aufbau. <b>Simulation</b> und <b>DS200/DS300</b> laufen — letzteres wurde aber noch nicht an einer echten Anlage erprobt. <b>Ninco</b> und <b>oXigen</b> folgen."
+      "wip": "Im Aufbau. <b>Simulation</b> und <b>DS200/DS300 per Kabel</b> laufen, letzteres an einer echten Zentrale erprobt. Die <b>ESP32-Brücke</b> (Netzwerk und Bluetooth) wurde noch nicht an Hardware erprobt. <b>Ninco</b> und <b>oXigen</b> folgen."
     }
   };
 

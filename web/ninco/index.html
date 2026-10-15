@@ -28,6 +28,9 @@
 <body class="app">
   <div id="noser" class="banner nope" hidden data-i18n-html="noSerial"></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
+  <!-- La targhetta dell'indice dice «mai provata»: la pagina deve dirlo anche lei,
+       a chi ci arriva da un link senza passare dall'indice. -->
+  <div class="note" data-i18n-html="untestedNote"></div>
   <h1><span data-i18n="h1">Ninco Digital — contagiri</span>
       <span id="st" class="pill"></span>
       <span id="mode" class="pill"></span></h1>
@@ -101,6 +104,11 @@
 
 <script>
 window.I18N_STRINGS = {
+  untestedNote:{
+    it:"🧪 <b>Mai provata su una power base vera.</b> La decodifica segue la documentazione pubblica del protocollo ed è provata solo con pacchetti costruiti a tavolino: se qualcosa non torna, il riquadro «Dati grezzi» mostra le righe arrivate così come sono, e si possono esportare.",
+    en:"🧪 <b>Never tried on a real power base.</b> The decoding follows the public protocol documentation and has only been tested with hand-built packets: if something looks wrong, the «Raw data» box shows the lines exactly as they arrived, and you can export them.",
+    es:"🧪 <b>Nunca probada con una power base real.</b> La decodificación sigue la documentación pública del protocolo y solo se ha probado con paquetes construidos a mano: si algo no cuadra, el recuadro «Datos en crudo» muestra las líneas tal como llegaron, y se pueden exportar."
+  },
   h1:{it:"Ninco Digital — contagiri",en:"Ninco Digital — lap counter",es:"Ninco Digital — cuentavueltas"},
   sub:{
     it:"Legge la <b>power base Ninco N-Digital</b> dalla seriale e mostra posizioni, giri, benzina e tempi. Serve Chrome/Edge su computer.",

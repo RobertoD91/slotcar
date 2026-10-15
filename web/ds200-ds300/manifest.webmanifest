@@ -1,7 +1,7 @@
 {
   "name": "Contagiri DS200 / DS300",
   "short_name": "DS200/300",
-  "description": "Monitor seriale per cronometri slot car DS200/DS300 via Web Serial. Funziona offline come PWA.",
+  "description": "Lettura delle centraline slot car DS200/DS300 via Web Serial. Funziona offline come PWA.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
