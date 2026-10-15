@@ -629,7 +629,6 @@
     els.raceState.textContent = raceFn ? t('func.' + raceFn) : '—';
     renderLanes();
     if (els.version) els.version.textContent = 'v' + APP_VERSION;
-    document.title = 'Contagiri DS200 / DS300 v' + APP_VERSION;
     if (installHintShown) showInstallHint();
   }
 
@@ -645,9 +644,9 @@
   }
   setStatus('off', 'status.disconnected');
 
-  // Show the running version (helps spot a stale cache).
+  // Show the running version (helps spot a stale cache). Il titolo della
+  // scheda lo scrive i18n.js (h1 + nome del sito): la versione sta nel piè.
   if (els.version) els.version.textContent = 'v' + APP_VERSION;
-  document.title = 'Contagiri DS200 / DS300 v' + APP_VERSION;
   renderClock();
   renderLink();
   setInterval(renderLanes, 5000); // refresh "updated Xs ago"
@@ -661,6 +660,33 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   }
+
+  /* ---- «Aggiorna» ----------------------------------------------------------
+   * La stessa fascia di tutte le pagine: compare se version.json pubblica per
+   * questa app una versione diversa da APP_VERSION (il service worker non lo
+   * mette in cache, apposta: una copia vecchia direbbe sempre «niente di nuovo»).
+   * Ma qui ricaricare non basta: con la cache-first la pagina e i suoi file
+   * arriverebbero di nuovo dalla cache. Si chiede al service worker di cercare la
+   * versione nuova: quella scarica la sua cache, si attiva, prende la pagina
+   * (controllerchange) e allora si ricarica. Se non c'è un service worker, o
+   * non risponde entro qualche secondo, si ricarica e basta. */
+  function reloadFresh() {
+    let fatto = false;
+    const vai = () => { if (!fatto) { fatto = true; location.reload(); } };
+    if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) { vai(); return; }
+    navigator.serviceWorker.addEventListener('controllerchange', vai);
+    navigator.serviceWorker.getRegistration().then((r) => r && r.update()).catch(vai);
+    setTimeout(vai, 5000);
+  }
+  const updBtn = $('updBtn');
+  if (updBtn) updBtn.addEventListener('click', reloadFresh);
+  fetch('../version.json?_=' + Date.now(), { cache: 'no-store' })
+    .then((r) => r.json())
+    .then((j) => {
+      const pub = j.apps && j.apps['ds200-ds300'];
+      if (pub && pub !== APP_VERSION && $('upd')) $('upd').hidden = false;
+    })
+    .catch(() => {});
   let deferredPrompt = null;
   let installHintShown = false;
   function showInstallHint() {

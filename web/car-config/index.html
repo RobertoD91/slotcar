@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
-<title>Configuratore auto oXigen (BLE)</title>
+<title data-i18n="h1title">Configuratore auto BLE — Slot Car Web Tools</title>
 <link rel="stylesheet" href="../ui.css">
 <style>
   /* Qui dentro solo quello che è di QUESTA pagina: intestazione, riquadri,
@@ -119,6 +119,9 @@
 
   <div class="card"><details><summary style="cursor:pointer;color:var(--mut)" data-i18n="advLog"></summary><div id="log"></div></details></div>
 
+<!-- Il piè di tutte le pagine (ui.css): i18n.js ci mette il disclaimer, in fondo la versione. -->
+<footer><p class="ver">v<span id="appver"></span></p></footer>
+
 <script>
 window.I18N_STRINGS = {
   sub:{
@@ -127,7 +130,7 @@ window.I18N_STRINGS = {
     es:"Lee/escribe los registros del chip por BLE (NUS por registros). Chrome/Edge en escritorio o Chrome en Android. <b>Solo en hardware de tu propiedad.</b>"
   },
   backHome:{it:"← Slot Car Web Tools",en:"← Slot Car Web Tools",es:"← Slot Car Web Tools"},
-  h1title:{it:"Configuratore auto",en:"Car configurator",es:"Configurador de coche"},
+  h1title:{it:"Configuratore auto BLE",en:"Car configurator BLE",es:"Configurador de coche BLE"},
   stConnected:{it:"connesso",en:"connected",es:"conectado"},
   stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
   btnConn:{it:"🔵 Connetti",en:"🔵 Connect",es:"🔵 Conectar"},
@@ -350,7 +353,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="car-config",APP_VERSION="1.5.0";
+const APP="car-config",APP_VERSION="1.5.1";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const DEV=0x09;          // byte del dispositivo in BLE: 0x09 = auto (0x0a = telecomando)
 /* I registri dell'auto. Solo questi si leggono e si scrivono, e ciascuno con la
@@ -560,10 +563,11 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 else initDynamic();
 document.addEventListener("i18n:changed",()=>{renderStatus();renderRawMsg();});
 
-/* prompt aggiornamento versione */
+/* versione: nel piè, e la fascia «Aggiorna» se quella pubblicata è un'altra */
+document.getElementById("appver").textContent=APP_VERSION;
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
-  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)document.getElementById("upd").hidden=false;}).catch(()=>{});
 
 /* Il MAC O2 è 2 byte = ESATTAMENTE 4 cifre esadecimali. Il campo non si lascia
    riempire di altro: filtra i caratteri non validi e si ferma a quattro, così

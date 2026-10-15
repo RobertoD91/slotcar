@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
-<title>Configuratore dongle oXigen (USB seriale)</title>
+<title data-i18n="h1title">Configuratore dongle — Slot Car Web Tools</title>
 <link rel="stylesheet" href="../ui.css">
 <style>
   /* Qui dentro solo quello che è di QUESTA pagina: la cornice sta in ../ui.css. */
@@ -254,6 +254,9 @@
       <div id="log"></div>
     </details>
   </div>
+
+<!-- Il piè di tutte le pagine (ui.css): i18n.js ci mette il disclaimer, in fondo la versione. -->
+<footer><p class="ver">v<span id="appver"></span></p></footer>
 
 <script>
 window.I18N_STRINGS = {
@@ -797,7 +800,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="o2-bootloader",APP_VERSION="1.7.0";
+const APP="o2-bootloader",APP_VERSION="1.7.1";
 const VID=0x1fee,PID=0x0002;
 /* Il programma ufficiale apre la COM a 9600 8N1 (visto nelle catture USB). Sul
    dongle è una COM virtuale, quindi il valore è nominale — ma se un giorno in
@@ -1530,9 +1533,11 @@ renderAll();
 /* compat + sw + versione */
 if(!navigator.serial){$("nobt").style.display="block";$("btnConn").disabled=true;log(I18N.t("noSerialLog"));}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
+/* versione: nel piè, e la fascia «Aggiorna» se quella pubblicata è un'altra */
+document.getElementById("appver").textContent=APP_VERSION;
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
-  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)document.getElementById("upd").hidden=false;}).catch(()=>{});
 </script>
 <script src="../tema.js"></script>
 </body>

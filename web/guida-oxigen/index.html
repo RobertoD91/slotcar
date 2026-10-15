@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
-<title data-i18n="title">Guida rapida oXigen — Slot Car Web Tools</title>
+<title data-i18n="h1">Guida rapida oXigen — Slot Car Web Tools</title>
 <link rel="stylesheet" href="../ui.css">
 <style>
   /* La tavolozza arriva da ../ui.css: qui c'è solo il layout di questa pagina. */
@@ -68,9 +68,6 @@
   .tag.na{color:var(--err);border-color:var(--err)}
   mark{background:var(--warn);color:var(--warnfg);border-radius:3px;padding:0 2px}
   .nores{display:none;color:var(--mut);padding:16px 2px;font-size:14px}
-  .foot{color:var(--mut);font-size:12px;margin:24px 0 8px;border-top:1px solid var(--bd);padding-top:12px}
-  #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
-  #upd button{background:var(--accfg);color:var(--acc);margin-left:8px;border:0;border-radius:8px;padding:6px 12px;font-weight:600;cursor:pointer}
 
   @media (max-width:560px){
     h1{font-size:22px}
@@ -80,7 +77,7 @@
 </style>
 </head>
 <body>
-  <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
+  <div id="upd" class="banner upd" hidden><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
   <header>
     <h1 data-i18n="h1"></h1>
@@ -285,11 +282,15 @@
   </table></div>
 </div>
 
-<p class="foot" data-i18n-html="foot"></p>
+<!-- Il piè di tutte le pagine (ui.css): le fonti, poi il disclaimer (lo mette
+     i18n.js), in fondo la versione. -->
+<footer>
+  <p data-i18n-html="foot"></p>
+  <p class="ver">v<span id="appver"></span></p>
+</footer>
 
 <script>
 window.I18N_STRINGS = {
-  title:{it:`Guida rapida oXigen`,en:`oXigen quick guide`,es:`Guía rápida oXigen`},
   h1:{it:`Guida rapida oXigen`,en:`oXigen quick guide`,es:`Guía rápida oXigen`},
   sub:{
     it:`Cosa fa ogni combinazione di tasti, cosa vuol dire ogni lampeggio. Accensione, modalità di guida, LED, pairing e DFU di controller <b>SCP-3</b> e <b>chip auto</b> (B2/C/C1), presi dai manuali ufficiali Slot.it. Si consulta col controller in mano.`,
@@ -566,7 +567,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="guida-oxigen",APP_VERSION="1.4.1";
+const APP="guida-oxigen",APP_VERSION="1.4.2";
 
 /* --- indice sezioni --- */
 (function(){
@@ -653,11 +654,11 @@ document.addEventListener("i18n:changed",runFilter);
 /* --- service worker (network-first) --- */
 if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
 
-/* --- banner aggiornamento versione --- */
+/* versione: nel piè, e la fascia «Aggiorna» se quella pubblicata è un'altra */
+document.getElementById("appver").textContent=APP_VERSION;
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
-  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)document.getElementById("upd").style.display="block";
-}).catch(()=>{});
+  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)document.getElementById("upd").hidden=false;}).catch(()=>{});
 </script>
 <script src="../tema.js"></script>
 </body>

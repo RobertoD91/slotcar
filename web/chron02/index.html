@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
-<title>Contagiri oXigen (chron02)</title>
+<title data-i18n="h1title">Contagiri gara (chron02) — Slot Car Web Tools</title>
 <link rel="stylesheet" href="../ui.css">
 <style>
   /* Qui dentro solo quello che è di QUESTA pagina: la cornice sta in ../ui.css. */
@@ -168,6 +168,9 @@
     </details>
   </div>
 
+<!-- Il piè di tutte le pagine (ui.css): i18n.js ci mette il disclaimer, in fondo la versione. -->
+<footer><p class="ver">v<span id="appver"></span></p></footer>
+
 <script>
 window.I18N_STRINGS = {
   portNoId:{it:"porta senza identificativo USB",en:"port with no USB id",es:"puerto sin identificador USB"},
@@ -187,7 +190,7 @@ window.I18N_STRINGS = {
     en:"oXigen lap counter and race manager with the Slot.it USB dongle (<b>Web Serial</b>, VID 1FEE/PID 0002): it runs the race, sends limits to the controllers and shows live telemetry and leaderboard. <b>Only on your own hardware.</b>",
     es:"Cuentavueltas y gestor de carrera oXigen con el dongle USB Slot.it (<b>Web Serial</b>, VID 1FEE/PID 0002): manda la carrera, envía los límites a los mandos y muestra telemetría y clasificación en vivo. <b>Solo en tu propio hardware.</b>"
   },
-  h1title:{it:"Contagiri / gestione gara",en:"Lap counter / race manager",es:"Cuentavueltas / gestor de carrera"},
+  h1title:{it:"Contagiri gara (chron02)",en:"Race lap counter (chron02)",es:"Cuentavueltas de carrera (chron02)"},
   btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle"},
   btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
 
@@ -410,7 +413,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="chron02",APP_VERSION="1.4.0";
+const APP="chron02",APP_VERSION="1.4.1";
 const VID=0x1fee,PID=0x0002;
 
 /* ===== Protocollo, per quello che serve a questa pagina =====
@@ -975,9 +978,11 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 /* compat + sw + versione */
 if(!navigator.serial){$("nobt").style.display="block";$("btnConn").disabled=true;log(I18N.t("noSerialLog"));}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
+/* versione: nel piè, e la fascia «Aggiorna» se quella pubblicata è un'altra */
+document.getElementById("appver").textContent=APP_VERSION;
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
-  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)document.getElementById("upd").hidden=false;}).catch(()=>{});
 </script>
 <script src="../tema.js"></script>
 </body>

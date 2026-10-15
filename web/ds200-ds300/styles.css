@@ -19,7 +19,6 @@
 .topbar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
         margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--bd)}
 .brand{display:flex;align-items:center;gap:10px}
-.logo{font-size:22px}
 .brand h1{font-size:20px;margin:0}
 .brand small{color:var(--mut);font-size:13px}
 .conn{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -99,10 +98,6 @@ table.leaderboard td{font-size:14px}
 #cmd-card.disabled{opacity:.55}
 #cmd-card.disabled button,#cmd-card.disabled input,#cmd-card.disabled select{pointer-events:none}
 
-.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;
-      margin-top:18px;padding-top:12px;border-top:1px solid var(--bd);
-      font-size:12px;color:var(--mut)}
-.ver{opacity:.7;font-family:ui-monospace,Menlo,Consolas,monospace}
 
 @media (max-width:860px){
   .grid{grid-template-columns:1fr}

@@ -47,9 +47,6 @@
   .badge{float:right}
   .tech{margin-top:8px;font-size:11px;color:var(--mut)}
   .tech span{display:inline-block;border:1px solid var(--bd);border-radius:6px;padding:1px 7px;margin:2px 4px 0 0}
-  footer{color:var(--mut);font-size:12px;margin-top:24px;border-top:1px solid var(--bd);padding-top:12px}
-  #upd{display:none;background:var(--acc);color:var(--accfg);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-weight:600}
-  #upd button{background:var(--accfg);color:var(--acc);border:0;border-radius:7px;padding:6px 12px;font-weight:700;cursor:pointer;margin-left:8px}
   .compat{display:none;background:var(--err);color:var(--errfg);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-weight:600}
   /* Avviso: roba da smanettoni, non da utente finale. */
   #dev{background:rgba(224,168,0,.12);border:1px solid var(--warn);border-radius:10px;
@@ -75,7 +72,7 @@
   <div id="nossl" class="compat" data-i18n-html="noSsl"></div>
   <div id="nobt" class="compat" data-i18n-html="noBt"></div>
   <div id="noser" class="compat" data-i18n-html="noSerial"></div>
-  <div id="upd"><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
+  <div id="upd" class="banner upd" hidden><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <h1>Slot Car Web Tools</h1>
   <p class="sub" data-i18n-html="sub"></p>
   <div id="dev" data-i18n-html="devWarn"></div>
@@ -158,8 +155,10 @@
     </a>
   </div>
 
+  <!-- Il piè è quello di tutte le pagine (ui.css): i18n.js ci mette dentro il
+       disclaimer, e in fondo resta la versione — qui quella del sito. -->
   <footer>
-    <span id="ver">…</span>
+    <p class="ver"><span id="ver">…</span></p>
   </footer>
 
 <script>
@@ -318,7 +317,7 @@ function renderVer(j){
 let _verData=null;
 fetch("version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
   _verData=j; renderVer(j);
-  if(j.site&&j.site!==SITE_VERSION)document.getElementById("upd").style.display="block";
+  if(j.site&&j.site!==SITE_VERSION)document.getElementById("upd").hidden=false;
 }).catch(()=>{document.getElementById("ver").textContent="";});
 // ri-render del footer dinamico al cambio lingua
 document.addEventListener("i18n:changed",()=>{ if(_verData)renderVer(_verData); });

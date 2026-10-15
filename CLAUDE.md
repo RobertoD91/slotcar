@@ -129,6 +129,10 @@ L'utente è italiano: **rispondere in italiano**.
       e colori di stato restavano quelli del tema scuro). Apri il selettore della lingua: le
       voci devono leggersi in chiaro e in scuro. Prova anche il tema forzato a 🌙 con il
       sistema in chiaro: deve essere scuro dappertutto, tendine comprese.
+- [ ] **Fascia «Aggiorna» nelle PWA**, alla prossima pubblicazione dopo questa: apri il
+      Cronometro (o il DS200) che hai già installato; deve comparire la fascia «Nuova versione
+      disponibile», e il pulsante deve portarti alla versione nuova (la leggi nel piè) entro
+      pochi secondi. Prima le due PWA non avevano la fascia, e restavano vecchie in silenzio.
 
 ### Cronometro web — le prossime tappe
 Motore, simulatore, modalità *pratica* e *GP a giri*, guidatori modificabili, voce, 5 lingue
@@ -327,6 +331,20 @@ silenzio e pretende che il numero non si sia mosso.
   `position:fixed` in un angolo, e un riquadro flottante deve schivare qualunque cosa gli
   capiti vicino — sull'indice il nastro, altrove niente: da lì l'eccezione, e dall'eccezione
   il cambio di lato. Nel flusso non schiva niente e scorre col contenuto.
+- ⭐ **La cornice è la stessa su tutte le pagine** (gli stub esclusi):
+  - **titolo = h1 + « — Slot Car Web Tools»**, e l'h1 è il titolo della card nell'indice,
+    nella stessa lingua. Le pagine di `i18n.js` scrivono `<title data-i18n="<chiave dell'h1>">`
+    e il suffisso lo aggiunge lui; cronometro e DS200 lo fanno nel loro `applyDom`. Niente
+    versione nel titolo, niente emoji negli h1.
+  - **fascia «Aggiorna»** in cima: `<div id="upd" class="banner upd" hidden>`, accesa con
+    `hidden = false` se `version.json` pubblica per `APP` una versione diversa da
+    `APP_VERSION`. Nelle due PWA il pulsante non ricarica e basta (la cache-first
+    ridarebbe la copia vecchia): chiede l'aggiornamento al service worker e ricarica al
+    `controllerchange`.
+  - **piè** `<footer>` (stile in `ui.css`): in fondo `.ver` con `APP_VERSION`, sopra il
+    disclaimer — `i18n.js` lo infila dentro il piè, cronometro e DS200 lo scrivono da sé.
+    Ogni pagina con una versione la dichiara in `const APP=…,APP_VERSION=…` e
+    `check-versions.js` la confronta con `version.json`.
 - **L'aspetto del selettore sta in `.langsel` di `ui.css`**, e lo usano tutti e tre i motori
   (quello di `i18n.js` e i due nel markup di cronometro e DS200). Il fondo è **pieno**: la
   tendina delle opzioni la disegna il browser, e con un fondo trasparente in tema scuro le

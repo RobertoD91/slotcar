@@ -24,7 +24,8 @@
     start: $("start"), pause: $("pause"), stop: $("stop"), reset: $("reset"), csv: $("csv"),
     board: $("board"), boardEmpty: $("boardEmpty"),
     clockPanel: $("clockPanel"),
-    log: $("log"), clearLog: $("clearLog"), install: $("install"), appver: $("appver")
+    log: $("log"), clearLog: $("clearLog"), install: $("install"), appver: $("appver"),
+    upd: $("upd"), updBtn: $("updBtn")
   };
 
   /* ---- memoria locale ------------------------------------------------------ */
@@ -751,6 +752,36 @@
       navigator.serviceWorker.register("sw.js").catch(function () {});
     });
   }
+  /* ---- «Aggiorna» ----------------------------------------------------------
+   * La stessa fascia di tutte le pagine: compare se version.json pubblica per
+   * il cronometro una versione diversa da APP_VERSION (il service worker non lo
+   * mette in cache, apposta: una copia vecchia direbbe sempre «niente di nuovo»).
+   * Ma qui ricaricare non basta: con la cache-first la pagina e i suoi file
+   * arriverebbero di nuovo dalla cache. Si chiede al service worker di cercare la
+   * versione nuova: quella scarica la sua cache, si attiva, prende la pagina
+   * (controllerchange) e allora si ricarica. Senza service worker (per esempio
+   * sul ponte ESP32, dove version.json non c'è proprio) si ricarica e basta. */
+  function reloadFresh() {
+    var fatto = false;
+    function vai() { if (!fatto) { fatto = true; location.reload(); } }
+    if (!("serviceWorker" in navigator) || !navigator.serviceWorker.controller) { vai(); return; }
+    navigator.serviceWorker.addEventListener("controllerchange", vai);
+    navigator.serviceWorker.getRegistration()
+      .then(function (r) { return r && r.update(); })
+      .catch(vai);
+    setTimeout(vai, 5000);
+  }
+  els.updBtn.addEventListener("click", reloadFresh);
+  function controllaVersione() {
+    fetch("../version.json?_=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var pub = j.apps && j.apps.cronometro;
+        if (pub && pub !== APP_VERSION) els.upd.hidden = false;
+      })
+      .catch(function () {});
+  }
+
   var promptInstall = null;
   window.addEventListener("beforeinstallprompt", function (e) {
     e.preventDefault();
@@ -773,6 +804,7 @@
     els.tts.checked = !!cfg.tts && ttsOk;
     if (!ttsOk) els.tts.parentElement.hidden = true;
     els.appver.textContent = APP_VERSION;
+    controllaVersione();
     renderTraguardo();
 
     race.setGuidatori((cfg.slots || [1, 2]).map(function (s) { return { slot: s, name: nomi[s] || null }; }));

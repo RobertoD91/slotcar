@@ -19,6 +19,10 @@
 <link rel="stylesheet" href="styles.css?v=0.5.6">
 </head>
 <body>
+<!-- La fascia «Aggiorna» di tutte le pagine (ui.css). Qui il pulsante chiede al
+     service worker la versione nuova (vedi app.js): con la cache-first
+     ricaricare non basta. -->
+<div id="upd" class="banner upd" hidden><span data-i18n="upd.text"></span> <button id="updBtn" type="button" data-i18n="upd.btn"></button></div>
 <!-- Link di ritorno e selettore lingua stanno insieme in alto a SINISTRA, come
      su tutte le altre pagine (vedi ../i18n.js). L'interruttore della voce no:
      quello è una funzione dell'app, non della cornice. -->

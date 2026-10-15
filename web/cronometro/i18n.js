@@ -126,8 +126,10 @@
       "time.secAnd": "{s} secondi e {cc}",
 
       "foot.text": "Applicazione statica · funziona offline · nessun dato lascia il dispositivo.",
-      "foot.disc": "Progetto indipendente, non ufficiale, senza legami con Slot.it / Galileo Engineering, DS Electronic o Ninco. Marchi dei rispettivi proprietari. Da usare solo su hardware di tua proprietà.",
+      "foot.disc": "Progetto indipendente, non ufficiale, senza legami con Slot.it / Galileo Engineering, DS Electronic o Ninco. Marchi dei rispettivi proprietari. Fornito così com'è, senza garanzia. Da usare solo su hardware di tua proprietà.",
       "install": "Installa questa pagina offline",
+      "upd.text": "🔄 Nuova versione disponibile.",
+      "upd.btn": "Aggiorna",
       "wip": "In costruzione. Funzionano la <b>simulazione</b> e il <b>DS200/DS300 via cavo</b>, provato su una centralina vera. Il <b>ponte ESP32</b> (rete e Bluetooth) non è ancora stato provato su hardware. <b>Ninco</b> e <b>oXigen</b> arrivano dopo."
     },
 
@@ -241,8 +243,10 @@
       "time.secAnd": "{s} seconds and {cc}",
 
       "foot.text": "Static app · works offline · no data leaves your device.",
-      "foot.disc": "Independent, unofficial project, not affiliated with Slot.it / Galileo Engineering, DS Electronic or Ninco. Trademarks belong to their owners. Use only on hardware you own.",
+      "foot.disc": "Independent, unofficial project, not affiliated with Slot.it / Galileo Engineering, DS Electronic or Ninco. Trademarks belong to their owners. Provided as is, without warranty. Use only on hardware you own.",
       "install": "Install this page offline",
+      "upd.text": "🔄 A new version is available.",
+      "upd.btn": "Update",
       "wip": "Work in progress. The <b>simulation</b> and the <b>DS200/DS300 over the cable</b> work, the latter tried on a real timer box. The <b>ESP32 bridge</b> (network and Bluetooth) has not been tried on hardware yet. <b>Ninco</b> and <b>oXigen</b> come next."
     },
 
@@ -356,8 +360,10 @@
       "time.secAnd": "{s} segundos y {cc}",
 
       "foot.text": "Aplicación estática · funciona sin conexión · ningún dato sale del dispositivo.",
-      "foot.disc": "Proyecto independiente, no oficial, sin vínculo con Slot.it / Galileo Engineering, DS Electronic o Ninco. Las marcas son de sus propietarios. Úsalo solo en hardware de tu propiedad.",
+      "foot.disc": "Proyecto independiente, no oficial, sin vínculo con Slot.it / Galileo Engineering, DS Electronic o Ninco. Las marcas son de sus propietarios. Se ofrece tal cual, sin garantía. Úsalo solo en hardware de tu propiedad.",
       "install": "Instalar esta página sin conexión",
+      "upd.text": "🔄 Hay una nueva versión disponible.",
+      "upd.btn": "Actualizar",
       "wip": "En construcción. Funcionan la <b>simulación</b> y el <b>DS200/DS300 por cable</b>, probado con una central real. El <b>puente ESP32</b> (red y Bluetooth) todavía no se ha probado en hardware. <b>Ninco</b> y <b>oXigen</b> vienen después."
     },
 
@@ -471,8 +477,10 @@
       "time.secAnd": "{s} secondes et {cc}",
 
       "foot.text": "Application statique · fonctionne hors ligne · aucune donnée ne quitte l'appareil.",
-      "foot.disc": "Projet indépendant, non officiel, sans lien avec Slot.it / Galileo Engineering, DS Electronic ou Ninco. Marques déposées par leurs propriétaires. À utiliser uniquement sur du matériel qui t'appartient.",
+      "foot.disc": "Projet indépendant, non officiel, sans lien avec Slot.it / Galileo Engineering, DS Electronic ou Ninco. Marques déposées par leurs propriétaires. Fourni tel quel, sans garantie. À utiliser uniquement sur du matériel qui t'appartient.",
       "install": "Installer cette page hors ligne",
+      "upd.text": "🔄 Une nouvelle version est disponible.",
+      "upd.btn": "Mettre à jour",
       "wip": "En construction. La <b>simulation</b> et le <b>DS200/DS300 par câble</b> fonctionnent, ce dernier essayé sur une vraie centrale. Le <b>pont ESP32</b> (réseau et Bluetooth) n'a pas encore été essayé sur du matériel. <b>Ninco</b> et <b>oXigen</b> arrivent ensuite."
     },
 
@@ -586,8 +594,10 @@
       "time.secAnd": "{s} Sekunden und {cc}",
 
       "foot.text": "Statische App · funktioniert offline · keine Daten verlassen das Gerät.",
-      "foot.disc": "Unabhängiges, inoffizielles Projekt, ohne Verbindung zu Slot.it / Galileo Engineering, DS Electronic oder Ninco. Marken gehören ihren Inhabern. Nur auf eigener Hardware verwenden.",
+      "foot.disc": "Unabhängiges, inoffizielles Projekt, ohne Verbindung zu Slot.it / Galileo Engineering, DS Electronic oder Ninco. Marken gehören ihren Inhabern. Ohne Gewähr, so wie es ist. Nur auf eigener Hardware verwenden.",
       "install": "Diese Seite offline installieren",
+      "upd.text": "🔄 Eine neue Version ist verfügbar.",
+      "upd.btn": "Aktualisieren",
       "wip": "Im Aufbau. <b>Simulation</b> und <b>DS200/DS300 per Kabel</b> laufen, letzteres an einer echten Zentrale erprobt. Die <b>ESP32-Brücke</b> (Netzwerk und Bluetooth) wurde noch nicht an Hardware erprobt. <b>Ninco</b> und <b>oXigen</b> folgen."
     }
   };
@@ -640,6 +650,9 @@
         el.title = self.t(el.getAttribute("data-i18n-title"));
       });
       document.documentElement.lang = this.current;
+      /* Il titolo della scheda è l'h1 più il nome del sito, come su tutte le
+         pagine, e cambia lingua con lui. */
+      document.title = this.t("app.title") + " — Slot Car Web Tools";
     }
   };
 

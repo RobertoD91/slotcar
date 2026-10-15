@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
-<title data-i18n="pageTitle">Configuratore controller SCP-3 (BLE)</title>
+<title data-i18n="ctrlHeading">Configuratore controller BLE — Slot Car Web Tools</title>
 <link rel="stylesheet" href="../ui.css">
 <style>
   /* Qui dentro solo quello che è di QUESTA pagina: la cornice sta in ../ui.css. */
@@ -100,9 +100,11 @@
 
   <div class="card"><details><summary style="cursor:pointer;color:var(--mut)">Log</summary><div id="log"></div></details></div>
 
+<!-- Il piè di tutte le pagine (ui.css): i18n.js ci mette il disclaimer, in fondo la versione. -->
+<footer><p class="ver">v<span id="appver"></span></p></footer>
+
 <script>
 window.I18N_STRINGS = {
-  pageTitle:{it:"Configuratore controller SCP-3 (BLE)",en:"SCP-3 controller configurator (BLE)",es:"Configurador del mando SCP-3 (BLE)"},
   sub:{
     it:"Legge/scrive i registri del controller SCP-3 via BLE (NUS a registri). Chrome/Edge desktop o Chrome Android. <b>Solo su hardware tuo.</b>",
     en:"Reads/writes the SCP-3 controller registers over BLE (register-based NUS). Chrome/Edge desktop or Chrome Android. <b>Only on your own hardware.</b>",
@@ -110,7 +112,7 @@ window.I18N_STRINGS = {
   },
   btnConn:{it:"🔵 Connetti",en:"🔵 Connect",es:"🔵 Conectar"},
   btnDisc:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
-  ctrlHeading:{it:"Configuratore controller",en:"Controller configurator",es:"Configurador del mando"},
+  ctrlHeading:{it:"Configuratore controller BLE",en:"Controller configurator BLE",es:"Configurador del mando BLE"},
   cardInfo:{it:"Informazioni (sola lettura)",en:"Information (read-only)",es:"Información (solo lectura)"},
   btnReadAll:{it:"↺ Leggi configurazione",en:"↺ Read configuration",es:"↺ Leer configuración"},
   readAllHint:{
@@ -283,7 +285,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="remote-config",APP_VERSION="1.5.0";
+const APP="remote-config",APP_VERSION="1.5.1";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const PFX=0x0a;                                  // byte del dispositivo in BLE: 0x0a = telecomando (l'auto usa 0x09)
 const TYPE_STR="SCP3 Handle", VER_STR="O2 / Analog";   // display fissi della schermata SCP3
@@ -484,10 +486,11 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 else initDynamic();
 document.addEventListener("i18n:changed",()=>{renderStatus();renderRawMsg();});
 
-/* prompt aggiornamento versione */
+/* versione: nel piè, e la fascia «Aggiorna» se quella pubblicata è un'altra */
+document.getElementById("appver").textContent=APP_VERSION;
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
-  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)$("upd").style.display="block";}).catch(()=>{});
+  if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)document.getElementById("upd").hidden=false;}).catch(()=>{});
 
 /* Il MAC O2 è 2 byte = ESATTAMENTE 4 cifre esadecimali. Il campo non si lascia
    riempire di altro: filtra i caratteri non validi e si ferma a quattro, così

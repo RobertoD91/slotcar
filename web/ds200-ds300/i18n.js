@@ -21,6 +21,7 @@
 
   const DICT = {
     it: {
+      'app.title': 'Contagiri DS200 / DS300',
       'subtitle': 'Lettura della centralina DS200 / DS300 via RS-232',
       'baud': 'Baud',
       'connect': 'Connetti',
@@ -59,6 +60,9 @@
       'btn.clear': 'Pulisci',
       'footer.text': 'App statica · funziona offline come PWA · nessun dato lascia il dispositivo.',
       'install': 'Installa questa pagina offline',
+      'upd.text': '🔄 Nuova versione disponibile.',
+      'upd.btn': 'Aggiorna',
+      'foot.disc': 'Progetto indipendente, non ufficiale, senza legami con Slot.it / Galileo Engineering, DS Electronic o Ninco. Marchi dei rispettivi proprietari. Fornito così com\'è, senza garanzia. Da usare solo su hardware di tua proprietà.',
       'status.disconnected': 'Disconnesso',
       'status.connected': 'Connesso @ {baud} baud',
       'status.error': 'Errore: {msg}',
@@ -86,6 +90,7 @@
       'cmd.notconn': 'non connesso',
     },
     en: {
+      'app.title': 'DS200 / DS300 lap counter',
       'subtitle': 'Reading the DS200 / DS300 timer box over RS-232',
       'baud': 'Baud',
       'connect': 'Connect',
@@ -124,6 +129,9 @@
       'btn.clear': 'Clear',
       'footer.text': 'Static app · works offline as a PWA · no data leaves your device.',
       'install': 'Install this page offline',
+      'upd.text': '🔄 A new version is available.',
+      'upd.btn': 'Update',
+      'foot.disc': 'Independent, unofficial project, not affiliated with Slot.it / Galileo Engineering, DS Electronic or Ninco. Trademarks belong to their owners. Provided as is, without warranty. Use only on hardware you own.',
       'status.disconnected': 'Disconnected',
       'status.connected': 'Connected @ {baud} baud',
       'status.error': 'Error: {msg}',
@@ -151,6 +159,7 @@
       'cmd.notconn': 'not connected',
     },
     es: {
+      'app.title': 'Cuentavueltas DS200 / DS300',
       'subtitle': 'Lectura de la central DS200 / DS300 por RS-232',
       'baud': 'Baudios',
       'connect': 'Conectar',
@@ -189,6 +198,9 @@
       'btn.clear': 'Limpiar',
       'footer.text': 'App estática · funciona sin conexión como PWA · ningún dato sale del dispositivo.',
       'install': 'Instalar esta página sin conexión',
+      'upd.text': '🔄 Hay una nueva versión disponible.',
+      'upd.btn': 'Actualizar',
+      'foot.disc': 'Proyecto independiente, no oficial, sin vínculo con Slot.it / Galileo Engineering, DS Electronic o Ninco. Las marcas son de sus propietarios. Se ofrece tal cual, sin garantía. Úsalo solo en hardware de tu propiedad.',
       'status.disconnected': 'Desconectado',
       'status.connected': 'Conectado @ {baud} baudios',
       'status.error': 'Error: {msg}',
@@ -216,6 +228,7 @@
       'cmd.notconn': 'no conectado',
     },
     fr: {
+      'app.title': 'Compte-tours DS200 / DS300',
       'subtitle': 'Lecture de la centrale DS200 / DS300 par RS-232',
       'baud': 'Baud',
       'connect': 'Connecter',
@@ -254,6 +267,9 @@
       'btn.clear': 'Effacer',
       'footer.text': "App statique · fonctionne hors ligne en PWA · aucune donnée ne quitte l'appareil.",
       'install': 'Installer cette page hors ligne',
+      'upd.text': '🔄 Une nouvelle version est disponible.',
+      'upd.btn': 'Mettre à jour',
+      'foot.disc': 'Projet indépendant, non officiel, sans lien avec Slot.it / Galileo Engineering, DS Electronic ou Ninco. Marques déposées par leurs propriétaires. Fourni tel quel, sans garantie. À utiliser uniquement sur du matériel qui t\'appartient.',
       'status.disconnected': 'Déconnecté',
       'status.connected': 'Connecté @ {baud} bauds',
       'status.error': 'Erreur : {msg}',
@@ -281,6 +297,7 @@
       'cmd.notconn': 'non connecté',
     },
     de: {
+      'app.title': 'Rundenzähler DS200 / DS300',
       'subtitle': 'Auslesen der Zentrale DS200 / DS300 über RS-232',
       'baud': 'Baud',
       'connect': 'Verbinden',
@@ -319,6 +336,9 @@
       'btn.clear': 'Leeren',
       'footer.text': 'Statische App · funktioniert offline als PWA · keine Daten verlassen das Gerät.',
       'install': 'Diese Seite offline installieren',
+      'upd.text': '🔄 Eine neue Version ist verfügbar.',
+      'upd.btn': 'Aktualisieren',
+      'foot.disc': 'Unabhängiges, inoffizielles Projekt, ohne Verbindung zu Slot.it / Galileo Engineering, DS Electronic oder Ninco. Marken gehören ihren Inhabern. Ohne Gewähr, so wie es ist. Nur auf eigener Hardware verwenden.',
       'status.disconnected': 'Getrennt',
       'status.connected': 'Verbunden @ {baud} Baud',
       'status.error': 'Fehler: {msg}',
@@ -385,6 +405,9 @@
         el.title = this.t(el.getAttribute('data-i18n-title'));
       });
       document.documentElement.lang = this.current;
+      /* Il titolo della scheda è l'h1 più il nome del sito, come su tutte le
+         pagine: niente versione (sta nel piè), e cambia lingua con l'h1. */
+      document.title = this.t('app.title') + ' — Slot Car Web Tools';
     },
   };
 

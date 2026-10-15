@@ -156,18 +156,6 @@ a{color:var(--acc)}
           white-space:pre-wrap;max-height:200px;overflow:auto;background:var(--bg);
           border:1px solid var(--bd);border-radius:8px;padding:10px}
 
-/* Fasce in cima alla pagina: aggiornamento disponibile, oppure il browser non
-   ha quello che serve.
-   ⚠️ Chi parte nascosto lo dice con l'attributo `hidden`, non con un
-   `display:none` qui dentro: c'è chi le accende con `style.display` (che
-   scavalca tutto) e chi togliendo `hidden` (che NON scavalca una classe).
-   Con la regola nella classe, il secondo gruppo non si sarebbe più visto. */
-:where(body.app) .banner{border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
-:where(body.app) .banner.error{background:var(--err);color:var(--errfg);padding:12px 14px}
-:where(body.app) .banner.upd{background:var(--acc);color:var(--accfg)}
-:where(body.app) .banner.upd button{background:var(--accfg);color:var(--acc);margin-left:8px}
-:where(body.app) .banner.nope{background:var(--err);color:var(--errfg);padding:12px 14px}
-
 /* ---- Targhette di stato: la convenzione ---------------------------------
  *
  * Il colore risponde a UNA domanda sola: quanto ci possiamo fidare?
@@ -194,6 +182,26 @@ a{color:var(--acc)}
 .badge.wip{color:var(--acc);border-color:var(--acc)}
 .badge.rough{color:var(--mut);border-color:var(--bd)}
 
+/* ---- Fasce in cima alla pagina ------------------------------------------
+ * Aggiornamento disponibile, oppure il browser non ha quello che serve.
+ *
+ * Fuori da `body.app` apposta: è una CLASSE, non un selettore di elemento, e
+ * quindi non arriva da sola dove nessuno l'ha chiesta. Le stesse fasce ce le
+ * hanno l'indice, la guida e le due PWA, che la cornice dei debugger non la
+ * indossano: prima ognuna se le riscriveva nel suo <style>.
+ *
+ * ⚠️ Chi parte nascosto lo dice con l'attributo `hidden`, non con un
+ * `display:none` qui dentro, e si accende TOGLIENDO `hidden` — mai con
+ * `style.display`. */
+.banner{border-radius:10px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+.banner.error,.banner.nope{background:var(--err);color:var(--errfg);padding:12px 14px}
+.banner.upd{background:var(--acc);color:var(--accfg)}
+.banner.upd button{background:var(--accfg);color:var(--acc);border:0;border-radius:8px;
+                   padding:6px 12px;margin-left:8px;font:inherit;font-weight:700;cursor:pointer}
+/* Un link dentro una fascia piena prende il colore del testo: l'accento su
+   rosso non si leggeva. */
+.banner a{color:inherit;text-decoration:underline}
+
 /* Avvisi e note in piccolo. */
 .note{background:rgba(224,168,0,.12);border:1px solid var(--warn);border-radius:10px;
       padding:11px 14px;margin:10px 0 14px;font-size:13px;line-height:1.55}
@@ -203,8 +211,15 @@ a{color:var(--acc)}
 .hint{color:var(--mut);font-size:12.5px}
 .hint.warn{color:var(--warn)}
 
-footer{color:var(--mut);font-size:12px}
-footer .disc{font-size:11px;line-height:1.55;opacity:.85}
+/* Il piè di pagina, uguale su tutte le pagine: in fondo la versione che sta
+   girando (`.ver`, da confrontare a colpo d'occhio con quella pubblicata), e
+   sopra il disclaimer — che i18n.js infila qui dentro se il piè c'è. Niente
+   opacità: il grigio smorzato è già al limite del leggibile. */
+footer{color:var(--mut);font-size:12px;margin-top:24px;padding-top:12px;border-top:1px solid var(--bd)}
+footer p{margin:6px 0}
+footer .disc{font-size:11px;line-height:1.55}
+footer .ver{font-family:ui-monospace,Menlo,Consolas,monospace}
+footer .discbox{margin:10px 0}
 
 /* Contenuto largo (tabelle, blocchi di codice) su schermo stretto.
    ⚠️ Deve scorrere DENTRO il suo riquadro: se lasci sbordare la tabella è la

@@ -29,6 +29,8 @@ const sorgenti = [
   ['chron02/index.html', /const APP="([^"]+)",APP_VERSION="([^"]+)"/],
   ['o2-bootloader/index.html', /const APP="([^"]+)",APP_VERSION="([^"]+)"/],
   ['guida-oxigen/index.html', /const APP="([^"]+)",APP_VERSION="([^"]+)"/],
+  ['ninco/index.html', /const APP="([^"]+)",APP_VERSION="([^"]+)"/],
+  ['esp32-installer/index.html', /const APP="([^"]+)",APP_VERSION="([^"]+)"/],
   ['ds200-ds300/app.js', /const APP_VERSION = '([^']+)'/, 'ds200-ds300'],
   ['cronometro/app.js', /var APP_VERSION = "([^"]+)"/, 'cronometro'],
 ];

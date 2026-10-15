@@ -8,10 +8,13 @@
  *   data-i18n="chiave"        -> textContent
  *   data-i18n-html="chiave"   -> innerHTML (per testo con <b>, <code>, ecc.)
  *   data-i18n-attr="attr:chiave;attr2:chiave2"  -> attributi (placeholder/title/aria-label…)
+ *   <title data-i18n="chiave"> -> testo della chiave + " — Slot Car Web Tools"
+ *                               (si usa la chiave dell'h1: il titolo è l'h1 più il sito)
  * Stringhe dinamiche da JS:  I18N.t("chiave")   (usa la lingua corrente)
  * Cambio lingua -> evento "i18n:changed" sul document (le pagine ri-renderizzano il dinamico).
  *
- * i18n.js crea da solo: il SELETTORE lingua (in alto a sinistra) e il DISCLAIMER (in fondo).
+ * i18n.js crea da solo: il SELETTORE lingua (in alto a sinistra) e il DISCLAIMER (in fondo,
+ * dentro il <footer> della pagina se c'è, prima della versione).
  */
 (function () {
   var LANGS = ["it", "en", "es"];
@@ -153,10 +156,18 @@
     return s;
   }
 
+  /* Il <title> di ogni pagina è il suo h1 più il nome del sito. Con
+     <title data-i18n="chiave"> si scrive una volta sola la chiave dell'h1 e il
+     suffisso lo aggiunge questo file: prima la guida aveva una chiave `title`
+     a parte, e traducendo perdeva « — Slot Car Web Tools». */
+  var SITO = " — Slot Car Web Tools";
+
   function apply() {
     var i, els;
     els = document.querySelectorAll("[data-i18n]");
     for (i = 0; i < els.length; i++) els[i].textContent = t(els[i].getAttribute("data-i18n"));
+    var titolo = document.querySelector("title[data-i18n]");
+    if (titolo) titolo.textContent = t(titolo.getAttribute("data-i18n")) + SITO;
     els = document.querySelectorAll("[data-i18n-html]");
     for (i = 0; i < els.length; i++) els[i].innerHTML = t(els[i].getAttribute("data-i18n-html"));
     els = document.querySelectorAll("[data-i18n-attr]");
@@ -233,7 +244,12 @@
     p.id = "__disc";
     p.innerHTML = t("disclaimer");
     wrap.appendChild(p);
-    document.body.appendChild(wrap);
+    /* Dentro il piè di pagina, se la pagina ce l'ha, e PRIMA della versione:
+       così su tutte le pagine il fondo è lo stesso — disclaimer, poi versione —
+       come nel cronometro e nel DS200, che il piè lo scrivono da sé. */
+    var piede = document.querySelector("body > footer");
+    if (piede) piede.insertBefore(wrap, piede.querySelector(".ver"));
+    else document.body.appendChild(wrap);
   }
 
   function init() { merge(); buildUI(); apply(); }

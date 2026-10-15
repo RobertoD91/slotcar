@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0b0f17" />
-  <title>Installer ESP32 — ponte DS200 / DS300</title>
+  <title>Installer ESP32 — Slot Car Web Tools</title>
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="../ui.css" />
   <style>
@@ -30,13 +30,14 @@
         background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px;
         font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
     esp-web-install-button{--esp-tools-button-color:var(--accfg);--esp-tools-button-bg-color:var(--acc)}
-    .foot{margin-top:22px;padding-top:12px;border-top:1px solid var(--bd);font-size:12px;color:var(--mut)}
-    .ver{opacity:.7;font-family:ui-monospace,Menlo,Consolas,monospace}
   </style>
 </head>
 <body class="app">
+  <!-- La fascia «Aggiorna» e il piè con la versione sono quelli di tutte le
+       pagine. Il testo è solo italiano come il resto dell'installer. -->
+  <div id="upd" class="banner upd" hidden>🔄 Nuova versione disponibile. <button onclick="reloadFresh()">Aggiorna</button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
-  <h1>🏁 Installer ESP32</h1>
+  <h1>Installer ESP32</h1>
   <p class="sub">Firmware del <b>ponte ESP32</b> per le centraline <b>DS200 / DS300</b>: le porta senza
   cavo al <b>Cronometro web</b> — in rete (WebSocket) o via <b>Bluetooth</b> — e pubblica i dati su
   MQTT. Per vedere la gara serve il Cronometro web. Installalo e configura la rete dal browser.
@@ -132,13 +133,23 @@
     </div>
   </div>
 
-  <footer class="foot">
-    <span>Flasher basato su ESP Web Tools · provisioning WiFi via Improv-Serial. <span class="ver">v1.1.1</span></span>
+  <footer>
+    <p>Flasher basato su ESP Web Tools · provisioning WiFi via Improv-Serial.</p>
+    <p class="disc">Progetto indipendente, non ufficiale, senza legami con Slot.it / Galileo
+    Engineering, DS Electronic o Ninco. Marchi dei rispettivi proprietari. Fornito così com'è,
+    senza garanzia. Da usare solo su hardware di tua proprietà.</p>
+    <p class="ver">v<span id="appver"></span></p>
   </footer>
 
   <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
   <script>
+    const APP="esp32-installer",APP_VERSION="1.1.1";
     if (!('serial' in navigator)) document.getElementById('unsupported').hidden = false;
+    /* versione: nel piè, e la fascia «Aggiorna» se quella pubblicata è un'altra */
+    document.getElementById("appver").textContent=APP_VERSION;
+    function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
+    fetch("../version.json?_="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
+      if(j.apps&&j.apps[APP]&&j.apps[APP]!==APP_VERSION)document.getElementById("upd").hidden=false;}).catch(()=>{});
   </script>
 <script src="../tema.js"></script>
 </body>

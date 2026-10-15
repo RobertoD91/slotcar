@@ -139,10 +139,7 @@ pre#log{background:var(--bg);border:1px solid var(--bd);border-radius:10px;paddi
         max-height:240px;overflow:auto;font-size:12px;line-height:1.45;margin:10px 0 0;
         white-space:pre-wrap;word-break:break-all}
 
-footer{color:var(--mut);font-size:12px;margin-top:22px;border-top:1px solid var(--bd);padding-top:12px}
-footer p{margin:6px 0}
-footer .disc{font-size:11px;line-height:1.55;opacity:.85}
-footer .ver{opacity:.6}
+/* Il piè è quello di tutte le pagine (ui.css): testo, disclaimer, versione. */
 
 @media (max-width:560px){
   .clockpanel{padding:10px 12px 14px}
