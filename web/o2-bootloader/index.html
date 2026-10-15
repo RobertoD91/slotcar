@@ -34,7 +34,8 @@
 </style>
 </head>
 <body class="app">
-  <div id="nobt" class="banner nope" hidden data-i18n-html="noSerial"></div>
+  <!-- `noser`, non `nobt`: è la fascia della Web Serial (il nome veniva dalle app Bluetooth). -->
+  <div id="noser" class="banner nope" hidden data-i18n-html="noSerial"></div>
   <p class="note" id="portWarn" hidden></p>
   <div id="upd" class="banner upd" hidden><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
@@ -1018,7 +1019,6 @@ async function run(fn){
 
 /* ---------- connessione ---------- */
 async function connect(){
-  if(!navigator.serial){$("nobt").style.display="block";return;}
   let p;
   /* ⚠️ NIENTE filtro sul selettore delle porte: `requestPort({filters})` impone, non
      suggerisce, e con un VID/PID diverso la finestra esce vuota. Mostriamo tutte le
@@ -1531,7 +1531,11 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 renderAll();
 
 /* compat + sw + versione */
-if(!navigator.serial){$("nobt").style.display="block";$("btnConn").disabled=true;log(I18N.t("noSerialLog"));}
+if(!navigator.serial){$("noser").hidden=false;$("btnConn").disabled=true;
+  /* Il messaggio va nel registro solo a dizionario pronto: i18n.js lo costruisce
+     su DOMContentLoaded, e scritto adesso nel registro finiva la chiave grezza. */
+  const avvisa=()=>log(I18N.t("noSerialLog"));
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",avvisa);else avvisa();}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
 /* versione: nel piè, e la fascia «Aggiorna» se quella pubblicata è un'altra */
 document.getElementById("appver").textContent=APP_VERSION;

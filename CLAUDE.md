@@ -265,16 +265,19 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   `ds200/` disinstalla un service worker: non può dipendere da un foglio che arriva proprio
   da quel service worker).
 - ⭐ **La cornice dei debugger sta in `ui.css` sotto `body.app`**: intestazione, riquadri,
-  pulsanti, campi, `.pill`, tabelle, `#log`, `.banner`. Una pagina la indossa scrivendo
+  pulsanti, campi, `.pill`, tabelle, `#log`. Una pagina la indossa scrivendo
   `<body class="app">` e sceglie la sua larghezza con `:root{--wrap:NNNpx}`. È **opt-in**
   apposta: dentro ci sono selettori di elemento (`button`, `input`, `table`), e liberi
   arrivavano anche all'indice e al cronometro — che non l'hanno chiesta. Tutto è avvolto in
   `:where()`, che pesa zero: la cornice è ambientata ma resta scavalcabile dal foglio
   dell'app, come promette questo elenco.
-- **Le fasce (`.banner`) partono nascoste con l'attributo `hidden`, non con un `display:none`
-  nel CSS**: c'è chi le accende con `style.display` (che scavalca tutto) e chi togliendo
-  `hidden` (che NON scavalca una classe). Con la regola nella classe, il secondo gruppo non
-  si vedrebbe mai più.
+- **Le fasce (`.banner`) partono nascoste con l'attributo `hidden` e si accendono SOLO
+  togliendolo** (`el.hidden = false`), mai con `style.display`. Stanno in `ui.css` **fuori**
+  da `body.app` (è una classe, non arriva da sola dove nessuno l'ha chiesta), così le usano
+  anche indice, guida e PWA; e `ui.css` ha `[hidden]{display:none!important}`, quindi
+  `hidden` vince su qualunque classe — ma anche su uno `style.display` scritto a mano, che
+  da allora non accende più niente. Lo smoke test controlla che nel **markup** ogni
+  `.banner` abbia `hidden`.
 - **Commit trailer**: mantieni `Co-Authored-By` / `Claude-Session`. **Mai** l'id del modello
   in file committati.
 - **Linguaggio (richiesta utente)**: non usare la parola «reverse» (né «reverse engineering»
@@ -620,8 +623,9 @@ distinguibili e il giro veloce non è una lotteria. Il grande orologio resta a d
 - ⭐ **`hidden` è un attributo, e qualunque classe con `display:` lo scavalca.** Con
   `.fld{display:flex}`, mettere `hidden` su un campo **non lo nascondeva** — e non lo diceva
   nessuno: restava a video mentre il codice era convinto di averlo tolto. È la stessa
-  trappola delle fasce in `ui.css` vista dall'altro lato; nel cronometro la chiude
-  `[hidden]{display:none !important}` in cima al foglio.
+  trappola delle fasce vista dall'altro lato. Ora la chiude per tutto il sito
+  `[hidden]{display:none!important}` in cima a `ui.css` (il cronometro la ripete nel suo
+  foglio).
 - **Una riga di suggerimento sotto un campo sfalsa tutta la fila**: i campi si allineano in
   fondo (`align-items:flex-end`), quindi quello più alto alza la propria etichetta e le
   altre restano indietro. Se la nota è corta, sta **nell'etichetta**, non sotto il campo.

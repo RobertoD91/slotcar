@@ -6,7 +6,10 @@
 <title>Cronometro web — Slot Car Web Tools</title>
 <meta name="description" content="Cronometro e gestione gara per slot car digitali: pratica e GP a giri, classifica live, annunci vocali, multilingua. Funziona offline.">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0b0f17">
+<!-- La barra del browser segue il tema: non legge le variabili CSS, quindi i
+     due fondi di ui.css stanno qui scritti per esteso. -->
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f9">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0f17">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <!-- ⚠️ ui.css ha la versione nel percorso perché questa app ha una cache

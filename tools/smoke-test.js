@@ -232,10 +232,16 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   const fasce = await ctx.newPage();
   for (const [path] of apps.concat([['', 'indice']])) {
     await fasce.goto(BASE + '/' + path, { waitUntil: 'domcontentloaded' });
-    const accese = await fasce.evaluate(() =>
-      [...document.querySelectorAll('.banner')]
+    /* Si guarda il MARKUP scaricato, non il DOM vivo: le fasce si accendono
+       togliendo `hidden`, e una pagina che deve accenderne una (qui manca il Web
+       Bluetooth) lo fa prima ancora di DOMContentLoaded. */
+    const accese = await fasce.evaluate(async () => {
+      const html = await (await fetch(location.href, { cache: 'no-store' })).text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      return [...doc.querySelectorAll('.banner')]
         .filter((e) => !e.hasAttribute('hidden'))
-        .map((e) => e.id || e.className));
+        .map((e) => e.id || e.className);
+    });
     ok(accese.length === 0, `${(path || 'indice/').padEnd(18)} ` +
        (accese.length ? 'fascia SENZA hidden: ' + accese.join(', ') : 'tutte con hidden'));
   }

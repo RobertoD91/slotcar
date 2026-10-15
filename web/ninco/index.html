@@ -63,7 +63,7 @@
   <div class="card">
     <p class="cardtitle"><span data-i18n="titleRace">Gara</span>
        <span id="leader" class="val" style="text-transform:none;letter-spacing:0"></span></p>
-    <div id="notimes" class="note" style="display:none" data-i18n-html="noTimes"></div>
+    <div id="notimes" class="note" hidden data-i18n-html="noTimes"></div>
     <div class="tbwrap"><table>
       <thead><tr>
         <th class="n" data-i18n="colPos">Pos</th>
@@ -192,14 +192,14 @@ let port = null, reader = null, keepReading = false;
 let framer = new NINCO.Framer(), state = new NINCO.RaceState();
 let lines = [], nPkt = 0, t0 = 0;
 
-if (!navigator.serial) { $("noser").style.display = "block"; $("btnConn").disabled = true; }
+if (!navigator.serial) { $("noser").hidden = false; $("btnConn").disabled = true; }
 
 function setStatus(){
   $("st").textContent = T(port ? "stConn" : "stDisc");
   $("st").className = "pill" + (port ? " on" : "");
   const m = $("mode");
-  if (state.professional === null){ m.style.display = "none"; return; }
-  m.style.display = "";
+  m.hidden = state.professional === null;
+  if (m.hidden) return;
   m.textContent = T(state.professional ? "mPro" : "mAma") + (state.lights ? " · " + T("mLights") : "");
   m.className = "pill warn";
 }
@@ -301,7 +301,7 @@ function draw(){
 
   $("leader").textContent = state.leaderLaps == null ? "" : T("leaderLaps") + " " + state.leaderLaps;
   // I tempi arrivano solo dal firmware 1.08 in su: se non e' mai arrivato un D, dillo.
-  $("notimes").style.display = (nPkt > 0 && !state.sawResult) ? "" : "none";
+  $("notimes").hidden = !(nPkt > 0 && !state.sawResult);
 
   const last = lines.slice(-40);
   $("log").textContent = last.map(l =>

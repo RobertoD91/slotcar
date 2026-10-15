@@ -34,7 +34,6 @@
   a.card,div.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
   a.card{transition:transform .08s,border-color .12s}
   a.card:hover{transform:translateY(-2px);border-color:var(--acc)}
-  .card.soon{opacity:.6}
   .card .ico{font-size:30px}
   .card h3{margin:8px 0 4px;font-size:17px}
   .card p{margin:0;color:var(--mut);font-size:13px}
@@ -47,7 +46,6 @@
   .badge{float:right}
   .tech{margin-top:8px;font-size:11px;color:var(--mut)}
   .tech span{display:inline-block;border:1px solid var(--bd);border-radius:6px;padding:1px 7px;margin:2px 4px 0 0}
-  .compat{display:none;background:var(--err);color:var(--errfg);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-weight:600}
   /* Avviso: roba da smanettoni, non da utente finale. */
   #dev{background:rgba(224,168,0,.12);border:1px solid var(--warn);border-radius:10px;
        padding:12px 14px;margin-bottom:16px;font-size:13.5px;line-height:1.55}
@@ -69,9 +67,11 @@
 </head>
 <body>
   <div class="ghribbon"><a href="https://github.com/RobertoD91/slotcar" target="_blank" rel="noopener">Fork me on GitHub</a></div>
-  <div id="nossl" class="compat" data-i18n-html="noSsl"></div>
-  <div id="nobt" class="compat" data-i18n-html="noBt"></div>
-  <div id="noser" class="compat" data-i18n-html="noSerial"></div>
+  <!-- Le fasce di tutte le pagine (ui.css): partono con `hidden` e si accendono
+       togliendolo. -->
+  <div id="nossl" class="banner nope" hidden data-i18n-html="noSsl"></div>
+  <div id="nobt" class="banner nope" hidden data-i18n-html="noBt"></div>
+  <div id="noser" class="banner nope" hidden data-i18n-html="noSerial"></div>
   <div id="upd" class="banner upd" hidden><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <h1>Slot Car Web Tools</h1>
   <p class="sub" data-i18n-html="sub"></p>
@@ -217,7 +217,6 @@ window.I18N_STRINGS = {
   },
   badgeActive:{it:"funziona",en:"works",es:"funciona"},
   badgeWip:{it:"in sviluppo",en:"in progress",es:"en desarrollo"},
-  badgeBroken:{it:"non funzionante",en:"not working",es:"no funciona"},
   badgePartial:{it:"funziona in parte",en:"partly working",es:"funciona en parte"},
   badgeUntested:{it:"non testato",en:"untested",es:"sin probar"},
   badgeAlpha:{it:"molto acerbo",en:"very rough",es:"muy verde"},
@@ -233,7 +232,6 @@ window.I18N_STRINGS = {
     en:"Below are the <b>service tools</b>: configuration, diagnostics and the per-system lap counters.",
     es:"Debajo están las <b>herramientas de servicio</b>: configuración, diagnóstico y los cuentavueltas de cada sistema."
   },
-  badgeSoon:{it:"prossimamente",en:"coming soon",es:"próximamente"},
   techStatic:{it:"pagina statica",en:"static page",es:"página estática"},
   techPwa:{it:"PWA offline",en:"offline PWA",es:"PWA sin conexión"},
   carTitle:{it:"Configuratore auto BLE",en:"Car configurator BLE",es:"Configurador de coche BLE"},
@@ -301,11 +299,11 @@ function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
     return;
   }
   if(!window.isSecureContext && !dev){
-    document.getElementById("nossl").style.display="block";
+    document.getElementById("nossl").hidden=false;
     return;
   }
-  if(!navigator.bluetooth)document.getElementById("nobt").style.display="block";
-  if(!navigator.serial)document.getElementById("noser").style.display="block";
+  if(!navigator.bluetooth)document.getElementById("nobt").hidden=false;
+  if(!navigator.serial)document.getElementById("noser").hidden=false;
 })();
 // service worker network-first: sempre l'ultima versione (fix cache)
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});

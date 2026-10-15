@@ -729,13 +729,15 @@
 
   /* ---- export -------------------------------------------------------------- */
   els.csv.addEventListener("click", function () {
-    var righe = [["pos", "guidatore", "posto", "giri", "ultimo_ms", "veloce_ms", "benzina"].join(";")];
+    /* L'intestazione e «riserva» nella lingua scelta, come il resto della
+       pagina: il file lo apre una persona, in un foglio di calcolo. */
+    var righe = [t("csv.head")];
     race.standings().forEach(function (g, i) {
       righe.push([
         i + 1, (g.name || "").replace(/;/g, ","), g.slot, g.laps,
         g.lastLapMs == null ? "" : g.lastLapMs,
         g.bestLapMs == null ? "" : g.bestLapMs,
-        g.reserve ? "riserva" : (g.fuel == null ? "" : g.fuel)
+        g.reserve ? t("tbl.reserve") : (g.fuel == null ? "" : g.fuel)
       ].join(";"));
     });
     var blob = new Blob([righe.join("\n")], { type: "text/csv" });

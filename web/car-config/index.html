@@ -55,12 +55,12 @@
     <div class="row"><label data-i18n="lblMode"></label>
       <select id="cMode">
         <option value="" data-i18n="optReadCfg"></option>
-        <option value="0">SSD puro</option>
-        <option value="1">SSD ibrido</option>
-        <option value="2">oXigen puro</option>
-        <option value="3">oXigen ibrido</option>
-        <option value="4">Carrera puro</option>
-        <option value="5">Carrera ibrido</option>
+        <option value="0" data-i18n="optSsdPure"></option>
+        <option value="1" data-i18n="optSsdHyb"></option>
+        <option value="2" data-i18n="optO2Pure"></option>
+        <option value="3" data-i18n="optO2Hyb"></option>
+        <option value="4" data-i18n="optCarPure"></option>
+        <option value="5" data-i18n="optCarHyb"></option>
       </select>
       <button class="sec cfg" data-fn="mode" disabled data-i18n="btnSet"></button></div>
     <div class="hint" data-i18n-html="modeHint"></div>
@@ -113,7 +113,7 @@
       <div class="row"><label data-i18n="lblWriteReg"></label><input id="wReg" size="6" placeholder="0x84"><input id="wVal" size="14" data-i18n-attr="placeholder:phWriteVal">
         <button class="sec cfg" data-fn="rawwrite" disabled data-i18n="btnWrite"></button></div>
       <div id="rawMsg" class="warnbox" aria-live="polite"></div>
-      <div class="tbwrap"><table id="regtab" style="margin-top:8px"><thead><tr><th>reg</th><th data-i18n="thName"></th><th data-i18n="thValue"></th><th></th></tr></thead><tbody></tbody></table></div>
+      <div class="tbwrap"><table id="regtab" style="margin-top:8px"><thead><tr><th data-i18n="thReg"></th><th data-i18n="thName"></th><th data-i18n="thValue"></th><th></th></tr></thead><tbody></tbody></table></div>
     </details>
   </div>
 
@@ -166,6 +166,12 @@ window.I18N_STRINGS = {
     en:"Register <code>0x91</code>: which system the car's infrared LED talks to. <b>Pure</b> = that system only; <b>hybrid</b> = oXigen lane changers too. <code>4</code> is <b>Carrera</b>, not D132: the D132 lane is in register <code>0x95</code>. The car saves the hybrid-mode IR time (<code>0x94</code>) but does not use it.",
     es:"Registro <code>0x91</code>: a qué sistema habla el LED infrarrojo del coche. <b>Puro</b> = solo ese sistema; <b>híbrido</b> = también los cambios oXigen. El <code>4</code> es <b>Carrera</b>, no D132: el carril D132 está en el registro <code>0x95</code>. El tiempo IR del modo híbrido (<code>0x94</code>) el coche lo guarda pero no lo usa."
   },
+  optSsdPure:{it:"SSD puro",en:"SSD pure",es:"SSD puro"},
+  optSsdHyb:{it:"SSD ibrido",en:"SSD hybrid",es:"SSD híbrido"},
+  optO2Pure:{it:"oXigen puro",en:"oXigen pure",es:"oXigen puro"},
+  optO2Hyb:{it:"oXigen ibrido",en:"oXigen hybrid",es:"oXigen híbrido"},
+  optCarPure:{it:"Carrera puro",en:"Carrera pure",es:"Carrera puro"},
+  optCarHyb:{it:"Carrera ibrido",en:"Carrera hybrid",es:"Carrera híbrido"},
   optReadCfg:{
     it:"— (leggi configurazione)",
     en:"— (read configuration)",
@@ -248,6 +254,7 @@ window.I18N_STRINGS = {
   thValue:{it:"valore",en:"value",es:"valor"},
   btnReadLc:{it:"leggi",en:"read",es:"leer"},
   advLog:{it:"Log",en:"Log",es:"Registro"},
+  thReg:{it:"reg",en:"reg",es:"reg"},
   // --- nomi dei registri (tabella) ---
   rgVer:{it:"versione firmware (si legge con un frame da 5 byte)",en:"firmware version (read with a 5-byte frame)",es:"versión de firmware (se lee con una trama de 5 bytes)"},
   rgChipMac:{it:"MAC del chip (sola lettura)",en:"chip MAC (read-only)",es:"MAC del chip (solo lectura)"},
@@ -551,7 +558,7 @@ $("btnConn").onclick=connect;
 $("btnDisc").onclick=()=>{if(dev&&dev.gatt.connected)dev.gatt.disconnect();};
 $("btnReadAll").onclick=readAll;
 // banner compatibilità Web Bluetooth
-if(!navigator.bluetooth){$("nobt").style.display="block";$("btnConn").disabled=true;}
+if(!navigator.bluetooth){$("nobt").hidden=false;$("btnConn").disabled=true;}
 // service worker network-first: sempre l'ultima versione (fix cache)
 if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
 

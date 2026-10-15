@@ -29,7 +29,6 @@
       "setup.driversHint": "I nomi si possono cambiare: clicca e scrivi. Restano su questo dispositivo.",
       "setup.addDriver": "+ Aggiungi guidatore",
       "setup.remove": "togli",
-      "setup.slotsHint": "Aggiungi un posto per ogni corsia o auto in gara.",
 
       "sys.sim": "Simulazione",
       "sys.sim.desc": "Una pista finta, per provare l'applicazione senza hardware.",
@@ -96,13 +95,13 @@
       "tbl.empty": "Nessun passaggio ancora. Collega un sistema e dai il via.",
       "tbl.reserve": "riserva",
       "tbl.pit": "box",
+      "csv.head": "pos;guidatore;posto;giri;ultimo_ms;veloce_ms;benzina",
       "gap.laps": "+{n} giri",
       "gap.lap": "+1 giro",
 
       "info.state": "Stato",
       "info.clock": "Cronometro",
       "info.best": "Giro veloce",
-      "info.leader": "In testa",
       "info.target": "Traguardo",
       "info.targetLaps": "{n} giri",
 
@@ -146,7 +145,6 @@
       "setup.driversHint": "Names are editable: click and type. They stay on this device.",
       "setup.addDriver": "+ Add driver",
       "setup.remove": "remove",
-      "setup.slotsHint": "Add one place per lane or car in the race.",
 
       "sys.sim": "Simulation",
       "sys.sim.desc": "A fake track, to try the app with no hardware.",
@@ -213,13 +211,13 @@
       "tbl.empty": "No crossing yet. Connect a system and start.",
       "tbl.reserve": "reserve",
       "tbl.pit": "pit",
+      "csv.head": "pos;driver;place;laps;last_ms;best_ms;fuel",
       "gap.laps": "+{n} laps",
       "gap.lap": "+1 lap",
 
       "info.state": "State",
       "info.clock": "Clock",
       "info.best": "Fast lap",
-      "info.leader": "Leader",
       "info.target": "Target",
       "info.targetLaps": "{n} laps",
 
@@ -263,7 +261,6 @@
       "setup.driversHint": "Los nombres se pueden cambiar: haz clic y escribe. Se quedan en este dispositivo.",
       "setup.addDriver": "+ Añadir piloto",
       "setup.remove": "quitar",
-      "setup.slotsHint": "Añade un puesto por cada carril o coche en carrera.",
 
       "sys.sim": "Simulación",
       "sys.sim.desc": "Una pista ficticia, para probar la aplicación sin hardware.",
@@ -330,13 +327,13 @@
       "tbl.empty": "Todavía no ha pasado nadie. Conecta un sistema y da la salida.",
       "tbl.reserve": "reserva",
       "tbl.pit": "boxes",
+      "csv.head": "pos;piloto;puesto;vueltas;ultima_ms;rapida_ms;combustible",
       "gap.laps": "+{n} vueltas",
       "gap.lap": "+1 vuelta",
 
       "info.state": "Estado",
       "info.clock": "Cronómetro",
       "info.best": "Vuelta rápida",
-      "info.leader": "Líder",
       "info.target": "Meta",
       "info.targetLaps": "{n} vueltas",
 
@@ -380,7 +377,6 @@
       "setup.driversHint": "Les noms sont modifiables : clique et écris. Ils restent sur cet appareil.",
       "setup.addDriver": "+ Ajouter un pilote",
       "setup.remove": "retirer",
-      "setup.slotsHint": "Ajoute une place par couloir ou par voiture en course.",
 
       "sys.sim": "Simulation",
       "sys.sim.desc": "Une piste factice, pour essayer l'application sans matériel.",
@@ -447,13 +443,13 @@
       "tbl.empty": "Aucun passage pour l'instant. Connecte un système et lance la course.",
       "tbl.reserve": "réserve",
       "tbl.pit": "stand",
+      "csv.head": "pos;pilote;place;tours;dernier_ms;meilleur_ms;carburant",
       "gap.laps": "+{n} tours",
       "gap.lap": "+1 tour",
 
       "info.state": "État",
       "info.clock": "Chronomètre",
       "info.best": "Meilleur tour",
-      "info.leader": "En tête",
       "info.target": "Objectif",
       "info.targetLaps": "{n} tours",
 
@@ -497,7 +493,6 @@
       "setup.driversHint": "Namen sind änderbar: anklicken und tippen. Sie bleiben auf diesem Gerät.",
       "setup.addDriver": "+ Fahrer hinzufügen",
       "setup.remove": "entfernen",
-      "setup.slotsHint": "Für jede Spur bzw. jedes Auto im Rennen einen Platz anlegen.",
 
       "sys.sim": "Simulation",
       "sys.sim.desc": "Eine Bahn zum Ausprobieren, ganz ohne Hardware.",
@@ -564,13 +559,13 @@
       "tbl.empty": "Noch keine Durchfahrt. System verbinden und starten.",
       "tbl.reserve": "Reserve",
       "tbl.pit": "Box",
+      "csv.head": "pos;fahrer;platz;runden;letzte_ms;schnellste_ms;sprit",
       "gap.laps": "+{n} Runden",
       "gap.lap": "+1 Runde",
 
       "info.state": "Status",
       "info.clock": "Uhr",
       "info.best": "Schnellste Runde",
-      "info.leader": "Führend",
       "info.target": "Ziel",
       "info.targetLaps": "{n} Runden",
 

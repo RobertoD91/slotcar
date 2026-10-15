@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0b0f17" />
+  <!-- La barra del browser segue il tema: non legge le variabili CSS, quindi i
+       due fondi di ui.css stanno qui scritti per esteso. -->
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f9">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0f17">
   <title>Installer ESP32 — Slot Car Web Tools</title>
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="../ui.css" />

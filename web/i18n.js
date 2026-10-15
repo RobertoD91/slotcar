@@ -77,20 +77,6 @@
         "Las tramas son correctas sobre el papel: si algo falla, el registro al final de la " +
         "página muestra qué se envió y qué volvió."
     },
-    oxigenBroken: {
-      it: "🚧 <b>Questa app al momento NON funziona.</b> È rimasta indietro rispetto all'hardware e " +
-        "non è stata rivalidata: aspettati che non si colleghi, o che legga valori sbagliati. " +
-        "La teniamo online come <b>strumento di diagnostica</b> e come riferimento del protocollo, " +
-        "non come cosa da usare in pista.",
-      en: "🚧 <b>This app does NOT work at the moment.</b> It has fallen behind the hardware and has " +
-        "not been re-validated: expect it to fail to connect, or to read wrong values. " +
-        "It stays online as a <b>diagnostic tool</b> and as a protocol reference, " +
-        "not as something to use at the track.",
-      es: "🚧 <b>Esta app NO funciona por ahora.</b> Se ha quedado atrás respecto al hardware y no se " +
-        "ha vuelto a validar: es de esperar que no conecte, o que lea valores erróneos. " +
-        "La mantenemos en línea como <b>herramienta de diagnóstico</b> y como referencia del " +
-        "protocolo, no como algo para usar en la pista."
-    },
 
     updateAvail: {
       it: "🔄 Nuova versione disponibile.",

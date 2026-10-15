@@ -94,11 +94,11 @@
       <div class="row"><label data-i18n="lblRawWrite"></label><input id="wReg" size="6" placeholder="0x8c"><input id="wVal" size="14" data-i18n-attr="placeholder:phRawWrite" placeholder="">
         <button class="sec cfg" data-fn="rawwrite" disabled data-i18n="btnRawWrite"></button></div>
       <div id="rawMsg" class="warnbox" aria-live="polite"></div>
-      <div class="tbwrap"><table id="regtab" style="margin-top:8px"><thead><tr><th>reg</th><th data-i18n="thName"></th><th data-i18n="thValue"></th><th></th></tr></thead><tbody></tbody></table></div>
+      <div class="tbwrap"><table id="regtab" style="margin-top:8px"><thead><tr><th data-i18n="thReg"></th><th data-i18n="thName"></th><th data-i18n="thValue"></th><th></th></tr></thead><tbody></tbody></table></div>
     </details>
   </div>
 
-  <div class="card"><details><summary style="cursor:pointer;color:var(--mut)">Log</summary><div id="log"></div></details></div>
+  <div class="card"><details><summary style="cursor:pointer;color:var(--mut)" data-i18n="advLog"></summary><div id="log"></div></details></div>
 
 <!-- Il piè di tutte le pagine (ui.css): i18n.js ci mette il disclaimer, in fondo la versione. -->
 <footer><p class="ver">v<span id="appver"></span></p></footer>
@@ -230,13 +230,8 @@ window.I18N_STRINGS = {
     es:"{reg} quiere {n} bytes, has dado {m}: con una trama de otra longitud el dispositivo guarda bytes al azar."
   },
   blkRange:{it:"valore fuori intervallo ({min}–{max}).",en:"value out of range ({min}–{max}).",es:"valor fuera de rango ({min}–{max})."},
-  regFw:{it:"FIRMWARE",en:"FIRMWARE",es:"FIRMWARE"},
-  regDate:{it:"DATA ATTIV.",en:"ACTIV. DATE",es:"FECHA ACTIV."},
-  regName:{it:"NOME",en:"NAME",es:"NOMBRE"},
-  regBrake:{it:"BRAKE SET",en:"BRAKE SET",es:"BRAKE SET"},
-  regConfig:{it:"config",en:"config",es:"config"},
-  regId:{it:"ID",en:"ID",es:"ID"},
-  regMac:{it:"O2 MAC(2B)",en:"O2 MAC(2B)",es:"O2 MAC(2B)"},
+  advLog:{it:"Log",en:"Log",es:"Registro"},
+  thReg:{it:"reg",en:"reg",es:"reg"},
   stConnected:{it:"connesso",en:"connected",es:"conectado"},
   stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
   logNoBt1:{
@@ -476,7 +471,7 @@ $("btnConn").onclick=connect;
 $("btnDisc").onclick=()=>{if(dev&&dev.gatt.connected)dev.gatt.disconnect();};
 $("btnReadAll").onclick=readAll;
 // banner compatibilità Web Bluetooth
-if(!navigator.bluetooth){$("nobt").style.display="block";$("btnConn").disabled=true;}
+if(!navigator.bluetooth){$("nobt").hidden=false;$("btnConn").disabled=true;}
 // service worker network-first: sempre l'ultima versione (fix cache)
 if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
 

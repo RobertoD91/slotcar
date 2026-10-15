@@ -30,7 +30,8 @@
 </style>
 </head>
 <body class="app">
-  <div id="nobt" class="banner nope" hidden data-i18n-html="noSerial"></div>
+  <!-- `noser`, non `nobt`: è la fascia della Web Serial (il nome veniva dalle app Bluetooth). -->
+  <div id="noser" class="banner nope" hidden data-i18n-html="noSerial"></div>
   <div id="notact" class="banner nope" hidden data-i18n-html="notActBanner"></div>
   <div id="nover" class="banner error" hidden data-i18n-html="noVerBanner"></div>
   <div id="upd" class="banner upd" hidden><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
@@ -500,7 +501,6 @@ function setPhase(p){
 }
 
 async function connect(){
-  if(!navigator.serial){$("nobt").style.display="block";return;}
   try{
     /* ⚠️ NIENTE filtro sul selettore delle porte.
        `requestPort({filters:[…]})` non "suggerisce" il dispositivo giusto: lo
@@ -976,7 +976,11 @@ function boot(){renderAll();$("timerVal").textContent=fmtCs(0);}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 
 /* compat + sw + versione */
-if(!navigator.serial){$("nobt").style.display="block";$("btnConn").disabled=true;log(I18N.t("noSerialLog"));}
+if(!navigator.serial){$("noser").hidden=false;$("btnConn").disabled=true;
+  /* Il messaggio va nel registro solo a dizionario pronto: i18n.js lo costruisce
+     su DOMContentLoaded, e scritto adesso nel registro finiva la chiave grezza. */
+  const avvisa=()=>log(I18N.t("noSerialLog"));
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",avvisa);else avvisa();}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
 /* versione: nel piè, e la fascia «Aggiorna» se quella pubblicata è un'altra */
 document.getElementById("appver").textContent=APP_VERSION;

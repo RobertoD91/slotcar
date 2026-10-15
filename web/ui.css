@@ -56,6 +56,12 @@
 }
 
 *{box-sizing:border-box}
+/* ⚠️ `hidden` è un ATTRIBUTO, e la regola del browser che lo fa sparire perde
+   contro qualunque classe che imposti `display`: con `.fld{display:flex}`, o
+   con una fascia che ha un suo display, `hidden` non nascondeva niente — e il
+   codice era convinto del contrario. Le fasce si spengono e si accendono SOLO
+   con `hidden`, quindi deve vincere sempre. */
+[hidden]{display:none!important}
 body{
   margin:0 auto;
   font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;
