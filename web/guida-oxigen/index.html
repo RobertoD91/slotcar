@@ -108,6 +108,7 @@
       <tr><td class="mode" data-i18n="scp3_pwr_r7_mode"></td><td data-i18n-html="scp3_pwr_r7_combo"></td><td data-i18n-html="scp3_pwr_r7_disp"></td><td class="src">SCP-3 p.7-8</td></tr>
     </tbody>
   </table></div>
+  <p class="cap" data-i18n-html="scp3_pa_note"></p>
 
   <p class="cardtitle" data-i18n="scp3_drive_title"></p>
   <div class="tbwrap"><table>
@@ -251,6 +252,7 @@
       <tr><td data-i18n-html="chip_pair_r6_op"></td><td data-i18n-html="chip_pair_r6_seq"></td><td class="src">Base p.20</td></tr>
     </tbody>
   </table></div>
+  <p class="cap" data-i18n-html="chip_pair_note"></p>
 </div>
 
 <!-- ============================ ARC PRO ============================ -->
@@ -376,6 +378,13 @@ window.I18N_STRINGS = {
   scp3_pwr_r7_mode:{it:`Attiva modulo PA`,en:`Activate PA module`,es:`Activar módulo PA`,fr:`Activer le module PA`,de:`PA-Modul aktivieren`},
   scp3_pwr_r7_combo:{it:`Accendi con <kbd>▲</kbd>+<kbd>▼</kbd>, poi <kbd>▲</kbd>=PA CHIP`,en:`Power on with <kbd>▲</kbd>+<kbd>▼</kbd>, then <kbd>▲</kbd>=PA CHIP`,es:`Enciende con <kbd>▲</kbd>+<kbd>▼</kbd>, luego <kbd>▲</kbd>=PA CHIP`,fr:`Allume-la avec <kbd>▲</kbd>+<kbd>▼</kbd>, puis <kbd>▲</kbd>=PA CHIP`,de:`Schalte ihn mit <kbd>▲</kbd>+<kbd>▼</kbd> ein, dann <kbd>▲</kbd>=PA CHIP`},
   scp3_pwr_r7_disp:{it:`Conferma <kbd>●</kbd> → <span class="disp">PA</span>, poi attiva via app`,en:`Confirm <kbd>●</kbd> → <span class="disp">PA</span>, then activate via the app`,es:`Confirma <kbd>●</kbd> → <span class="disp">PA</span>, luego actívalo desde la app`,fr:`Confirme avec <kbd>●</kbd> → <span class="disp">PA</span>, puis active-le depuis l'app`,de:`Bestätige mit <kbd>●</kbd> → <span class="disp">PA</span>, dann über die App aktivieren`},
+  scp3_pa_note:{
+    it:`<b>PA CHIP</b> = il modulo <b>Power Amplifier</b>, un modulo radio opzionale con amplificatore che si monta nell'SCP-3 per la portata lunga. Nei menu <b>APP</b> e <b>DFU</b> dell'accensione <kbd>▲</kbd> sceglie il modulo invece del controller: in Bluetooth compare con un nome che inizia per <span class="disp">SCP3A-</span> e ha pochi registri suoi. Finché non è attivato dall'app (data di attivazione) il modulo non usa la radio. Con il modulo montato il contagiri vede la versione del modulo al posto di quella del controller.`,
+    en:`<b>PA CHIP</b> = the <b>Power Amplifier</b> module, an optional radio module with an amplifier fitted in the SCP-3 for long range. In the <b>APP</b> and <b>DFU</b> power-on menus <kbd>▲</kbd> selects the module instead of the controller: over Bluetooth it shows up with a name starting with <span class="disp">SCP3A-</span> and has only a few registers of its own. Until it is activated from the app (activation date), the module does not use the radio. With the module fitted, the lap counter sees the module's version instead of the controller's.`,
+    es:`<b>PA CHIP</b> = el módulo <b>Power Amplifier</b>, un módulo de radio opcional con amplificador que se monta en el SCP-3 para el alcance largo. En los menús <b>APP</b> y <b>DFU</b> del encendido, <kbd>▲</kbd> elige el módulo en lugar del mando: en Bluetooth aparece con un nombre que empieza por <span class="disp">SCP3A-</span> y tiene pocos registros propios. Hasta que se activa desde la app (fecha de activación), el módulo no usa la radio. Con el módulo montado, el cuentavueltas ve la versión del módulo en lugar de la del mando.`,
+    fr:`<b>PA CHIP</b> = le module <b>Power Amplifier</b>, un module radio optionnel avec amplificateur qui se monte dans la SCP-3 pour la longue portée. Dans les menus <b>APP</b> et <b>DFU</b> de l'allumage, <kbd>▲</kbd> choisit le module au lieu de la manette : en Bluetooth, il apparaît avec un nom qui commence par <span class="disp">SCP3A-</span> et n'a que quelques registres à lui. Tant qu'il n'est pas activé depuis l'app (date d'activation), le module n'utilise pas la radio. Avec le module monté, le compte-tours voit la version du module à la place de celle de la manette.`,
+    de:`<b>PA CHIP</b> = das <b>Power-Amplifier</b>-Modul, ein optionales Funkmodul mit Verstärker, das für große Reichweite in den SCP-3 eingesetzt wird. In den Einschaltmenüs <b>APP</b> und <b>DFU</b> wählt <kbd>▲</kbd> das Modul statt des Handreglers: Per Bluetooth erscheint es mit einem Namen, der mit <span class="disp">SCP3A-</span> beginnt, und hat nur wenige eigene Register. Solange es nicht über die App aktiviert ist (Aktivierungsdatum), nutzt das Modul den Funk nicht. Mit eingesetztem Modul sieht der Rundenzähler die Version des Moduls statt der des Handreglers.`
+  },
 
   scp3_drive_title:{it:`🏁 Modalità di guida`,en:`🏁 Driving modes`,es:`🏁 Modos de conducción`,fr:`🏁 Modes de pilotage`,de:`🏁 Fahrmodi`},
   scp3_drive_th2:{it:`Selettore / sequenza`,en:`Selector / sequence`,es:`Selector / secuencia`,fr:`Sélecteur / séquence`,de:`Wahlschalter / Ablauf`},
@@ -517,7 +526,7 @@ window.I18N_STRINGS = {
 
   chip_modes_title:{it:`⚙️ Modalità operative del chip (selezionabili solo col Bootloader)`,en:`⚙️ Chip operating modes (selectable only with the Bootloader)`,es:`⚙️ Modos de funcionamiento del chip (seleccionables solo con el Bootloader)`,fr:`⚙️ Modes de fonctionnement de la puce (sélectionnables uniquement avec le Bootloader)`,de:`⚙️ Betriebsmodi des Chips (nur mit dem Bootloader wählbar)`},
   chip_modes_th1:{it:`Modo`,en:`Mode`,es:`Modo`,fr:`Mode`,de:`Modus`},
-  chip_modes_r1_note:{it:`IR TX sempre acceso. Default oXigen. Compatibile con lane changer SSD.`,en:`IR TX always on. Default oXigen. Compatible with SSD lane changer.`,es:`IR TX siempre encendido. oXigen por defecto. Compatible con lane changer SSD.`,fr:`IR TX toujours allumé. oXigen par défaut. Compatible avec les lane changers SSD.`,de:`IR TX immer an. Standard bei oXigen. Kompatibel mit SSD-Lane-Changern.`},
+  chip_modes_r1_note:{it:`IR TX sempre acceso secondo il manuale; dal firmware 4.12a resta spento a riposo e trasmette solo durante il cambio corsia. Default oXigen. Compatibile con lane changer SSD.`,en:`IR TX always on according to the manual; from firmware 4.12a it stays off at rest and transmits only during a lane change. Default oXigen. Compatible with SSD lane changer.`,es:`IR TX siempre encendido según el manual; desde el firmware 4.12a queda apagado en reposo y solo transmite durante el cambio de carril. oXigen por defecto. Compatible con lane changer SSD.`,fr:`IR TX toujours allumé d'après le manuel ; à partir du firmware 4.12a, il reste éteint au repos et n'émet que pendant le changement de voie. oXigen par défaut. Compatible avec les lane changers SSD.`,de:`IR TX laut Handbuch immer an; ab Firmware 4.12a bleibt er im Ruhezustand aus und sendet nur während eines Spurwechsels. Standard bei oXigen. Kompatibel mit SSD-Lane-Changern.`},
   chip_modes_r2_note:{it:`IR TX acceso solo alla richiesta di cambio corsia. Funziona su qualunque scheda LC oXigen.`,en:`IR TX on only on a lane change request. Works on any oXigen LC board.`,es:`IR TX encendido solo al solicitar cambio de carril. Funciona en cualquier placa LC oXigen.`,fr:`IR TX allumé seulement lors d'une demande de changement de voie. Fonctionne avec n'importe quelle carte LC oXigen.`,de:`IR TX nur bei einer Spurwechsel-Anforderung an. Funktioniert mit jeder oXigen-LC-Platine.`},
   chip_modes_r5_note:{it:`Ibrido SSD: scambi SSD <b>e</b> oXigen insieme. Non ha una lettera sul display: si imposta solo a registro.`,en:`SSD hybrid: SSD <b>and</b> oXigen lane changers together. No display letter: register only.`,es:`Híbrido SSD: cambios SSD <b>y</b> oXigen juntos. Sin letra en pantalla: solo por registro.`,fr:`Hybride SSD : aiguillages SSD <b>et</b> oXigen ensemble. Pas de lettre sur l'écran : se règle uniquement par registre.`,de:`SSD-Hybrid: SSD- <b>und</b> oXigen-Weichen gemeinsam. Kein Buchstabe auf dem Display: nur per Register einstellbar.`},
   chip_modes_r6_note:{it:`Ibrido Carrera. Non ha una lettera sul display: si imposta solo a registro.`,en:`Carrera hybrid. No display letter: register only.`,es:`Híbrido Carrera. Sin letra en pantalla: solo por registro.`,fr:`Hybride Carrera. Pas de lettre sur l'écran : se règle uniquement par registre.`,de:`Carrera-Hybrid. Kein Buchstabe auf dem Display: nur per Register einstellbar.`},
@@ -581,6 +590,13 @@ window.I18N_STRINGS = {
     fr:`Mets la nouvelle manette en programmation (ID + gâchette), puis pose la voiture sur la piste <b>au-dessus d'un aimant</b> → la puce se réveille « vierge », ignore l'ancienne manette et accepte le nouvel appairage`,
     de:`Bring den neuen Handregler in den Programmiermodus (ID + Abzug), dann setz das Auto <b>über einem Magneten</b> auf die Bahn → der Chip wacht „jungfräulich“ auf, ignoriert den alten Handregler und akzeptiert das neue Pairing`
   },
+  chip_pair_note:{
+    it:`Un chip <b>non ancora attivato</b> (senza data di attivazione) usa l'ID 20 e si abbina <b>solo come ID 20</b>: per il pairing metti il controller su ID 20.`,
+    en:`A chip that is <b>not activated yet</b> (no activation date) uses ID 20 and pairs <b>only as ID 20</b>: for pairing, set the controller to ID 20.`,
+    es:`Un chip <b>todavía no activado</b> (sin fecha de activación) usa el ID 20 y solo se vincula <b>como ID 20</b>: para el emparejamiento, pon el mando en el ID 20.`,
+    fr:`Une puce <b>pas encore activée</b> (sans date d'activation) utilise l'ID 20 et ne s'appaire <b>que comme ID 20</b> : pour l'appairage, mets la manette sur l'ID 20.`,
+    de:`Ein <b>noch nicht aktivierter</b> Chip (ohne Aktivierungsdatum) verwendet die ID 20 und lässt sich <b>nur als ID 20</b> koppeln: Stell den Handregler zum Pairing auf ID 20.`
+  },
 
   arc_h2:{it:`🕹️ Scalextric ARC AIR/PRO come controller oXigen`,en:`🕹️ Scalextric ARC AIR/PRO as an oXigen controller`,es:`🕹️ Scalextric ARC AIR/PRO como mando oXigen`,fr:`🕹️ Scalextric ARC AIR/PRO comme manette oXigen`,de:`🕹️ Scalextric ARC AIR/PRO als oXigen-Handregler`},
   arc_note:{it:`Pulsanti: <kbd>X = Brake</kbd> · <kbd>Y = Lane Change</kbd> · grilletto. (Base p.23-24)`,en:`Buttons: <kbd>X = Brake</kbd> · <kbd>Y = Lane Change</kbd> · trigger. (Base p.23-24)`,es:`Botones: <kbd>X = Brake</kbd> · <kbd>Y = Lane Change</kbd> · gatillo. (Base p.23-24)`,fr:`Touches : <kbd>X = Brake</kbd> · <kbd>Y = Lane Change</kbd> · gâchette. (Base p.23-24)`,de:`Tasten: <kbd>X = Brake</kbd> · <kbd>Y = Lane Change</kbd> · Abzug. (Base p.23-24)`},
@@ -607,7 +623,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="guida-oxigen",APP_VERSION="1.5.0";
+const APP="guida-oxigen",APP_VERSION="1.6.0";
 
 /* --- indice sezioni --- */
 (function(){

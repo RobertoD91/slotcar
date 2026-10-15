@@ -52,6 +52,7 @@
     <div class="hint" data-i18n-html="nameHint"></div>
     <div class="row"><label data-i18n="lblCarId"></label><input id="cId" type="number" min="1" max="20" style="width:80px">
       <button class="sec cfg" data-fn="id" disabled data-i18n="btnSet"></button></div>
+    <div class="hint" data-i18n-html="idHint"></div>
     <div class="row"><label data-i18n="lblMode"></label>
       <select id="cMode">
         <option value="" data-i18n="optReadCfg"></option>
@@ -102,6 +103,7 @@
       <button class="warn act" data-fn="mac" disabled data-i18n="btnWriteMac"></button>
       <button class="sec act" data-fn="rstmac" disabled data-i18n="btnRstMac"></button></div>
     <div id="macHint" class="warnbox" data-i18n-html="cloneWarn"></div>
+    <div class="hint" data-i18n-html="e7Hint"></div>
   </div>
 
   <!-- ===== Avanzato ===== -->
@@ -172,11 +174,39 @@ window.I18N_STRINGS = {
   lblCarId:{it:"ID auto (1–20)",en:"Car ID (1–20)",es:"ID coche (1–20)",fr:"ID voiture (1–20)",de:"Auto-ID (1–20)"},
   lblMode:{it:"Modalità LED IR",en:"IR LED mode",es:"Modo LED IR",fr:"Mode LED IR",de:"IR-LED-Modus"},
   modeHint:{
-    it:"Registro <code>0x91</code>: a quale sistema parla il LED a infrarossi dell'auto. <b>Puro</b> = solo quel sistema; <b>ibrido</b> = anche gli scambi oXigen. Il <code>4</code> è <b>Carrera</b>, non D132: la corsia D132 sta nel registro <code>0x95</code>. Il tempo IR della modalità ibrida (<code>0x94</code>) l'auto lo salva ma non lo usa.",
-    en:"Register <code>0x91</code>: which system the car's infrared LED talks to. <b>Pure</b> = that system only; <b>hybrid</b> = oXigen lane changers too. <code>4</code> is <b>Carrera</b>, not D132: the D132 lane is in register <code>0x95</code>. The car saves the hybrid-mode IR time (<code>0x94</code>) but does not use it.",
-    es:"Registro <code>0x91</code>: a qué sistema habla el LED infrarrojo del coche. <b>Puro</b> = solo ese sistema; <b>híbrido</b> = también los cambios oXigen. El <code>4</code> es <b>Carrera</b>, no D132: el carril D132 está en el registro <code>0x95</code>. El tiempo IR del modo híbrido (<code>0x94</code>) el coche lo guarda pero no lo usa.",
-    fr:"Registre <code>0x91</code> : le système auquel parle la LED infrarouge de la voiture. <b>Pur</b> = ce système seulement ; <b>hybride</b> = aussi les aiguillages oXigen. Le <code>4</code> correspond à <b>Carrera</b>, pas à D132 : la voie D132 se trouve dans le registre <code>0x95</code>. La voiture enregistre la durée IR du mode hybride (<code>0x94</code>) mais ne l'utilise pas.",
-    de:"Register <code>0x91</code>: mit welchem System die Infrarot-LED des Autos spricht. <b>Rein</b> = nur dieses System; <b>hybrid</b> = auch die oXigen-Weichen. Die <code>4</code> ist <b>Carrera</b>, nicht D132: Die D132-Spur steht in Register <code>0x95</code>. Die IR-Zeit des Hybridmodus (<code>0x94</code>) speichert das Auto, nutzt sie aber nicht."
+    it:"Registro <code>0x91</code>: a quale sistema parla il LED a infrarossi dell'auto. <b>Puro</b> = solo quel sistema; <b>ibrido</b> = anche gli scambi oXigen. Il <code>4</code> è <b>Carrera</b>, non D132: la corsia D132 sta nel registro <code>0x95</code>. In <b>oXigen puro</b> (<code>2</code>), dalla 4.12a il LED IR resta spento a riposo e trasmette solo durante il cambio corsia. Nei modi <b>Carrera</b> il registro <code>0x94</code> è la durata della finestra dopo il magnete del traguardo in cui l'auto manda il codice IR del proprio ID (valore × circa 1 ms, da 50 a 250); in oXigen e oXigen ibrido non ha effetto.",
+    en:"Register <code>0x91</code>: which system the car's infrared LED talks to. <b>Pure</b> = that system only; <b>hybrid</b> = oXigen lane changers too. <code>4</code> is <b>Carrera</b>, not D132: the D132 lane is in register <code>0x95</code>. In <b>oXigen pure</b> (<code>2</code>), from 4.12a the IR LED stays off at rest and transmits only during a lane change. In the <b>Carrera</b> modes, register <code>0x94</code> is the length of the window after the finish-line magnet in which the car sends the IR code of its own ID (value × about 1 ms, 50 to 250); in oXigen and oXigen hybrid it has no effect.",
+    es:"Registro <code>0x91</code>: a qué sistema habla el LED infrarrojo del coche. <b>Puro</b> = solo ese sistema; <b>híbrido</b> = también los cambios oXigen. El <code>4</code> es <b>Carrera</b>, no D132: el carril D132 está en el registro <code>0x95</code>. En <b>oXigen puro</b> (<code>2</code>), desde la 4.12a el LED IR queda apagado en reposo y solo transmite durante el cambio de carril. En los modos <b>Carrera</b>, el registro <code>0x94</code> es la duración de la ventana tras el imán de meta en la que el coche envía el código IR de su propio ID (valor × 1 ms aprox., de 50 a 250); en oXigen y oXigen híbrido no tiene efecto.",
+    fr:"Registre <code>0x91</code> : le système auquel parle la LED infrarouge de la voiture. <b>Pur</b> = ce système seulement ; <b>hybride</b> = aussi les aiguillages oXigen. Le <code>4</code> correspond à <b>Carrera</b>, pas à D132 : la voie D132 se trouve dans le registre <code>0x95</code>. En <b>oXigen pur</b> (<code>2</code>), à partir de la 4.12a la LED IR reste éteinte au repos et n'émet que pendant le changement de voie. Dans les modes <b>Carrera</b>, le registre <code>0x94</code> est la durée de la fenêtre qui suit l'aimant de la ligne d'arrivée, pendant laquelle la voiture envoie le code IR de son propre ID (valeur × 1 ms environ, de 50 à 250) ; en oXigen et oXigen hybride, il est sans effet.",
+    de:"Register <code>0x91</code>: mit welchem System die Infrarot-LED des Autos spricht. <b>Rein</b> = nur dieses System; <b>hybrid</b> = auch die oXigen-Weichen. Die <code>4</code> ist <b>Carrera</b>, nicht D132: Die D132-Spur steht in Register <code>0x95</code>. In <b>oXigen rein</b> (<code>2</code>) bleibt die IR-LED ab 4.12a im Ruhezustand aus und sendet nur während eines Spurwechsels. In den <b>Carrera</b>-Modi ist Register <code>0x94</code> die Dauer des Fensters nach dem Zielmagneten, in dem das Auto den IR-Code seiner eigenen ID sendet (Wert × etwa 1 ms, 50 bis 250); in oXigen und oXigen hybrid hat es keine Wirkung."
+  },
+  idHint:{
+    it:"Un chip <b>non attivato</b> (senza data di attivazione, registro <code>0x81</code>) usa l'ID 20 e si abbina <b>solo come ID 20</b>: per il pairing metti il controller su ID 20.",
+    en:"A chip that is <b>not activated</b> (no activation date, register <code>0x81</code>) uses ID 20 and pairs <b>only as ID 20</b>: for pairing, set the controller to ID 20.",
+    es:"Un chip <b>no activado</b> (sin fecha de activación, registro <code>0x81</code>) usa el ID 20 y solo se vincula <b>como ID 20</b>: para el emparejamiento, pon el mando en el ID 20.",
+    fr:"Une puce <b>non activée</b> (sans date d'activation, registre <code>0x81</code>) utilise l'ID 20 et ne s'appaire <b>que comme ID 20</b> : pour l'appairage, mets la manette sur l'ID 20.",
+    de:"Ein <b>nicht aktivierter</b> Chip (ohne Aktivierungsdatum, Register <code>0x81</code>) verwendet die ID 20 und lässt sich <b>nur als ID 20</b> koppeln: Stell den Handregler zum Pairing auf ID 20."
+  },
+  e7Hint:{
+    it:"Su un'auto <b>mai abbinata</b> <code>0x90</code> vale <b>E7 E7</b> fino alla 4.12a e il MAC del proprio chip dalla 4.12b. Dalla 4.12b, se trova E7 E7, l'auto lo riscrive con il MAC del chip a ogni avvio: per lei vuol dire «non abbinata». Per questo l'auto non resta abbinata a un controller con MAC O2 E7:E7. L'app lo scrive lo stesso, ma prima lo ricorda.",
+    en:"On a car that was <b>never paired</b>, <code>0x90</code> reads <b>E7 E7</b> up to 4.12a and its own chip MAC from 4.12b. From 4.12b, if the car finds E7 E7, it rewrites it with the chip MAC at every start: for the car it means “not paired”. That is why the car does not stay paired with a controller whose O2 MAC is E7:E7. The app still writes it, but reminds you first.",
+    es:"En un coche <b>nunca vinculado</b>, <code>0x90</code> vale <b>E7 E7</b> hasta la 4.12a y el MAC de su propio chip desde la 4.12b. Desde la 4.12b, si encuentra E7 E7, el coche lo reescribe con el MAC del chip en cada arranque: para él significa «no vinculado». Por eso el coche no se queda vinculado a un mando con MAC O2 E7:E7. La app lo escribe igualmente, pero antes te lo recuerda.",
+    fr:"Sur une voiture <b>jamais appairée</b>, <code>0x90</code> vaut <b>E7 E7</b> jusqu'à la 4.12a et le MAC de sa propre puce à partir de la 4.12b. À partir de la 4.12b, si elle trouve E7 E7, la voiture le réécrit avec le MAC de la puce à chaque démarrage : pour elle, cela veut dire « non appairée ». C'est pourquoi la voiture ne reste pas appairée à une manette dont le MAC O2 est E7:E7. L'app l'écrit quand même, mais te le rappelle d'abord.",
+    de:"Bei einem Auto, das <b>nie gekoppelt</b> wurde, steht in <code>0x90</code> bis 4.12a <b>E7 E7</b> und ab 4.12b die MAC seines eigenen Chips. Ab 4.12b überschreibt das Auto ein vorgefundenes E7 E7 bei jedem Start mit der MAC des Chips: Für das Auto bedeutet es „nicht gekoppelt“. Deshalb bleibt das Auto nicht mit einem Handregler mit der O2-MAC E7:E7 gekoppelt. Die App schreibt den Wert trotzdem, erinnert dich aber vorher daran."
+  },
+  warnE7:{
+    it:"⚠️ E7 E7 per l'auto vuol dire «non abbinata»: dalla 4.12b lo sostituisce con il MAC del proprio chip a ogni avvio, e l'abbinamento non resta.",
+    en:"⚠️ For the car E7 E7 means “not paired”: from 4.12b it replaces it with its own chip MAC at every start, and the pairing does not stick.",
+    es:"⚠️ Para el coche E7 E7 significa «no vinculado»: desde la 4.12b lo sustituye en cada arranque por el MAC de su propio chip, y la vinculación no se mantiene.",
+    fr:"⚠️ Pour la voiture, E7 E7 veut dire « non appairée » : à partir de la 4.12b, elle le remplace à chaque démarrage par le MAC de sa propre puce, et l'appairage ne tient pas.",
+    de:"⚠️ Für das Auto bedeutet E7 E7 „nicht gekoppelt“: Ab 4.12b ersetzt es den Wert bei jedem Start durch die MAC seines eigenen Chips, und die Kopplung bleibt nicht bestehen."
+  },
+  logBindE7:{
+    it:"[abbinamento letto = E7 E7: per l'auto vuol dire «non abbinata»]",
+    en:"[pairing read = E7 E7: for the car it means “not paired”]",
+    es:"[vinculación leída = E7 E7: para el coche significa «no vinculado»]",
+    fr:"[appairage lu = E7 E7 : pour la voiture, cela veut dire « non appairée »]",
+    de:"[gelesene Kopplung = E7 E7: Für das Auto bedeutet das „nicht gekoppelt“]"
   },
   optSsdPure:{it:"SSD puro",en:"SSD pure",es:"SSD puro",fr:"SSD pur",de:"SSD rein"},
   optSsdHyb:{it:"SSD ibrido",en:"SSD hybrid",es:"SSD híbrido",fr:"SSD hybride",de:"SSD hybrid"},
@@ -306,9 +336,9 @@ window.I18N_STRINGS = {
   rgBrakeAlias:{it:"freno: stesso valore di 0x86",en:"brake: same value as 0x86",es:"freno: mismo valor que 0x86",fr:"frein : même valeur que 0x86",de:"Bremse: gleicher Wert wie 0x86"},
   rgCarMode:{it:"modo: 0 oXigen / 1 SSD / 2 D132 (sola lettura)",en:"mode: 0 oXigen / 1 SSD / 2 D132 (read-only)",es:"modo: 0 oXigen / 1 SSD / 2 D132 (solo lectura)",fr:"mode : 0 oXigen / 1 SSD / 2 D132 (lecture seule)",de:"Modus: 0 oXigen / 1 SSD / 2 D132 (nur lesbar)"},
   rgId:{it:"ID auto (1–20)",en:"car ID (1–20)",es:"ID coche (1–20)",fr:"ID voiture (1–20)",de:"Auto-ID (1–20)"},
-  rgBind:{it:"controller abbinato: identità O2 (alto, basso)",en:"bound controller: O2 identity (high, low)",es:"mando vinculado: identidad O2 (alto, bajo)",fr:"manette appairée : identité O2 (haut, bas)",de:"gekoppelter Handregler: O2-Identität (hoch, niedrig)"},
+  rgBind:{it:"controller abbinato: identità O2 (alto, basso); mai abbinata = E7 E7 fino alla 4.12a, il MAC del chip dalla 4.12b",en:"bound controller: O2 identity (high, low); never paired = E7 E7 up to 4.12a, the chip MAC from 4.12b",es:"mando vinculado: identidad O2 (alto, bajo); nunca vinculado = E7 E7 hasta la 4.12a, el MAC del chip desde la 4.12b",fr:"manette appairée : identité O2 (haut, bas) ; jamais appairée = E7 E7 jusqu'à la 4.12a, le MAC de la puce à partir de la 4.12b",de:"gekoppelter Handregler: O2-Identität (hoch, niedrig); nie gekoppelt = E7 E7 bis 4.12a, ab 4.12b die MAC des Chips"},
   rgLed:{it:"modalità LED IR (0–5)",en:"IR LED mode (0–5)",es:"modo LED IR (0–5)",fr:"mode LED IR (0–5)",de:"IR-LED-Modus (0–5)"},
-  rgIrTmr:{it:"tempo IR in ibrido (50–250 ms): salvato ma non usato",en:"hybrid IR time (50–250 ms): saved but not used",es:"tiempo IR en híbrido (50–250 ms): se guarda pero no se usa",fr:"durée IR en hybride (50–250 ms) : enregistrée mais pas utilisée",de:"IR-Zeit im Hybridmodus (50–250 ms): gespeichert, aber nicht genutzt"},
+  rgIrTmr:{it:"finestra IR dopo il traguardo nei modi Carrera (50–250, × circa 1 ms); in oXigen nessun effetto",en:"IR window after the finish line in the Carrera modes (50–250, × about 1 ms); no effect in oXigen",es:"ventana IR tras la meta en los modos Carrera (50–250, × 1 ms aprox.); en oXigen sin efecto",fr:"fenêtre IR après la ligne d'arrivée dans les modes Carrera (50–250, × 1 ms environ) ; sans effet en oXigen",de:"IR-Fenster nach der Ziellinie in den Carrera-Modi (50–250, × etwa 1 ms); in oXigen ohne Wirkung"},
   rgD132:{it:"corsia D132 (2 o 4)",en:"D132 lane (2 or 4)",es:"carril D132 (2 o 4)",fr:"voie D132 (2 ou 4)",de:"D132-Spur (2 oder 4)"},
   rgSp44:{it:"kit luci SP44: non usato",en:"SP44 light kit: not used",es:"kit de luces SP44: no se usa",fr:"kit d'éclairage SP44 : pas utilisé",de:"Lichtset SP44: nicht genutzt"},
   rgMotor:{it:"test motore (comando: non va mai letto)",en:"motor test (command: never read it)",es:"prueba de motor (comando: no leer nunca)",fr:"test moteur (commande : ne jamais le lire)",de:"Motortest (Befehl: niemals lesen)"},
@@ -424,7 +454,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="car-config",APP_VERSION="1.6.0";
+const APP="car-config",APP_VERSION="1.7.0";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const DEV=0x09;          // byte del dispositivo in BLE: 0x09 = auto (0x0a = telecomando)
 /* I registri dell'auto. Solo questi si leggono e si scrivono, e ciascuno con la
@@ -450,7 +480,7 @@ const REGS=[
   {reg:0x8f,k:"rgId",r:1,w:1,min:1,max:20},
   {reg:0x90,k:"rgBind",r:2,w:2},
   {reg:0x91,k:"rgLed",r:1,w:1,min:0,max:5},
-  {reg:0x94,k:"rgIrTmr",r:1,w:1},
+  {reg:0x94,k:"rgIrTmr",r:1,w:1,min:50,max:250},   // finestra IR in Carrera, × circa 1 ms
   {reg:0x95,k:"rgD132",r:1,w:1},
   {reg:0xa1,k:"rgSp44",r:8,w:1},
   {reg:0x9a,k:"rgMotor",w:1,noR:"blk9a"},          // ⚠️ LEGGERLO blocca l'auto finché non si toglie corrente
@@ -475,6 +505,9 @@ function vietaScrittura(reg,val){const d=REG[reg];if(!d)return["blkUnknown"];if(
   if(val.length!==d.w)return["blkLen",{reg:h2(reg),n:d.w,m:val.length}];
   if(d.min!=null&&(val[0]<d.min||val[0]>d.max))return["blkRange",{min:d.min,max:d.max}];
   return null;}
+/* E7 E7 nell'abbinamento si può scrivere, ma dalla 4.12b l'auto lo prende per
+   «non abbinata» e lo rimpiazza col MAC del chip a ogni avvio: si avvisa, non si vieta. */
+const isE7=v=>!!v&&v.length===2&&v[0]===0xe7&&v[1]===0xe7;
 
 /* Il nome (0x83) è di 14 caratteri ASCII esatti, completati con spazi. Prima
    partiva in UTF-8 e senza riempimento: il chip copia comunque 14 byte, e in
@@ -560,7 +593,7 @@ async function readAll(){
       if(r===0x85){$("cMinSpeed").value=v[0];$("cMinSpeedV").textContent=v[0];}
       if(r===0x86){$("cBrake").value=v[0];$("cBrakeV").textContent=v[0];}
       if(r===0x87){$("cLimits").checked=v[0]!==0;refreshLim();}
-      if(r===0x90){$("cMac").value=hx(v);$("cMac").dispatchEvent(new Event("input"));}
+      if(r===0x90){$("cMac").value=hx(v);$("cMac").dispatchEvent(new Event("input"));if(isE7(v))log(I18N.t("logBindE7"));}
     }
     await new Promise(x=>setTimeout(x,110));
   }
@@ -586,7 +619,8 @@ const fns={
   motor:()=>writeReg(0x9a,[0x00]),
   lights:()=>writeReg(0x9b,[0x00]),
   mac:()=>{const b=parseHex($("cMac").value);if(!b||b.length!==2)return alert(I18N.t("alertMac"));
-    if(confirm(I18N.t("confirmMac",{mac:hx(b).toUpperCase()})))return writeReg(0x90,b);},
+    const q=I18N.t("confirmMac",{mac:hx(b).toUpperCase()})+(isE7(b)?"\n\n"+I18N.t("warnE7"):"");
+    if(confirm(q))return writeReg(0x90,b);},
   /* 0x9f rimette l'abbinamento di fabbrica (ricavato dal MAC del chip). Pulsante a sé, con conferma. */
   rstmac:()=>{if(confirm(I18N.t("confirmRstMac")))return writeReg(0x9f,[0x00]);},
   rawread:async()=>{const r=parseReg($("rReg").value);
@@ -599,7 +633,8 @@ const fns={
     const val=r===0x83?(byteNome(s)||[]):parseHex(s);   // il nome si scrive in chiaro
     if(!val)return setRawMsg({reg:r,k:"blkBadVal"});
     const no=vietaScrittura(r,val);if(no)return setRawMsg({reg:r,k:no[0],p:no[1]});
-    setRawMsg(null);await writeReg(r,val);},
+    /* E7 E7 nell'abbinamento parte lo stesso, ma la console lo ricorda */
+    setRawMsg(r===0x90&&isE7(val)?{reg:r,k:"warnE7"}:null);await writeReg(r,val);},
 };
 document.querySelectorAll("[data-fn]").forEach(b=>b.onclick=()=>fns[b.dataset.fn]&&fns[b.dataset.fn]());
 $("cSpeed").oninput=e=>$("cSpeedV").textContent=e.target.value;

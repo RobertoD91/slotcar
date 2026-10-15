@@ -71,6 +71,36 @@ L'utente è italiano: **rispondere in italiano**.
       permesso; dopo deve agganciarsi come su computer. In `o2-bootloader` prova un boot sul
       dongle (`0c`): il dongle si riavvia, e la pagina deve ritrovarlo da sola. Se Android
       chiede di nuovo il permesso dopo il riavvio, annotalo. Il registro dice «via WebUSB».
+- [ ] **Soglia della rampa `0x94` su un SCP-3** (`remote-config` 1.7.0, 15/10/2026): su un
+      controller che ha avuto un firmware **fino alla 4.18g**, Avanzato → «Leggi reg» `94`
+      (frame `0a 12 94`): annota se vale **`5A`** senza che nessuno l'abbia impostata. Nella
+      4.20a la soglia è salvata ma non ha effetto (ce l'ha dalla 4.20b, che si presenta
+      ancora come 4.20a). Già che ci sei, la console deve rifiutare una curva `0x93` con il
+      5° byte fuori da 1..9 e una soglia fuori da `0x0F`..`0xFA`, dicendo perché.
+- [ ] **Code dei comandi del dongle** (`chron02` 1.6.0): con «tutte le auto» manda pit-lane,
+      velocità massima, velocità minima, potenza radio e freno → il contatore sotto il
+      comando deve dire «5 su 5», e il tempo minimo sul giro (sesto codice) deve essere
+      rifiutato con il messaggio. Poi «togli» il freno, Stop e Avvia: il tempo minimo ora
+      deve partire e funzionare in pista, e gli altri quattro limiti devono restare attivi
+      sui controller (li rimanda l'app). Che il dongle butti davvero un sesto codice non si
+      prova da qui: l'app lo ferma prima.
+- [ ] **`o2-bootloader` 1.9.0 — dispositivo che smette di rispondere in boot**: entra in boot
+      su un SCP-3, spegnilo e premi «Leggi» su un campo → dopo «nessuna risposta» i comandi
+      a registri devono spegnersi e la riga deve dire di uscire e rientrare; «Esci» e poi
+      «Entra in boot» (col controller riacceso in programmazione) devono rimettere tutto a
+      posto. Se ti capita un **`AB` all'intestazione** di una scrittura deve succedere lo
+      stesso: annotalo, perché è il caso che non sappiamo provocare apposta.
+- [ ] **Modulo Power Amplifier** (solo se ne hai uno montato in un SCP-3): in `chron02` la
+      versione del controller deve essere quella del modulo; il tondo (il freno) deve
+      comparire come track call 🏳️, mentre freno e batteria scarica non devono comparire
+      mai; spegnendo e riaccendendo l'auto il contatore ⟲ deve salire di **1**, non di 2-4.
+      In Bluetooth il modulo deve chiamarsi `SCP3A-…` (menu APP all'accensione, freccia su =
+      PA CHIP), e collegandolo a `remote-config` deve comparire l'avviso «è il modulo, non il
+      controller».
+- [ ] **Dongle vecchio** (solo se ne hai uno precedente alla 4.13a): `chron02` deve mostrare
+      l'avviso giallo sotto i pulsanti di gara (pit-lane e colonna grilletto non arrivano ai
+      controller; sulla 4.00 niente comandi per una sola auto); in `o2-bootloader`, in boot
+      sul dongle, «Leggi MAC» deve dire che fino alla 4.10a `READMACVL` non risponde.
 
 **DS200 / DS300**
 - [ ] **Prova la voce nuova del DS200** — ora DS200 e DS300 sono due sistemi distinti: il

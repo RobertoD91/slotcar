@@ -26,7 +26,7 @@
   .rs[aria-pressed="true"]{outline:2px solid var(--acc);outline-offset:2px}
   /* Giri arrivati ma scartati (STOP, PAUSA, ripresa): restano visibili, smorzati. */
   tr.lapx td{color:var(--mut)}
-  #ccMsg:empty,#ccPrev:empty{display:none}
+  #ccMsg:empty,#ccPrev:empty,#ccQueue:empty{display:none}
 </style>
 </head>
 <body class="app">
@@ -60,6 +60,8 @@
       <span id="stateP" class="pill" hidden></span>
     </div>
     <div id="syncHint" class="warnbox" data-i18n="needSync"></div>
+    <!-- dongle precedente alla 4.13a: valgono regole più vecchie (lo dice la versione) -->
+    <p class="note" id="oldDongle" hidden></p>
     <div class="row"><label for="pitSel" data-i18n="lblPit"></label>
       <select id="pitSel">
         <option value="96" data-i18n="optPit60"></option>
@@ -106,6 +108,7 @@
     </div>
     <div id="ccHint" class="hint"></div>
     <div id="ccPrev" class="val"></div>
+    <div id="ccQueue" class="val"></div>
     <div id="ccMsg" class="warnbox"></div>
 
     <p class="cardtitle" style="margin-top:14px" data-i18n="titleLimits"></p>
@@ -137,6 +140,7 @@
     </div>
     <div id="boardEmpty" class="empty" data-i18n="boardEmpty"></div>
     <div class="warnbox" data-i18n-html="noteHint"></div>
+    <div class="hint" style="margin-top:6px" data-i18n-html="paHint"></div>
   </div>
 
   <!-- ===== Log giri ===== -->
@@ -333,12 +337,36 @@ window.I18N_STRINGS = {
     de:"Die Sendeleistung gilt nur für alle Autos: Für ein einzelnes ignorieren die Handregler sie. Nichts gesendet."
   },
   errFull:{
-    it:"Il dongle tiene al massimo 5 comandi diversi per destinatario e questo verrebbe scartato senza avviso. Le code si svuotano con Stop e poi Avvia. Niente inviato.",
-    en:"The dongle keeps at most 5 different commands per recipient, and this one would be dropped silently. The queues are emptied by Stop then Start. Nothing sent.",
-    es:"El dongle guarda como máximo 5 comandos distintos por destinatario y este se descartaría sin aviso. Las colas se vacían con Stop y luego Iniciar. No se ha enviado nada.",
-    fr:"Le dongle garde au maximum 5 commandes différentes par destinataire, et celle-ci serait écartée sans avertissement. Les files se vident avec Stop puis Lancer. Rien n'a été envoyé.",
-    de:"Der Dongle hält höchstens 5 verschiedene Befehle pro Empfänger, und dieser würde ohne Hinweis verworfen. Die Warteschlangen leeren sich mit Stop und danach Starten. Nichts gesendet."
+    it:"Sarebbe il sesto comando diverso per questo destinatario: il dongle ne tiene al massimo 5 e lo scarterebbe senza avviso. Anche un comando rimandato al valore neutro («togli») tiene il suo posto. Le code si svuotano solo con Stop e poi Avvia: togli un limite che non ti serve, poi Stop e Avvia, e riprova. Niente inviato.",
+    en:"This would be the sixth different command for this recipient: the dongle keeps at most 5 and would drop it without warning. A command sent back to its neutral value (“remove”) keeps its place too. The queues are emptied only by Stop and then Start: remove a limit you do not need, then Stop and Start, and try again. Nothing sent.",
+    es:"Sería el sexto comando distinto para este destinatario: el dongle guarda como máximo 5 y lo descartaría sin aviso. También un comando reenviado con su valor neutro («quitar») conserva su puesto. Las colas solo se vacían con Stop y luego Iniciar: quita un límite que no necesites, luego Stop e Iniciar, y vuelve a intentarlo. No se ha enviado nada.",
+    fr:"Ce serait la sixième commande différente pour ce destinataire : le dongle en garde 5 au maximum et l'écarterait sans prévenir. Une commande renvoyée avec sa valeur neutre (« retirer ») garde aussi sa place. Les files ne se vident qu'avec Stop puis Lancer : retire une limite dont tu n'as pas besoin, puis Stop et Lancer, et réessaie. Rien n'a été envoyé.",
+    de:"Das wäre der sechste verschiedene Befehl für diesen Empfänger: Der Dongle hält höchstens 5 und würde ihn ohne Hinweis verwerfen. Auch ein Befehl, der mit seinem neutralen Wert erneut gesendet wurde („entfernen“), behält seinen Platz. Die Warteschlangen leeren sich nur mit Stop und danach Starten: Entferne ein Limit, das du nicht brauchst, dann Stop und Starten, und versuche es noch einmal. Nichts gesendet."
   },
+  queueAll:{it:"Posti occupati nelle code del dongle — per tutte: {n} su {max}",en:"Places taken in the dongle queues — all cars: {n} of {max}",es:"Puestos ocupados en las colas del dongle — todos: {n} de {max}",fr:"Places prises dans les files du dongle — toutes : {n} sur {max}",de:"Belegte Plätze in den Warteschlangen des Dongles — alle: {n} von {max}"},
+  queueCar:{it:" · auto {id}: {n} su {max}",en:" · car {id}: {n} of {max}",es:" · coche {id}: {n} de {max}",fr:" · voiture {id} : {n} sur {max}",de:" · Auto {id}: {n} von {max}"},
+  errOld400:{
+    it:"Con un dongle 4.00 i comandi per una sola auto hanno un altro formato: l'app non li manda. Usa «tutte le auto». Niente inviato.",
+    en:"With a 4.00 dongle, commands for a single car have a different format: the app does not send them. Use “all cars”. Nothing sent.",
+    es:"Con un dongle 4.00 los comandos para un solo coche tienen otro formato: la app no los envía. Usa «todos los coches». No se ha enviado nada.",
+    fr:"Avec un dongle 4.00, les commandes pour une seule voiture ont un autre format : l'app ne les envoie pas. Utilise « toutes les voitures ». Rien n'a été envoyé.",
+    de:"Bei einem Dongle 4.00 haben Befehle für ein einzelnes Auto ein anderes Format: Die App sendet sie nicht. Verwende „alle Autos“. Nichts gesendet."
+  },
+  oldDongle:{
+    it:"⚠️ Dongle v{v}: è precedente alla 4.13a, e valgono regole più vecchie. Con i dongle fino alla 4.10a la scelta dei <b>giri in pit-lane</b> e la scelta della <b>colonna grilletto</b> (media del PWM) non arrivano ai controller.",
+    en:"⚠️ Dongle v{v}: it is older than 4.13a, and older rules apply. With dongles up to 4.10a the <b>pit-lane laps</b> setting and the <b>trigger column</b> choice (PWM average) do not reach the controllers.",
+    es:"⚠️ Dongle v{v}: es anterior a la 4.13a, y valen reglas más antiguas. Con los dongles hasta la 4.10a, la elección de las <b>vueltas en pit-lane</b> y la de la <b>columna gatillo</b> (media del PWM) no llegan a los mandos.",
+    fr:"⚠️ Dongle v{v} : il est antérieur à la 4.13a, et des règles plus anciennes s'appliquent. Avec les dongles jusqu'à la 4.10a, le choix des <b>tours dans la voie des stands</b> et celui de la <b>colonne gâchette</b> (moyenne du PWM) n'arrivent pas aux manettes.",
+    de:"⚠️ Dongle v{v}: Er ist älter als 4.13a, und es gelten ältere Regeln. Bei Dongles bis 4.10a erreichen die Einstellung der <b>Runden in der Boxengasse</b> und die Wahl der <b>Gasdrücker-Spalte</b> (PWM-Mittelwert) die Handregler nicht."
+  },
+  oldDongle400:{
+    it:" Nella 4.00 anche i <b>comandi per una sola auto</b> hanno un formato diverso: l'app non li manda.",
+    en:" On 4.00 the <b>commands for a single car</b> also have a different format: the app does not send them.",
+    es:" En la 4.00 también los <b>comandos para un solo coche</b> tienen otro formato: la app no los envía.",
+    fr:" En 4.00, les <b>commandes pour une seule voiture</b> ont aussi un format différent : l'app ne les envoie pas.",
+    de:" Bei 4.00 haben auch die <b>Befehle für ein einzelnes Auto</b> ein anderes Format: Die App sendet sie nicht."
+  },
+  logResendFail:{it:"limite non rimandato ({what}): {e}",en:"limit not re-sent ({what}): {e}",es:"límite no reenviado ({what}): {e}",fr:"limite non renvoyée ({what}) : {e}",de:"Limit nicht erneut gesendet ({what}): {e}"},
   msgQueued:{it:"Inviato: {what}. Il dongle lo ripete finché non lo cambi.",en:"Sent: {what}. The dongle repeats it until you change it.",es:"Enviado: {what}. El dongle lo repite hasta que lo cambies.",fr:"Envoyée : {what}. Le dongle la répète jusqu'à ce que tu la changes.",de:"Gesendet: {what}. Der Dongle wiederholt den Befehl, bis du ihn änderst."},
   msgDropped:{it:"Tolto: {what}, rimandato col valore neutro {v}.",en:"Removed: {what}, re-sent with the neutral value {v}.",es:"Quitado: {what}, reenviado con el valor neutro {v}.",fr:"Retirée : {what}, renvoyée avec la valeur neutre {v}.",de:"Entfernt: {what}, erneut gesendet mit dem neutralen Wert {v}."},
   msgDroppedPit:{
@@ -357,11 +385,11 @@ window.I18N_STRINGS = {
   btnDrop:{it:"togli",en:"remove",es:"quitar",fr:"retirer",de:"entfernen"},
   limEmpty:{it:"Nessun limite impostato.",en:"No limit set.",es:"Ningún límite puesto.",fr:"Aucune limite définie.",de:"Keine Limits gesetzt."},
   carCmdHint:{
-    it:"Il dongle <b>ripete ogni comando all'infinito</b>, finché non lo cambi: per annullarlo si rimanda lo stesso comando col valore neutro (velocità massima e freno 255, velocità minima e tempo minimo 0, potenza radio 3), ed è quello che fa «togli». Tiene al massimo <b>5 comandi diversi</b> per destinatario; le code si svuotano solo con <b>Avvia dopo uno Stop</b>, e a quel punto l'app rimanda l'elenco qui sopra. Un comando per una sola auto arriva entro circa 300 ms, uno per tutte entro 10 ms.",
-    en:"The dongle <b>repeats every command forever</b>, until you change it: to cancel one you re-send the same command with its neutral value (max speed and brake 255, min speed and min lap time 0, radio power 3), which is what “remove” does. It keeps at most <b>5 different commands</b> per recipient; the queues are emptied only by <b>Start after a Stop</b>, and at that point the app re-sends the list above. A command for one car arrives within about 300 ms, one for all cars within 10 ms.",
-    es:"El dongle <b>repite cada comando indefinidamente</b>, hasta que lo cambies: para anularlo se reenvía el mismo comando con su valor neutro (velocidad máxima y freno 255, velocidad mínima y tiempo mínimo 0, potencia de radio 3), y eso es lo que hace «quitar». Guarda como máximo <b>5 comandos distintos</b> por destinatario; las colas solo se vacían con <b>Iniciar después de un Stop</b>, y entonces la app reenvía la lista de arriba. Un comando para un solo coche llega en unos 300 ms, uno para todos en 10 ms.",
-    fr:"Le dongle <b>répète chaque commande indéfiniment</b>, jusqu'à ce que tu la changes : pour l'annuler, on renvoie la même commande avec sa valeur neutre (vitesse maximale et frein 255, vitesse minimale et temps minimal 0, puissance radio 3), et c'est ce que fait « retirer ». Il garde au maximum <b>5 commandes différentes</b> par destinataire ; les files ne se vident qu'avec <b>Lancer après un Stop</b>, et à ce moment-là l'app renvoie la liste ci-dessus. Une commande pour une seule voiture arrive en 300 ms environ, une pour toutes en 10 ms.",
-    de:"Der Dongle <b>wiederholt jeden Befehl endlos</b>, bis du ihn änderst: Um ihn aufzuheben, sendet man denselben Befehl mit seinem neutralen Wert erneut (Höchstgeschwindigkeit und Bremse 255, Mindestgeschwindigkeit und Mindestrundenzeit 0, Sendeleistung 3), und genau das macht „entfernen“. Er hält höchstens <b>5 verschiedene Befehle</b> pro Empfänger; die Warteschlangen leeren sich nur mit <b>Starten nach einem Stop</b>, und dann sendet die App die Liste oben erneut. Ein Befehl für ein einzelnes Auto kommt in etwa 300 ms an, einer für alle in 10 ms."
+    it:"Il dongle <b>ripete ogni comando all'infinito</b>, finché non lo cambi: per annullarlo si rimanda lo stesso comando col valore neutro (velocità massima e freno 255, velocità minima e tempo minimo 0, potenza radio 3), ed è quello che fa «togli». Tiene al massimo <b>5 comandi diversi</b> per destinatario; le code si svuotano solo con <b>Avvia dopo uno Stop</b>, e a quel punto l'app rimanda l'elenco qui sopra. Il posto resta occupato anche dopo «togli», e una velocità minima per tutte occupa un posto anche nella coda di ogni auto: il contatore sotto il comando dice quanti posti sono presi. Un comando per una sola auto arriva entro circa 300 ms, uno per tutte entro 10 ms.",
+    en:"The dongle <b>repeats every command forever</b>, until you change it: to cancel one you re-send the same command with its neutral value (max speed and brake 255, min speed and min lap time 0, radio power 3), which is what “remove” does. It keeps at most <b>5 different commands</b> per recipient; the queues are emptied only by <b>Start after a Stop</b>, and at that point the app re-sends the list above. The place stays taken even after “remove”, and a minimum speed for all cars also takes a place in every car's queue: the counter under the command shows how many places are taken. A command for one car arrives within about 300 ms, one for all cars within 10 ms.",
+    es:"El dongle <b>repite cada comando indefinidamente</b>, hasta que lo cambies: para anularlo se reenvía el mismo comando con su valor neutro (velocidad máxima y freno 255, velocidad mínima y tiempo mínimo 0, potencia de radio 3), y eso es lo que hace «quitar». Guarda como máximo <b>5 comandos distintos</b> por destinatario; las colas solo se vacían con <b>Iniciar después de un Stop</b>, y entonces la app reenvía la lista de arriba. El puesto sigue ocupado también después de «quitar», y una velocidad mínima para todos ocupa un puesto también en la cola de cada coche: el contador bajo el comando dice cuántos puestos están ocupados. Un comando para un solo coche llega en unos 300 ms, uno para todos en 10 ms.",
+    fr:"Le dongle <b>répète chaque commande indéfiniment</b>, jusqu'à ce que tu la changes : pour l'annuler, on renvoie la même commande avec sa valeur neutre (vitesse maximale et frein 255, vitesse minimale et temps minimal 0, puissance radio 3), et c'est ce que fait « retirer ». Il garde au maximum <b>5 commandes différentes</b> par destinataire ; les files ne se vident qu'avec <b>Lancer après un Stop</b>, et à ce moment-là l'app renvoie la liste ci-dessus. La place reste prise même après « retirer », et une vitesse minimale pour toutes prend aussi une place dans la file de chaque voiture : le compteur sous la commande indique combien de places sont prises. Une commande pour une seule voiture arrive en 300 ms environ, une pour toutes en 10 ms.",
+    de:"Der Dongle <b>wiederholt jeden Befehl endlos</b>, bis du ihn änderst: Um ihn aufzuheben, sendet man denselben Befehl mit seinem neutralen Wert erneut (Höchstgeschwindigkeit und Bremse 255, Mindestgeschwindigkeit und Mindestrundenzeit 0, Sendeleistung 3), und genau das macht „entfernen“. Er hält höchstens <b>5 verschiedene Befehle</b> pro Empfänger; die Warteschlangen leeren sich nur mit <b>Starten nach einem Stop</b>, und dann sendet die App die Liste oben erneut. Der Platz bleibt auch nach „entfernen“ belegt, und eine Mindestgeschwindigkeit für alle belegt auch in der Warteschlange jedes Autos einen Platz: Der Zähler unter dem Befehl zeigt, wie viele Plätze belegt sind. Ein Befehl für ein einzelnes Auto kommt in etwa 300 ms an, einer für alle in 10 ms."
   },
 
   titleBoard:{it:"Classifica live",en:"Live leaderboard",es:"Clasificación en vivo",fr:"Classement en direct",de:"Live-Wertung"},
@@ -371,7 +399,7 @@ window.I18N_STRINGS = {
   thBestLap:{it:"miglior giro (s)",en:"best lap (s)",es:"mejor vuelta (s)",fr:"meilleur tour (s)",de:"schnellste Runde (s)"},
   thTrigger:{it:"grilletto",en:"trigger",es:"gatillo",fr:"gâchette",de:"Gasdrücker"},
   thPit:{it:"pit",en:"pit",es:"pit",fr:"stand",de:"Box"},
-  thFlagsTitle:{it:"frecce, pulsante tondo e segnalazioni",en:"arrows, round button and flags",es:"flechas, botón redondo y avisos",fr:"flèches, bouton rond et signalements",de:"Pfeile, runde Taste und Meldungen"},
+  thFlagsTitle:{it:"frecce, pulsante del freno (tondo) e segnalazioni",en:"arrows, brake button (round) and flags",es:"flechas, botón de freno (redondo) y avisos",fr:"flèches, bouton de frein (rond) et signalements",de:"Pfeile, Bremstaste (rund) und Meldungen"},
   thVer:{it:"versioni",en:"versions",es:"versiones",fr:"versions",de:"Versionen"},
   thUpdate:{it:"aggiorn.",en:"updated",es:"actualiz.",fr:"mis à jour",de:"aktualisiert"},
   boardEmpty:{
@@ -388,15 +416,23 @@ window.I18N_STRINGS = {
     fr:"⚠️ Sur la table (sans voiture sur la piste), les <b>tours</b> restent à 0, mais la <b>gâchette</b> bouge : la télémétrie est bien en direct. Les tours qui arrivent en <b>Stop ou Pause ne comptent pas</b> : le dongle les transmet quand même (et ceux faits pendant la pause, il les livre tous ensemble à la reprise), donc c'est l'app qui les écarte — ils restent dans le journal des tours comme « écartés » et le nombre entre parenthèses les compte. Après le Stop, il y a une tolérance de 0,6 s pour le tour qui vient de se terminer, car le dongle met à jour chaque voiture environ toutes les 300 ms.",
     de:"⚠️ Auf dem Tisch (ohne Auto auf der Bahn) bleiben die <b>Runden</b> bei 0, aber der <b>Gasdrücker</b> bewegt sich: Die Telemetrie ist trotzdem live. Runden, die bei <b>Stop oder Pause</b> ankommen, <b>zählen nicht</b>: Der Dongle gibt sie trotzdem weiter (und die in der Pause gefahrenen liefert er alle zusammen beim Weiterfahren), also verwirft sie die App — sie bleiben im Rundenprotokoll als „verworfen“ stehen, und die Zahl in Klammern zählt sie. Nach dem Stop gibt es eine Toleranz von 0,6 s für die gerade beendete Runde, weil der Dongle jedes Auto etwa alle 300 ms aktualisiert."
   },
+  paHint:{
+    it:"<b>Segnalazioni.</b> ⟲ = l'auto si è appena riavviata, ↯ = collegamento con l'auto perso o ritrovato: il numero accanto dice quante volte, contate per <b>fronti</b> e non per aggiornamenti. Il motivo è il <b>modulo Power Amplifier</b>, il modulo radio opzionale che si monta nell'SCP-3 per la portata lunga: con il modulo (da provare) quei due segnali si ripetono per circa un secondo, cioè in 2-4 aggiornamenti di fila; la versione del controller in colonna è quella del modulo; il pulsante tondo, che sull'SCP-3 è il freno, arriva come <b>track call</b> (🏳️), mentre il bit del pulsante del freno e quello della batteria scarica non arrivano mai. Dal PC non si può sapere se un controller ha il modulo.",
+    en:"<b>Flags.</b> ⟲ = the car has just restarted, ↯ = link with the car lost or regained: the number next to it says how many times, counted by <b>edges</b>, not by updates. The reason is the <b>Power Amplifier module</b>, the optional radio module fitted in the SCP-3 for long range: with the module (to be tested) those two signals repeat for about one second, i.e. in 2-4 updates in a row; the controller version in the column is the module's; the round button, which on the SCP-3 is the brake, arrives as a <b>track call</b> (🏳️), while the brake-button bit and the low-battery bit never arrive. The PC cannot tell whether a controller has the module.",
+    es:"<b>Avisos.</b> ⟲ = el coche se acaba de reiniciar, ↯ = enlace con el coche perdido o recuperado: el número al lado dice cuántas veces, contadas por <b>flancos</b> y no por actualizaciones. El motivo es el <b>módulo Power Amplifier</b>, el módulo de radio opcional que se monta en el SCP-3 para el alcance largo: con el módulo (por probar) esas dos señales se repiten durante un segundo aprox., es decir, en 2-4 actualizaciones seguidas; la versión del mando en la columna es la del módulo; el botón redondo, que en el SCP-3 es el freno, llega como <b>track call</b> (🏳️), mientras que el bit del botón de freno y el de batería baja no llegan nunca. Desde el PC no se puede saber si un mando tiene el módulo.",
+    fr:"<b>Signalements.</b> ⟲ = la voiture vient de redémarrer, ↯ = liaison avec la voiture perdue ou retrouvée : le nombre à côté indique combien de fois, compté sur les <b>fronts</b> et non par mise à jour. La raison, c'est le <b>module Power Amplifier</b>, le module radio optionnel qui se monte dans la SCP-3 pour la longue portée : avec le module (à tester), ces deux signaux se répètent pendant une seconde environ, soit sur 2 à 4 mises à jour d'affilée ; la version de la manette dans la colonne est celle du module ; le bouton rond, qui sur la SCP-3 est le frein, arrive comme <b>track call</b> (🏳️), tandis que le bit du bouton de frein et celui de la batterie faible n'arrivent jamais. Le PC ne peut pas savoir si une manette a le module.",
+    de:"<b>Meldungen.</b> ⟲ = das Auto ist gerade neu gestartet, ↯ = Verbindung zum Auto verloren oder wiederhergestellt: Die Zahl daneben sagt, wie oft, gezählt nach <b>Flanken</b> und nicht nach Aktualisierungen. Der Grund ist das <b>Power-Amplifier-Modul</b>, das optionale Funkmodul, das für große Reichweite in den SCP-3 eingesetzt wird: Mit dem Modul (noch zu testen) wiederholen sich diese beiden Signale etwa eine Sekunde lang, also in 2–4 Aktualisierungen hintereinander; die Handregler-Version in der Spalte ist die des Moduls; die runde Taste, die beim SCP-3 die Bremse ist, kommt als <b>Track Call</b> an (🏳️), während das Bit der Bremstaste und das der schwachen Batterie nie ankommen. Vom PC aus lässt sich nicht erkennen, ob ein Handregler das Modul hat."
+  },
   trigNoCar:{it:"nessuna auto",en:"no car",es:"sin coche",fr:"aucune voiture",de:"kein Auto"},
   verUnknown:{it:"non nota",en:"unknown",es:"desconocida",fr:"inconnue",de:"unbekannt"},
-  fReset:{it:"controller riavviato",en:"controller restarted",es:"mando reiniciado",fr:"manette redémarrée",de:"Handregler neu gestartet"},
+  fReset:{it:"auto riavviata",en:"car restarted",es:"coche reiniciado",fr:"voiture redémarrée",de:"Auto neu gestartet"},
+  fTimes:{it:"{n} volte, contate per fronti",en:"{n} times, counted by edges",es:"{n} veces, contadas por flancos",fr:"{n} fois, comptées sur les fronts",de:"{n}-mal, nach Flanken gezählt"},
   fLink:{it:"collegamento con l'auto perso o ritrovato",en:"link with the car lost or regained",es:"enlace con el coche perdido o recuperado",fr:"liaison avec la voiture perdue ou retrouvée",de:"Verbindung zum Auto verloren oder wiederhergestellt"},
   fBatt:{it:"batteria scarica",en:"low battery",es:"batería baja",fr:"batterie faible",de:"Batterie schwach"},
   fCall:{it:"richiesta track call",en:"track call request",es:"petición de track call",fr:"demande de track call",de:"Track-Call-Anfrage"},
   fUp:{it:"freccia su",en:"up arrow",es:"flecha arriba",fr:"flèche haut",de:"Pfeil hoch"},
   fDn:{it:"freccia giù",en:"down arrow",es:"flecha abajo",fr:"flèche bas",de:"Pfeil runter"},
-  fRound:{it:"pulsante tondo",en:"round button",es:"botón redondo",fr:"bouton rond",de:"runde Taste"},
+  fRound:{it:"pulsante del freno (il tondo dell'SCP-3)",en:"brake button (the SCP-3's round button)",es:"botón de freno (el redondo del SCP-3)",fr:"bouton de frein (le bouton rond de la SCP-3)",de:"Bremstaste (die runde Taste des SCP-3)"},
   fPit:{it:"in pit-lane",en:"in the pit lane",es:"en el pit-lane",fr:"dans la voie des stands",de:"in der Boxengasse"},
   fDisc:{it:"giri scartati (Stop, Pausa o ripresa)",en:"dropped laps (Stop, Pause or resume)",es:"vueltas descartadas (Stop, Pausa o reanudación)",fr:"tours écartés (Stop, Pause ou reprise)",de:"verworfene Runden (Stop, Pause oder Weiterfahren)"},
 
@@ -446,7 +482,7 @@ window.I18N_STRINGS = {
     de:"[über WebUSB: Die Seite ist selbst der Treiber des Dongles, wie auf Android nötig]"
   },
   logDtr:{it:"[DTR non impostato: {e}]",en:"[DTR not set: {e}]",es:"[DTR no activado: {e}]",fr:"[DTR non activé : {e}]",de:"[DTR nicht gesetzt: {e}]"},
-  logVer:{it:"versione dongle {v}",en:"dongle version {v}",es:"versión del dongle {v}",fr:"version du dongle {v}",de:"Dongle-Version {v}"},
+  logVer:{it:"versione dongle {v} (la lettera, per esempio la «b» di 4.15b, non viene trasmessa)",en:"dongle version {v} (the letter, e.g. the “b” in 4.15b, is not transmitted)",es:"versión del dongle {v} (la letra, por ejemplo la «b» de 4.15b, no se transmite)",fr:"version du dongle {v} (la lettre, par exemple le « b » de 4.15b, n'est pas transmise)",de:"Dongle-Version {v} (der Buchstabe, etwa das „b“ in 4.15b, wird nicht übertragen)"},
   logSync:{it:"frame di aggancio inviato",en:"lock-on frame sent",es:"trama de enganche enviada",fr:"trame de synchronisation envoyée",de:"Synchronisations-Frame gesendet"},
   logNotAct:{it:"il dongle risponde ACTIVENOT: non è attivato",en:"the dongle answers ACTIVENOT: it is not activated",es:"el dongle responde ACTIVENOT: no está activado",fr:"le dongle répond ACTIVENOT : il n'est pas activé",de:"der Dongle antwortet ACTIVENOT: Er ist nicht aktiviert"},
   logShortVer:{it:"versione {v} da dongle non attivato",en:"version {v} from a dongle that is not activated",es:"versión {v} de un dongle no activado",fr:"version {v} d'un dongle non activé",de:"Version {v} von einem nicht aktivierten Dongle"},
@@ -468,7 +504,7 @@ window.I18N_STRINGS = {
 <script src="../i18n.js"></script>
 <script src="../seriale.js"></script>
 <script>
-const APP="chron02",APP_VERSION="1.5.0";
+const APP="chron02",APP_VERSION="1.6.0";
 const VID=0x1fee,PID=0x0002;
 
 /* ===== Protocollo, per quello che serve a questa pagina =====
@@ -514,7 +550,7 @@ const QUEUE_MAX=5;         // codici diversi per destinatario che il dongle tien
 
 let port=null,writer=null,reader=null,reading=false,userClosing=false,wq=Promise.resolve();
 let connState=false, phase="idle";   // idle | version | synced | nover | notact
-let dongleVer="", verTimer=null, timers=[];
+let dongleVer="", dongleMain=0, dongleSub=0, verTimer=null, timers=[];
 let raceSt=ST.FREE, holdUntil=0, dirty=false, bareNext=false, lastTxAt=0, lastLogged="";
 let dongleRacing=false;              // il dongle ha già avuto un Avvia dopo l'ultimo Stop
 let blockedSince=0, resumeAt=0;
@@ -551,7 +587,22 @@ function setPhase(p){
   /* Le due fasce restano accese anche dopo Disconnetti: dicono cosa fare dopo,
      e una delle due ha il link al configuratore. Si spengono al nuovo avvio. */
   if(p!=="idle"){$("nover").hidden=(p!=="nover");$("notact").hidden=(p!=="notact");}
-  renderRaceState();renderCmdUI();
+  renderOld();renderRaceState();renderCmdUI();
+}
+/* Dongle vecchi. Dalla 4.13a valgono le regole di questa pagina. Fino alla 4.10a
+   i bit dei giri in pit-lane (byte 0, bit 5-6) e il byte 7 non arrivano ai
+   controller; nella 4.00 (a e b rispondono uguale) i comandi per una sola auto
+   hanno un altro formato. Fra 4.10a e 4.13a non si sa: si avvisa lo stesso.
+   -> null | "old" | "v400" */
+function dongleOld(){
+  if(dongleMain!==4||dongleSub>=13)return null;
+  return dongleSub===0?"v400":"old";
+}
+function renderOld(){
+  const n=$("oldDongle"),o=(phase==="synced")?dongleOld():null;
+  n.hidden=!o;
+  /* innerHTML: il grassetto sta nel dizionario, che è nostro; la versione sono due numeri */
+  n.innerHTML=o?I18N.t("oldDongle",{v:esc(dongleVer)})+(o==="v400"?I18N.t("oldDongle400"):""):"";
 }
 
 async function connect(){
@@ -583,7 +634,12 @@ async function connect(){
     readLoop();startTimers();
     /* Avvio: il PRIMO messaggio deve contenere un byte 0x06. Accende la radio
        verso i telecomandi e il dongle risponde con la versione; senza, la radio
-       resta spenta. Un dongle non attivato risponde ACTIVENOT (o 2 byte). */
+       resta spenta. Un dongle non attivato risponde ACTIVENOT (o 2 byte).
+       Sono QUATTRO 0x06 nello STESSO messaggio, e servono tutti: sui dongle 4.01
+       e 4.10a il quarto spegne un controllo CRC sulla USB che altrimenti resta
+       acceso — con un solo 0x06 i frame senza CRC vengono scartati in silenzio e
+       i dati delle auto arrivano lunghi 14/27 byte, con lo XOR in coda. Dalla
+       4.13a quel CRC non c'è, e i quattro 0x06 sono innocui. */
     setPhase("version");
     await write([0x06,0x06,0x06,0x06]);
     log("-> 06 06 06 06");
@@ -595,7 +651,7 @@ async function connect(){
    avvio riuscito vuol dire un dongle appena acceso (gara libera, code vuote). */
 function resetSession(){
   raceSt=ST.FREE;holdUntil=0;dirty=false;bareNext=false;lastTxAt=0;lastLogged="";
-  dongleRacing=false;blockedSince=0;resumeAt=0;dongleVer="";
+  dongleRacing=false;blockedSince=0;resumeAt=0;dongleVer="";dongleMain=0;dongleSub=0;
   outQ=[];queued={g:new Set(),cars:{}};
   $("txHex").textContent="–";
 }
@@ -719,7 +775,7 @@ function setRaceState(kind){
   if(clears){
     /* Avvia dopo Stop (o il primo Avvia): il dongle azzera giri, tempi e code
        dei comandi. Il frame di Avvia parte da solo, poi si rimandano i limiti. */
-    newRace();bareNext=true;resendLimits();
+    newRace();bareNext=true;resendLimits();renderQueue();
   }
   renderRaceState();
   pump();
@@ -766,7 +822,9 @@ function resendLimits(){
   outQ=[];queued={g:new Set(),cars:{}};
   /* prima quelli per tutte: una velocità minima per tutte azzera quelle per auto */
   const all=[...keep,...limits.values()].sort((a,b)=>(a.scope==="g"?0:1)-(b.scope==="g"?0:1));
-  for(const it of all)enqueue(it,{resend:true});
+  /* L'app rimanda solo codici che il dongle aveva già in coda prima dello Stop:
+     non può riempire le code da sola. Se succedesse, lo dice invece di tacere. */
+  for(const it of all){const e=enqueue(it,{resend:true});if(e)log(I18N.t("logResendFail",{what:describe(it),e}));}
   if(all.length)log(I18N.t("logResend",{n:all.length}));
 }
 function describe(it){
@@ -792,13 +850,14 @@ function sendCmd(){
   const a=readArg(code);
   if(a.err)return say(a.err,true);
   if(CMD[code].globalOnly&&t.scope!=="g")return say(I18N.t("errPwrInd"),true);
+  if(t.scope==="i"&&dongleOld()==="v400")return say(I18N.t("errOld400"),true);
   const it={scope:t.scope,id:t.id,code,arg:a.arg,neutral:a.arg===CMD[code].neutral};
   const err=enqueue(it);
   if(err)return say(err,true);
   const k=limKey(it.scope,it.id,code);
   if(it.neutral)limits.delete(k);else limits.set(k,{scope:it.scope,id:it.id,code,arg:it.arg});
   say(I18N.t("msgQueued",{what:describe(it)}),false);
-  renderLimits();pump();
+  renderQueue();renderLimits();pump();
 }
 function dropLimit(k){
   const L=limits.get(k);if(!L)return;
@@ -809,7 +868,7 @@ function dropLimit(k){
   if(err)return say(err,true);
   limits.delete(k);
   say(I18N.t("msgDropped",{what:describe(L),v:nv}),false);
-  renderLimits();pump();
+  renderQueue();renderLimits();pump();
 }
 function renderLimits(){
   const tb=$("limRows");tb.innerHTML="";
@@ -842,7 +901,17 @@ function renderCmdUI(){
     if(code===7)s+=I18N.t("prevMinLap",{s:(a.arg/10).toFixed(1)});
   }
   $("ccPrev").textContent=s;
+  renderQueue();
   renderLimits();
+}
+/* Quanti dei 5 posti per destinatario sono presi nella coda del dongle: un posto
+   resta preso anche dopo «togli», fino ad Avvia dopo uno Stop. */
+function renderQueue(){
+  if(phase!=="synced"){$("ccQueue").textContent="";return;}
+  let q=I18N.t("queueAll",{n:queued.g.size,max:QUEUE_MAX});
+  const t=readTarget();
+  if(!t.err&&t.scope==="i")q+=I18N.t("queueCar",{id:t.id,n:(queued.cars[t.id]||new Set()).size,max:QUEUE_MAX});
+  $("ccQueue").textContent=q;
 }
 
 /* ---------- RX: si distingue per lunghezza e primo byte ----------
@@ -873,7 +942,9 @@ function onMessage(u8){
   }
 }
 function onVersion(main,sub){
-  dongleVer=main+"."+pad2(sub);
+  /* Solo numeri: la lettera della versione non viene trasmessa (4.15a e 4.15b
+     rispondono entrambe 04 0F), e una lettera che non si conosce non si mostra. */
+  dongleVer=main+"."+pad2(sub);dongleMain=main;dongleSub=sub;
   log("<- "+I18N.t("logVer",{v:dongleVer}));
   if(phase!=="version"&&phase!=="nover")return;
   if(verTimer){clearTimeout(verTimer);verTimer=null;}
@@ -887,7 +958,7 @@ function onNotActivated(msg){
 }
 
 /* Dati di un'auto, 13 byte:
- *   [0] 80h + bit 0 telecomando riavviato, bit 1 collegamento con l'auto perso O
+ *   [0] 80h + bit 0 auto appena riavviata, bit 1 collegamento con l'auto perso O
  *       ritrovato (un evento, non uno stato), bit 4 auto in pit-lane
  *   [1] ID 1..24        [2]/[3] ultimo tempo sul giro, conteggi, big-endian
  *   [4] sempre 0: non è una velocità, e non si mostra
@@ -896,7 +967,12 @@ function onNotActivated(msg){
  *   [8] versione: bit 7 a 0 telecomando, a 1 auto (80h = non ancora nota);
  *       negli altri bit (main−4)·32 + sub
  *   [9] bit 2 batteria scarica, bit 3 track call, bit 5/6 frecce su/giù,
- *       bit 7 pulsante tondo     [10..12] timer gara del dongle, centesimi */
+ *       bit 7 pulsante del freno (sull'SCP-3 è il tondo)
+ *   [10..12] timer gara del dongle, centesimi
+ * Con il modulo Power Amplifier nell'SCP-3 (dal PC non si vede): [8] è la
+ * versione del modulo, il tondo arriva nel bit 3 (track call), i bit 2 e 7 non
+ * arrivano mai, e i bit 0 e 1 del byte 0 restano accesi per circa 1 s (2-4 dati
+ * di fila). Per questo riavvii e collegamenti persi si contano per FRONTI. */
 function onCar(f){
   const id=f[1];
   if(id<ID_MIN||id>ID_MAX){log(I18N.t("logBadId",{id}));return;}
@@ -921,7 +997,10 @@ function onCar(f){
       pushLap({id,at:now,n:c.raw-c.discard,cnt,why:null});
     }
   }
-  c.pit=(f[0]>>4)&1;c.reset=f[0]&1;c.link=(f[0]>>1)&1;
+  const rs=f[0]&1,lk=(f[0]>>1)&1;
+  if(rs&&!c.reset)c.resetN=(c.resetN||0)+1;      // fronte di salita: un evento, anche se il bit resta acceso
+  if(lk&&!c.link)c.linkN=(c.linkN||0)+1;
+  c.pit=(f[0]>>4)&1;c.reset=rs;c.link=lk;
   c.connected=(f[7]>>7)&1;c.power=f[7]&0x7F;
   if(f[8]&0x80)c.carVer=f[8];else c.ctrlVer=f[8];
   c.batt=(f[9]>>2)&1;c.call=(f[9]>>3)&1;c.up=(f[9]>>5)&1;c.dn=(f[9]>>6)&1;c.round=(f[9]>>7)&1;
@@ -953,9 +1032,11 @@ function verCell(c){
   return p.join(" ")||"–";
 }
 function flag(on,sym,key){return on?`<span title="${esc(I18N.t(key))}">${sym}</span>`:"";}
+/* Eventi contati per fronti (riavvio dell'auto, collegamento perso o ritrovato). */
+function times(n,sym,key){return n?`<span title="${esc(I18N.t(key)+" — "+I18N.t("fTimes",{n}))}">${sym}${n}</span>`:"";}
 function btnCell(c){
   return flag(c.up,"↑","fUp")+flag(c.dn,"↓","fDn")+flag(c.round,"●","fRound")+
-    flag(c.call," 🏳️","fCall")+flag(c.batt," 🔋","fBatt")+flag(c.reset," ⟲","fReset")+flag(c.link," ↯","fLink");
+    flag(c.call," 🏳️","fCall")+flag(c.batt," 🔋","fBatt")+times(c.resetN," ⟲","fReset")+times(c.linkN," ↯","fLink");
 }
 function trigCell(c){
   if(!c.connected)return `<span class="val">${esc(I18N.t("trigNoCar"))}</span>`;

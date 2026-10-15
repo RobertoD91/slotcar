@@ -399,11 +399,11 @@ window.I18N_STRINGS = {
   btnFw:{it:"Versione firmware",en:"Firmware version",es:"Versión de firmware",fr:"Version du firmware",de:"Firmware-Version"},
   btnMac:{it:"Leggi MAC (dongle)",en:"Read MAC (dongle)",es:"Leer MAC (dongle)",fr:"Lire le MAC (dongle)",de:"MAC lesen (Dongle)"},
   infoNote:{
-    it:"Solo letture. La versione si legge con lo stesso frame del programma ufficiale: sul dongle <code>0c 11 00 00 02</code>, su chip auto e controller la lettura in flash del registro <code>0x80</code> (<code>&lt;prefisso&gt; 11 00 80 02</code>). I due byte sono versione principale e secondaria in decimale (<code>04 0e</code> = 4.14). Il MAC si legge solo in boot sul <b>dongle</b> (<code>READMACVL</code>) e arriva già nell'ordine del programma ufficiale, byte più significativo per primo: si mostra così com'è.",
-    en:"Reads only. The version is read with the same frame the official program uses: <code>0c 11 00 00 02</code> on the dongle, and on the car chip and the controller the flash read of register <code>0x80</code> (<code>&lt;prefix&gt; 11 00 80 02</code>). The two bytes are major and minor version in decimal (<code>04 0e</code> = 4.14). The MAC can only be read in boot mode on the <b>dongle</b> (<code>READMACVL</code>) and already comes in the official program's order, most significant byte first: it is shown as it is.",
-    es:"Solo lecturas. La versión se lee con la misma trama que usa el programa oficial: en el dongle <code>0c 11 00 00 02</code>, en el chip del coche y en el mando la lectura en flash del registro <code>0x80</code> (<code>&lt;prefijo&gt; 11 00 80 02</code>). Los dos bytes son versión principal y secundaria en decimal (<code>04 0e</code> = 4.14). El MAC solo se lee en boot en el <b>dongle</b> (<code>READMACVL</code>) y llega ya en el orden del programa oficial, byte más significativo primero: se muestra tal cual.",
-    fr:"Lectures uniquement. La version se lit avec la même trame que le programme officiel : <code>0c 11 00 00 02</code> sur le dongle ; sur la puce de la voiture et la manette, la lecture en flash du registre <code>0x80</code> (<code>&lt;préfixe&gt; 11 00 80 02</code>). Les deux octets sont la version majeure et la version mineure en décimal (<code>04 0e</code> = 4.14). Le MAC ne se lit qu'en mode boot sur le <b>dongle</b> (<code>READMACVL</code>) et arrive déjà dans l'ordre du programme officiel, octet de poids fort en premier : il est affiché tel quel.",
-    de:"Nur Lesezugriffe. Die Version wird mit demselben Frame gelesen wie im offiziellen Programm: am Dongle <code>0c 11 00 00 02</code>, an Auto-Chip und Handregler per Flash-Lesezugriff auf Register <code>0x80</code> (<code>&lt;Präfix&gt; 11 00 80 02</code>). Die beiden Bytes sind Haupt- und Nebenversion in Dezimal (<code>04 0e</code> = 4.14). Die MAC lässt sich nur im Boot-Modus am <b>Dongle</b> lesen (<code>READMACVL</code>) und kommt bereits in der Reihenfolge des offiziellen Programms, höchstwertiges Byte zuerst: Sie wird unverändert angezeigt."
+    it:"Solo letture. La versione si legge con lo stesso frame del programma ufficiale: sul dongle <code>0c 11 00 00 02</code>, su chip auto e controller la lettura in flash del registro <code>0x80</code> (<code>&lt;prefisso&gt; 11 00 80 02</code>). I due byte sono versione principale e secondaria in decimale (<code>04 0e</code> = 4.14). La lettera della versione non viene trasmessa: 4.15a e 4.15b rispondono entrambe <code>04 0f</code>, e qui si legge solo 4.15. Il MAC si legge solo in boot sul <b>dongle</b> (<code>READMACVL</code>) e arriva già nell'ordine del programma ufficiale, byte più significativo per primo: si mostra così com'è. I dongle fino alla 4.10a a <code>READMACVL</code> non rispondono.",
+    en:"Reads only. The version is read with the same frame the official program uses: <code>0c 11 00 00 02</code> on the dongle, and on the car chip and the controller the flash read of register <code>0x80</code> (<code>&lt;prefix&gt; 11 00 80 02</code>). The two bytes are major and minor version in decimal (<code>04 0e</code> = 4.14). The version letter is not transmitted: 4.15a and 4.15b both answer <code>04 0f</code>, and here you only read 4.15. The MAC can only be read in boot mode on the <b>dongle</b> (<code>READMACVL</code>) and already comes in the official program's order, most significant byte first: it is shown as it is. Dongles up to 4.10a do not answer <code>READMACVL</code>.",
+    es:"Solo lecturas. La versión se lee con la misma trama que usa el programa oficial: en el dongle <code>0c 11 00 00 02</code>, en el chip del coche y en el mando la lectura en flash del registro <code>0x80</code> (<code>&lt;prefijo&gt; 11 00 80 02</code>). Los dos bytes son versión principal y secundaria en decimal (<code>04 0e</code> = 4.14). La letra de la versión no se transmite: la 4.15a y la 4.15b responden las dos <code>04 0f</code>, y aquí solo se lee 4.15. El MAC solo se lee en boot en el <b>dongle</b> (<code>READMACVL</code>) y llega ya en el orden del programa oficial, byte más significativo primero: se muestra tal cual. Los dongles hasta la 4.10a no responden a <code>READMACVL</code>.",
+    fr:"Lectures uniquement. La version se lit avec la même trame que le programme officiel : <code>0c 11 00 00 02</code> sur le dongle ; sur la puce de la voiture et la manette, la lecture en flash du registre <code>0x80</code> (<code>&lt;préfixe&gt; 11 00 80 02</code>). Les deux octets sont la version majeure et la version mineure en décimal (<code>04 0e</code> = 4.14). La lettre de la version n'est pas transmise : la 4.15a et la 4.15b répondent toutes les deux <code>04 0f</code>, et ici on ne lit que 4.15. Le MAC ne se lit qu'en mode boot sur le <b>dongle</b> (<code>READMACVL</code>) et arrive déjà dans l'ordre du programme officiel, octet de poids fort en premier : il est affiché tel quel. Les dongles jusqu'à la 4.10a ne répondent pas à <code>READMACVL</code>.",
+    de:"Nur Lesezugriffe. Die Version wird mit demselben Frame gelesen wie im offiziellen Programm: am Dongle <code>0c 11 00 00 02</code>, an Auto-Chip und Handregler per Flash-Lesezugriff auf Register <code>0x80</code> (<code>&lt;Präfix&gt; 11 00 80 02</code>). Die beiden Bytes sind Haupt- und Nebenversion in Dezimal (<code>04 0e</code> = 4.14). Der Buchstabe der Version wird nicht übertragen: 4.15a und 4.15b antworten beide mit <code>04 0f</code>, hier liest man nur 4.15. Die MAC lässt sich nur im Boot-Modus am <b>Dongle</b> lesen (<code>READMACVL</code>) und kommt bereits in der Reihenfolge des offiziellen Programms, höchstwertiges Byte zuerst: Sie wird unverändert angezeigt. Dongles bis 4.10a antworten nicht auf <code>READMACVL</code>."
   },
 
   /* ---- campi con un significato documentato ---- */
@@ -461,7 +461,22 @@ window.I18N_STRINGS = {
   fldRead:{it:"letto",en:"read",es:"leído",fr:"lu",de:"gelesen"},
   fldBadVal:{it:"valore non valido",en:"invalid value",es:"valor no válido",fr:"valeur non valide",de:"ungültiger Wert"},
   fldBadRead:{it:"risposta di lunghezza inattesa: {m} byte invece di {n}",en:"reply of unexpected length: {m} bytes instead of {n}",es:"respuesta de longitud inesperada: {m} bytes en vez de {n}",fr:"réponse de longueur inattendue : {m} octets au lieu de {n}",de:"Antwort mit unerwarteter Länge: {m} Byte statt {n}"},
-  fldRejected:{it:"AB: il dispositivo ha rifiutato il comando",en:"AB: the device rejected the command",es:"AB: el dispositivo ha rechazado el comando",fr:"AB : l'appareil a refusé la commande",de:"AB: Das Gerät hat den Befehl abgelehnt"},
+  fldRejected:{it:"AB: l'eco del dispositivo non coincide. Da ora il dongle risponde AB a ogni comando: esci e rientra in boot",en:"AB: the device's echo does not match. From now on the dongle answers AB to every command: leave and re-enter boot mode",es:"AB: el eco del dispositivo no coincide. Desde ahora el dongle responde AB a cada comando: sal y vuelve a entrar en boot",fr:"AB : l'écho de l'appareil ne correspond pas. Désormais le dongle répond AB à chaque commande : quitte le mode boot et rentres-y",de:"AB: Das Echo des Geräts stimmt nicht. Ab jetzt antwortet der Dongle auf jeden Befehl mit AB: Verlasse den Boot-Modus und starte ihn neu"},
+  /* E7:E7 si può scrivere, ma per le auto vuol dire «non abbinata» */
+  warnE7Ctrl:{
+    it:"⚠️ E7:E7 per le auto vuol dire «non abbinata»: un'auto con firmware 4.12b o successivo non resta abbinata a un controller con questo MAC O2 (a ogni avvio lo sostituisce con il MAC del proprio chip).",
+    en:"⚠️ For the cars E7:E7 means “not paired”: a car with firmware 4.12b or later does not stay paired with a controller that has this O2 MAC (at every start it replaces it with its own chip MAC).",
+    es:"⚠️ Para los coches E7:E7 significa «no vinculado»: un coche con firmware 4.12b o posterior no se queda vinculado a un mando con este MAC O2 (en cada arranque lo sustituye por el MAC de su propio chip).",
+    fr:"⚠️ Pour les voitures, E7:E7 veut dire « non appairée » : une voiture en firmware 4.12b ou plus récent ne reste pas appairée à une manette qui a ce MAC O2 (à chaque démarrage, elle le remplace par le MAC de sa propre puce).",
+    de:"⚠️ Für die Autos bedeutet E7:E7 „nicht gekoppelt“: Ein Auto mit Firmware 4.12b oder neuer bleibt nicht mit einem Handregler mit dieser O2-MAC gekoppelt (bei jedem Start ersetzt es sie durch die MAC seines eigenen Chips)."
+  },
+  warnE7Car:{
+    it:"⚠️ E7:E7 per l'auto vuol dire «non abbinata»: dalla 4.12b lo sostituisce con il MAC del proprio chip a ogni avvio, e l'abbinamento non resta. Fino alla 4.12a è il valore di un'auto mai abbinata.",
+    en:"⚠️ For the car E7:E7 means “not paired”: from 4.12b it replaces it with its own chip MAC at every start, and the pairing does not stick. Up to 4.12a it is the value of a car that was never paired.",
+    es:"⚠️ Para el coche E7:E7 significa «no vinculado»: desde la 4.12b lo sustituye en cada arranque por el MAC de su propio chip, y la vinculación no se mantiene. Hasta la 4.12a es el valor de un coche nunca vinculado.",
+    fr:"⚠️ Pour la voiture, E7:E7 veut dire « non appairée » : à partir de la 4.12b, elle le remplace à chaque démarrage par le MAC de sa propre puce, et l'appairage ne tient pas. Jusqu'à la 4.12a, c'est la valeur d'une voiture jamais appairée.",
+    de:"⚠️ Für das Auto bedeutet E7:E7 „nicht gekoppelt“: Ab 4.12b ersetzt es den Wert bei jedem Start durch die MAC seines eigenen Chips, und die Kopplung bleibt nicht bestehen. Bis 4.12a ist das der Wert eines Autos, das nie gekoppelt wurde."
+  },
   confirmPair:{
     it:"Stai per cambiare l'abbinamento di questa auto in {new}: dal prossimo riavvio risponderà al controller con quel MAC e non più al suo. {cur} Procedo?",
     en:"You are about to change this car's pairing to {new}: from the next restart it will answer the controller with that MAC and no longer its own. {cur} Proceed?",
@@ -494,18 +509,18 @@ window.I18N_STRINGS = {
     de:"geschrieben ✓ — DO auf Header und Daten. Gilt ab dem nächsten Neustart des Geräts."
   },
   wrHdrAb:{
-    it:"intestazione rifiutata (AB): i dati non sono stati mandati, niente è cambiato.",
-    en:"header rejected (AB): the data was not sent, nothing changed.",
-    es:"cabecera rechazada (AB): los datos no se han enviado, no ha cambiado nada.",
-    fr:"en-tête refusé (AB) : les données n'ont pas été envoyées, rien n'a changé.",
-    de:"Header abgelehnt (AB): Die Daten wurden nicht gesendet, nichts hat sich geändert."
+    it:"intestazione rifiutata (AB): l'eco del dispositivo non coincideva. I dati non sono stati mandati e niente è cambiato, ma da ora il dongle risponde AB a ogni comando: esci (STOPBOOT) e rientra in boot.",
+    en:"header rejected (AB): the device's echo did not match. The data was not sent and nothing changed, but from now on the dongle answers AB to every command: leave (STOPBOOT) and re-enter boot mode.",
+    es:"cabecera rechazada (AB): el eco del dispositivo no coincidía. Los datos no se han enviado y no ha cambiado nada, pero desde ahora el dongle responde AB a cada comando: sal (STOPBOOT) y vuelve a entrar en boot.",
+    fr:"en-tête refusé (AB) : l'écho de l'appareil ne correspondait pas. Les données n'ont pas été envoyées et rien n'a changé, mais désormais le dongle répond AB à chaque commande : quitte (STOPBOOT) et rentre en mode boot.",
+    de:"Header abgelehnt (AB): Das Echo des Geräts stimmte nicht. Die Daten wurden nicht gesendet, nichts hat sich geändert, aber ab jetzt antwortet der Dongle auf jeden Befehl mit AB: Beende (STOPBOOT) und starte den Boot-Modus neu."
   },
   wrHdrNone:{
-    it:"nessun DO all'intestazione: i dati non sono stati mandati. Se il dispositivo non risponde il dongle resta in attesa: esci con STOPBOOT e riprova.",
-    en:"no DO to the header: the data was not sent. If the device does not answer, the dongle keeps waiting: leave with STOPBOOT and try again.",
-    es:"sin DO a la cabecera: los datos no se han enviado. Si el dispositivo no responde, el dongle se queda esperando: sal con STOPBOOT y vuelve a intentarlo.",
-    fr:"pas de DO à l'en-tête : les données n'ont pas été envoyées. Si l'appareil ne répond pas, le dongle reste en attente : quitte avec STOPBOOT et réessaie.",
-    de:"kein DO auf den Header: Die Daten wurden nicht gesendet. Antwortet das Gerät nicht, bleibt der Dongle im Wartezustand: Beende mit STOPBOOT und versuche es noch einmal."
+    it:"nessun DO all'intestazione: i dati non sono stati mandati. Il dongle aspetta ancora la risposta del dispositivo, senza un tempo limite: esci (STOPBOOT) e rientra in boot prima di mandare altro.",
+    en:"no DO to the header: the data was not sent. The dongle is still waiting for the device's reply, with no time limit: leave (STOPBOOT) and re-enter boot mode before sending anything else.",
+    es:"sin DO a la cabecera: los datos no se han enviado. El dongle sigue esperando la respuesta del dispositivo, sin tiempo límite: sal (STOPBOOT) y vuelve a entrar en boot antes de enviar otra cosa.",
+    fr:"pas de DO à l'en-tête : les données n'ont pas été envoyées. Le dongle attend encore la réponse de l'appareil, sans délai d'expiration : quitte (STOPBOOT) et rentre en mode boot avant d'envoyer autre chose.",
+    de:"kein DO auf den Header: Die Daten wurden nicht gesendet. Der Dongle wartet weiter ohne Zeitlimit auf die Antwort des Geräts: Beende (STOPBOOT) und starte den Boot-Modus neu, bevor du etwas anderes sendest."
   },
   wrHdrOther:{
     it:"risposta inattesa all'intestazione ({r}): i dati non sono stati mandati.",
@@ -522,11 +537,11 @@ window.I18N_STRINGS = {
     de:"das Gerät hat die Daten abgelehnt (AB): Schreiben NICHT ausgeführt."
   },
   wrDataNone:{
-    it:"nessuna conferma ai dati: scrittura non confermata.",
-    en:"no acknowledgement to the data: write not confirmed.",
-    es:"sin confirmación a los datos: escritura no confirmada.",
-    fr:"aucune confirmation pour les données : écriture non confirmée.",
-    de:"keine Bestätigung für die Daten: Schreiben nicht bestätigt."
+    it:"nessuna conferma ai dati: scrittura non confermata. Il dongle aspetta ancora la risposta: esci (STOPBOOT) e rientra in boot.",
+    en:"no acknowledgement to the data: write not confirmed. The dongle is still waiting for the reply: leave (STOPBOOT) and re-enter boot mode.",
+    es:"sin confirmación a los datos: escritura no confirmada. El dongle sigue esperando la respuesta: sal (STOPBOOT) y vuelve a entrar en boot.",
+    fr:"aucune confirmation pour les données : écriture non confirmée. Le dongle attend encore la réponse : quitte (STOPBOOT) et rentre en mode boot.",
+    de:"keine Bestätigung für die Daten: Schreiben nicht bestätigt. Der Dongle wartet noch auf die Antwort: Beende (STOPBOOT) und starte den Boot-Modus neu."
   },
   wrDataOther:{
     it:"risposta inattesa ai dati ({r}): scrittura non confermata.",
@@ -580,11 +595,11 @@ window.I18N_STRINGS = {
 
   titleRules:{it:"Regole del frame",en:"Frame rules",es:"Reglas de la trama",fr:"Règles des trames",de:"Frame-Regeln"},
   rulesBody:{
-    it:"<b>Lettura</b> <code>&lt;prefisso&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: l'ultimo byte è il numero di byte da leggere, e la risposta ha quella lunghezza.<br><b>Scrittura</b>, in <b>due</b> messaggi: prima l'intestazione <code>&lt;prefisso&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, a cui il dongle risponde <code>DO</code> quando il dispositivo l'ha ricevuta (<code>AB</code> se l'eco non coincide); <b>solo dopo quel <code>DO</code></b> si mandano gli <code>&lt;n&gt;</code> byte di dati, e il dispositivo risponde <code>DO</code> (scritto) o <code>AB</code> (rifiutato). Il messaggio dei dati c'è sempre, anche con un byte solo; il <b>checksum</b> è la somma a 8 bit dei dati.<br><b>Dati ripetuti</b>: il programma ufficiale manda l'ID come <code>id id id</code> (<code>n</code>=3) e il MAC come <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). Il dispositivo usa solo il primo byte (il 1° e il 5° per il MAC), ma il checksum li copre tutti. In lettura il MAC torna come <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> è <code>12:34</code>.<br><b>Limiti</b>: al massimo 32 byte per messaggio USB (oltre, il dongle smette di seguire il PC finché non riapri la porta). I comandi verso chip auto e controller sono di 5 o 6 byte, e i dispositivi non controllano la lunghezza di quello che ricevono: un messaggio più lungo al posto di un comando può bloccarli. Per questo, in boot su auto o controller, la console grezza manda solo letture.",
-    en:"<b>Read</b> <code>&lt;prefix&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: the last byte is the number of bytes to read, and the reply has that length.<br><b>Write</b>, in <b>two</b> messages: first the header <code>&lt;prefix&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, to which the dongle answers <code>DO</code> once the device has received it (<code>AB</code> if the echo does not match); <b>only after that <code>DO</code></b> are the <code>&lt;n&gt;</code> data bytes sent, and the device answers <code>DO</code> (written) or <code>AB</code> (rejected). The data message is always there, even with a single byte; the <b>checksum</b> is the 8-bit sum of the data.<br><b>Repeated data</b>: the official program sends the ID as <code>id id id</code> (<code>n</code>=3) and the MAC as <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). The device only uses the first byte (the 1st and 5th for the MAC), but the checksum covers them all. When read back, the MAC comes as <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> is <code>12:34</code>.<br><b>Limits</b>: at most 32 bytes per USB message (beyond that the dongle stops following the PC until you reopen the port). Commands to the car chip and the controller are 5 or 6 bytes long, and the devices do not check the length of what they receive: a longer message in place of a command can hang them. That is why, in boot mode on a car or controller, the raw console only sends reads.",
-    es:"<b>Lectura</b> <code>&lt;prefijo&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: el último byte es el número de bytes a leer, y la respuesta tiene esa longitud.<br><b>Escritura</b>, en <b>dos</b> mensajes: primero la cabecera <code>&lt;prefijo&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, a la que el dongle responde <code>DO</code> cuando el dispositivo la ha recibido (<code>AB</code> si el eco no coincide); <b>solo después de ese <code>DO</code></b> se envían los <code>&lt;n&gt;</code> bytes de datos, y el dispositivo responde <code>DO</code> (escrito) o <code>AB</code> (rechazado). El mensaje de datos siempre está, incluso con un solo byte; el <b>checksum</b> es la suma de 8 bits de los datos.<br><b>Datos repetidos</b>: el programa oficial envía el ID como <code>id id id</code> (<code>n</code>=3) y el MAC como <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). El dispositivo solo usa el primer byte (el 1.º y el 5.º para el MAC), pero el checksum los cubre todos. Al leerlo, el MAC llega como <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> es <code>12:34</code>.<br><b>Límites</b>: como máximo 32 bytes por mensaje USB (más allá, el dongle deja de seguir al PC hasta que vuelvas a abrir el puerto). Los comandos al chip del coche y al mando son de 5 o 6 bytes, y los dispositivos no comprueban la longitud de lo que reciben: un mensaje más largo en lugar de un comando puede bloquearlos. Por eso, en boot en un coche o un mando, la consola en bruto solo envía lecturas.",
-    fr:"<b>Lecture</b> <code>&lt;préfixe&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code> : le dernier octet est le nombre d'octets à lire, et la réponse a cette longueur.<br><b>Écriture</b>, en <b>deux</b> messages : d'abord l'en-tête <code>&lt;préfixe&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, auquel le dongle répond <code>DO</code> quand l'appareil l'a reçu (<code>AB</code> si l'écho ne correspond pas) ; <b>seulement après ce <code>DO</code></b>, on envoie les <code>&lt;n&gt;</code> octets de données, et l'appareil répond <code>DO</code> (écrit) ou <code>AB</code> (refusé). Le message des données est toujours là, même avec un seul octet ; le <b>checksum</b> est la somme sur 8 bits des données.<br><b>Données répétées</b> : le programme officiel envoie l'ID sous la forme <code>id id id</code> (<code>n</code>=3) et le MAC sous la forme <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). L'appareil n'utilise que le premier octet (le 1er et le 5e pour le MAC), mais le checksum les couvre tous. En lecture, le MAC revient sous la forme <code>hi hi hi ff lo</code> : <code>12 12 12 ff 34</code> correspond à <code>12:34</code>.<br><b>Limites</b> : 32 octets au maximum par message USB (au-delà, le dongle cesse de suivre le PC jusqu'à ce que tu rouvres le port). Les commandes vers la puce de la voiture et la manette font 5 ou 6 octets, et les appareils ne vérifient pas la longueur de ce qu'ils reçoivent : un message plus long à la place d'une commande peut les bloquer. C'est pourquoi, en mode boot sur une voiture ou une manette, la console brute n'envoie que des lectures.",
-    de:"<b>Lesen</b> <code>&lt;Präfix&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: Das letzte Byte ist die Anzahl der zu lesenden Bytes, und die Antwort hat genau diese Länge.<br><b>Schreiben</b>, in <b>zwei</b> Nachrichten: zuerst der Header <code>&lt;Präfix&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, auf den der Dongle mit <code>DO</code> antwortet, sobald das Gerät ihn empfangen hat (<code>AB</code>, wenn das Echo nicht übereinstimmt); <b>erst nach diesem <code>DO</code></b> werden die <code>&lt;n&gt;</code> Datenbytes gesendet, und das Gerät antwortet mit <code>DO</code> (geschrieben) oder <code>AB</code> (abgelehnt). Die Datennachricht gibt es immer, auch bei nur einem Byte; die <b>Checksumme</b> ist die 8-Bit-Summe der Daten.<br><b>Wiederholte Daten</b>: Das offizielle Programm sendet die ID als <code>id id id</code> (<code>n</code>=3) und die MAC als <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). Das Gerät verwendet nur das erste Byte (bei der MAC das 1. und das 5.), aber die Checksumme deckt alle ab. Beim Lesen kommt die MAC als <code>hi hi hi ff lo</code> zurück: <code>12 12 12 ff 34</code> ist <code>12:34</code>.<br><b>Grenzen</b>: höchstens 32 Byte pro USB-Nachricht (darüber hinaus folgt der Dongle dem PC nicht mehr, bis du den Port neu öffnest). Befehle an Auto-Chip und Handregler sind 5 oder 6 Byte lang, und die Geräte prüfen die Länge des Empfangenen nicht: Eine längere Nachricht anstelle eines Befehls kann sie aufhängen. Deshalb sendet die Rohkonsole im Boot-Modus auf einem Auto oder Handregler nur Lesebefehle."
+    it:"<b>Lettura</b> <code>&lt;prefisso&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: l'ultimo byte è il numero di byte da leggere, e la risposta ha quella lunghezza.<br><b>Scrittura</b>, in <b>due</b> messaggi: prima l'intestazione <code>&lt;prefisso&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, a cui il dongle risponde <code>DO</code> quando il dispositivo l'ha ricevuta (<code>AB</code> se l'eco non coincide, e da quel momento il dongle risponde <code>AB</code> a ogni comando finché non riceve <code>STOPBOOT</code>); <b>solo dopo quel <code>DO</code></b> si mandano gli <code>&lt;n&gt;</code> byte di dati, e il dispositivo risponde <code>DO</code> (scritto) o <code>AB</code> (rifiutato). Il messaggio dei dati c'è sempre, anche con un byte solo; il <b>checksum</b> è la somma a 8 bit dei dati.<br><b>Dati ripetuti</b>: il programma ufficiale manda l'ID come <code>id id id</code> (<code>n</code>=3) e il MAC come <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). Il dispositivo usa solo il primo byte (il 1° e il 5° per il MAC), ma il checksum li copre tutti. In lettura il MAC torna come <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> è <code>12:34</code>.<br><b>Un comando alla volta</b>: il dongle non ha un tempo limite, e un comando mandato prima della risposta al precedente si mescola con quella. Per questo, dopo un <code>AB</code> all'intestazione o un comando rimasto senza risposta, l'app spegne i comandi finché non esci e rientri in boot.<br><b>Limiti</b>: al massimo 32 byte per messaggio USB (oltre, il dongle smette di seguire il PC finché non riapri la porta). I comandi verso chip auto e controller sono di 5 o 6 byte, e i dispositivi non controllano la lunghezza di quello che ricevono: un messaggio più lungo al posto di un comando può bloccarli. Per questo, in boot su auto o controller, la console grezza manda solo letture.",
+    en:"<b>Read</b> <code>&lt;prefix&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: the last byte is the number of bytes to read, and the reply has that length.<br><b>Write</b>, in <b>two</b> messages: first the header <code>&lt;prefix&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, to which the dongle answers <code>DO</code> once the device has received it (<code>AB</code> if the echo does not match, and from then on the dongle answers <code>AB</code> to every command until it receives <code>STOPBOOT</code>); <b>only after that <code>DO</code></b> are the <code>&lt;n&gt;</code> data bytes sent, and the device answers <code>DO</code> (written) or <code>AB</code> (rejected). The data message is always there, even with a single byte; the <b>checksum</b> is the 8-bit sum of the data.<br><b>Repeated data</b>: the official program sends the ID as <code>id id id</code> (<code>n</code>=3) and the MAC as <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). The device only uses the first byte (the 1st and 5th for the MAC), but the checksum covers them all. When read back, the MAC comes as <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> is <code>12:34</code>.<br><b>One command at a time</b>: the dongle has no time limit, and a command sent before the reply to the previous one gets mixed up with it. That is why, after an <code>AB</code> to a header or a command left without a reply, the app turns the commands off until you leave and re-enter boot mode.<br><b>Limits</b>: at most 32 bytes per USB message (beyond that the dongle stops following the PC until you reopen the port). Commands to the car chip and the controller are 5 or 6 bytes long, and the devices do not check the length of what they receive: a longer message in place of a command can hang them. That is why, in boot mode on a car or controller, the raw console only sends reads.",
+    es:"<b>Lectura</b> <code>&lt;prefijo&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: el último byte es el número de bytes a leer, y la respuesta tiene esa longitud.<br><b>Escritura</b>, en <b>dos</b> mensajes: primero la cabecera <code>&lt;prefijo&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, a la que el dongle responde <code>DO</code> cuando el dispositivo la ha recibido (<code>AB</code> si el eco no coincide, y desde ese momento el dongle responde <code>AB</code> a cada comando hasta que recibe <code>STOPBOOT</code>); <b>solo después de ese <code>DO</code></b> se envían los <code>&lt;n&gt;</code> bytes de datos, y el dispositivo responde <code>DO</code> (escrito) o <code>AB</code> (rechazado). El mensaje de datos siempre está, incluso con un solo byte; el <b>checksum</b> es la suma de 8 bits de los datos.<br><b>Datos repetidos</b>: el programa oficial envía el ID como <code>id id id</code> (<code>n</code>=3) y el MAC como <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). El dispositivo solo usa el primer byte (el 1.º y el 5.º para el MAC), pero el checksum los cubre todos. Al leerlo, el MAC llega como <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> es <code>12:34</code>.<br><b>Un comando cada vez</b>: el dongle no tiene un tiempo límite, y un comando enviado antes de la respuesta al anterior se mezcla con ella. Por eso, tras un <code>AB</code> a la cabecera o un comando que se ha quedado sin respuesta, la app desactiva los comandos hasta que sales y vuelves a entrar en boot.<br><b>Límites</b>: como máximo 32 bytes por mensaje USB (más allá, el dongle deja de seguir al PC hasta que vuelvas a abrir el puerto). Los comandos al chip del coche y al mando son de 5 o 6 bytes, y los dispositivos no comprueban la longitud de lo que reciben: un mensaje más largo en lugar de un comando puede bloquearlos. Por eso, en boot en un coche o un mando, la consola en bruto solo envía lecturas.",
+    fr:"<b>Lecture</b> <code>&lt;préfixe&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code> : le dernier octet est le nombre d'octets à lire, et la réponse a cette longueur.<br><b>Écriture</b>, en <b>deux</b> messages : d'abord l'en-tête <code>&lt;préfixe&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, auquel le dongle répond <code>DO</code> quand l'appareil l'a reçu (<code>AB</code> si l'écho ne correspond pas, et à partir de là le dongle répond <code>AB</code> à chaque commande jusqu'à ce qu'il reçoive <code>STOPBOOT</code>) ; <b>seulement après ce <code>DO</code></b>, on envoie les <code>&lt;n&gt;</code> octets de données, et l'appareil répond <code>DO</code> (écrit) ou <code>AB</code> (refusé). Le message des données est toujours là, même avec un seul octet ; le <b>checksum</b> est la somme sur 8 bits des données.<br><b>Données répétées</b> : le programme officiel envoie l'ID sous la forme <code>id id id</code> (<code>n</code>=3) et le MAC sous la forme <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). L'appareil n'utilise que le premier octet (le 1er et le 5e pour le MAC), mais le checksum les couvre tous. En lecture, le MAC revient sous la forme <code>hi hi hi ff lo</code> : <code>12 12 12 ff 34</code> correspond à <code>12:34</code>.<br><b>Une commande à la fois</b> : le dongle n'a pas de délai d'expiration, et une commande envoyée avant la réponse à la précédente se mélange avec celle-ci. C'est pourquoi, après un <code>AB</code> à un en-tête ou une commande restée sans réponse, l'app désactive les commandes jusqu'à ce que tu quittes le mode boot et y rentres de nouveau.<br><b>Limites</b> : 32 octets au maximum par message USB (au-delà, le dongle cesse de suivre le PC jusqu'à ce que tu rouvres le port). Les commandes vers la puce de la voiture et la manette font 5 ou 6 octets, et les appareils ne vérifient pas la longueur de ce qu'ils reçoivent : un message plus long à la place d'une commande peut les bloquer. C'est pourquoi, en mode boot sur une voiture ou une manette, la console brute n'envoie que des lectures.",
+    de:"<b>Lesen</b> <code>&lt;Präfix&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: Das letzte Byte ist die Anzahl der zu lesenden Bytes, und die Antwort hat genau diese Länge.<br><b>Schreiben</b>, in <b>zwei</b> Nachrichten: zuerst der Header <code>&lt;Präfix&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, auf den der Dongle mit <code>DO</code> antwortet, sobald das Gerät ihn empfangen hat (<code>AB</code>, wenn das Echo nicht übereinstimmt — ab dann antwortet der Dongle auf jeden Befehl mit <code>AB</code>, bis er <code>STOPBOOT</code> bekommt); <b>erst nach diesem <code>DO</code></b> werden die <code>&lt;n&gt;</code> Datenbytes gesendet, und das Gerät antwortet mit <code>DO</code> (geschrieben) oder <code>AB</code> (abgelehnt). Die Datennachricht gibt es immer, auch bei nur einem Byte; die <b>Checksumme</b> ist die 8-Bit-Summe der Daten.<br><b>Wiederholte Daten</b>: Das offizielle Programm sendet die ID als <code>id id id</code> (<code>n</code>=3) und die MAC als <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). Das Gerät verwendet nur das erste Byte (bei der MAC das 1. und das 5.), aber die Checksumme deckt alle ab. Beim Lesen kommt die MAC als <code>hi hi hi ff lo</code> zurück: <code>12 12 12 ff 34</code> ist <code>12:34</code>.<br><b>Ein Befehl nach dem anderen</b>: Der Dongle hat kein Zeitlimit, und ein Befehl, der vor der Antwort auf den vorherigen gesendet wird, vermischt sich mit dieser. Deshalb sperrt die App nach einem <code>AB</code> auf einen Header oder einem Befehl ohne Antwort die Befehle, bis du den Boot-Modus verlässt und erneut startest.<br><b>Grenzen</b>: höchstens 32 Byte pro USB-Nachricht (darüber hinaus folgt der Dongle dem PC nicht mehr, bis du den Port neu öffnest). Befehle an Auto-Chip und Handregler sind 5 oder 6 Byte lang, und die Geräte prüfen die Länge des Empfangenen nicht: Eine längere Nachricht anstelle eines Befehls kann sie aufhängen. Deshalb sendet die Rohkonsole im Boot-Modus auf einem Auto oder Handregler nur Lesebefehle."
   },
 
   titleRegTable:{it:"Registri via dongle",en:"Registers through the dongle",es:"Registros a través del dongle",fr:"Registres via le dongle",de:"Register über den Dongle"},
@@ -841,6 +856,41 @@ window.I18N_STRINGS = {
     fr:"Le dongle redémarre : attends que le port soit rouvert.",
     de:"Der Dongle startet neu: Warte, bis der Port wieder geöffnet ist."
   },
+  hStaleAb:{
+    it:"⚠️ Il dongle ha risposto AB a un comando: l'eco del dispositivo non coincideva, e da ora il dongle risponde AB a ogni comando finché non riceve STOPBOOT. Premi «Esci» e poi di nuovo «Entra in boot»: fino ad allora i comandi a registri restano spenti.",
+    en:"⚠️ The dongle answered AB to a command: the device's echo did not match, and from now on the dongle answers AB to every command until it receives STOPBOOT. Press “Exit” and then “Enter boot” again: until then the register commands stay off.",
+    es:"⚠️ El dongle ha respondido AB a un comando: el eco del dispositivo no coincidía, y desde ahora el dongle responde AB a cada comando hasta que recibe STOPBOOT. Pulsa «Salir» y luego otra vez «Entrar en boot»: hasta entonces los comandos de registros quedan desactivados.",
+    fr:"⚠️ Le dongle a répondu AB à une commande : l'écho de l'appareil ne correspondait pas, et désormais le dongle répond AB à chaque commande jusqu'à ce qu'il reçoive STOPBOOT. Appuie sur « Quitter » puis de nouveau sur « Entrer en mode boot » : d'ici là, les commandes de registres restent désactivées.",
+    de:"⚠️ Der Dongle hat auf einen Befehl mit AB geantwortet: Das Echo des Geräts stimmte nicht, und ab jetzt antwortet der Dongle auf jeden Befehl mit AB, bis er STOPBOOT bekommt. Drücke „Beenden“ und dann erneut „Boot-Modus starten“: Bis dahin bleiben die Registerbefehle gesperrt."
+  },
+  hStaleSilent:{
+    it:"⚠️ Il dispositivo non ha risposto. Il dongle non ha un tempo limite e aspetta ancora la sua risposta: un altro comando adesso si mescolerebbe con quella. Premi «Esci» e poi di nuovo «Entra in boot»: fino ad allora i comandi a registri restano spenti.",
+    en:"⚠️ The device did not answer. The dongle has no time limit and is still waiting for its reply: another command now would get mixed up with it. Press “Exit” and then “Enter boot” again: until then the register commands stay off.",
+    es:"⚠️ El dispositivo no ha respondido. El dongle no tiene tiempo límite y sigue esperando su respuesta: otro comando ahora se mezclaría con ella. Pulsa «Salir» y luego otra vez «Entrar en boot»: hasta entonces los comandos de registros quedan desactivados.",
+    fr:"⚠️ L'appareil n'a pas répondu. Le dongle n'a pas de délai d'expiration et attend encore sa réponse : une autre commande maintenant se mélangerait avec elle. Appuie sur « Quitter » puis de nouveau sur « Entrer en mode boot » : d'ici là, les commandes de registres restent désactivées.",
+    de:"⚠️ Das Gerät hat nicht geantwortet. Der Dongle hat kein Zeitlimit und wartet noch auf seine Antwort: Ein weiterer Befehl würde sich jetzt damit vermischen. Drücke „Beenden“ und dann erneut „Boot-Modus starten“: Bis dahin bleiben die Registerbefehle gesperrt."
+  },
+  logStaleAb:{
+    it:"[AB all'eco del comando: il dongle ora risponde AB a tutto. Comandi spenti fino a un nuovo boot]",
+    en:"[AB to the command echo: the dongle now answers AB to everything. Commands off until a new boot]",
+    es:"[AB al eco del comando: el dongle ahora responde AB a todo. Comandos desactivados hasta un nuevo boot]",
+    fr:"[AB à l'écho de la commande : le dongle répond maintenant AB à tout. Commandes désactivées jusqu'à un nouveau boot]",
+    de:"[AB auf das Befehlsecho: Der Dongle antwortet jetzt auf alles mit AB. Befehle gesperrt bis zu einem neuen Boot]"
+  },
+  logStaleSilent:{
+    it:"[nessuna risposta: il dongle aspetta ancora il dispositivo. Comandi spenti fino a un nuovo boot]",
+    en:"[no reply: the dongle is still waiting for the device. Commands off until a new boot]",
+    es:"[sin respuesta: el dongle sigue esperando al dispositivo. Comandos desactivados hasta un nuevo boot]",
+    fr:"[pas de réponse : le dongle attend encore l'appareil. Commandes désactivées jusqu'à un nouveau boot]",
+    de:"[keine Antwort: Der Dongle wartet noch auf das Gerät. Befehle gesperrt bis zu einem neuen Boot]"
+  },
+  macNone:{
+    it:"nessuna risposta a READMACVL: i dongle fino alla 4.10a non lo gestiscono",
+    en:"no reply to READMACVL: dongles up to 4.10a do not handle it",
+    es:"sin respuesta a READMACVL: los dongles hasta la 4.10a no lo gestionan",
+    fr:"pas de réponse à READMACVL : les dongles jusqu'à la 4.10a ne le gèrent pas",
+    de:"keine Antwort auf READMACVL: Dongles bis 4.10a unterstützen es nicht"
+  },
   fwOut:{it:"versione firmware",en:"firmware version",es:"versión de firmware",fr:"version du firmware",de:"Firmware-Version"},
   macOut:{it:"MAC del dongle",en:"dongle MAC",es:"MAC del dongle",fr:"MAC du dongle",de:"MAC des Dongles"},
   regReadOut:{it:"lettura",en:"read",es:"lectura",fr:"lecture",de:"Lesen"},
@@ -967,7 +1017,7 @@ window.I18N_STRINGS = {
 <script src="../i18n.js"></script>
 <script src="../seriale.js"></script>
 <script>
-const APP="o2-bootloader",APP_VERSION="1.8.0";
+const APP="o2-bootloader",APP_VERSION="1.9.0";
 const VID=0x1fee,PID=0x0002;
 /* Il programma ufficiale apre la COM a 9600 8N1 (visto nelle catture USB). Sul
    dongle è una COM virtuale, quindi il valore è nominale — ma se un giorno in
@@ -1025,6 +1075,7 @@ let wakeUp=null;           // risveglia l'attesa quando il browser annuncia una 
 let sentSinceOpen=0;       // messaggi mandati da quando la porta è aperta
 let fresh=false;           // porta riaperta dopo un riavvio, e ancora intatta
 let inBoot=false,bootTarget=null;
+let bootStale=null;        // "ab" | "silent": il dongle non va più usato fino a un nuovo boot
 let activation="unknown";  // unknown | not | waitKey | yes
 let actMsg=null,lastInfo=null;
 let col=null,rxTail="";
@@ -1093,7 +1144,7 @@ function onPortLost(p){
   try{if(writer)writer.releaseLock();}catch(e){}
   port=null;writer=null;reader=null;
   try{p.close().catch(()=>{});}catch(e){}
-  inBoot=false;bootTarget=null;
+  inBoot=false;bootTarget=null;bootStale=null;
   if(!dropWaiters.length)log(I18N.t("logLost"));
   const back=reopenAfterReset().finally(()=>{reconnecting=null;syncUi();});
   reconnecting=back;
@@ -1195,7 +1246,7 @@ async function connect(){
   await run(async()=>{
     const i=p.getInfo?p.getInfo():{};
     wantIds=i.usbVendorId!=null?{vid:i.usbVendorId,pid:i.usbProductId}:null;
-    activation="unknown";actMsg=null;inBoot=false;bootTarget=null;
+    activation="unknown";actMsg=null;inBoot=false;bootTarget=null;bootStale=null;
     await openPort(p);
     const atteso=(i.usbVendorId===VID&&i.usbProductId===PID);
     const idtxt=i.usbVendorId!=null
@@ -1216,7 +1267,7 @@ async function disconnect(){
 }
 function setConn(on){
   connState=on;
-  if(!on){inBoot=false;bootTarget=null;activation="unknown";actMsg=null;fresh=false;renderAct();}
+  if(!on){inBoot=false;bootTarget=null;bootStale=null;activation="unknown";actMsg=null;fresh=false;renderAct();}
   syncUi();
 }
 
@@ -1275,7 +1326,7 @@ async function enterBoot(){
   }
   if(d.done){log(I18N.t("bootDropMsg"));await d.back;return;}
   cancelDrop(d);
-  if(raw(r).includes("BOOTOK")){inBoot=true;bootTarget=t;activation="yes";log("["+I18N.t("bootOkMsg")+" "+devName(t)+"]");}
+  if(raw(r).includes("BOOTOK")){inBoot=true;bootTarget=t;bootStale=null;activation="yes";log("["+I18N.t("bootOkMsg")+" "+devName(t)+"]");}
   else log("["+I18N.t("bootNoOkMsg")+" "+(r.length?hx(r):"—")+")]");
 }
 async function exitBoot(){
@@ -1284,7 +1335,7 @@ async function exitBoot(){
   const start=performance.now();
   while(!d.done&&performance.now()-start<RESET_WAIT)await sleep(20);
   if(d.done){await d.back;return;}
-  cancelDrop(d);inBoot=false;bootTarget=null;log(I18N.t("logNoReset"));
+  cancelDrop(d);inBoot=false;bootTarget=null;bootStale=null;log(I18N.t("logNoReset"));
 }
 
 /* ---------- attivazione ----------
@@ -1343,11 +1394,34 @@ const pfxOf=t=>TARGETS[t].pfx;
 const buildRead=(t,op,reg,len)=>[pfxOf(t),op,0x00,reg,len];
 const buildWrite=(t,reg,data)=>[[pfxOf(t),0x02,0x00,reg,data.length,cks(data)],[...data]];
 
+/* Dopo BOOT su chip auto o controller il dongle inoltra ogni comando via radio e
+   confronta l'eco del dispositivo con quello che ha mandato. Due esiti lo
+   lasciano inservibile fino a STOPBOOT:
+   - eco diversa: risponde AB, e da quel momento AB a QUALUNQUE comando;
+   - nessuna risposta: non ha un tempo limite e aspetta ancora; un comando mandato
+     adesso si mescolerebbe con la risposta in ritardo.
+   In entrambi i casi i comandi a registri si spengono finché non si rifà il boot.
+   Un AB ai DATI di una scrittura è un'altra cosa: il dispositivo ha rifiutato il
+   valore e il dongle torna ad aspettare un comando, quindi non blocca niente.
+   (Una lettura a 2 byte che vale davvero 41 42 — solo 0x70 sul controller può
+   farlo — spegne i comandi per niente: costa un nuovo boot, non un dato sbagliato.) */
+function radioEsito(r,fase){
+  if(!inBoot||bootTarget==="dongle"||bootStale)return;
+  let s=null;
+  if(!r.length)s="silent";
+  else if(fase!=="data"&&raw(r)==="AB")s="ab";
+  if(!s)return;
+  bootStale=s;
+  log(I18N.t(s==="ab"?"logStaleAb":"logStaleSilent"));
+  syncUi();
+}
 async function doWrite(t,reg,data){
   const [hdr,dat]=buildWrite(t,reg,data);
   const r1=await sendCollect(hdr,500,x=>x.length>=2);
+  radioEsito(r1,"hdr");
   if(raw(r1)!=="DO")return {ok:false,stage:"hdr",r1};
   const r2=await sendCollect(dat,800,x=>x.length>=2);
+  radioEsito(r2,"data");
   return {ok:raw(r2)==="DO",stage:"data",r1,r2};
 }
 function writeResultHtml(res){
@@ -1414,6 +1488,13 @@ function checkRaw(b){
    ⚠️ 0x20 non è la stessa cosa sui due dispositivi: sul controller è il suo MAC O2,
    sul chip auto è l'abbinamento (il MAC del controller a cui l'auto risponde). */
 const mac2=m=>[m[0],m[0],m[0],0xff,m[1],m[1],m[1],0xff];   // hi hi hi ff lo lo lo ff (n=8)
+/* E7:E7 in 0x20 si può scrivere, ma le auto dalla 4.12b lo prendono per «non
+   abbinata» (e lo rimpiazzano col MAC del chip a ogni avvio): si avvisa, non si
+   vieta. Il dispositivo legge il 1° e il 5° byte dei dati. -> chiave o null */
+function e7Warn(t,reg,data){
+  if(reg!==0x20||data.length<5||data[0]!==0xe7||data[4]!==0xe7)return null;
+  return t==="controller"?"warnE7Ctrl":t==="chip"?"warnE7Car":null;
+}
 const FIELDS={
   /* ID ripetuto tre volte SENZA ff finale: n=3. Si rilegge con un byte solo. */
   carId:  {t:"chip",      reg:0x02, rlen:1, v:"vCarId",  o:"oCarId",  p:"pCarId",
@@ -1454,7 +1535,8 @@ function fldFrames(k){
 async function fldRead(k){
   const f=FIELDS[k],out=$(f.o),len=f.rlen;
   const r=await sendCollect(buildRead(f.t,RD_OP,f.reg,len),500,x=>x.length>=len);
-  if(r.length!==len){
+  radioEsito(r,"read");
+  if(r.length!==len||raw(r)==="AB"){
     out.innerHTML=span("warn",raw(r)==="AB"?I18N.t("fldRejected"):I18N.t("fldBadRead",{m:r.length,n:len}));
     return;
   }
@@ -1471,7 +1553,8 @@ async function fldWrite(k){
   if(e){out.innerHTML=ckHtml(e);return;}
   if(f.mac){
     const cur=f.cur?I18N.t("curRead",{v:f.cur}):I18N.t("curNone");
-    if(!confirm(I18N.t(f.confirm,{new:hex2(val[0])+":"+hex2(val[1]),cur:cur})))return;
+    const e7=e7Warn(f.t,f.reg,data);
+    if(!confirm(I18N.t(f.confirm,{new:hex2(val[0])+":"+hex2(val[1]),cur:cur})+(e7?"\n\n"+I18N.t(e7):"")))return;
   }
   out.innerHTML=writeResultHtml(await doWrite(f.t,f.reg,data));
 }
@@ -1521,6 +1604,7 @@ async function readReg(){
   const e=checkRead(t,op,reg,len);
   if(e){$("regOut").innerHTML=ckHtml(e);return;}
   const r=await sendCollect(buildRead(t,op,reg,len),500,x=>x.length>=len);
+  radioEsito(r,"read");
   let extra="";
   if(r.length)extra=" "+(r.length===len?span("ok",I18N.t("lenOk")):span("warn",I18N.t("lenBad",{n:len,m:r.length})));
   /* 52 52 52 ff non è un «marcatore RRR»: è il byte 0x52 ripetuto. */
@@ -1536,7 +1620,8 @@ async function writeReg(){
   if(vals===null||!vals.length){$("regOut").innerHTML=span("bad",I18N.t("badHex"));return;}
   const e=checkWrite(t,reg,vals);
   if(e){$("regOut").innerHTML=ckHtml(e);return;}
-  if(!confirm(I18N.t("confirmWrite",{reg:"0x"+hex2(reg),dev:devName(t)})))return;
+  const e7=e7Warn(t,reg,vals);
+  if(!confirm(I18N.t("confirmWrite",{reg:"0x"+hex2(reg),dev:devName(t)})+(e7?"\n\n"+I18N.t(e7):"")))return;
   const res=await doWrite(t,reg,vals);
   $("regOut").innerHTML="<b>"+I18N.t("regWriteOut")+"</b> 0x"+hex2(reg)+" ["+devName(t)+"] → "+
     hx(res.r1||[])+(res.r2?" · "+hx(res.r2):"")+" — "+writeResultHtml(res);
@@ -1548,7 +1633,7 @@ async function sendRaw(){
   const e=checkRaw(b);
   if(e){$("rawOut").innerHTML=ckHtml(e);log("["+stripTags(I18N.t(e.k,e.p))+"]");return;}
   $("rawOut").innerHTML="";
-  await sendCollect(b,500);
+  radioEsito(await sendCollect(b,500),"read");   // in boot su auto o controller passano solo letture
 }
 
 /* La tabella dei registri si disegna da REGS: è la stessa tabella che decide che
@@ -1571,6 +1656,8 @@ function renderInfo(){
   /* READMACVL manda già il byte più significativo per primo, come lo mostra il
      programma ufficiale: non si gira. */
   else if(kind==="mac"&&r.length>=6)out="<b>"+I18N.t("macOut")+"</b> → "+macTxt(r.slice(0,6));
+  /* I dongle fino alla 4.10a non conoscono READMACVL: tacciono, e il silenzio si spiega. */
+  else if(kind==="mac"&&!r.length)out="<b>"+I18N.t("macOut")+"</b> → "+I18N.t("macNone");
   else out="<b>"+I18N.t("dtResponse")+" ["+devName(t)+"]</b> → "+(r.length?hx(r)+"  |"+asc(r)+"|":I18N.t("dtEmpty"));
   $("infoOut").innerHTML=out;
 }
@@ -1580,6 +1667,7 @@ async function readFw(){
      registro 0x80 letto in flash. */
   const f=t==="dongle"?DONGLE_READS[0]:buildRead(t,0x11,0x80,2);
   const r=await sendCollect(f,500,x=>x.length>=2);
+  radioEsito(r,"read");
   lastInfo={kind:"fw",t:t,r:r};renderInfo();
 }
 async function readMac(){
@@ -1618,6 +1706,7 @@ function gateMsg(){
   if(activation==="not")return I18N.t("hActNot");
   if(activation==="waitKey")return I18N.t("hWaitKey");
   if(!inBoot)return I18N.t("needBootMsg");
+  if(bootStale)return I18N.t(bootStale==="ab"?"hStaleAb":"hStaleSilent");
   if(bootTarget!==tgt())return I18N.t("hOtherTarget",{cur:devName(bootTarget),sel:devName(tgt())});
   return null;
 }
@@ -1635,7 +1724,9 @@ function syncUi(){
   const idle=connState&&!!port&&!busy&&!reconnecting;
   const actBlock=activation==="not"||activation==="waitKey";
   const t=tgt();
-  const ready=idle&&inBoot&&bootTarget===t&&!actBlock;
+  /* bootStale: dopo un AB all'eco o un comando senza risposta il dongle non va più
+     usato finché non si rifà il boot (vedi radioEsito) */
+  const ready=idle&&inBoot&&bootTarget===t&&!actBlock&&!bootStale;
   $("btnConn").disabled=connState||busy||!Seriale.via;
   $("btnDisc").disabled=!connState||busy;
   $("btnBoot").disabled=!idle||actBlock;
@@ -1643,7 +1734,7 @@ function syncUi(){
   document.querySelectorAll(".needboot").forEach(b=>{b.disabled=!ready;});
   $("btnMac").disabled=!ready||t!=="dongle";       // READMACVL esiste solo sul dongle
   $("btnWrite").disabled=!ready||t==="dongle";     // sul dongle non c'è niente da scrivere
-  $("btnRaw").disabled=!(idle&&inBoot&&!actBlock);
+  $("btnRaw").disabled=!(idle&&inBoot&&!actBlock&&!bootStale);
   $("btnActRead").disabled=!idle||inBoot;
   $("btnActSend").disabled=!idle||activation!=="waitKey"||!keyBytes($("actKey").value);
   const g=gateMsg(),n=$("bootHint");n.hidden=!g;if(g)n.textContent=g;

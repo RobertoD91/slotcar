@@ -78,7 +78,7 @@ function stub() {
   };
   const service = { async getCharacteristic(u) { return u.startsWith('6e400002') ? rx : tx; } };
   const device = {
-    name: dev === 0x09 ? 'CarC -prova' : 'SCP3H-prova', id: 'stub',
+    name: window.__nome || (dev === 0x09 ? 'CarC -prova' : 'SCP3H-prova'), id: 'stub',
     addEventListener() {},
     gatt: { connected: true, async connect() { return { async getPrimaryService() { return service; } }; }, disconnect() {} },
   };
@@ -95,11 +95,12 @@ function stub() {
   const dialogs = [];
   ctx.on('weberror', (e) => errors.push(String(e.error())));
 
-  async function apri(path) {
+  async function apri(path, nome) {
     const page = await ctx.newPage();
     page.on('pageerror', (e) => errors.push(String(e)));
     page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
     page.on('dialog', (d) => { dialogs.push(d.message()); d.accept(); });
+    if (nome) await page.addInitScript((n) => { window.__nome = n; }, nome);   // nome Bluetooth diverso da quello dello stub
     await page.addInitScript(stub);
     await page.goto(BASE + '/' + path, { waitUntil: 'networkidle' });
     await page.click('#btnConn');
@@ -210,6 +211,16 @@ function stub() {
   await scrivi(p, '83', 'Nome da qui');
   f = (await sentRaw(p))[0] || [];
   ok(frameNome(f, 0x09) && testoNome(f) === 'Nome da qui   ', 'nome dalla console: testo completato a 14 → «' + testoNome(f) + '»');
+  /* 0x94 è la finestra IR dei modi Carrera: valore × circa 1 ms, da 50 a 250. */
+  await scrivi(p, '94', '20');
+  ok((await sent(p)).length === 0, 'finestra IR 0x94 = 32 (sotto 50): nessun frame');
+  ok(/50/.test(await msg(p)) && /250/.test(await msg(p)), 'e lo dice: ' + (await msg(p)).slice(0, 70));
+  await scrivi(p, '94', '64');
+  ok((await sent(p))[0] === '09 02 94 64 fb', 'finestra IR 0x94 = 100: inviata → ' + (await sent(p))[0]);
+  /* E7 E7 nell'abbinamento: si avvisa, non si vieta. */
+  await scrivi(p, '90', 'e7 e7');
+  ok((await sent(p)).length === 1 && (await sent(p))[0].startsWith('09 02 90 e7 e7'), 'abbinamento E7 E7 dalla console: inviato → ' + (await sent(p))[0]);
+  ok(/E7 E7/.test(await msg(p)) && /4\.12b/.test(await msg(p)), 'ma la console avvisa: ' + (await msg(p)).slice(0, 80));
 
   console.log('\n== AUTO: ABBINAMENTO E TEST ==');
   dialogs.length = 0;
@@ -218,6 +229,14 @@ function stub() {
   s = await sent(p);
   ok(s.length === 1 && s[0].startsWith('09 02 90 1a 2b') && xorOk((await sentRaw(p))[0]), 'abbina: solo 0x90 → ' + s.join(' | '));
   ok(dialogs.some((d) => /0x90/.test(d) && /1A2B/.test(d)), 'la conferma dice registro e valore: ' + (dialogs[0] || '').slice(0, 80));
+  dialogs.length = 0;
+  await p.fill('#cMac', 'e7e7');
+  await clic(p, '[data-fn=mac]');
+  s = await sent(p);
+  ok(s.length === 1 && s[0].startsWith('09 02 90 e7 e7'), 'abbina E7 E7: parte lo stesso → ' + s.join(' | '));
+  ok(dialogs.some((d) => /E7 E7/.test(d) && /4\.12b/.test(d)), 'ma la conferma avvisa che dalla 4.12b non resta: ' + (dialogs[0] || '').slice(-90));
+  ok(/\b20\b/.test(await p.locator('body').innerText()) && await p.locator('[data-i18n-html="idHint"]').isVisible(),
+     'c\'è la nota sul chip non attivato (si abbina solo come ID 20)');
   await clic(p, '[data-fn=motor]');
   ok((await sent(p))[0] === '09 02 9a 00 91', 'test motore: ' + (await sent(p))[0]);
   const logAuto = await p.locator('#log').textContent();
@@ -236,6 +255,7 @@ function stub() {
   ok(!s.some((f) => f.startsWith('0a 12 8a')), 'nessuna lettura di 0x8a (non gestito)');
   ok(!s.some((f) => /^0a 12 (9f|80)\b/.test(f)), 'nessuna lettura di 0x9f né di 0x80');
   ok((await p.locator('#fFw').innerText()) === '4.20A', 'firmware: ' + await p.locator('#fFw').innerText());
+  ok(!(await p.locator('#paNote').isVisible()), 'controller normale: nessun avviso sul modulo Power Amplifier');
   ok((await p.inputValue('#cName')) === 'Roberto', 'nome riletto, via i "." del riempimento: «' + await p.inputValue('#cName') + '»');
   ok((await p.inputValue('#cBrake')) === '', 'modo freno letto = 2: il menu resta vuoto');
   ok(/= 2/.test(await p.locator('#log').textContent()), 'e il registro lo dice');
@@ -259,6 +279,14 @@ function stub() {
   s = await sent(p);
   ok(s.length === 1 && s[0].startsWith('0a 02 90 1a 2b'), 'MAC O2: solo 0x90, niente 0x9f dopo → ' + s.join(' | '));
   ok(dialogs.length === 1 && !/commit/i.test(dialogs[0]) && /0x90/.test(dialogs[0]), 'conferma senza «commit»: ' + (dialogs[0] || '').slice(0, 80));
+  ok(!/E7:E7/.test(dialogs[0] || ''), 'con un MAC qualunque niente avviso E7:E7');
+  dialogs.length = 0;
+  await p.fill('#cMac', 'e7e7');
+  await clic(p, '[data-fn=clone]');
+  s = await sent(p);
+  ok(s.length === 1 && s[0].startsWith('0a 02 90 e7 e7'), 'MAC O2 E7:E7: parte lo stesso (avviso, non divieto) → ' + s.join(' | '));
+  ok(dialogs.length === 1 && /E7:E7/.test(dialogs[0]) && /4\.12b/.test(dialogs[0]),
+     'ma la conferma avvisa che le auto dalla 4.12b non restano abbinate: ' + (dialogs[0] || '').slice(-100));
 
   console.log('\n== TELECOMANDO: CONSOLE GREZZA ==');
   await p.locator('details summary').first().click();
@@ -281,6 +309,29 @@ function stub() {
   await leggi(p, '8a');
   ok((await sent(p)).length === 0, 'lettura di 0x8a: nessun frame');
 
+  /* 0x93: il 5° byte (offset di fine corsa) va da 1 a 9, e il controller non lo
+     controlla. Fuori intervallo la console non lo manda. */
+  await scrivi(p, '93', 'c8 96 64 32 0a');
+  ok((await sent(p)).length === 0, 'curva con offset 10: nessun frame');
+  ok(/10/.test(await msg(p)) && /\b9\b/.test(await msg(p)), 'e lo dice: ' + (await msg(p)).slice(0, 80));
+  await scrivi(p, '93', 'c8 96 64 32 00');
+  ok((await sent(p)).length === 0, 'curva con offset 0: nessun frame');
+  await scrivi(p, '93', 'c8 96 64 32 05');
+  s = await sentRaw(p);
+  ok(s.length === 1 && hexs(s[0]).startsWith('0a 02 93 c8 96 64 32 05') && xorOk(s[0]), 'curva con offset 5: inviata → ' + hexs(s[0] || []));
+  /* 0x94: soglia della rampa, solo da 0x0F a 0xFA. */
+  for (const v of ['0e', 'fb', '00', 'ff']) {
+    await scrivi(p, '94', v);
+    ok((await sent(p)).length === 0, `soglia rampa 0x${v}: nessun frame`);
+  }
+  ok(/0x0F/.test(await msg(p)) && /0xFA/.test(await msg(p)), 'e lo dice: ' + (await msg(p)).slice(0, 80));
+  await scrivi(p, '94', '7f');
+  ok((await sent(p))[0] === '0a 02 94 7f ' + (0x0a ^ 0x02 ^ 0x94 ^ 0x7f).toString(16).padStart(2, '0'), 'soglia rampa 0x7F: inviata → ' + (await sent(p))[0]);
+  ok(/0x0F/.test(await p.locator('#regtab').innerText()) && /0x5A/.test(await p.locator('body').innerText()),
+     'tabella e nota spiegano 0x93/0x94 (intervallo e il 0x5A possibile)');
+  await scrivi(p, '90', 'e7 e7');
+  ok((await sent(p)).length === 1 && /E7:E7/.test(await msg(p)), 'MAC O2 E7:E7 dalla console: inviato, con l\'avviso → ' + (await msg(p)).slice(0, 70));
+
   // cambio lingua: il messaggio della console si ridisegna
   await scrivi(p, '80', '00');
   await p.selectOption('#__langsel', 'en');
@@ -289,6 +340,13 @@ function stub() {
   await p.selectOption('#__langsel', 'it');
   const logTel = await p.locator('#log').textContent();
   ok(!/DO=ok/.test(logTel), 'nel registro niente più «DO=ok»');
+  await p.close();
+
+  /* Il modulo Power Amplifier si presenta come SCP3A-…: è un altro dispositivo. */
+  console.log('\n== MODULO POWER AMPLIFIER (SCP3A-…) ==');
+  p = await apri('remote-config/', 'SCP3A-prova');
+  ok(await p.locator('#paNote').isVisible() && /0x0B/.test(await p.locator('#paNote').innerText()),
+     'avviso: è il modulo PA, non il controller → ' + (await p.locator('#paNote').innerText()).slice(0, 80) + '…');
   await p.close();
 
   console.log('\n== ERRORI JS ==');

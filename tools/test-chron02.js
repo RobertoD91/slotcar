@@ -2,7 +2,8 @@
  * Verifica le regole che il dongle impone a chi gli parla e che a leggere il diff
  * non si vedono: l'ordine dell'avvio (DTR, poi 0x06, poi l'aggancio), la forma dei
  * frame di gara, i destinatari validi, i giri da scartare, lo Stop prima di
- * chiudere. Nessun hardware.
+ * chiudere, le code del dongle (5 codici per destinatario), i riavvii contati per
+ * fronti e i dongle vecchi. Nessun hardware.
  *
  *   cd web && python3 -m http.server 8099 &
  *   node tools/test-chron02.js
@@ -88,6 +89,9 @@ async function openPage(ctx, errors) {
   ok(iSig >= 0 && iSig < iW, 'DTR attivato prima della prima scrittura: ' + ev.slice(0, 4).join(', '));
   let s = await sent();
   ok(s.length === 1 && s[0].includes(0x06), 'primo messaggio con 0x06: ' + (s[0] ? hex(s[0]) : '—'));
+  /* Quattro 0x06 nello STESSO messaggio: sui dongle 4.01 e 4.10a il quarto spegne
+     il CRC sulla USB, e senza i frame di gara vengono scartati in silenzio. */
+  ok(s[0] && hex(s[0]) === '06 06 06 06', 'e sono quattro 0x06 in un messaggio solo: ' + (s[0] ? hex(s[0]) : '—'));
   ok(s.length === 1, 'nessun frame di gara prima della versione (scritture: ' + s.length + ')');
 
   await push(VERSION);
@@ -102,6 +106,8 @@ async function openPage(ctx, errors) {
   ok(st(sync) === 0x0f, 'è la gara libera (0x0F)');
   ok([2, 3, 4, 5, 6, 7].every(i => sync[i] === 0), 'nessun comando nel frame di aggancio');
   ok((await txt('#hs')).includes('4.15'), 'versione mostrata: ' + await txt('#hs'));
+  ok(!/4\.15[a-z]/i.test(await txt('#hs')), 'senza una lettera inventata (non viene trasmessa)');
+  ok(!(await page.locator('#oldDongle').isVisible()), 'dongle 4.15: nessun avviso «dongle vecchio»');
   ok(!(await raceBtnsOff()), 'pulsanti di gara accesi dopo l\'aggancio');
   ok((await page.getAttribute('.rs[data-st="free"]', 'aria-pressed')) === 'true', 'stato evidenziato: gara libera');
 
@@ -245,6 +251,25 @@ async function openPage(ctx, errors) {
   ok(r5.includes('↑'), 'freccia su dal byte [9]');
   ok(await page.locator('#boardRows tr[data-id="25"], #boardRows tr[data-id="0"]').count() === 0, 'ID 0 e 25 ignorati');
 
+  console.log('\n== RIAVVII E COLLEGAMENTI PERSI: SI CONTANO PER FRONTI ==');
+  /* Con il modulo Power Amplifier i bit 0 e 1 del byte 0 restano accesi per circa
+     un secondo: lo stesso evento arriva in 2-4 dati di fila e va contato una volta. */
+  for (const b0 of [0x01, 0x01, 0x01, 0x00, 0x01, 0x01, 0x02, 0x02, 0x02, 0x00]) {
+    await push(rec({ id: 8, b0 }));
+    await wait(20);
+  }
+  await wait(350);
+  const r8 = await page.locator('#boardRows tr[data-id="8"]').innerText().catch(() => '');
+  ok(r8.includes('⟲2'), 'auto riavviata: 5 dati col bit acceso, 2 fronti → ⟲2: ' + r8.replace(/\s+/g, ' '));
+  ok(r8.includes('↯1'), 'collegamento perso: 3 dati col bit acceso, 1 fronte → ↯1');
+  const tReset = await page.locator('#boardRows tr[data-id="8"] span[title*="riavviata"]').getAttribute('title').catch(() => '');
+  ok(/auto riavviata/.test(tReset) && /fronti/.test(tReset), 'il bit 0 è l\'auto riavviata, non il controller: ' + tReset);
+  await push(rec({ id: 9, b9: 0x80 }));
+  await wait(350);
+  const tRound = await page.locator('#boardRows tr[data-id="9"] span:text-is("●")').getAttribute('title').catch(() => '');
+  ok(/freno/.test(tRound), 'byte 9 bit 7 = pulsante del freno (il tondo dell\'SCP-3): ' + tRound);
+  ok(/Power Amplifier/.test(await txt('#boardEmpty ~ .hint')), 'nota sul modulo Power Amplifier sotto la classifica');
+
   console.log('\n== GARA LIBERA DA STOP: PRIMA PACE CAR A VELOCITÀ PIENA ==');
   await page.click('.rs[data-st="stop"]');
   await wait(150);
@@ -255,6 +280,55 @@ async function openPage(ctx, errors) {
   const iPace = nuovi.findIndex(b => st(b) === 0x05 && b[1] === 0xff);
   const iFree = nuovi.findIndex(b => st(b) === 0x0f && b[1] === 0xff);
   ok(iPace >= 0 && iFree > iPace, 'pace car a FFh, poi gara libera: ' + nuovi.map(b => hex(b.slice(0, 2))).join(' | '));
+
+  console.log('\n== CODE DEL DONGLE: AL MASSIMO 5 CODICI PER DESTINATARIO ==');
+  /* Il dongle tiene 5 codici per destinatario e il sesto lo butta senza dirlo; un
+     comando rimandato al valore neutro tiene il posto; le code si svuotano solo con
+     Avvia dopo uno Stop. L'app ha rimandato da sola i limiti del primo Avvia: per
+     tutte velocità minima (3) e potenza radio (4). */
+  await page.selectOption('#ccCmd', '1');             // prima il comando: con la potenza radio «a chi» è bloccato
+  await page.selectOption('#ccTo', 'all');
+  ok(/per tutte: 2 su 5/.test(await txt('#ccQueue')), 'contatore dopo il rinvio automatico: ' + await txt('#ccQueue'));
+  const globale = async (code, arg) => {
+    await page.selectOption('#ccCmd', String(code));
+    await page.fill('#ccArg', String(arg));
+    const m = await count();
+    await page.click('#ccSend');
+    await wait(200);
+    return (await since(m)).filter(b => b[3] === code);
+  };
+  ok((await globale(1, 34)).length === 1, 'terzo codice per tutte (pit-lane) inviato');
+  ok((await globale(2, 200)).length === 1, 'quarto (velocità massima) inviato');
+  ok((await globale(5, 200)).length === 1, 'quinto (freno) inviato');
+  ok(/per tutte: 5 su 5/.test(await txt('#ccQueue')), 'contatore: ' + await txt('#ccQueue'));
+  ok((await globale(7, 30)).length === 0, 'sesto codice diverso (tempo minimo): non inviato');
+  ok(/sesto/.test(await txt('#ccMsg')) && /Stop/.test(await txt('#ccMsg')), 'e lo dice, con la via d\'uscita: ' + (await txt('#ccMsg')).slice(0, 90) + '…');
+  ok((await globale(2, 180)).length === 1, 'cambiare il valore di un codice già in coda si può');
+  /* «togli» manda il valore neutro, ma il posto in coda resta preso */
+  const riga = page.locator('#limRows tr', { hasText: 'Freno massimo' });
+  let m2 = await count();
+  await riga.locator('button').click();
+  await wait(200);
+  ok((await since(m2)).some(b => b[3] === 5 && b[4] === 255), '«togli» sul freno: rimandato a 255');
+  ok((await globale(7, 30)).length === 0, 'il posto del freno resta preso: il tempo minimo non parte ancora');
+  /* Stop e Avvia: le code si svuotano e l'app rimanda solo i limiti in elenco */
+  await page.click('.rs[data-st="stop"]');
+  await wait(150);
+  m2 = await count();
+  await page.click('.rs[data-st="run"]');
+  await wait(600);
+  const dopo = await since(m2);
+  ok(!dopo.some(b => b[3] === 5), 'dopo Avvia il freno tolto non viene rimandato');
+  ok([1, 2, 3, 4].every(c => dopo.some(b => b[3] === c)), 'gli altri 4 limiti per tutte sì');
+  ok(/per tutte: 4 su 5/.test(await txt('#ccQueue')), 'l\'app non riempie le code da sola: ' + await txt('#ccQueue'));
+  ok((await globale(7, 30)).length === 1, 'ora il tempo minimo parte');
+  ok(!(await page.evaluate(() => document.getElementById('log').textContent)).includes('non rimandato'), 'nessun limite rimasto fuori dal rinvio');
+  await page.selectOption('#ccTo', 'one');
+  await page.fill('#ccId', '3');
+  await page.selectOption('#ccCmd', '2');
+  await wait(50);
+  ok(/auto 3: 2 su 5/.test(await txt('#ccQueue')),
+     'coda dell\'auto 3: la sua velocità massima più la minima per tutte, che il dongle mette in ogni coda: ' + await txt('#ccQueue'));
 
   console.log('\n== DISCONNETTI DURANTE UNA GARA ==');
   await page.click('.rs[data-st="run"]');
@@ -305,6 +379,42 @@ async function openPage(ctx, errors) {
   const s3 = await p3.evaluate(() => window.__sent);
   ok(s3.length === 2 && syncAt(s3[1])[0] === 0, 'e parte il frame di aggancio: ' + (s3[1] ? hex(s3[1]) : '—'));
   await p3.close();
+
+  /* ---- dongle vecchi ---- */
+  console.log('\n== DONGLE VECCHI (PRIMA DELLA 4.13a) ==');
+  const vecchio = async (ver) => {
+    const p = await openPage(ctx, errors);
+    await p.click('#btnConn');
+    await p.waitForTimeout(150);
+    await p.evaluate(a => window.__push(a), ver);
+    await p.waitForTimeout(200);
+    return p;
+  };
+  const p4 = await vecchio([0x04, 0x0a, 0x00, 0x00, 0x00]);   // 4.10a
+  const n4 = await p4.locator('#oldDongle').isVisible() ? await p4.locator('#oldDongle').innerText() : '';
+  ok(/4\.10/.test(n4) && /pit-lane/.test(n4), 'dongle 4.10: avviso su giri in pit-lane e byte 7 → ' + n4.slice(0, 90) + '…');
+  ok(!/una sola auto/.test(n4), 'e niente blocco dei comandi per una sola auto (vale solo per la 4.00)');
+  await p4.close();
+  const p5 = await vecchio([0x04, 0x00, 0x00, 0x00, 0x00]);   // 4.00a/b
+  const n5 = await p5.locator('#oldDongle').isVisible() ? await p5.locator('#oldDongle').innerText() : '';
+  ok(/una sola auto/.test(n5), 'dongle 4.00: l\'avviso dice dei comandi per una sola auto');
+  let m5 = await p5.evaluate(() => window.__sent.length);
+  await p5.selectOption('#ccTo', 'one');
+  await p5.fill('#ccId', '2');
+  await p5.selectOption('#ccCmd', '2');
+  await p5.fill('#ccArg', '100');
+  await p5.click('#ccSend');
+  await p5.waitForTimeout(200);
+  let n5s = (await p5.evaluate(() => window.__sent)).slice(m5);
+  ok(!n5s.some(b => b[5] & 0x80), 'dongle 4.00: comando per una sola auto non inviato');
+  ok(/4\.00/.test(await p5.locator('#ccMsg').innerText()), 'e lo dice: ' + (await p5.locator('#ccMsg').innerText()).slice(0, 70));
+  await p5.selectOption('#ccTo', 'all');
+  m5 = await p5.evaluate(() => window.__sent.length);
+  await p5.click('#ccSend');
+  await p5.waitForTimeout(200);
+  n5s = (await p5.evaluate(() => window.__sent)).slice(m5);
+  ok(n5s.some(b => b[3] === 0x02 && b[4] === 100), 'dongle 4.00: il comando per tutte parte');
+  await p5.close();
 
   console.log('\n== ERRORI JS ==');
   const veri = errors.filter(e => !/Failed to load resource/.test(e));

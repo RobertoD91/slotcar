@@ -4,6 +4,10 @@
  *    programma ufficiale (cambio ID, MAC e velocità pit lane, fatte su un SCP-3:
  *    prefisso 09);
  *  - che una scrittura sia confermata SOLO dal DO ai dati (un AB sui dati è un errore);
+ *  - che dopo un AB all'intestazione (il dongle poi risponde AB a tutto) o un
+ *    comando senza risposta (il dongle aspetta ancora, senza tempo limite) i
+ *    comandi si spengano fino a un nuovo boot, e che niente parta nel frattempo;
+ *  - l'avviso su E7:E7 nel registro 0x20 (avviso, non divieto);
  *  - che BOOT parta solo dopo un riavvio con STOPBOOT come primo messaggio;
  *  - l'attivazione: READACTIV, MAC mostrato nell'ordine di READMACVL, chiave inoltrata;
  *  - i blocchi: registro 0x80 in scrittura, lunghezze, 32 byte, comandi 0c del dongle.
@@ -37,11 +41,15 @@ function dongleStub(opts) {
     mac: [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc],   // come lo manda READMACVL
     key: [0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f],   // la chiave "giusta" del test
     bootOk: { 9: true, 10: true, 12: true },
-    reads: {}, headerReply: 'DO', dataReply: 'DO', reappearMs: 300,
+    reads: {}, headerReply: 'DO', dataReply: 'DO', reappearMs: 300, noMacvl: false,
   }, opts || {});
   Object.assign(sim, {
     state: 'wait', target: null, pendingData: false, last: [], actWait: false,
     clean: false, onlyBoot05: true,
+    /* abAll: dopo un'eco sbagliata il dongle risponde AB a tutto fino a STOPBOOT.
+       waiting: il dispositivo non ha risposto e il dongle, che non ha un tempo
+       limite, lo aspetta ancora; quello che arriva intanto finisce in whileWaiting. */
+    abAll: false, waiting: false, whileWaiting: [],
     sent: [], events: [], dangerous: [], late: [], radioTooLong: [], dfu: [],
     dongleUnknown: [], resets: 0, ports: [],
   });
@@ -91,7 +99,7 @@ function dongleStub(opts) {
   function reset() {
     sim.resets++; sim.events.push('reset');
     const old = current;
-    Object.assign(sim, { state: 'wait', target: null, pendingData: false, actWait: false });
+    Object.assign(sim, { state: 'wait', target: null, pendingData: false, actWait: false, abAll: false, waiting: false });
     setTimeout(() => {
       old._lose();
       sim.ports = sim.ports.filter(x => x !== old);
@@ -140,25 +148,32 @@ function dongleStub(opts) {
       const k = hex(b);
       if (k === '0c 11 00 00 02') sim.last = [0x04, 0x0f];
       else if (k === '0c 12 00 40 01') sim.last = [0xff];
-      else if (s === 'READMACVL') sim.last = sim.mac.slice();
+      else if (s === 'READMACVL') { if (sim.noMacvl) return; sim.last = sim.mac.slice(); }   // fino alla 4.10a: silenzio
       else sim.dongleUnknown.push(k);              // il dongle vero ripeterebbe la risposta precedente
       reply(sim.last);
       return;
     }
+    if (sim.waiting) sim.whileWaiting.push(hex(b)); // mandato prima della risposta al comando precedente
+    if (sim.abAll) { reply(ascii('AB'), 5); return; }
     if (sim.pendingData) {                         // il secondo messaggio di una scrittura
       sim.pendingData = false;
-      if (sim.dataReply) reply(ascii(sim.dataReply), 30);
+      if (sim.dataReply) reply(ascii(sim.dataReply), 30); else sim.waiting = true;
       return;
     }
     if (b.length > 6) sim.radioTooLong.push(hex(b)); // un comando così lungo blocca il dispositivo
     if (b[0] !== sim.target) return;
     if (b.length === 6 && b[1] === 0x02) {
       if (b[3] === 0x80) sim.dfu.push(hex(b));
-      if (sim.headerReply) reply(ascii(sim.headerReply), 5);
+      if (sim.headerReply) reply(ascii(sim.headerReply), 5); else sim.waiting = true;
+      if (sim.headerReply === 'AB') sim.abAll = true;   // eco sbagliata: da qui AB a tutto
       sim.pendingData = sim.headerReply === 'DO';
       return;
     }
-    if (b.length === 5) reply(sim.reads[hex(b)] || Array(b[4]).fill(0xff), 20);
+    if (b.length === 5) {
+      const r = sim.reads[hex(b)] || Array(b[4]).fill(0xff);
+      if (!r.length) { sim.waiting = true; return; }   // il dispositivo tace: il dongle aspetta
+      reply(r, 20);
+    }
   }
 
   const first = makePort();
@@ -287,6 +302,20 @@ const dopoUltimaApertura = ev => ev.slice(ev.lastIndexOf('open') + 1).filter(e =
   ok(await page.locator('[data-tgt="controller"].warnbox').isVisible(), 'avviso sul MAC O2 del controller visibile');
   ok(/0x70/.test(await txt(page, '[data-tgt="controller"].warnbox')), 'e spiega che 0x70 non riporta il MAC originale');
 
+  /* E7:E7 come MAC O2: le auto dalla 4.12b lo prendono per «non abbinata». Si
+     avvisa nella conferma, ma la scrittura parte lo stesso. */
+  page.__dialogs.length = 0;
+  await page.fill('#vMacCtrl', 'e7 e7');
+  await page.waitForTimeout(60);
+  s = await act(page, '#bMacCtrlW');
+  ok(s.sent.length === 2 && s.sent[1] === 'e7 e7 e7 ff e7 e7 e7 ff', 'MAC O2 E7:E7: scritto lo stesso (avviso, non divieto): ' + s.sent.join(' | '));
+  ok(/E7:E7/.test(page.__dialogs.join(' ')) && /4\.12b/.test(page.__dialogs.join(' ')),
+     'e la conferma avvisa che le auto dalla 4.12b non restano abbinate: ' + page.__dialogs.join(' ').slice(-120));
+  page.__dialogs.length = 0;
+  await page.fill('#vMacCtrl', '12 34');
+  s = await act(page, '#bMacCtrlW');
+  ok(!/E7:E7/.test(page.__dialogs.join(' ')), 'con un altro MAC l\'avviso E7:E7 non compare');
+
   /* Il campo MAC non ha maxlength: il limite lo fa il filtro, altrimenti il browser
      tronca prima che il JS pulisca e incollando due byte se ne perde una cifra. */
   await page.fill('#vMacCtrl', '12:34:56');
@@ -308,18 +337,60 @@ const dopoUltimaApertura = ev => ev.slice(ev.lastIndexOf('open') + 1).filter(e =
   ok(s.sent.length === 2, 'intestazione e dati inviati: ' + s.sent.join(' | '));
   let out = await txt(page, '#oPit');
   ok(!/✓/.test(out) && /AB/.test(out), 'AB sui dati → errore, non «scritto»: ' + out);
+  /* Un AB ai DATI è il dispositivo che rifiuta il valore: il dongle torna normale. */
+  ok(!(await page.locator('#bPitW').isDisabled()), 'dopo un AB ai dati i comandi restano accesi');
+
+  /* Il dongle non ha un tempo limite: senza risposta aspetta ancora, e un comando
+     mandato adesso si mescolerebbe con quella. I comandi si spengono fino a un
+     nuovo boot, e la riga dice di uscire e rientrare. */
+  const spenti = async (descr) => {
+    const tutti = [];
+    for (const id of ['#bPitR', '#bPitW', '#btnFw', '#btnRead', '#btnWrite', '#btnRaw']) tutti.push(await page.locator(id).isDisabled());
+    ok(tutti.every(Boolean), `${descr}: comandi a registri spenti`);
+    const h = await page.locator('#bootHint').isVisible() ? await txt(page, '#bootHint') : '';
+    ok(/Esci/.test(h) && /Entra in boot/.test(h), `${descr}: e la riga dice di uscire e rientrare — ${h.slice(0, 80)}…`);
+    ok(!(await page.locator('#btnStop').isDisabled()) && !(await page.locator('#btnBoot').isDisabled()), `${descr}: «Esci» ed «Entra in boot» restano accesi`);
+  };
+  const rientra = async (descr) => {
+    const s = await act(page, '#btnBoot');
+    ok(prima(s.events, 'w:STOPBOOT', 'reset') && s.events.includes('w:BOOT 09'), `${descr}: nuovo boot con STOPBOOT prima: ` + s.events.filter(e => e.startsWith('w:')).join(' | '));
+    ok(!(await page.locator('#bPitW').isDisabled()) && !(await page.locator('#bootHint').isVisible()), `${descr}: dopo il nuovo boot i comandi si riaccendono`);
+  };
   await setSim(page, { dataReply: null });
   s = await act(page, '#bPitW');
   out = await txt(page, '#oPit');
   ok(!/✓/.test(out), 'nessuna risposta ai dati → non confermata: ' + out);
-  await setSim(page, { dataReply: 'DO', headerReply: 'AB' });
+  ok(/STOPBOOT/.test(out), 'e dice di uscire con STOPBOOT: ' + out);
+  await spenti('dati senza risposta');
+  await setSim(page, { dataReply: 'DO' });
+  await rientra('dati senza risposta');
+
+  await setSim(page, { headerReply: 'AB' });
   s = await act(page, '#bPitW');
   ok(s.sent.length === 1, 'AB all\'intestazione → i dati non partono: ' + s.sent.join(' | '));
-  ok(!/✓/.test(await txt(page, '#oPit')), 'e niente conferma: ' + await txt(page, '#oPit'));
+  out = await txt(page, '#oPit');
+  ok(!/✓/.test(out) && /AB a ogni comando/.test(out), 'e niente conferma, con il perché: ' + out);
+  await spenti('AB all\'intestazione');
+  ok((await logTxt(page)).includes('AB a tutto'), 'il registro lo annota');
+  await setSim(page, { headerReply: 'DO' });
+  await rientra('AB all\'intestazione');
+  ok((await sim(page)).abAll === false, 'il dongle simulato non risponde più AB a tutto');
+
   await setSim(page, { headerReply: null });
   s = await act(page, '#bPitW');
   ok(s.sent.length === 1, 'nessun DO all\'intestazione → i dati non partono');
+  await spenti('intestazione senza risposta');
   await setSim(page, { headerReply: 'DO' });
+  await rientra('intestazione senza risposta');
+
+  /* Anche una LETTURA senza risposta lascia il dongle in attesa. */
+  await setRead(page, '09 12 00 10 02', []);
+  s = await act(page, '#bPitR');
+  await spenti('lettura senza risposta');
+  await setRead(page, '09 12 00 10 02', [0x1a, 0x1a]);
+  await rientra('lettura senza risposta');
+  ok((await sim(page)).whileWaiting.length === 0,
+     'nessun comando mandato mentre il dongle aspettava ancora una risposta: ' + (await sim(page)).whileWaiting.join(', '));
 
   // ===================================================================
   console.log('\n== CONSOLE REGISTRI (controller) ==');
@@ -421,6 +492,13 @@ const dopoUltimaApertura = ev => ev.slice(ev.lastIndexOf('open') + 1).filter(e =
   ok(/abbinamento/i.test(page.__dialogs.join(' ')) && !/clon/i.test(page.__dialogs.join(' ')),
      'sull\'auto 0x20 è l\'abbinamento, non un clone: ' + page.__dialogs.join(' ').slice(0, 80) + '…');
   ok(/Abbinamento/.test(await txt(page, 'label[for="vPair"]')), 'etichetta: ' + await txt(page, 'label[for="vPair"]'));
+  page.__dialogs.length = 0;
+  await page.fill('#vPair', 'e7e7');
+  await page.waitForTimeout(60);
+  s = await act(page, '#bPairW');
+  ok(s.sent.length === 2 && /non abbinata/.test(page.__dialogs.join(' ')),
+     'abbinamento E7:E7 sull\'auto: scritto, con l\'avviso «non abbinata»: ' + page.__dialogs.join(' ').slice(-110));
+  await page.fill('#vPair', '12 34');
   ok(!(await page.locator('#vPit').isVisible()), 'niente velocità pit lane sull\'auto (la ignora)');
   ok(!(await page.locator('#vMacCtrl').isVisible()), 'niente «MAC O2» sull\'auto');
   ok(await page.locator('[data-tgt="chip"].warnbox').isVisible() &&
@@ -449,6 +527,12 @@ const dopoUltimaApertura = ev => ev.slice(ev.lastIndexOf('open') + 1).filter(e =
   ok(s.sent[0] === '52 45 41 44 4d 41 43 56 4c', 'READMACVL inviato');
   /* READMACVL manda già il byte più significativo per primo: non si gira. */
   ok((await txt(page, '#infoOut')).includes('12:34:56:78:9A:BC'), 'MAC del dongle non invertito: ' + await txt(page, '#infoOut')); // allow-secret
+  /* I dongle fino alla 4.10a a READMACVL non rispondono: il silenzio si spiega. */
+  await setSim(page, { noMacvl: true });
+  s = await act(page, '#btnMac');
+  ok(/4\.10a/.test(await txt(page, '#infoOut')), 'READMACVL senza risposta: ' + await txt(page, '#infoOut'));
+  ok(!(await page.locator('#btnFw').isDisabled()), 'sul dongle il silenzio non spegne i comandi (non passa dalla radio)');
+  await setSim(page, { noMacvl: false });
   ok(await page.locator('#btnWrite').isDisabled(), 'sul dongle «Scrivi» è spento');
   ok(await page.locator('#conHint').isVisible(), 'e la console dice quali sono le due letture del dongle');
   await page.fill('#regA', '11'); await page.selectOption('#regOp', '12'); await page.fill('#regL', '2');
@@ -496,6 +580,9 @@ const dopoUltimaApertura = ev => ev.slice(ev.lastIndexOf('open') + 1).filter(e =
      (vietati.test(sorgente) ? ': ' + sorgente.match(vietati)[0] : ''));
   ok(!/READLICVL|CLEARLICV/.test(sorgente), 'l\'app non usa READLICVL né CLEARLICV');
   ok(!/spegni i controller|13 byte ogni 10 ms/i.test(corpo), 'niente avviso sulla telemetria in boot (in boot non ne arriva)');
+  ok(/04 0f/.test(corpo) && /4\.15b/.test(corpo), 'spiega che la lettera della versione non viene trasmessa');
+  ok(/AB<\/code> a ogni comando finché non riceve <code>STOPBOOT/.test(sorgente) && /Un comando alla volta/.test(sorgente),
+     'le regole del frame dicono dell\'AB a tutto e di un comando alla volta');
 
   await page.selectOption('#__langsel', 'en');
   await page.waitForTimeout(150);

@@ -32,6 +32,8 @@
       <button id="btnDisc" class="sec" disabled data-i18n="btnDisc"></button>
       <span id="devname" class="val"></span>
     </div>
+    <!-- si accende se il dispositivo scelto è il modulo Power Amplifier (nome SCP3A-…) -->
+    <p class="note" id="paNote" hidden data-i18n-html="paNote"></p>
   </div>
 
   <!-- ===== Informazioni (sola lettura) ===== -->
@@ -83,12 +85,14 @@
       <button class="warn cfg" data-fn="clone" disabled data-i18n="btnClone"></button>
       <button class="sec cfg" data-fn="rstmac" disabled data-i18n="btnRstMac"></button></div>
     <div id="macHint" class="warnbox" data-i18n-html="cloneWarn"></div>
+    <div class="hint" data-i18n-html="e7Hint"></div>
   </div>
 
   <!-- ===== Avanzato ===== -->
   <div class="card">
     <details><summary style="cursor:pointer;color:var(--mut)" data-i18n="advSummary"></summary>
       <div class="hint" style="margin-top:8px" data-i18n-html="rawHint"></div>
+      <div class="hint" style="margin-top:8px" data-i18n-html="curveHint"></div>
       <div class="row" style="margin-top:8px"><label data-i18n="lblRawRead"></label><input id="rReg" size="6" placeholder="0x8f">
         <button class="sec cfg" data-fn="rawread" disabled data-i18n="btnRawRead"></button></div>
       <div class="row"><label data-i18n="lblRawWrite"></label><input id="wReg" size="6" placeholder="0x8c"><input id="wVal" size="14" data-i18n-attr="placeholder:phRawWrite" placeholder="">
@@ -207,8 +211,43 @@ window.I18N_STRINGS = {
   rgId:{it:"ID (1–20)",en:"ID (1–20)",es:"ID (1–20)",fr:"ID (1–20)",de:"ID (1–20)"},
   rgIdent:{it:"identità radio O2 (alto, basso)",en:"O2 radio identity (high, low)",es:"identidad de radio O2 (alto, bajo)",fr:"identité radio O2 (haut, bas)",de:"O2-Funkidentität (hoch, niedrig)"},
   rgSpdLim:{it:"limite velocità: non usato",en:"speed limit: not used",es:"límite de velocidad: no se usa",fr:"limite de vitesse : pas utilisée",de:"Geschwindigkeitsgrenze: nicht genutzt"},
-  rgCurve:{it:"curva del grilletto [max, medio 2, medio 1, min, offset fine corsa]; valori non decrescenti forzano la ricalibrazione all'avvio",en:"trigger curve [max, mid 2, mid 1, min, end-of-travel offset]; non-decreasing values force a recalibration at startup",es:"curva del gatillo [máx, medio 2, medio 1, mín, offset fin de carrera]; valores no decrecientes fuerzan la recalibración al arrancar",fr:"courbe de la gâchette [max, milieu 2, milieu 1, min, décalage de fin de course] ; des valeurs non décroissantes forcent le recalibrage au démarrage",de:"Abzugskurve [max, Mitte 2, Mitte 1, min, Offset am Anschlag]; nicht fallende Werte erzwingen beim Start eine Neukalibrierung"},
-  rgRamp:{it:"soglia rampa: non usata",en:"ramp threshold: not used",es:"umbral de rampa: no se usa",fr:"seuil de rampe : pas utilisé",de:"Rampenschwelle: nicht genutzt"},
+  rgCurve:{it:"curva del grilletto [max, medio 2, medio 1, min, offset fine corsa da 1 a 9]; valori non decrescenti forzano la ricalibrazione all'avvio",en:"trigger curve [max, mid 2, mid 1, min, end-of-travel offset 1 to 9]; non-decreasing values force a recalibration at startup",es:"curva del gatillo [máx, medio 2, medio 1, mín, offset fin de carrera de 1 a 9]; valores no decrecientes fuerzan la recalibración al arrancar",fr:"courbe de la gâchette [max, milieu 2, milieu 1, min, décalage de fin de course de 1 à 9] ; des valeurs non décroissantes forcent le recalibrage au démarrage",de:"Abzugskurve [max, Mitte 2, Mitte 1, min, Offset am Anschlag 1 bis 9]; nicht fallende Werte erzwingen beim Start eine Neukalibrierung"},
+  rgRamp:{it:"soglia della rampa, da 0x0F a 0xFA (predefinito 0x7F): ha effetto dalla 4.20b",en:"ramp threshold, 0x0F to 0xFA (default 0x7F): takes effect from 4.20b",es:"umbral de la rampa, de 0x0F a 0xFA (predeterminado 0x7F): tiene efecto desde la 4.20b",fr:"seuil de la rampe, de 0x0F à 0xFA (0x7F par défaut) : prend effet à partir de la 4.20b",de:"Rampenschwelle, 0x0F bis 0xFA (Standard 0x7F): wirkt ab 4.20b"},
+  curveHint:{
+    it:"<b>Curva (<code>0x93</code>) e rampa (<code>0x94</code>).</b> Il 5° byte della curva è l'offset di fine corsa del grilletto e va tenuto <b>fra 1 e 9</b>: il controller non lo controlla, e con valori grandi il grilletto non frena più al rilascio o non accelera. L'app non manda una curva con l'offset fuori da 1..9. La soglia della rampa esiste dalla 4.18g; nella 4.20a è salvata ma <b>non ha effetto</b>, che arriva con la 4.20b, dal riavvio successivo, limitata da <code>0x0F</code> a <code>0xFA</code> (predefinito <code>0x7F</code>). La 4.20b si presenta ancora come 4.20a: da qui le due versioni non si distinguono. Su un controller che ha avuto una versione fino alla 4.18g può valere <code>0x5A</code> senza che nessuno l'abbia impostata (da verificare). L'app manda solo valori da <code>0x0F</code> a <code>0xFA</code>.",
+    en:"<b>Curve (<code>0x93</code>) and ramp (<code>0x94</code>).</b> The 5th byte of the curve is the trigger's end-of-travel offset and must stay <b>between 1 and 9</b>: the controller does not check it, and with large values the trigger no longer brakes when released or does not accelerate. The app does not send a curve whose offset is outside 1..9. The ramp threshold exists since 4.18g; on 4.20a it is saved but <b>has no effect</b>, which comes with 4.20b, from the next restart, limited to <code>0x0F</code>..<code>0xFA</code> (default <code>0x7F</code>). 4.20b still reports itself as 4.20a: from here the two versions cannot be told apart. On a controller that has run a version up to 4.18g it may read <code>0x5A</code> without anyone having set it (to be verified). The app only sends values from <code>0x0F</code> to <code>0xFA</code>.",
+    es:"<b>Curva (<code>0x93</code>) y rampa (<code>0x94</code>).</b> El 5.º byte de la curva es el offset de fin de carrera del gatillo y debe quedar <b>entre 1 y 9</b>: el mando no lo comprueba, y con valores grandes el gatillo ya no frena al soltarlo o no acelera. La app no envía una curva con el offset fuera de 1..9. El umbral de la rampa existe desde la 4.18g; en la 4.20a se guarda pero <b>no tiene efecto</b>, que llega con la 4.20b, desde el siguiente reinicio, limitado de <code>0x0F</code> a <code>0xFA</code> (predeterminado <code>0x7F</code>). La 4.20b se presenta todavía como 4.20a: desde aquí las dos versiones no se distinguen. En un mando que ha tenido una versión hasta la 4.18g puede valer <code>0x5A</code> sin que nadie lo haya puesto (por verificar). La app solo envía valores de <code>0x0F</code> a <code>0xFA</code>.",
+    fr:"<b>Courbe (<code>0x93</code>) et rampe (<code>0x94</code>).</b> Le 5e octet de la courbe est le décalage de fin de course de la gâchette et doit rester <b>entre 1 et 9</b> : la manette ne le vérifie pas, et avec de grandes valeurs la gâchette ne freine plus au relâchement ou n'accélère pas. L'app n'envoie pas de courbe dont le décalage sort de 1..9. Le seuil de la rampe existe depuis la 4.18g ; en 4.20a il est enregistré mais <b>sans effet</b>, qui arrive avec la 4.20b, au redémarrage suivant, limité de <code>0x0F</code> à <code>0xFA</code> (<code>0x7F</code> par défaut). La 4.20b s'annonce encore comme 4.20a : d'ici, les deux versions ne se distinguent pas. Sur une manette qui a eu une version jusqu'à la 4.18g, il peut valoir <code>0x5A</code> sans que personne ne l'ait réglé (à vérifier). L'app n'envoie que des valeurs de <code>0x0F</code> à <code>0xFA</code>.",
+    de:"<b>Kurve (<code>0x93</code>) und Rampe (<code>0x94</code>).</b> Das 5. Byte der Kurve ist der Offset des Abzugs am Anschlag und muss <b>zwischen 1 und 9</b> bleiben: Der Handregler prüft es nicht, und bei großen Werten bremst der Abzug beim Loslassen nicht mehr oder gibt kein Gas. Eine Kurve mit einem Offset außerhalb von 1..9 sendet die App nicht. Die Rampenschwelle gibt es seit 4.18g; in 4.20a wird sie gespeichert, hat aber <b>keine Wirkung</b> — die kommt mit 4.20b, ab dem nächsten Neustart, begrenzt auf <code>0x0F</code> bis <code>0xFA</code> (Standard <code>0x7F</code>). 4.20b meldet sich weiterhin als 4.20a: Von hier aus lassen sich die beiden Versionen nicht unterscheiden. Auf einem Handregler, der eine Version bis 4.18g hatte, kann sie <code>0x5A</code> sein, ohne dass jemand sie gesetzt hat (noch zu prüfen). Die App sendet nur Werte von <code>0x0F</code> bis <code>0xFA</code>."
+  },
+  e7Hint:{
+    it:"Non usare <b>E7:E7</b> come MAC O2: per le auto vuol dire «non abbinata», e un'auto con firmware 4.12b o successivo non resta abbinata a un controller con quel valore (a ogni avvio lo sostituisce con il MAC del proprio chip). L'app lo scrive lo stesso, ma prima lo ricorda.",
+    en:"Do not use <b>E7:E7</b> as the O2 MAC: for the cars it means “not paired”, and a car with firmware 4.12b or later does not stay paired with a controller that has that value (at every start it replaces it with its own chip MAC). The app still writes it, but reminds you first.",
+    es:"No uses <b>E7:E7</b> como MAC O2: para los coches significa «no vinculado», y un coche con firmware 4.12b o posterior no se queda vinculado a un mando con ese valor (en cada arranque lo sustituye por el MAC de su propio chip). La app lo escribe igualmente, pero antes te lo recuerda.",
+    fr:"N'utilise pas <b>E7:E7</b> comme MAC O2 : pour les voitures, cela veut dire « non appairée », et une voiture en firmware 4.12b ou plus récent ne reste pas appairée à une manette qui a cette valeur (à chaque démarrage, elle la remplace par le MAC de sa propre puce). L'app l'écrit quand même, mais te le rappelle d'abord.",
+    de:"Verwende <b>E7:E7</b> nicht als O2-MAC: Für die Autos bedeutet das „nicht gekoppelt“, und ein Auto mit Firmware 4.12b oder neuer bleibt nicht mit einem Handregler mit diesem Wert gekoppelt (bei jedem Start ersetzt es ihn durch die MAC seines eigenen Chips). Die App schreibt ihn trotzdem, erinnert dich aber vorher daran."
+  },
+  warnE7:{
+    it:"⚠️ E7:E7 per le auto vuol dire «non abbinata»: un'auto con firmware 4.12b o successivo non resta abbinata a un controller con questo MAC O2.",
+    en:"⚠️ For the cars E7:E7 means “not paired”: a car with firmware 4.12b or later does not stay paired with a controller that has this O2 MAC.",
+    es:"⚠️ Para los coches E7:E7 significa «no vinculado»: un coche con firmware 4.12b o posterior no se queda vinculado a un mando con este MAC O2.",
+    fr:"⚠️ Pour les voitures, E7:E7 veut dire « non appairée » : une voiture en firmware 4.12b ou plus récent ne reste pas appairée à une manette qui a ce MAC O2.",
+    de:"⚠️ Für die Autos bedeutet E7:E7 „nicht gekoppelt“: Ein Auto mit Firmware 4.12b oder neuer bleibt nicht mit einem Handregler mit dieser O2-MAC gekoppelt."
+  },
+  paNote:{
+    it:"⚠️ Questo è il <b>modulo Power Amplifier</b> (nome <code>SCP3A-…</code>), il modulo radio opzionale che si monta nell'SCP-3 per la portata lunga, non il controller: risponde a un altro byte dispositivo (<code>0x0B</code>) e ha pochi registri suoi, e questa app non lo gestisce. Per configurare il controller, all'accensione scegli <b>hAndLE</b> (freccia giù) nel menu APP. Senza data di attivazione il modulo non usa la radio.",
+    en:"⚠️ This is the <b>Power Amplifier module</b> (name <code>SCP3A-…</code>), the optional radio module fitted in the SCP-3 for long range, not the controller: it answers to a different device byte (<code>0x0B</code>) and has only a few registers of its own, and this app does not handle it. To configure the controller, choose <b>hAndLE</b> (down arrow) in the APP menu at power-on. Without an activation date the module does not use the radio.",
+    es:"⚠️ Este es el <b>módulo Power Amplifier</b> (nombre <code>SCP3A-…</code>), el módulo de radio opcional que se monta en el SCP-3 para el alcance largo, no el mando: responde a otro byte de dispositivo (<code>0x0B</code>) y tiene pocos registros propios, y esta app no lo gestiona. Para configurar el mando, al encender elige <b>hAndLE</b> (flecha abajo) en el menú APP. Sin fecha de activación el módulo no usa la radio.",
+    fr:"⚠️ C'est le <b>module Power Amplifier</b> (nom <code>SCP3A-…</code>), le module radio optionnel qui se monte dans la SCP-3 pour la longue portée, pas la manette : il répond à un autre octet d'appareil (<code>0x0B</code>) et n'a que quelques registres à lui, et cette app ne le gère pas. Pour configurer la manette, choisis <b>hAndLE</b> (flèche bas) dans le menu APP à l'allumage. Sans date d'activation, le module n'utilise pas la radio.",
+    de:"⚠️ Das ist das <b>Power-Amplifier-Modul</b> (Name <code>SCP3A-…</code>), das optionale Funkmodul, das für große Reichweite in den SCP-3 eingesetzt wird, nicht der Handregler: Es antwortet auf ein anderes Gerätebyte (<code>0x0B</code>) und hat nur wenige eigene Register, und diese App unterstützt es nicht. Um den Handregler zu konfigurieren, wähle beim Einschalten im APP-Menü <b>hAndLE</b> (Pfeil runter). Ohne Aktivierungsdatum nutzt das Modul den Funk nicht."
+  },
+  logCurveOff:{
+    it:"[curva letta: offset di fine corsa = {v}, fuori da 1..9 — il grilletto potrebbe non frenare al rilascio o non accelerare]",
+    en:"[curve read: end-of-travel offset = {v}, outside 1..9 — the trigger may not brake when released or may not accelerate]",
+    es:"[curva leída: offset de fin de carrera = {v}, fuera de 1..9 — puede que el gatillo no frene al soltarlo o no acelere]",
+    fr:"[courbe lue : décalage de fin de course = {v}, hors de 1..9 — la gâchette risque de ne pas freiner au relâchement ou de ne pas accélérer]",
+    de:"[Kurve gelesen: Offset am Anschlag = {v}, außerhalb von 1..9 — der Abzug bremst beim Loslassen vielleicht nicht oder gibt kein Gas]"
+  },
   rgRstId:{it:"ripristina identità di fabbrica (comando)",en:"restore factory identity (command)",es:"restaurar identidad de fábrica (comando)",fr:"rétablir l'identité d'usine (commande)",de:"Werksidentität wiederherstellen (Befehl)"},
   // --- motivi dei blocchi della console ---
   blkBadReg:{it:"numero di registro non valido (es. 8f).",en:"invalid register number (e.g. 8f).",es:"número de registro no válido (p. ej. 8f).",fr:"numéro de registre non valide (ex. 8f).",de:"Ungültige Registernummer (z. B. 8f)."},
@@ -249,6 +288,20 @@ window.I18N_STRINGS = {
     es:"el modo de freno 2 (Sweep) no se relee y se pierde al reiniciar: usa 0 o 1.",
     fr:"le mode de frein 2 (Sweep) ne se relit pas et se perd au redémarrage : utilise 0 ou 1.",
     de:"Bremsmodus 2 (Sweep) lässt sich nicht zurücklesen und geht beim Neustart verloren: Nutze 0 oder 1."
+  },
+  blkCurveOff:{
+    it:"il 5° byte della curva (offset di fine corsa) vale {v}: va da 1 a 9. Il controller non lo controlla, e con valori grandi il grilletto non frena più al rilascio o non accelera.",
+    en:"the 5th byte of the curve (end-of-travel offset) is {v}: it must be 1 to 9. The controller does not check it, and with large values the trigger no longer brakes when released or does not accelerate.",
+    es:"el 5.º byte de la curva (offset de fin de carrera) vale {v}: tiene que ir de 1 a 9. El mando no lo comprueba, y con valores grandes el gatillo ya no frena al soltarlo o no acelera.",
+    fr:"le 5e octet de la courbe (décalage de fin de course) vaut {v} : il doit aller de 1 à 9. La manette ne le vérifie pas, et avec de grandes valeurs la gâchette ne freine plus au relâchement ou n'accélère pas.",
+    de:"Das 5. Byte der Kurve (Offset am Anschlag) ist {v}: Es muss zwischen 1 und 9 liegen. Der Handregler prüft es nicht, und bei großen Werten bremst der Abzug beim Loslassen nicht mehr oder gibt kein Gas."
+  },
+  blkRamp:{
+    it:"la soglia della rampa va da 0x0F a 0xFA (predefinito 0x7F): l'app non manda valori fuori da questo intervallo.",
+    en:"the ramp threshold goes from 0x0F to 0xFA (default 0x7F): the app does not send values outside this range.",
+    es:"el umbral de la rampa va de 0x0F a 0xFA (predeterminado 0x7F): la app no envía valores fuera de este intervalo.",
+    fr:"le seuil de la rampe va de 0x0F à 0xFA (0x7F par défaut) : l'app n'envoie pas de valeurs hors de cet intervalle.",
+    de:"Die Rampenschwelle reicht von 0x0F bis 0xFA (Standard 0x7F): Werte außerhalb dieses Bereichs sendet die App nicht."
   },
   blkLen:{
     it:"{reg} vuole {n} byte, ne hai dati {m}: con un frame di lunghezza diversa il dispositivo salva byte a caso.",
@@ -322,7 +375,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="remote-config",APP_VERSION="1.6.0";
+const APP="remote-config",APP_VERSION="1.7.0";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const PFX=0x0a;                                  // byte del dispositivo in BLE: 0x0a = telecomando (l'auto usa 0x09)
 const TYPE_STR="SCP3 Handle", VER_STR="O2 / Analog";   // display fissi della schermata SCP3
@@ -335,6 +388,7 @@ const TYPE_STR="SCP3 Handle", VER_STR="O2 / Analog";   // display fissi della sc
  *   r  = byte restituiti in lettura      w  = byte da mandare in scrittura
  *   noR / noW = chiave del motivo per cui quel verso è bloccato
  *   min / max (+ rangeK) = intervallo ammesso per i registri a un byte
+ *   check = controllo in più sul valore: torna [chiave, parametri] se va rifiutato
  *   hide = non compare in tabella (serve solo a spiegare il blocco) */
 const REGS=[
   {reg:0x00,k:"rgVer",r:3,noW:"blkRO"},
@@ -350,8 +404,13 @@ const REGS=[
   {reg:0x8f,k:"rgId",r:1,w:1,min:1,max:20},
   {reg:0x90,k:"rgIdent",r:2,w:2},
   {reg:0x92,k:"rgSpdLim",r:1,w:1},
-  {reg:0x93,k:"rgCurve",r:5,w:5},
-  {reg:0x94,k:"rgRamp",r:1,w:1},
+  /* Il 5° byte della curva è l'offset di fine corsa: il controller non lo
+     controlla, e con valori grandi il grilletto non frena più al rilascio o non
+     accelera. Fuori da 1..9 non parte. */
+  {reg:0x93,k:"rgCurve",r:5,w:5,check:v=>(v[4]<1||v[4]>9)?["blkCurveOff",{v:v[4]}]:null},
+  /* Soglia della rampa: conta dalla 4.20b (che si presenta come 4.20a), e il
+     controller la limita a 0x0F..0xFA. Si manda solo dentro quell'intervallo. */
+  {reg:0x94,k:"rgRamp",r:1,w:1,min:0x0f,max:0xfa,rangeK:"blkRamp"},
   {reg:0x9f,k:"rgRstId",w:1,noR:"blkWO"},          // rimette l'identità di fabbrica: mai dopo una scrittura di 0x90
   {reg:0x80,noR:"blkDfu",noW:"blkDfu",hide:true}   // aggiornamento firmware: non esposto
 ];
@@ -372,7 +431,11 @@ function vietaLettura(reg){const d=REG[reg];if(!d)return["blkUnknownR"];if(d.noR
 function vietaScrittura(reg,val){const d=REG[reg];if(!d)return["blkUnknown"];if(d.noW)return[d.noW];if(!d.w)return["blkRO"];
   if(val.length!==d.w)return["blkLen",{reg:h2(reg),n:d.w,m:val.length}];
   if(d.min!=null&&(val[0]<d.min||val[0]>d.max))return[d.rangeK||"blkRange",{min:d.min,max:d.max}];
+  if(d.check)return d.check(val);
   return null;}
+/* E7:E7 come MAC O2 si può scrivere, ma le auto dalla 4.12b lo prendono per
+   «non abbinata» e non restano abbinate: si avvisa, non si vieta. */
+const isE7=v=>!!v&&v.length===2&&v[0]===0xe7&&v[1]===0xe7;
 
 /* Il nome (0x83) è di 14 caratteri ASCII esatti, completati con spazi. Prima
    partiva in UTF-8 e senza riempimento: il telecomando copia comunque 14 byte, e
@@ -397,7 +460,10 @@ async function connect(){
   if(!navigator.bluetooth){log(I18N.t("logNoBt1"));return;}
   try{
     dev=await navigator.bluetooth.requestDevice({filters:[{services:[NUS]}],optionalServices:[NUS]});
-    dev.addEventListener("gattserverdisconnected",()=>{setConn(false);$("devname").textContent="";log(I18N.t("logDisconnected"));});
+    dev.addEventListener("gattserverdisconnected",()=>{setConn(false);$("devname").textContent="";$("paNote").hidden=true;log(I18N.t("logDisconnected"));});
+    /* Il modulo Power Amplifier si presenta come SCP3A-…: è un altro dispositivo
+       (byte 0x0B), che questa app non gestisce. Lo si dice subito. */
+    $("paNote").hidden=!/^SCP3A/i.test(dev.name||"");
     const g=await dev.gatt.connect(),s=await g.getPrimaryService(NUS);
     rxc=await s.getCharacteristic(RX);txc=await s.getCharacteristic(TX);
     await txc.startNotifications();txc.addEventListener("characteristicvaluechanged",onNotify);
@@ -453,7 +519,9 @@ async function readAll(){
         else{$("cBrake").value="";log(I18N.t("logBrakeOdd",{v:v[0]}));}
       }
       if(r===0x8f){$("cId").value=v[0];$("fId").textContent=v[0];}
-      if(r===0x90){$("cMac").value=hx(v);$("cMac").dispatchEvent(new Event("input"));$("fMac").textContent=[...v].map(x=>x.toString(16).padStart(2,"0")).join(" ").toUpperCase();}
+      if(r===0x90){$("cMac").value=hx(v);$("cMac").dispatchEvent(new Event("input"));$("fMac").textContent=[...v].map(x=>x.toString(16).padStart(2,"0")).join(" ").toUpperCase();
+        if(isE7(v))log(I18N.t("warnE7"));}
+      if(r===0x93&&v.length>=5&&(v[4]<1||v[4]>9))log(I18N.t("logCurveOff",{v:v[4]}));
     }
     await new Promise(x=>setTimeout(x,110));
   }
@@ -482,7 +550,8 @@ const fns={
   /* Scrive SOLO 0x90. 0x9f rimette l'identità di fabbrica (ricavata dal MAC del
    * chip): mandato dopo, annullerebbe la scrittura. È il pulsante a parte. */
   clone:()=>{const b=parseHex($("cMac").value);if(!b||b.length!==2)return alert(I18N.t("alertMac"));
-    if(confirm(I18N.t("confirmClone",{mac:hx(b).toUpperCase()})))return writeReg(0x90,b);},
+    const q=I18N.t("confirmClone",{mac:hx(b).toUpperCase()})+(isE7(b)?"\n\n"+I18N.t("warnE7"):"");
+    if(confirm(q))return writeReg(0x90,b);},
   rstmac:()=>{if(confirm(I18N.t("confirmRstMac")))return writeReg(0x9f,[0x00]);},
   rawread:async()=>{const r=parseReg($("rReg").value);
     if(r==null)return setRawMsg({k:"blkBadReg"});
@@ -494,7 +563,8 @@ const fns={
     const val=r===0x83?(byteNome(s)||[]):parseHex(s);   // il nome si scrive in chiaro
     if(!val)return setRawMsg({reg:r,k:"blkBadVal"});
     const no=vietaScrittura(r,val);if(no)return setRawMsg({reg:r,k:no[0],p:no[1]});
-    setRawMsg(null);await writeReg(r,val);},
+    /* E7:E7 nel MAC O2 parte lo stesso, ma la console lo ricorda */
+    setRawMsg(r===0x90&&isE7(val)?{reg:r,k:"warnE7"}:null);await writeReg(r,val);},
 };
 document.querySelectorAll("[data-fn]").forEach(b=>b.onclick=()=>fns[b.dataset.fn]&&fns[b.dataset.fn]());
 /* Tabella dei registri. Il pulsante "leggi" c'è solo dove leggere è lecito. */
