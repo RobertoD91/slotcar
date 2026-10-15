@@ -115,14 +115,11 @@ L'utente è italiano: **rispondere in italiano**.
       BLE+WiFi+TLS), o resta l'aggiornamento via USB. È una scelta tua.
 
 **Repo e segreti**
-- [ ] ⭐ **Riattiva la workflow «Scansione segreti»**: GitHub l'ha spenta per inattività il
-      5/10/2026 e da allora non gira più (né a settimana né ai push). Actions → «Scansione
-      segreti» → «Enable workflow». La scansione dei file ora c'è anche nella CI di ogni push;
-      quella della **storia** resta solo lì.
-- [ ] ⭐ **Ripulisci la storia dai MAC veri** (force push): i MAC del dongle e dell'SCP-3 sono
-      in `tools/test-scan-secrets.py` dal commit `1699c79` a `fac5a05` (non nei messaggi di
-      commit). Finché non è fatto, «Scansione segreti» fallisce sulla storia se il secret
-      `SECRET_SCAN_EXTRA` li elenca — ed è giusto così. Dopo il force push ogni clone va rifatto.
+- [ ] **Ripulisci la storia dai MAC veri** (force push) — *rinviato dall'utente il 15/10/2026:
+      «poi ne parliamo»*. I MAC del dongle e dell'SCP-3 sono in `tools/test-scan-secrets.py`
+      dal commit `1699c79` a `fac5a05` (non nei messaggi di commit). Finché non è fatto,
+      «Scansione segreti» fallisce sulla storia se il secret `SECRET_SCAN_EXTRA` li elenca — ed
+      è giusto così: quel rosso è il promemoria. Dopo il force push ogni clone va rifatto.
 
 **Ninco**
 - [ ] **Prova sul campo del contagiri** (il cavo ce l'ha già). Targhetta **mai provata**.
@@ -211,6 +208,9 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
 - ✅ Pages attivo, con dominio personalizzato → `https://robertodisanto.it/slotcar/`
 - ✅ **Enforce HTTPS** attivato dall'utente (senza, Web Serial/Bluetooth non esistono)
 - ✅ GitHub Secret `SECRET_SCAN_EXTRA` caricato dall'utente
+- ✅ Workflow «Scansione segreti» riattivata dall'utente il 15/10/2026 (GitHub l'aveva spenta
+  per inattività il 5/10). Se la spegne di nuovo, la scansione dei file c'è comunque anche
+  nella CI di ogni push; quella della storia solo lì.
 - ✅ Firmware della power base Ninco dell'utente = **l'ultima** ⇒ ≥ 1.08 ⇒ **i tempi sul
   giro arrivano** (pacchetto `D` ad ogni passaggio)
 - ✅ `chron02` e `o2-bootloader` pubblicate; **`dongle-debug` rimossa** perché ridondante
