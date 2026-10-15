@@ -25,18 +25,18 @@
        chi voleva tornare indietro doveva scorrere fino al piede. -->
   <div class="langline">
     <a class="back" href="../">← Slot Car Web Tools</a>
-    <label class="baud" id="lang-label" data-i18n-title="lang_title" title="Lingua">
-        🌐
-        <select id="lang">
-          <!-- ⚠️ Su Windows le bandierine non esistono nel font di sistema e si
-               vedono le due lettere (IT, EN…): per questo accanto resta il nome. -->
-          <option value="it">🇮🇹 Italiano</option>
-          <option value="en">🇬🇧 English</option>
-          <option value="es">🇪🇸 Español</option>
-          <option value="fr">🇫🇷 Français</option>
-          <option value="de">🇩🇪 Deutsch</option>
-        </select>
-      </label>
+    <!-- Niente più <label> con il globo attorno: il selettore è quello di tutte
+         le altre pagine (`.langsel` in ui.css), e il globo era l'unica
+         differenza visibile. -->
+    <select id="lang" class="langsel" data-i18n-title="lang_title" title="Lingua">
+      <!-- ⚠️ Su Windows le bandierine non esistono nel font di sistema e si
+           vedono le due lettere (IT, EN…): per questo accanto resta il nome. -->
+      <option value="it">🇮🇹 Italiano</option>
+      <option value="en">🇬🇧 English</option>
+      <option value="es">🇪🇸 Español</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="de">🇩🇪 Deutsch</option>
+    </select>
   </div>
   <header class="topbar">
     <div class="brand">

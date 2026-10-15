@@ -123,6 +123,12 @@ L'utente è italiano: **rispondere in italiano**.
       Cronometro web, poi il contagiri DS200, poi stacca la rete (modalità aereo) e **riapri
       il Cronometro: deve aprirsi**. Prima le due PWA si cancellavano la cache a vicenda, e
       il cronometro offline non partiva più. Già che ci sei, riapri anche il DS200 offline.
+- [ ] **Tema chiaro, a occhio** (sito 2.28.0): con il tema chiaro (pulsante 🌗 → ☀️, oppure il
+      sistema in chiaro) scorri l'indice, il Cronometro, il DS200 e un'app oXigen: link,
+      targhette, avvisi gialli, pulsanti blu e fasce rosse devono leggersi bene (prima accento
+      e colori di stato restavano quelli del tema scuro). Apri il selettore della lingua: le
+      voci devono leggersi in chiaro e in scuro. Prova anche il tema forzato a 🌙 con il
+      sistema in chiaro: deve essere scuro dappertutto, tendine comprese.
 
 ### Cronometro web — le prossime tappe
 Motore, simulatore, modalità *pratica* e *GP a giri*, guidatori modificabili, voce, 5 lingue
@@ -241,7 +247,12 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   già aperto la pagina resta sulla copia vecchia per sempre. Tutte le query portano **la
   versione dell'app**, anche `../ui.css` (era `?v=2`, fermo mentre il foglio cambiava):
   lo controlla `check-versions.js`.
-- ⭐ **I colori stanno in `web/ui.css`, uno solo — e lo verifica `check-style.js`.** Se
+- ⭐ **I colori stanno in `web/ui.css`, uno solo — e lo verifica `check-style.js`**, anche
+  quelli scritti nel JavaScript (`style.color = …`, `cssText`, stringhe HTML con
+  `style="…"`): gli ultimi due colori a mano del sito stavano proprio lì, in `i18n.js`. Il
+  tema chiaro ridefinisce **tutti** i token, accento e stati compresi, e
+  `:root[data-theme="dark"]` ripete tutti quelli scuri: un token lasciato fuori da uno dei
+  blocchi resta quello dell'altro tema. Se
   aggiungi una pagina, linka quello e non ricopiare `:root{--bg:…}`: prima era copiato in
   sette file e aveva già prodotto due rossi e quattro gialli diversi. `ui.css` va caricato
   **prima** dello stile della pagina, così il layout locale vince. Due deroghe, entrambe da
@@ -316,6 +327,10 @@ silenzio e pretende che il numero non si sia mosso.
   `position:fixed` in un angolo, e un riquadro flottante deve schivare qualunque cosa gli
   capiti vicino — sull'indice il nastro, altrove niente: da lì l'eccezione, e dall'eccezione
   il cambio di lato. Nel flusso non schiva niente e scorre col contenuto.
+- **L'aspetto del selettore sta in `.langsel` di `ui.css`**, e lo usano tutti e tre i motori
+  (quello di `i18n.js` e i due nel markup di cronometro e DS200). Il fondo è **pieno**: la
+  tendina delle opzioni la disegna il browser, e con un fondo trasparente in tema scuro le
+  voci uscivano chiare su bianco — da cui il `color:#111` a mano che c'era su ogni opzione.
 
 ## Targhette di stato — la convenzione
 

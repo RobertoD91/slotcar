@@ -195,16 +195,19 @@
     var bar = document.createElement("div");
     var sel = document.createElement("select");
     sel.id = "__langsel";
+    /* L'aspetto sta in ui.css (`.langsel`), uguale a quello del cronometro e del
+       DS200 che il selettore ce l'hanno nel markup. Prima era scritto qui, con
+       un fondo trasparente: la tendina delle opzioni la disegna il browser su
+       fondo bianco, quindi in tema scuro il testo chiaro non si leggeva e ogni
+       opzione si portava dietro un `color:#111` a mano. Con un fondo pieno dal
+       tema (e `color-scheme` in ui.css) le opzioni seguono il tema da sole. */
+    sel.className = "langsel";
     sel.title = t("langLabel");
     sel.setAttribute("aria-label", t("langLabel"));
-    sel.style.cssText =
-      "background:rgba(127,127,127,.14);color:inherit;border:1px solid rgba(127,127,127,.4);" +
-      "border-radius:8px;padding:4px 8px;cursor:pointer;-webkit-appearance:menulist";
     for (var i = 0; i < LANGS.length; i++) {
       var o = document.createElement("option");
       o.value = LANGS[i];
       o.textContent = FLAGS[LANGS[i]] + " " + NAMES[LANGS[i]];
-      o.style.color = "#111";
       sel.appendChild(o);
     }
     sel.value = lang;
@@ -212,22 +215,20 @@
     bar.appendChild(sel);
 
     var ritorno = document.querySelector("a.back");
-    var font = "font:13px -apple-system,Segoe UI,Roboto,sans-serif";
     if (ritorno && ritorno.parentElement) {
-      bar.style.cssText = "display:inline-block;margin-left:10px;vertical-align:middle;" + font;
+      bar.style.cssText = "display:inline-block;margin-left:10px;vertical-align:middle";
       ritorno.insertAdjacentElement("afterend", bar);
     } else {
-      bar.style.cssText = "margin:0 0 12px;" + font;
+      bar.style.cssText = "margin:0 0 12px";
       document.body.insertBefore(bar, document.body.firstChild);
     }
 
-    // Disclaimer (in fondo alla pagina).
+    /* Disclaimer (in fondo alla pagina). Stile in ui.css (`.discbox`): largo
+       quanto la colonna della pagina, con i colori del tema. Prima aveva un
+       grigio scritto a mano e un max-width suo, più stretto della colonna. */
     var wrap = document.createElement("div");
     wrap.id = "__discwrap";
-    wrap.style.cssText =
-      "max-width:820px;margin:26px auto 8px;padding:12px 14px;border:1px solid rgba(127,127,127,.30);" +
-      "border-radius:10px;font:12px/1.55 -apple-system,Segoe UI,Roboto,sans-serif;" +
-      "color:#8a94a6;background:rgba(127,127,127,.06)";
+    wrap.className = "discbox";
     var p = document.createElement("div");
     p.id = "__disc";
     p.innerHTML = t("disclaimer");

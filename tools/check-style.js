@@ -115,6 +115,96 @@ function controlla(rel) {
   }
 }
 
+/* ---- 4. I colori scritti DENTRO il JavaScript ------------------------------
+ *
+ * `el.style.color = "#111"`, `cssText = "…;color:#8a94a6"`, una stringa HTML con
+ * `style="…"` dentro: sfuggivano a tutti i controlli sopra, che guardano solo
+ * <style>, i .css e gli attributi style="" scritti nel markup. Ed è proprio lì
+ * che erano rimasti gli ultimi due colori a mano del sito, in i18n.js — il
+ * grigio del disclaimer e il nero delle opzioni della lingua.
+ *
+ * Si guardano le STRINGHE del codice (nei .js e negli <script> delle pagine),
+ * non i commenti. Una stringa conta se il colore vi compare come valore di una
+ * proprietà CSS (`color:#…`) oppure se viene assegnata a uno stile
+ * (`.style.x = "#…"`, `cssText = …`, `setProperty(…, "#…")`). Le deroghe sono
+ * le stesse, motivate: `colore-esterno:` sulla riga, `stile-autonomo:` in testa
+ * al file. */
+const IN_CSS = new RegExp('[a-z-]+\\s*:\\s*[^;"\']*?(' + COLORE.source + ')', 'i');
+const VERSO_STILE = /(\.style(\.[\w-]+)?|cssText)\s*\+?=\s*$|setProperty\([^()]*,\s*$/;
+
+/* Le stringhe di un sorgente JS, con la riga e il codice che le precede sulla
+   stessa riga. Salta commenti ed espressioni regolari (che possono contenere
+   apici e farebbero partire una stringa che non c'è). Non è un parser: basta
+   che non si perda per strada sul codice di questo sito. */
+function stringheJs(src) {
+  const out = [];
+  let i = 0, riga = 1, inizioRiga = 0, ultimo = '';
+  const contaRighe = (a, b) => { for (let k = a; k < b; k++) if (src[k] === '\n') riga++; };
+  while (i < src.length) {
+    const c = src[i], d = src[i + 1];
+    if (c === '\n') { riga++; i++; inizioRiga = i; continue; }
+    if (/\s/.test(c)) { i++; continue; }
+    if (c === '/' && d === '/') { while (i < src.length && src[i] !== '\n') i++; continue; }
+    if (c === '/' && d === '*') {
+      const j = src.indexOf('*/', i + 2), fine = j < 0 ? src.length : j + 2;
+      contaRighe(i, fine);
+      inizioRiga = src.lastIndexOf('\n', fine - 1) + 1;
+      i = fine; continue;
+    }
+    if (c === '/' && (ultimo === '' || /[(,=:[!&|?{};+\-*%<>~^]/.test(ultimo) ||
+                      /\b(return|typeof|case)\s*$/.test(src.slice(inizioRiga, i)))) {
+      let j = i + 1, classe = false;              // espressione regolare
+      while (j < src.length && src[j] !== '\n') {
+        if (src[j] === '\\') { j += 2; continue; }
+        if (src[j] === '[') classe = true;
+        else if (src[j] === ']') classe = false;
+        else if (src[j] === '/' && !classe) break;
+        j++;
+      }
+      i = j + 1; ultimo = 'r'; continue;
+    }
+    if (c === '"' || c === "'" || c === '`') {
+      const r0 = riga, prima = src.slice(inizioRiga, i);
+      let j = i + 1, testo = '';
+      while (j < src.length && src[j] !== c) {
+        if (src[j] === '\\') { testo += src[j + 1] || ''; j += 2; continue; }
+        if (src[j] === '\n') { riga++; inizioRiga = j + 1; }
+        testo += src[j]; j++;
+      }
+      out.push({ testo, riga: r0, prima });
+      i = j + 1; ultimo = 's'; continue;
+    }
+    ultimo = c; i++;
+  }
+  return out;
+}
+
+function controllaJs(rel, sorgente, rigaBase) {
+  const righe = sorgente.split('\n');
+  for (const s of stringheJs(sorgente)) {
+    if (RIGA_ESENTE.test(righe[s.riga - 1] || '')) continue;
+    const colori = (s.testo.match(COLORE) || []).filter((x) => !AMMESSI.some((r) => r.test(x)));
+    if (!colori.length) continue;
+    if (!IN_CSS.test(s.testo) && !VERSO_STILE.test(s.prima)) continue;
+    console.log(`❌ ${rel}:${rigaBase + s.riga - 1}: colore scritto a mano \`${colori.join(', ')}\` ` +
+                `in una stringa CSS del codice — usa una var(--…) di ${UI} o una classe`);
+    errori++;
+  }
+}
+
+function controllaScript(rel) {
+  const testo = fs.readFileSync(path.join(WEB, rel), 'utf8');
+  if (FILE_ESENTE.test(testo.slice(0, 1200))) return;
+  if (rel.endsWith('.js')) { visti++; controllaJs(rel, testo, 1); return; }
+  /* Gli <script> dentro le pagine: la riga riportata è quella del file. */
+  const re = /<script[^>]*>([\s\S]*?)<\/script>/g;
+  let m;
+  while ((m = re.exec(testo))) {
+    const rigaBase = testo.slice(0, m.index + m[0].indexOf('>') + 1).split('\n').length;
+    controllaJs(rel, m[1], rigaBase);
+  }
+}
+
 /* Tutte le pagine e i fogli del sito, tranne ui.css che È la tavolozza. */
 const file = [];
 for (const voce of fs.readdirSync(WEB, { withFileTypes: true })) {
@@ -125,6 +215,19 @@ for (const voce of fs.readdirSync(WEB, { withFileTypes: true })) {
   }
 }
 file.sort().forEach(controlla);
+
+/* Il codice: ogni .js del sito (tranne i test, che girano in Node) e gli
+   <script> delle pagine. */
+const script = [];
+(function cerca(dir) {
+  for (const voce of fs.readdirSync(path.join(WEB, dir), { withFileTypes: true })) {
+    const rel = dir ? path.join(dir, voce.name) : voce.name;
+    if (voce.isDirectory()) { if (voce.name !== 'firmware') cerca(rel); continue; }
+    if (/\.js$/.test(voce.name) && !/\.test\.js$/.test(voce.name)) script.push(rel);
+    if (/\.html$/.test(voce.name)) script.push(rel);
+  }
+})('');
+script.sort().forEach(controllaScript);
 
 if (errori) {
   console.log(`\n❌ ${errori} colori fuori posto in ${visti} file`);

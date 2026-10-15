@@ -16,8 +16,9 @@ body{
   background:var(--bg);color:var(--fg);
 }
 a{color:var(--acc)}
+/* Il selettore della lingua ha l'aspetto comune (`.langsel` in ui.css), come
+   su tutte le altre pagine: qui resta solo la riga che lo porta. */
 .topline{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.topline select{font-size:12px;padding:3px 6px;min-width:0}
 .back{display:inline-block;text-decoration:none;font-size:13px;color:var(--mut)}
 .back:hover{color:var(--acc)}
 

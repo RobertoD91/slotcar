@@ -82,9 +82,10 @@
     var b = bottone();
     var sel = document.getElementById("__langsel") || document.getElementById("lang");
     if (sel) {
-      /* Il selettore del DS200 sta dentro una <label>: attaccarsi al selettore
-         lo infilerebbe dentro l'etichetta, e cliccare il pulsante aprirebbe la
-         tendina della lingua. Ci si aggancia al contenitore. */
+      /* Se un selettore stesse dentro una <label> (il DS200 ce l'aveva),
+         attaccarsi al selettore infilerebbe il pulsante nell'etichetta, e
+         cliccarlo aprirebbe la tendina della lingua: in quel caso ci si aggancia
+         al contenitore. */
       var ancora = sel.closest("label") || sel;
       ancora.insertAdjacentElement("afterend", b);
       return;

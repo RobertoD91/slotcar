@@ -14,25 +14,44 @@
  */
 
 :root{
+  color-scheme:dark;
   --bg:#0b0f17; --fg:#e9edf3; --mut:#8a94a6;
   --acc:#5db0ff; --accfg:#04121f;
   --ok:#4ec36b; --warn:#e0a800; --warnfg:#180a00; --err:#ff5c5c; --errfg:#180404;
   --card:#141924; --bd:#242c3a; --chip:#1b2130;
 }
+/* Il tema chiaro cambia TUTTO, non solo i neutri. Prima cambiavano fondo, testo e
+   bordi, mentre accento e colori di stato restavano quelli pensati per il fondo
+   scuro: blu, verde e giallo chiari su bianco, fra 1,8 e 2,3:1 — i link, le
+   targhette e i messaggi di stato quasi non si leggevano. Qui sono tutti scuri
+   abbastanza da superare 4,5:1 sul fondo chiaro, e sulle fasce piene il testo
+   diventa bianco. `color-scheme` fa seguire il tema anche ai pezzi che disegna
+   il browser: tendine, barre di scorrimento, caselle. */
 @media (prefers-color-scheme:light){
   :root{
+    color-scheme:light;
     --bg:#f6f7f9; --fg:#1a1d23; --mut:#5b6472;
+    --acc:#0b63c4; --accfg:#fff;
+    --ok:#187a36; --warn:#8a5a00; --warnfg:#fff; --err:#c62828; --errfg:#fff;
     --card:#fff; --bd:#dfe3ea; --chip:#eef1f5;
   }
 }
 /* Il selettore di tema esplicito deve vincere sulla preferenza di sistema in
-   entrambe le direzioni, non solo in una. */
+   entrambe le direzioni, non solo in una — e quindi ripete TUTTI i valori: con
+   il sistema in chiaro e il tema forzato a scuro, un token lasciato fuori da qui
+   resterebbe quello chiaro della media query. */
 :root[data-theme="dark"]{
+  color-scheme:dark;
   --bg:#0b0f17; --fg:#e9edf3; --mut:#8a94a6;
+  --acc:#5db0ff; --accfg:#04121f;
+  --ok:#4ec36b; --warn:#e0a800; --warnfg:#180a00; --err:#ff5c5c; --errfg:#180404;
   --card:#141924; --bd:#242c3a; --chip:#1b2130;
 }
 :root[data-theme="light"]{
+  color-scheme:light;
   --bg:#f6f7f9; --fg:#1a1d23; --mut:#5b6472;
+  --acc:#0b63c4; --accfg:#fff;
+  --ok:#187a36; --warn:#8a5a00; --warnfg:#fff; --err:#c62828; --errfg:#fff;
   --card:#fff; --bd:#dfe3ea; --chip:#eef1f5;
 }
 
@@ -54,6 +73,20 @@ a{color:var(--acc)}
           border-radius:8px;padding:3px 8px;margin-left:8px;cursor:pointer;
           font-size:14px;line-height:1.4;vertical-align:middle}
 .themebtn:hover{border-color:var(--acc)}
+
+/* Il selettore della lingua, uguale su tutte le pagine: quello che disegna
+   i18n.js e quelli scritti nel markup del Cronometro e del DS200. Il fondo è
+   PIENO e viene dal tema: la tendina delle opzioni la disegna il browser, e con
+   un fondo trasparente in tema scuro le opzioni uscivano chiare su bianco. */
+.langsel{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:8px;
+         padding:4px 8px;font:inherit;font-size:13px;cursor:pointer;
+         min-width:0;max-width:100%;vertical-align:middle}
+.langsel:hover{border-color:var(--acc)}
+
+/* Il disclaimer che i18n.js mette in fondo a ogni pagina: largo quanto la
+   colonna, coi colori del tema. */
+.discbox{margin:26px 0 8px;padding:12px 14px;border:1px solid var(--bd);border-radius:10px;
+         font-size:12px;line-height:1.55;color:var(--mut);background:rgba(127,127,127,.06)}
 
 /* ---- La cornice del debugger --------------------------------------------
  *

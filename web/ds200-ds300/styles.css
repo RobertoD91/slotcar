@@ -39,7 +39,6 @@
 
 /* Selettore lingua e ritorno, in alto a sinistra come su tutte le pagine. */
 .langline{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.langline .baud{flex-direction:row;align-items:center;gap:6px}
 
 /* ---- quello che ha detto la centralina ----------------------------------
    Il numero grande NON scorre: si muove solo quando arriva un frame. Un
