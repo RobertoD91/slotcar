@@ -34,14 +34,19 @@ L'utente è italiano: **rispondere in italiano**.
       scrivi «Roberto Scp3 A» e rileggi dopo il riavvio (deve tornare «Roberto Scp3.A»: il
       telecomando trasforma in punti gli spazi in posizione pari, contando da 0); modo freno 0 e 1 devono
       restare dopo il riavvio. Dopo ogni scrittura aspetta un paio di secondi prima di spegnere.
-- [ ] **Configuratore dongle** (`o2-bootloader/`, USB) — connette e i pulsanti rispondono,
-      ma i campi **ID / MAC / velocità box su chip e controller** non sono mai stati provati
-      su hardware.
-- [ ] ⭐ **Riprovare `o2-bootloader` dopo la correzione dei target (14/10/2026)**: «Chip auto» e
-      «Controller SCP-3» erano **invertiti**, quindi i comandi finivano sul dispositivo sbagliato —
-      e spiega perché quei campi non sembravano funzionare. Ora `0x09` = SCP-3 e `0x0a` = auto
-      (header di dispositivo del dongle, che NON è la numerazione del BLE). Da provare: entra in
-      boot col target giusto e leggi l'**ID** di un SCP-3, poi di un chip auto.
+- [ ] ⭐ **`o2-bootloader` 1.7.0 — reset prima del BOOT**: apri `chron02`, chiudilo **senza
+      staccare il dongle**, poi entra in boot da `o2-bootloader`. Nel registro deve comparire
+      STOPBOOT → «aspetto che il dongle ricompaia» → porta riaperta → BOOT → BOOTOK, e **nessuna
+      auto deve partire**. Poi «Esci» e un altro boot: la porta deve riaprirsi da sola.
+- [ ] **`o2-bootloader` — campi per dispositivo** (`0x09` = SCP-3, `0x0a` = auto, prima erano
+      invertiti): ID, velocità pit lane e MAC O2 su un SCP-3; ID e abbinamento su un chip auto,
+      **annotando prima i valori**. Le scritture valgono dopo il riavvio del dispositivo. Se il
+      dispositivo rifiuta una scrittura (`AB` ai dati), l'app deve dire «NON eseguita».
+- [ ] **`o2-bootloader` — attivazione** (con la pennetta non attivata): all'apertura deve dire
+      «non attivato»; «Leggi il MAC» deve dare lo stesso MAC del programma ufficiale; prova una
+      chiave sbagliata (`ACTIVFAKE`), poi quella giusta (`ACTIVDONE`), poi il boot. Su un dongle
+      già attivato «Leggi il MAC» deve dire «già attivato». In boot sul dongle (`0c`) il MAC deve
+      comparire nello stesso ordine del programma ufficiale.
 - [ ] ⭐ **Riprovare `chron02` dopo il rifacimento (v1.4.0, 14/10/2026)**: prima non mandava lo
       `0x06` all'avvio, quindi il dongle teneva la radio spenta. Ora all'avvio deve mostrare
       «dongle v4.xx · agganciato» e le auto devono guidare subito (lo stato iniziale è la gara
@@ -344,6 +349,8 @@ node tools/smoke-test.js                      # tutte le app: link, i18n, errori
 node tools/test-cronometro.js                 # una gara simulata dentro il cronometro
 node tools/test-ninco-ui.js                   # contagiri Ninco con seriale simulata
 node tools/test-o2bootloader.js               # configuratore dongle: frame e blocchi di sicurezza
+node tools/test-chron02.js                    # contagiri oXigen: avvio con 0x06, aggancio, giri scartati
+node tools/test-ble-config.js                 # configuratori BLE auto e telecomando: frame e blocchi
 node tools/test-ds200-ui.js                   # contagiri DS200: il numero NON avanza da solo
 ```
 

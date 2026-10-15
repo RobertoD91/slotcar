@@ -116,7 +116,7 @@
       <div class="tech"><span>Web Serial</span></div>
     </a>
     <a class="card" href="o2-bootloader/">
-      <span class="badge partial" data-i18n="badgePartial"></span>
+      <span class="badge untested" data-i18n="badgeUntested"></span>
       <div class="ico">🔧</div>
       <h3 data-i18n="bootTitle"></h3>
       <p data-i18n-html="bootDesc"></p>
@@ -264,9 +264,9 @@ window.I18N_STRINGS = {
   },
   bootTitle:{it:"Configuratore dongle",en:"Dongle configurator",es:"Configurador del dongle"},
   bootDesc:{
-    it:"Entra in modalità boot su dongle, chip auto o controller e ne legge le info (versione firmware, MAC). Cambia i campi di cui si conosce il nome — <b>ID, velocità in corsia box, MAC</b> (clonazione) — e ha una console a registri <b>sperimentale</b> per tutto il resto.",
-    en:"Puts the dongle, car chip or controller into boot mode and reads their info (firmware version, MAC). Changes the fields whose name is known — <b>ID, pit-lane speed, MAC</b> (cloning) — and has an <b>experimental</b> register console for everything else.",
-    es:"Pone el dongle, el chip del coche o el mando en modo boot y lee su información (versión de firmware, MAC). Cambia los campos cuyo nombre se conoce — <b>ID, velocidad en el pit lane, MAC</b> (clonación) — y tiene una consola de registros <b>experimental</b> para todo lo demás."
+    it:"Configura via dongle il controller SCP-3 e il chip auto: <b>ID</b>, <b>abbinamento</b> dell'auto al suo controller, <b>velocità in corsia box</b> e <b>MAC O2</b> del controller. Legge versione e MAC del dongle, inoltra la <b>chiave di attivazione</b> ricevuta da Slot.it e ha una console a registri con i limiti di sicurezza.",
+    en:"Configures the SCP-3 controller and the car chip through the dongle: <b>ID</b>, the car's <b>pairing</b> to its controller, <b>pit-lane speed</b> and the controller's <b>O2 MAC</b>. Reads the dongle's version and MAC, forwards the <b>activation key</b> received from Slot.it, and has a register console with safety limits.",
+    es:"Configura vía dongle el mando SCP-3 y el chip del coche: <b>ID</b>, la <b>vinculación</b> del coche a su mando, la <b>velocidad en el pit lane</b> y el <b>MAC O2</b> del mando. Lee la versión y el MAC del dongle, reenvía la <b>clave de activación</b> recibida de Slot.it y tiene una consola de registros con límites de seguridad."
   },
   dsTitle:{it:"Contagiri DS200 / DS300",en:"DS200 / DS300 lap counter",es:"Cuentavueltas DS200 / DS300"},
   dsDesc:{
@@ -286,7 +286,7 @@ window.I18N_STRINGS = {
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.26.0";
+const SITE_VERSION="2.27.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // Il selettore lingua sta in alto a sinistra su tutte le pagine (vedi i18n.js):
 // qui non serve nessuna eccezione, il nastro "Fork me on GitHub" è dall'altra parte.

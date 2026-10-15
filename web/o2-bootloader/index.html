@@ -14,19 +14,23 @@
   .prev{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:var(--bg);
         border:1px solid var(--bd);border-radius:7px;padding:6px 9px;color:var(--acc)}
   /* La tabella dei registri è larga: scorre nel suo riquadro. */
-  table{font-size:12.5px;min-width:620px}
+  table{font-size:12.5px;min-width:680px}
   td,th{padding:5px 7px;vertical-align:top}
   td:first-child code{white-space:nowrap}
   #log{max-height:220px}
   .expbox{color:var(--err);font-size:12.5px;margin-top:6px}
-  /* Quanto ci si può fidare di una riga: confermata da una cattura, oppure
-     ipotesi da confermare. È l'informazione più importante della tabella. */
   .expchip{display:inline-block;font-size:11px;color:var(--err);border:1px solid var(--err);border-radius:20px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+  /* Quanto ci si può fidare di una riga: vista in una cattura, oppure da provare. */
   .tag{display:inline-block;font-size:11px;border-radius:20px;padding:1px 8px;white-space:nowrap}
   .tag.conf{color:var(--ok);border:1px solid var(--ok)}
   .tag.hyp{color:var(--warn);border:1px solid var(--warn)}
   ul.tight{margin:6px 0 0;padding-left:20px;font-size:13px;line-height:1.6}
   ul.tight li{margin-bottom:6px}
+  #actKey{width:190px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  /* la targhetta dell'attivazione sta nel titolo della card, che è in maiuscolo:
+     resta scritta come le altre targhette della pagina */
+  .cardtitle .pill{text-transform:none;letter-spacing:0}
+  .pill,td.len code{white-space:nowrap}
 </style>
 </head>
 <body class="app">
@@ -34,35 +38,54 @@
   <p class="note" id="portWarn" hidden></p>
   <div id="upd" class="banner upd" hidden><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
-  <div class="note" data-i18n-html="oxigenBroken"></div>
+  <div class="note" data-i18n-html="oxigenUntested"></div>
   <h1><span data-i18n="h1title">Configuratore dongle</span> <span id="st" class="pill"></span></h1>
   <p class="sub" data-i18n-html="sub"></p>
 
   <div class="card">
     <div class="row">
       <button id="btnConn" data-i18n="btnConnectDongle">🔌 Connetti dongle</button>
-      <button id="btnDisc" class="sec needc" data-i18n="btnDisconnect" disabled>Disconnetti</button>
+      <button id="btnDisc" class="sec" data-i18n="btnDisconnect" disabled>Disconnetti</button>
       <span id="devname" class="val"></span>
     </div>
     <div class="mutbox" data-i18n-html="connHint"></div>
   </div>
 
-  <!-- ===== Selezione target + boot ===== -->
+  <!-- ===== Attivazione =====
+       La chiave la dà Slot.it per il MAC del dongle: qui si legge il MAC e si
+       INOLTRA la chiave che l'utente scrive. L'app non la calcola e non la suggerisce. -->
+  <div class="card">
+    <p class="cardtitle"><span data-i18n="titleAct">Attivazione del dongle</span> <span id="actSt" class="pill" hidden></span></p>
+    <p class="mutbox" data-i18n-html="actIntro"></p>
+    <div class="row">
+      <button id="btnActRead" class="sec" data-i18n="btnActRead" disabled>Leggi il MAC (READACTIV)</button>
+    </div>
+    <div class="row">
+      <label for="actKey" data-i18n="lblActKey">Chiave di Slot.it</label>
+      <input id="actKey" autocomplete="off" spellcheck="false" placeholder="AA:BB:CC:DD:EE:FF"><!-- allow-secret: è il formato della chiave, non un MAC -->
+      <button id="btnActSend" class="sec" data-i18n="btnActSend" disabled>Invia la chiave</button>
+    </div>
+    <p class="note" id="actHint" hidden></p>
+    <div id="actOut" class="kv"></div>
+    <div class="mutbox" data-i18n-html="actNote"></div>
+  </div>
+
+  <!-- ===== Selezione dispositivo + boot ===== -->
   <div class="card">
     <p class="cardtitle" data-i18n="titleTarget">Dispositivo e modalità boot</p>
     <div class="row">
-      <label data-i18n="lblTarget">Dispositivo</label>
+      <label for="tgt" data-i18n="lblTarget">Dispositivo</label>
       <select id="tgt">
-        <option value="dongle" data-i18n="optDongle">Dongle</option>
-        <option value="chip" data-i18n="optChip">Chip auto</option>
-        <option value="controller" data-i18n="optController">Controller SCP-3</option>
+        <option value="dongle" data-i18n="optDongle">Dongle — 0c</option>
+        <option value="chip" data-i18n="optChip">Chip auto — 0a</option>
+        <option value="controller" data-i18n="optController">Controller SCP-3 — 09</option>
       </select>
-      <button id="btnBoot" class="sec needc" data-i18n="btnEnterBoot" disabled>Entra in boot</button>
-      <button id="btnStop" class="sec needc" data-i18n="btnExitBoot" disabled>Esci (STOPBOOT)</button>
-      <p class="note" id="bootHint" hidden></p>
-      <span id="bootSt" class="pill"></span>
+      <button id="btnBoot" class="sec" data-i18n="btnEnterBoot" disabled>Entra in boot</button>
+      <button id="btnStop" class="sec" data-i18n="btnExitBoot" disabled>Esci (STOPBOOT)</button>
+      <span id="bootSt" class="pill" hidden></span>
     </div>
-    <div class="mutbox" data-i18n-html="bootHint"></div>
+    <p class="note" id="bootHint" hidden></p>
+    <div class="mutbox" data-i18n-html="bootHow"></div>
     <div class="warnbox" data-i18n-html="bootWarn"></div>
   </div>
 
@@ -70,20 +93,20 @@
   <div class="card">
     <p class="cardtitle" data-i18n="titleInfo">Info dispositivo (sola lettura)</p>
     <div class="row">
-      <button id="btnFw" class="sec needc needboot" data-i18n="btnFw" disabled>Versione firmware</button>
-      <button id="btnMac" class="sec needc needboot" data-i18n="btnMac" disabled>Leggi MAC (dongle)</button>
+      <button id="btnFw" class="sec needboot" data-i18n="btnFw" disabled>Versione firmware</button>
+      <button id="btnMac" class="sec needboot" data-i18n="btnMac" disabled>Leggi MAC (dongle)</button>
     </div>
     <div id="infoOut" class="kv"></div>
     <div class="mutbox" data-i18n-html="infoNote"></div>
   </div>
 
-  <!-- ===== Campi con un nome dimostrato =====
-       Ognuno viene da una cattura in cui l'azione era scritta nel nome del file,
-       e il valore riletto subito dopo la scrittura combacia. Chi aggiunge un campo
-       qui deve avere la stessa prova: senza, si resta nella console. -->
+  <!-- ===== Campi con un significato documentato =====
+       I frame hanno la forma delle catture del programma ufficiale (cambio ID, MAC
+       e velocità in pit lane, fatte su un SCP-3 con prefisso 09). Chi aggiunge un
+       campo qui deve sapere che cosa contiene il registro: senza, resta nella console. -->
   <div class="card">
     <p class="cardtitle" data-i18n="titleFields">Campi noti</p>
-    <p class="val" data-i18n-html="fieldsIntro"></p>
+    <p class="mutbox" data-i18n-html="fieldsIntro"></p>
     <div id="fldHint" class="note" hidden>
       <span id="fldHintTxt"></span>
       <div class="row" style="margin-top:8px">
@@ -92,12 +115,13 @@
       </div>
     </div>
 
+    <!-- chip auto (prefisso 0a) -->
     <div class="fld" data-tgt="chip">
       <div class="row">
-        <label data-i18n="lblCarId">ID auto (1–20)</label>
+        <label for="vCarId" data-i18n="lblCarId">ID auto (1–20)</label>
         <input id="vCarId" type="number" min="1" max="20" value="1" style="width:80px">
-        <button id="bCarIdR" class="sec needc needboot" data-i18n="btnFldRead" disabled>Leggi</button>
-        <button id="bCarIdW" class="sec needc needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
+        <button id="bCarIdR" class="sec needboot" data-i18n="btnFldRead" disabled>Leggi</button>
+        <button id="bCarIdW" class="sec needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
         <span id="oCarId" class="kv"></span>
       </div>
       <div class="row"><span id="pCarId" class="prev"></span></div>
@@ -105,32 +129,23 @@
 
     <div class="fld" data-tgt="chip">
       <div class="row">
-        <label data-i18n="lblPit">Velocità in corsia box (0–255)</label>
-        <input id="vPit" type="number" min="0" max="255" value="204" style="width:80px">
-        <button id="bPitR" class="sec needc needboot" data-i18n="btnFldRead" disabled>Leggi</button>
-        <button id="bPitW" class="sec needc needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
-        <span id="oPit" class="kv"></span>
+        <label for="vPair" data-i18n="lblPair">Abbinamento: MAC del controller a cui risponde (2 byte)</label>
+        <input id="vPair" size="7" placeholder="12 34" style="width:90px">
+        <button id="bPairR" class="sec needboot" data-i18n="btnFldRead" disabled>Leggi</button>
+        <button id="bPairW" class="sec needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
+        <span id="oPair" class="kv"></span>
       </div>
-      <div class="row"><span id="pPit" class="prev"></span></div>
+      <div class="row"><span id="pPair" class="prev"></span></div>
     </div>
+    <div class="warnbox" data-tgt="chip" data-i18n-html="pairWarn"></div>
 
-    <div class="fld" data-tgt="chip">
-      <div class="row">
-        <label data-i18n="lblMacChip">MAC del chip, 2 byte (clone)</label>
-        <input id="vMacChip" size="7" placeholder="12 34" style="width:90px">
-        <button id="bMacChipR" class="sec needc needboot" data-i18n="btnFldRead" disabled>Leggi</button>
-        <button id="bMacChipW" class="sec needc needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
-        <span id="oMacChip" class="kv"></span>
-      </div>
-      <div class="row"><span id="pMacChip" class="prev"></span></div>
-    </div>
-
+    <!-- controller SCP-3 (prefisso 09) -->
     <div class="fld" data-tgt="controller">
       <div class="row">
-        <label data-i18n="lblCtrlId">ID controller (1–20)</label>
+        <label for="vCtrlId" data-i18n="lblCtrlId">ID controller (1–20)</label>
         <input id="vCtrlId" type="number" min="1" max="20" value="1" style="width:80px">
-        <button id="bCtrlIdR" class="sec needc needboot" data-i18n="btnFldRead" disabled>Leggi</button>
-        <button id="bCtrlIdW" class="sec needc needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
+        <button id="bCtrlIdR" class="sec needboot" data-i18n="btnFldRead" disabled>Leggi</button>
+        <button id="bCtrlIdW" class="sec needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
         <span id="oCtrlId" class="kv"></span>
       </div>
       <div class="row"><span id="pCtrlId" class="prev"></span></div>
@@ -138,40 +153,51 @@
 
     <div class="fld" data-tgt="controller">
       <div class="row">
-        <label data-i18n="lblMacCtrl">MAC del controller, 2 byte (clone)</label>
+        <label for="vPit" data-i18n="lblPit">Velocità in pit lane (0–255)</label>
+        <input id="vPit" type="number" min="0" max="255" value="204" style="width:80px">
+        <button id="bPitR" class="sec needboot" data-i18n="btnFldRead" disabled>Leggi</button>
+        <button id="bPitW" class="sec needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
+        <span id="oPit" class="kv"></span>
+      </div>
+      <div class="row"><span id="pPit" class="prev"></span></div>
+    </div>
+
+    <div class="fld" data-tgt="controller">
+      <div class="row">
+        <label for="vMacCtrl" data-i18n="lblMacCtrl">MAC O2 del controller (2 byte)</label>
         <input id="vMacCtrl" size="7" placeholder="12 34" style="width:90px">
-        <button id="bMacCtrlR" class="sec needc needboot" data-i18n="btnFldRead" disabled>Leggi</button>
-        <button id="bMacCtrlW" class="sec needc needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
+        <button id="bMacCtrlR" class="sec needboot" data-i18n="btnFldRead" disabled>Leggi</button>
+        <button id="bMacCtrlW" class="sec needboot" data-i18n="btnFldWrite" disabled>Scrivi</button>
         <span id="oMacCtrl" class="kv"></span>
       </div>
       <div class="row"><span id="pMacCtrl" class="prev"></span></div>
     </div>
+    <div class="warnbox" data-tgt="controller" data-i18n-html="macWarn"></div>
 
-    <div class="warnbox" data-i18n-html="macWarn"></div>
     <div class="mutbox" data-i18n-html="fieldsNote"></div>
   </div>
 
   <!-- ===== Console registri ===== -->
   <div class="card">
-    <p class="cardtitle" data-i18n="titleReg">Console registri <span class="expchip" data-i18n="expLabel">sperimentale</span></p>
-    <p class="val" data-i18n-html="regTargetHint"></p>
+    <p class="cardtitle"><span data-i18n="titleReg">Console registri</span> <span class="expchip" data-i18n="expLabel">sperimentale</span></p>
+    <p class="mutbox" data-i18n-html="regTargetHint"></p>
     <div class="row">
-      <label data-i18n="lblReg">registro (hex)</label><input id="regA" size="4" value="11" style="width:70px">
-      <label data-i18n="lblOp">op lettura</label>
-      <select id="regOp" style="width:90px">
-        <option value="12">0x12 — impostazioni</option>
-        <option value="11">0x11 — flash</option>
+      <label for="regA" data-i18n="lblReg">registro (hex)</label><input id="regA" size="4" value="11" style="width:70px">
+      <label for="regOp" data-i18n="lblOp">op lettura</label>
+      <select id="regOp" style="width:150px">
+        <option value="12" data-i18n="optOp12">0x12 — impostazioni</option>
+        <option value="11" data-i18n="optOp11">0x11 — flash</option>
       </select>
-      <label id="lbLen" data-i18n="lblLen">byte da leggere</label>
-      <input id="regL" type="number" min="1" max="16" value="2" style="width:70px">
-      <button id="btnRead" class="sec needc needboot" data-i18n="btnReadReg" disabled>Leggi</button>
+      <label for="regL" data-i18n="lblLen">byte da leggere</label>
+      <input id="regL" type="number" min="1" max="8" value="2" style="width:70px">
+      <button id="btnRead" class="sec needboot" data-i18n="btnReadReg" disabled>Leggi</button>
     </div>
-    <p class="val" data-i18n-html="opHint"></p>
-    <p class="val" data-i18n-html="regNames"></p>
+    <p class="mutbox" data-i18n-html="opHint"></p>
+    <p class="note" id="conHint" hidden></p>
     <div class="row">
-      <label id="lbVal" data-i18n="lblVal">valore (hex)</label>
-      <input id="regV" size="12" data-i18n-attr="placeholder:phVal" placeholder="es. 04 0e" style="width:150px">
-      <button id="btnWrite" class="sec needc needboot" data-i18n="btnWriteReg" disabled>Scrivi</button>
+      <label for="regV" data-i18n="lblVal">valore (hex)</label>
+      <input id="regV" size="12" data-i18n-attr="placeholder:phVal" placeholder="es. 05 05 05" style="width:150px">
+      <button id="btnWrite" class="sec needboot" data-i18n="btnWriteReg" disabled>Scrivi</button>
       <span class="expchip" data-i18n="expLabel">sperimentale</span>
     </div>
     <div class="row">
@@ -181,53 +207,24 @@
     </div>
     <div id="regOut" class="kv"></div>
     <div class="expbox" data-i18n-html="regWriteWarn"></div>
-    <div class="warnbox" data-i18n-html="noiseWarn"></div>
 
     <p class="cardtitle" style="margin-top:16px" data-i18n="titleRules">Regole del frame</p>
     <div class="mutbox" data-i18n-html="rulesBody"></div>
 
-    <p class="cardtitle" style="margin-top:16px" data-i18n="titleRegTable">Registri visti nelle catture</p>
-    <p class="expbox" data-i18n-html="regTableWarn"></p>
+    <p class="cardtitle" style="margin-top:16px" data-i18n="titleRegTable">Registri via dongle</p>
+    <p class="mutbox" data-i18n-html="regTableIntro"></p>
     <div class="tbwrap">
       <table>
         <thead><tr>
-          <th data-i18n="thCmd">comando</th><th data-i18n="thTarget">dispositivo</th>
-          <th data-i18n="thRead">risposta vista</th><th data-i18n="thState">stato</th>
-          <th data-i18n="thMeaning">cosa sappiamo</th>
+          <th data-i18n="thReg">reg</th><th data-i18n="thMeaning">contenuto</th>
+          <th data-i18n="thCar">chip auto (0a)</th><th data-i18n="thCtrl">controller (09)</th>
+          <th data-i18n="thLen">byte L / S</th><th data-i18n="thCap">verifica</th>
         </tr></thead>
-        <tbody>
-          <tr><td><code>0c 11 00 00 02</code></td><td data-i18n="tDongle">dongle</td><td><code>04 0e</code></td>
-              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rgFwDongle"></td></tr>
-          <tr><td><code>09 11 00 80 02</code></td><td data-i18n="tChip">chip auto</td><td><code>04 12</code></td>
-              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rgFwChip"></td></tr>
-          <tr><td><code>0a 11/12 00 80 02</code></td><td data-i18n="tCtrl">controller</td><td><code>04 0c</code></td>
-              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rgFwCtrl"></td></tr>
-          <tr><td><code>09 12 00 02 01</code><br><code>09 02 00 02 03 &lt;cks&gt;</code></td><td data-i18n="tChip">chip auto</td><td><code>05</code></td>
-              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rg02Chip"></td></tr>
-          <tr><td><code>0a 12 00 02 01</code><br><code>0a 02 00 02 03 &lt;cks&gt;</code></td><td data-i18n="tCtrl">controller</td><td><code>05</code></td>
-              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rg02Ctrl"></td></tr>
-          <tr><td><code>09 12 00 10 02</code><br><code>09 02 00 10 01 &lt;cks&gt;</code></td><td data-i18n="tChip">chip auto</td><td><code>cc cc</code></td>
-              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rg10Chip"></td></tr>
-          <tr><td><code>09 12 00 20 05</code><br><code>09 02 00 20 08 &lt;cks&gt;</code></td><td data-i18n="tChip">chip auto</td><td><code>12 12 12 ff 34</code></td>
-              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rg20Chip"></td></tr>
-          <tr><td><code>0a 12 00 20 05</code><br><code>0a 02 00 20 08 &lt;cks&gt;</code></td><td data-i18n="tCtrl">controller</td><td><code>12 12 12 ff 34</code></td>
-              <td><span class="tag conf" data-i18n="tagConf">confermato</span></td><td data-i18n-html="rg20Ctrl"></td></tr>
-          <tr><td><code>0a 12 00 16 01</code></td><td data-i18n="tCtrl">controller</td><td><code>00 / 02 / 03 / 04</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg16Ctrl"></td></tr>
-          <tr><td><code>09 12 00 70 02</code></td><td data-i18n="tChip">chip auto</td><td><code>2 byte</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg70Chip"></td></tr>
-          <tr><td><code>09 12 00 11 02</code></td><td data-i18n="tChip">chip auto</td><td><code>03 03</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg11Chip"></td></tr>
-          <tr><td><code>09 12 00 40 02</code></td><td data-i18n="tChip">chip auto</td><td><code>ff ff</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg40Chip"></td></tr>
-          <tr><td><code>09 11 00 82 02</code></td><td data-i18n="tChip">chip auto</td><td><code>00 80</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg82Chip"></td></tr>
-          <tr><td><code>0c 12 00 40 01</code></td><td data-i18n="tDongle">dongle</td><td><code>ff</code></td>
-              <td><span class="tag hyp" data-i18n="tagHyp">ipotesi</span></td><td data-i18n-html="rg12Dongle"></td></tr>
-        </tbody>
+        <tbody id="regTbody"></tbody>
       </table>
     </div>
-    <div class="mutbox" data-i18n-html="helpNote"></div>
+    <div class="mutbox" data-i18n-html="regTableFoot"></div>
+    <div class="mutbox" style="margin-top:8px" data-i18n-html="helpNote"></div>
   </div>
 
   <!-- ===== Limiti dichiarati ===== -->
@@ -236,6 +233,7 @@
     <ul class="tight">
       <li data-i18n-html="limFlash"></li>
       <li data-i18n-html="limDfu"></li>
+      <li data-i18n-html="limAct"></li>
       <li data-i18n-html="limConfig"></li>
       <li data-i18n-html="limRace"></li>
     </ul>
@@ -244,11 +242,13 @@
   <!-- ===== Raw / Log ===== -->
   <div class="card">
     <details><summary style="cursor:pointer;color:var(--mut)" data-i18n="sumRawLog">Dati grezzi e registro</summary>
-      <div class="row" style="margin-top:8px"><label data-i18n="lblSendRaw">Invia (hex o testo)</label>
-        <input id="rawIn" size="24" placeholder="BOOT  /  09 12 00 80 02">
-        <button id="btnRaw" class="sec needc" data-i18n="btnSend" disabled>Invia</button></div>
-      <div class="row"><label data-i18n="lblNote">Annota cosa stai facendo</label>
-        <input id="noteIn" size="30" data-i18n-attr="placeholder:phNote" placeholder="es. cambiato l'ID auto da 4 a 5">
+      <div class="row" style="margin-top:8px"><label for="rawIn" data-i18n="lblSendRaw">Invia (hex o testo)</label>
+        <input id="rawIn" size="24" placeholder="09 11 00 80 02">
+        <button id="btnRaw" class="sec needboot" data-i18n="btnSend" disabled>Invia</button></div>
+      <p class="mutbox" data-i18n-html="rawHint"></p>
+      <div id="rawOut" class="kv"></div>
+      <div class="row"><label for="noteIn" data-i18n="lblNote">Annota cosa stai facendo</label>
+        <input id="noteIn" size="30" data-i18n-attr="placeholder:phNote" placeholder="es. cambiato l'ID del controller da 4 a 5">
         <button id="btnNote" class="sec" data-i18n="btnNote">Annota</button>
         <button id="btnSave" class="sec" data-i18n="btnSaveLog">Scarica registro</button></div>
       <div id="log"></div>
@@ -270,239 +270,317 @@ window.I18N_STRINGS = {
   },
 
   sub:{
-    it:"Riprende una parte delle funzioni di <b>configurazione</b> del programma ufficiale per Windows: parla col dongle oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002), sceglie il dispositivo (dongle, chip auto, controller), entra in modalità boot, legge le informazioni e cambia i campi di cui si conosce il nome — <b>ID, velocità in corsia box e MAC</b> (clonazione). <b>Non aggiorna il firmware</b> e non tocca l'attivazione. <b>Solo su hardware tuo.</b>",
-    en:"Covers part of the <b>configuration</b> features of the official Windows program: it talks to the oXigen dongle over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002), picks the device (dongle, car chip, controller), enters boot mode, reads the information and changes the fields whose name is known — <b>ID, pit-lane speed and MAC</b> (cloning). <b>It does not update firmware</b> and does not touch activation. <b>Only on your own hardware.</b>",
-    es:"Cubre parte de las funciones de <b>configuración</b> del programa oficial para Windows: habla con el dongle oXigen por <b>USB serie</b> (Web Serial, VID 1FEE/PID 0002), elige el dispositivo (dongle, chip del coche, mando), entra en modo boot, lee la información y cambia los campos cuyo nombre se conoce — <b>ID, velocidad en el pit lane y MAC</b> (clonación). <b>No actualiza el firmware</b> ni toca la activación. <b>Solo en tu propio hardware.</b>"
+    it:"Riprende una parte delle funzioni di <b>configurazione</b> del programma ufficiale per Windows. Parla col dongle oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002), mette in modalità boot il dongle, un chip auto o un controller SCP-3, ne legge le informazioni e cambia i campi documentati: <b>ID</b>, <b>abbinamento</b> dell'auto, <b>velocità in pit lane</b> e <b>MAC O2</b> del controller. Se il dongle non è attivato, inoltra la chiave che ti ha dato Slot.it. <b>Non aggiorna il firmware.</b> <b>Solo su hardware tuo.</b>",
+    en:"Covers part of the <b>configuration</b> features of the official Windows program. It talks to the oXigen dongle over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002), puts the dongle, a car chip or an SCP-3 controller into boot mode, reads their information and changes the documented fields: <b>ID</b>, the car's <b>pairing</b>, the controller's <b>pit-lane speed</b> and <b>O2 MAC</b>. If the dongle is not activated, it forwards the key Slot.it gave you. <b>It does not update firmware.</b> <b>Only on your own hardware.</b>",
+    es:"Cubre parte de las funciones de <b>configuración</b> del programa oficial para Windows. Habla con el dongle oXigen por <b>USB serie</b> (Web Serial, VID 1FEE/PID 0002), pone en modo boot el dongle, un chip de coche o un mando SCP-3, lee su información y cambia los campos documentados: <b>ID</b>, la <b>vinculación</b> del coche, la <b>velocidad en el pit lane</b> y el <b>MAC O2</b> del mando. Si el dongle no está activado, reenvía la clave que te ha dado Slot.it. <b>No actualiza el firmware.</b> <b>Solo en tu propio hardware.</b>"
   },
   h1title:{it:"Configuratore dongle",en:"Dongle configurator",es:"Configurador del dongle"},
   btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle"},
   btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
   connHint:{
-    it:"La porta si apre a <b>9600 8N1</b>, come fa il programma ufficiale (visto nelle catture USB). Sul dongle è una COM virtuale, quindi il valore è nominale: conta solo se in mezzo c'è un convertitore seriale vero. Una porta sola per volta: se hai aperto il <a href=\"../chron02/\">contagiri</a> su questo dongle, chiudilo prima.",
-    en:"The port opens at <b>9600 8N1</b>, the same as the official program (seen in the USB captures). On the dongle this is a virtual COM port, so the value is nominal: it only matters if a real serial converter sits in between. One port at a time: if you have the <a href=\"../chron02/\">lap counter</a> open on this dongle, close it first.",
-    es:"El puerto se abre a <b>9600 8N1</b>, igual que el programa oficial (visto en las capturas USB). En el dongle es un COM virtual, así que el valor es nominal: solo importa si hay un conversor serie real de por medio. Un puerto a la vez: si tienes abierto el <a href=\"../chron02/\">cuentavueltas</a> en este dongle, ciérralo antes."
+    it:"La porta si apre a <b>9600 8N1</b> con il segnale <b>DTR</b> attivo, come fa il programma ufficiale. Sul dongle è una COM virtuale: il baud è nominale, il DTR invece serve (senza, il dongle non legge e non scrive). Il dongle si riavvia spesso — a ogni ingresso e uscita dal boot — e la porta cade: l'app aspetta che ricompaia e la riapre da sola, senza chiederti di nuovo il permesso. Una porta sola per volta: se hai aperto il <a href=\"../chron02/\">contagiri</a> su questo dongle, chiudilo prima.",
+    en:"The port opens at <b>9600 8N1</b> with the <b>DTR</b> signal on, as the official program does. On the dongle this is a virtual COM port: the baud rate is nominal, but DTR is required (without it the dongle neither reads nor writes). The dongle reboots often — every time it enters or leaves boot mode — and the port drops: the app waits for it to come back and reopens it by itself, without asking for permission again. One port at a time: if you have the <a href=\"../chron02/\">lap counter</a> open on this dongle, close it first.",
+    es:"El puerto se abre a <b>9600 8N1</b> con la señal <b>DTR</b> activa, como hace el programa oficial. En el dongle es un COM virtual: el baudrate es nominal, pero el DTR es necesario (sin él, el dongle no lee ni escribe). El dongle se reinicia a menudo — cada vez que entra o sale del modo boot — y el puerto se cae: la app espera a que reaparezca y lo vuelve a abrir sola, sin pedirte de nuevo el permiso. Un puerto a la vez: si tienes abierto el <a href=\"../chron02/\">cuentavueltas</a> en este dongle, ciérralo antes."
   },
 
+  /* ---- attivazione ---- */
+  titleAct:{it:"Attivazione del dongle",en:"Dongle activation",es:"Activación del dongle"},
+  actIntro:{
+    it:"Un dongle <b>non attivato</b>, appena si apre la porta, manda <code>ACTIVENOT</code> e accetta solo i comandi di attivazione: la radio di gara resta spenta e il boot non funziona. La chiave la fornisce <b>Slot.it</b> per il MAC del tuo dongle: leggi il MAC qui sotto, comunicalo a Slot.it e scrivi la chiave che ti manda. L'app la <b>inoltra</b> al dongle e basta: non la calcola, non la suggerisce e non la salva.",
+    en:"A dongle that is <b>not activated</b> sends <code>ACTIVENOT</code> as soon as the port opens and only accepts the activation commands: the race radio stays off and boot mode does not work. The key is supplied by <b>Slot.it</b> for your dongle's MAC: read the MAC below, give it to Slot.it and type in the key they send you. The app only <b>forwards</b> it to the dongle: it does not compute it, suggest it or store it.",
+    es:"Un dongle <b>no activado</b>, en cuanto se abre el puerto, envía <code>ACTIVENOT</code> y solo acepta los comandos de activación: la radio de carrera queda apagada y el modo boot no funciona. La clave la proporciona <b>Slot.it</b> para el MAC de tu dongle: lee el MAC aquí abajo, comunícalo a Slot.it y escribe la clave que te envíe. La app solo la <b>reenvía</b> al dongle: no la calcula, no la sugiere y no la guarda."
+  },
+  btnActRead:{it:"Leggi il MAC (READACTIV)",en:"Read the MAC (READACTIV)",es:"Leer el MAC (READACTIV)"},
+  lblActKey:{it:"Chiave di Slot.it",en:"Key from Slot.it",es:"Clave de Slot.it"},
+  btnActSend:{it:"Invia la chiave",en:"Send the key",es:"Enviar la clave"},
+  actNote:{
+    it:"Dopo <code>READACTIV</code> il dongle prende come chiave <b>qualunque</b> messaggio che non sia un altro <code>READACTIV</code>: per questo, finché non arriva l'esito, gli altri comandi dell'app restano spenti. Esiti: <code>ACTIVDONE</code> = attivato, la chiave resta nel dongle; <code>ACTIVFAKE</code> = la chiave non vale per questo dongle, e puoi riprovare. Un dongle già attivato a <code>READACTIV</code> non risponde: il silenzio vuol dire «attivo». Prima di <code>READACTIV</code> l'app manda <code>STOPBOOT</code>, come prima di ogni boot: un dongle non attivato risponde <code>ACTIVENOT</code>, uno attivato si riavvia.",
+    en:"After <code>READACTIV</code> the dongle takes <b>any</b> message other than another <code>READACTIV</code> as the key: that is why the app's other commands stay off until the outcome arrives. Outcomes: <code>ACTIVDONE</code> = activated, the key stays in the dongle; <code>ACTIVFAKE</code> = the key is not valid for this dongle, and you can try again. An already activated dongle does not answer <code>READACTIV</code>: silence means “active”. Before <code>READACTIV</code> the app sends <code>STOPBOOT</code>, as before every boot: a dongle that is not activated answers <code>ACTIVENOT</code>, an activated one reboots.",
+    es:"Tras <code>READACTIV</code> el dongle toma como clave <b>cualquier</b> mensaje que no sea otro <code>READACTIV</code>: por eso, hasta que llega el resultado, los demás comandos de la app quedan desactivados. Resultados: <code>ACTIVDONE</code> = activado, la clave queda en el dongle; <code>ACTIVFAKE</code> = la clave no vale para este dongle, y puedes volver a intentarlo. Un dongle ya activado no responde a <code>READACTIV</code>: el silencio significa «activo». Antes de <code>READACTIV</code> la app envía <code>STOPBOOT</code>, como antes de cada boot: un dongle no activado responde <code>ACTIVENOT</code>, uno activado se reinicia."
+  },
+  actStUnknown:{it:"da verificare",en:"not checked",es:"sin comprobar"},
+  actStNot:{it:"non attivato",en:"not activated",es:"no activado"},
+  actStWait:{it:"aspetta la chiave",en:"waiting for the key",es:"esperando la clave"},
+  actStYes:{it:"attivato",en:"activated",es:"activado"},
+  actMacOut:{
+    it:"MAC del dongle: <b>{mac}</b> — è quello da comunicare a Slot.it per avere la chiave. Ora il dongle aspetta la chiave.",
+    en:"Dongle MAC: <b>{mac}</b> — this is the one to give Slot.it to get the key. The dongle is now waiting for the key.",
+    es:"MAC del dongle: <b>{mac}</b> — es el que hay que comunicar a Slot.it para obtener la clave. Ahora el dongle espera la clave."
+  },
+  actAlready:{
+    it:"Nessuna risposta a READACTIV: il dongle è già attivato.",
+    en:"No answer to READACTIV: the dongle is already activated.",
+    es:"Sin respuesta a READACTIV: el dongle ya está activado."
+  },
+  actDone:{
+    it:"ACTIVDONE: dongle attivato ✓. La chiave è salvata nel dongle; ora puoi entrare in boot.",
+    en:"ACTIVDONE: dongle activated ✓. The key is stored in the dongle; you can now enter boot mode.",
+    es:"ACTIVDONE: dongle activado ✓. La clave queda guardada en el dongle; ahora puedes entrar en boot."
+  },
+  actFake:{
+    it:"ACTIVFAKE: la chiave non vale per questo dongle. Controlla di averla copiata giusta (è legata al MAC qui sopra) e riprova: il dongle aspetta ancora una chiave.",
+    en:"ACTIVFAKE: the key is not valid for this dongle. Check you copied it correctly (it is tied to the MAC above) and try again: the dongle is still waiting for a key.",
+    es:"ACTIVFAKE: la clave no vale para este dongle. Comprueba que la has copiado bien (está ligada al MAC de arriba) y vuelve a intentarlo: el dongle sigue esperando una clave."
+  },
+  actNoReply:{it:"Nessuna risposta alla chiave: riprova.",en:"No answer to the key: try again.",es:"Sin respuesta a la clave: vuelve a intentarlo."},
+  actOdd:{it:"Risposta inattesa: {r}",en:"Unexpected reply: {r}",es:"Respuesta inesperada: {r}"},
+  hActNeedRead:{
+    it:"Prima premi «Leggi il MAC»: il dongle accetta la chiave solo subito dopo READACTIV.",
+    en:"Press “Read the MAC” first: the dongle only accepts the key right after READACTIV.",
+    es:"Pulsa antes «Leer el MAC»: el dongle solo acepta la clave justo después de READACTIV."
+  },
+  hActBadKey:{
+    it:"La chiave sono 6 byte: 12 cifre esadecimali, a coppie separate da due punti, come te la manda Slot.it.",
+    en:"The key is 6 bytes: 12 hex digits, in pairs separated by colons, as Slot.it sends it.",
+    es:"La clave son 6 bytes: 12 cifras hexadecimales, por pares separados por dos puntos, como te la envía Slot.it."
+  },
+  hActInBoot:{
+    it:"Esci prima dal boot: l'attivazione si fa a dongle appena aperto.",
+    en:"Leave boot mode first: activation is done with the port freshly opened.",
+    es:"Sal antes del modo boot: la activación se hace con el puerto recién abierto."
+  },
+  hActYes:{it:"Il dongle è attivato: non serve una chiave.",en:"The dongle is activated: no key is needed.",es:"El dongle está activado: no hace falta clave."},
+
+  /* ---- dispositivo e boot ---- */
   titleTarget:{it:"Dispositivo e modalità boot",en:"Device and boot mode",es:"Dispositivo y modo boot"},
   lblTarget:{it:"Dispositivo",en:"Device",es:"Dispositivo"},
-  optDongle:{it:"Dongle",en:"Dongle",es:"Dongle"},
-  optChip:{it:"Chip auto",en:"Car chip",es:"Chip del coche"},
-  optController:{it:"Controller SCP-3",en:"SCP-3 controller",es:"Mando SCP-3"},
+  optDongle:{it:"Dongle — 0c",en:"Dongle — 0c",es:"Dongle — 0c"},
+  optChip:{it:"Chip auto — 0a",en:"Car chip — 0a",es:"Chip del coche — 0a"},
+  optController:{it:"Controller SCP-3 — 09",en:"SCP-3 controller — 09",es:"Mando SCP-3 — 09"},
   btnEnterBoot:{it:"Entra in boot",en:"Enter boot",es:"Entrar en boot"},
   btnExitBoot:{it:"Esci (STOPBOOT)",en:"Exit (STOPBOOT)",es:"Salir (STOPBOOT)"},
-  bootHint:{
-    it:"Il byte dopo <code>BOOT</code> <b>sceglie il dispositivo</b>, ed è lo stesso prefisso che poi userai nei frame: dongle=<code>BOOT 05</code>+<code>BOOT 0c</code> (prefisso <code>0c</code>), chip auto=<code>BOOT 09</code>, controller=<code>BOOT 0a</code>. Il dispositivo risponde <code>BOOTOK</code>. <code>STOPBOOT</code> esce.",
-    en:"The byte after <code>BOOT</code> <b>selects the device</b>, and it is the same prefix you will use in the frames: dongle=<code>BOOT 05</code>+<code>BOOT 0c</code> (prefix <code>0c</code>), car chip=<code>BOOT 09</code>, controller=<code>BOOT 0a</code>. The device answers <code>BOOTOK</code>. <code>STOPBOOT</code> leaves boot mode.",
-    es:"El byte tras <code>BOOT</code> <b>elige el dispositivo</b>, y es el mismo prefijo que usarás luego en las tramas: dongle=<code>BOOT 05</code>+<code>BOOT 0c</code> (prefijo <code>0c</code>), chip del coche=<code>BOOT 09</code>, mando=<code>BOOT 0a</code>. El dispositivo responde <code>BOOTOK</code>. <code>STOPBOOT</code> sale."
+  bootHow:{
+    it:"Il byte dopo <code>BOOT</code> sceglie il dispositivo ed è lo stesso prefisso dei frame a registri: <b>controller SCP-3</b> = <code>09</code>, <b>chip auto</b> = <code>0a</code>, <b>dongle</b> = <code>BOOT 05</code> e poi <code>BOOT 0c</code>. ⚠️ È la numerazione del dongle: sul Bluetooth i due numeri sono scambiati. <code>BOOT</code> vale solo come <b>primo messaggio</b> dopo l'apertura della porta, e se la porta è stata riaperta senza staccare il dongle (per esempio dopo il contagiri) quel messaggio viene letto anche come comando di gara. Per questo l'app prima manda <code>STOPBOOT</code> (il dongle si riavvia), aspetta che ricompaia, riapre la porta e solo allora manda <code>BOOT</code>. Il dispositivo risponde <code>BOOTOK</code>; «Esci» manda <code>STOPBOOT</code>, che riavvia il dongle.",
+    en:"The byte after <code>BOOT</code> selects the device and is the same prefix used in the register frames: <b>SCP-3 controller</b> = <code>09</code>, <b>car chip</b> = <code>0a</code>, <b>dongle</b> = <code>BOOT 05</code> then <code>BOOT 0c</code>. ⚠️ This is the dongle's numbering: over Bluetooth the two numbers are swapped. <code>BOOT</code> only works as the <b>first message</b> after the port opens, and if the port was reopened without unplugging the dongle (for example after the lap counter) that message is also read as a race command. That is why the app first sends <code>STOPBOOT</code> (the dongle reboots), waits for it to come back, reopens the port and only then sends <code>BOOT</code>. The device answers <code>BOOTOK</code>; “Exit” sends <code>STOPBOOT</code>, which reboots the dongle.",
+    es:"El byte tras <code>BOOT</code> elige el dispositivo y es el mismo prefijo de las tramas de registros: <b>mando SCP-3</b> = <code>09</code>, <b>chip del coche</b> = <code>0a</code>, <b>dongle</b> = <code>BOOT 05</code> y luego <code>BOOT 0c</code>. ⚠️ Es la numeración del dongle: en Bluetooth los dos números están intercambiados. <code>BOOT</code> solo vale como <b>primer mensaje</b> tras abrir el puerto, y si el puerto se ha vuelto a abrir sin desconectar el dongle (por ejemplo después del cuentavueltas) ese mensaje se lee también como comando de carrera. Por eso la app primero envía <code>STOPBOOT</code> (el dongle se reinicia), espera a que reaparezca, vuelve a abrir el puerto y solo entonces envía <code>BOOT</code>. El dispositivo responde <code>BOOTOK</code>; «Salir» envía <code>STOPBOOT</code>, que reinicia el dongle."
   },
   bootWarn:{
-    it:"⚠️ Chip e controller rispondono <b>via radio</b>, attraverso il dongle: devono essere accesi e vicini. Se il dispositivo scelto non risponde, il dongle si riavvia e la porta USB cade — nelle catture succede in continuazione, ed è la stessa cosa che nel programma ufficiale fa comparire l'avviso «comunicazione persa». Non è un guasto: riconnetti.",
-    en:"⚠️ Chip and controller answer <b>over the radio</b>, through the dongle: they must be powered on and nearby. If the selected device does not answer, the dongle reboots and the USB port drops — it happens constantly in the captures, and it is the same thing that makes the official program show its \"communication lost\" warning. It is not a fault: reconnect.",
-    es:"⚠️ El chip y el mando responden <b>por radio</b>, a través del dongle: deben estar encendidos y cerca. Si el dispositivo elegido no responde, el dongle se reinicia y el puerto USB se cae — pasa continuamente en las capturas, y es lo mismo que hace aparecer el aviso «comunicación perdida» en el programa oficial. No es una avería: reconecta."
+    it:"⚠️ Chip auto e controller rispondono <b>via radio</b>, attraverso il dongle, e solo in <b>modalità programmazione</b>: il controller SCP-3 si accende tenendo premuti freccia su e freno, a grilletto rilasciato (il display mostra «U», vedi la <a href=\"../guida-oxigen/\">guida</a>); l'auto va alimentata con il suo controller <b>spento</b>. Se il dispositivo non risponde entro circa un secondo, il dongle si riavvia da solo e la porta cade: l'app la riapre e puoi riprovare.",
+    en:"⚠️ The car chip and the controller answer <b>over the radio</b>, through the dongle, and only in <b>programming mode</b>: the SCP-3 controller is powered on holding the up arrow and the brake, trigger released (the display shows “U”, see the <a href=\"../guida-oxigen/\">guide</a>); the car must be powered with its controller <b>switched off</b>. If the device does not answer within about a second, the dongle reboots by itself and the port drops: the app reopens it and you can try again.",
+    es:"⚠️ El chip del coche y el mando responden <b>por radio</b>, a través del dongle, y solo en <b>modo programación</b>: el mando SCP-3 se enciende manteniendo pulsadas la flecha arriba y el freno, con el gatillo suelto (la pantalla muestra «U», mira la <a href=\"../guida-oxigen/\">guía</a>); el coche debe alimentarse con su mando <b>apagado</b>. Si el dispositivo no responde en un segundo más o menos, el dongle se reinicia solo y el puerto se cae: la app lo vuelve a abrir y puedes reintentarlo."
   },
 
+  /* ---- info ---- */
   titleInfo:{it:"Info dispositivo (sola lettura)",en:"Device info (read-only)",es:"Info del dispositivo (solo lectura)"},
   btnFw:{it:"Versione firmware",en:"Firmware version",es:"Versión de firmware"},
   btnMac:{it:"Leggi MAC (dongle)",en:"Read MAC (dongle)",es:"Leer MAC (dongle)"},
   infoNote:{
-    it:"Solo letture, nessuna scrittura. La versione si legge con lo stesso frame che usa il programma ufficiale: sul dongle <code>0c 11 00 00 02</code>, su chip e controller il registro <code>0x80</code>. I due byte sono maggiore e minore in decimale (es. <code>04 0e</code> = 4.14). Il MAC torna con i byte in ordine inverso, e qui viene rimesso a posto.",
-    en:"Reads only, no writes. The version is read with the same frame the official program uses: <code>0c 11 00 00 02</code> on the dongle, register <code>0x80</code> on chip and controller. The two bytes are major and minor in decimal (e.g. <code>04 0e</code> = 4.14). The MAC comes back with the bytes in the opposite order, and is flipped here.",
-    es:"Solo lecturas, ninguna escritura. La versión se lee con la misma trama que usa el programa oficial: <code>0c 11 00 00 02</code> en el dongle, el registro <code>0x80</code> en chip y mando. Los dos bytes son mayor y menor en decimal (p. ej. <code>04 0e</code> = 4.14). El MAC llega con los bytes en orden inverso, y aquí se le da la vuelta."
+    it:"Solo letture. La versione si legge con lo stesso frame del programma ufficiale: sul dongle <code>0c 11 00 00 02</code>, su chip auto e controller la lettura in flash del registro <code>0x80</code> (<code>&lt;prefisso&gt; 11 00 80 02</code>). I due byte sono versione principale e secondaria in decimale (<code>04 0e</code> = 4.14). Il MAC si legge solo in boot sul <b>dongle</b> (<code>READMACVL</code>) e arriva già nell'ordine del programma ufficiale, byte più significativo per primo: si mostra così com'è.",
+    en:"Reads only. The version is read with the same frame the official program uses: <code>0c 11 00 00 02</code> on the dongle, and on the car chip and the controller the flash read of register <code>0x80</code> (<code>&lt;prefix&gt; 11 00 80 02</code>). The two bytes are major and minor version in decimal (<code>04 0e</code> = 4.14). The MAC can only be read in boot mode on the <b>dongle</b> (<code>READMACVL</code>) and already comes in the official program's order, most significant byte first: it is shown as it is.",
+    es:"Solo lecturas. La versión se lee con la misma trama que usa el programa oficial: en el dongle <code>0c 11 00 00 02</code>, en el chip del coche y en el mando la lectura en flash del registro <code>0x80</code> (<code>&lt;prefijo&gt; 11 00 80 02</code>). Los dos bytes son versión principal y secundaria en decimal (<code>04 0e</code> = 4.14). El MAC solo se lee en boot en el <b>dongle</b> (<code>READMACVL</code>) y llega ya en el orden del programa oficial, byte más significativo primero: se muestra tal cual."
   },
 
-  /* ---- campi con un nome dimostrato ---- */
+  /* ---- campi con un significato documentato ---- */
   titleFields:{it:"Campi noti",en:"Known fields",es:"Campos conocidos"},
   fieldsIntro:{
-    it:"Questi campi hanno un nome <b>dimostrato</b>: per ognuno esiste una cattura del programma ufficiale in cui è stata cambiata <b>quella sola cosa</b>, e il valore riletto subito dopo combacia. Il dispositivo è quello scelto sopra: entra prima in boot.",
-    en:"These fields have a <b>proven</b> name: for each one there is a capture of the official program where <b>that single thing</b> was changed, and the value read back straight after matches. The device is the one selected above: enter boot first.",
-    es:"Estos campos tienen un nombre <b>demostrado</b>: para cada uno existe una captura del programa oficial donde se cambió <b>solo esa cosa</b>, y el valor releído justo después coincide. El dispositivo es el elegido arriba: entra antes en boot."
+    it:"Campi con un significato documentato; la forma dei frame è quella delle catture del programma ufficiale. Il dispositivo è quello scelto sopra, e devi essere in boot proprio su quello. Le scritture hanno effetto dal <b>riavvio successivo</b> del dispositivo, e sono confermate solo se il dispositivo risponde <code>DO</code> ai dati.",
+    en:"Fields with a documented meaning; the frame shape is the one in the official program's captures. The device is the one selected above, and you must be in boot mode on that very device. Writes take effect from the device's <b>next restart</b>, and are confirmed only if the device answers <code>DO</code> to the data.",
+    es:"Campos con un significado documentado; la forma de las tramas es la de las capturas del programa oficial. El dispositivo es el elegido arriba, y tienes que estar en boot justo en ese. Las escrituras tienen efecto desde el <b>siguiente reinicio</b> del dispositivo, y solo se confirman si el dispositivo responde <code>DO</code> a los datos."
   },
   btnGoChip:{it:"Vai al chip auto",en:"Go to the car chip",es:"Ir al chip del coche"},
   btnGoCtrl:{it:"Vai al controller",en:"Go to the controller",es:"Ir al mando"},
   fldPickChip:{
-    it:"Questi campi stanno sul <b>chip auto</b> e sul <b>controller</b>. Scegli uno dei due qui sopra: sul dongle non esistono.",
-    en:"These fields live on the <b>car chip</b> and the <b>controller</b>. Pick one of the two above: they do not exist on the dongle.",
-    es:"Estos campos están en el <b>chip del coche</b> y en el <b>mando</b>. Elige uno de los dos arriba: en el dongle no existen."
+    it:"Questi campi stanno sul <b>chip auto</b> e sul <b>controller SCP-3</b>. Scegli uno dei due qui sopra: sul dongle non esistono.",
+    en:"These fields live on the <b>car chip</b> and the <b>SCP-3 controller</b>. Pick one of the two above: they do not exist on the dongle.",
+    es:"Estos campos están en el <b>chip del coche</b> y en el <b>mando SCP-3</b>. Elige uno de los dos arriba: en el dongle no existen."
   },
   lblCarId:{it:"ID auto (1–20)",en:"Car ID (1–20)",es:"ID del coche (1–20)"},
   lblCtrlId:{it:"ID controller (1–20)",en:"Controller ID (1–20)",es:"ID del mando (1–20)"},
-  lblPit:{it:"Velocità in corsia box (0–255)",en:"Pit-lane speed (0–255)",es:"Velocidad en el pit lane (0–255)"},
-  lblMacChip:{it:"MAC del chip, 2 byte (clone)",en:"Chip MAC, 2 bytes (clone)",es:"MAC del chip, 2 bytes (clon)"},
-  lblMacCtrl:{it:"MAC del controller, 2 byte (clone)",en:"Controller MAC, 2 bytes (clone)",es:"MAC del mando, 2 bytes (clon)"},
+  lblPair:{
+    it:"Abbinamento: MAC del controller a cui risponde (2 byte)",
+    en:"Pairing: MAC of the controller it answers to (2 bytes)",
+    es:"Vinculación: MAC del mando al que responde (2 bytes)"
+  },
+  lblPit:{it:"Velocità in pit lane (0–255)",en:"Pit-lane speed (0–255)",es:"Velocidad en el pit lane (0–255)"},
+  lblMacCtrl:{it:"MAC O2 del controller (2 byte)",en:"Controller O2 MAC (2 bytes)",es:"MAC O2 del mando (2 bytes)"},
   btnFldRead:{it:"Leggi",en:"Read",es:"Leer"},
   btnFldWrite:{it:"Scrivi",en:"Write",es:"Escribir"},
+  pairWarn:{
+    it:"⚠️ <b>Sul chip auto il registro <code>0x20</code> è l'abbinamento</b>: i 2 byte del MAC del controller a cui l'auto risponde. Riscriverlo la stacca dal suo controller e la lega a quello con il MAC scritto qui. Leggi e annota il valore attuale prima di cambiarlo: per tornare indietro si riscrive quel valore.",
+    en:"⚠️ <b>On the car chip, register <code>0x20</code> is the pairing</b>: the 2 bytes of the MAC of the controller the car answers to. Rewriting it detaches the car from its controller and ties it to the one with the MAC written here. Read and write down the current value before changing it: to go back, write that value again.",
+    es:"⚠️ <b>En el chip del coche el registro <code>0x20</code> es la vinculación</b>: los 2 bytes del MAC del mando al que responde el coche. Reescribirlo lo separa de su mando y lo une al que tiene el MAC escrito aquí. Lee y anota el valor actual antes de cambiarlo: para volver atrás se reescribe ese valor."
+  },
   macWarn:{
-    it:"⚠️ <b>Il MAC è l'identità del dispositivo.</b> Riscriverlo è la funzione di clonazione del programma ufficiale: due dispositivi con lo stesso MAC rispondono agli stessi comandi. Annota il valore che leggi <b>prima</b> di cambiarlo — è l'unico modo per rimetterlo com'era. Solo su hardware tuo.",
-    en:"⚠️ <b>The MAC is the device's identity.</b> Rewriting it is the official program's cloning feature: two devices with the same MAC answer the same commands. Write down the value you read <b>before</b> changing it — it is the only way to put it back. Only on your own hardware.",
-    es:"⚠️ <b>El MAC es la identidad del dispositivo.</b> Reescribirlo es la función de clonación del programa oficial: dos dispositivos con el mismo MAC responden a los mismos comandos. Anota el valor que leas <b>antes</b> de cambiarlo — es la única forma de dejarlo como estaba. Solo en tu propio hardware."
+    it:"⚠️ <b>Sul controller il registro <code>0x20</code> è il suo MAC O2</b>, cioè l'indirizzo radio con cui parla alle auto: ogni auto risponde al controller il cui MAC ha nell'abbinamento. Cambiandolo, le auto abbinate a questo controller non gli rispondono più; con lo stesso MAC di un altro controller, i due usano lo stesso indirizzo e le auto abbinate all'uno rispondono anche all'altro (è la funzione «clone» del programma ufficiale). Leggi e annota il valore attuale prima di cambiarlo: per tornare al MAC originale si riscrive <code>0x20</code> con quel valore. Il registro <code>0x70</code> non serve allo scopo: è una copia del MAC che il controller riscrive da solo a ogni accensione.",
+    en:"⚠️ <b>On the controller, register <code>0x20</code> is its O2 MAC</b>, that is the radio address it uses to talk to the cars: each car answers the controller whose MAC is in its pairing. If you change it, the cars paired with this controller stop answering it; with the same MAC as another controller, the two use the same address and the cars paired with one also answer the other (this is the official program's “clone” feature). Read and write down the current value before changing it: to go back to the original MAC, write <code>0x20</code> again with that value. Register <code>0x70</code> is no use for this: it is a copy of the MAC that the controller rewrites by itself at every power-on.",
+    es:"⚠️ <b>En el mando el registro <code>0x20</code> es su MAC O2</b>, es decir, la dirección de radio con la que habla con los coches: cada coche responde al mando cuyo MAC tiene en su vinculación. Si lo cambias, los coches vinculados a este mando dejan de responderle; con el mismo MAC que otro mando, los dos usan la misma dirección y los coches vinculados a uno responden también al otro (es la función «clone» del programa oficial). Lee y anota el valor actual antes de cambiarlo: para volver al MAC original se reescribe <code>0x20</code> con ese valor. El registro <code>0x70</code> no sirve para esto: es una copia del MAC que el mando reescribe solo en cada encendido."
   },
   fieldsNote:{
-    it:"Solo due byte del MAC passano da qui, come nel programma ufficiale: sono gli stessi due che si vedono anche sul canale Bluetooth, con un altro numero di registro. La velocità in corsia box è stata vista sul chip auto (prefisso <code>09</code>), non sul controller.",
-    en:"Only two bytes of the MAC go through here, as in the official program: they are the same two that also show up on the Bluetooth channel, under a different register number. Pit-lane speed was seen on the car chip (prefix <code>09</code>), not on the controller.",
-    es:"Solo dos bytes del MAC pasan por aquí, como en el programa oficial: son los mismos dos que aparecen también en el canal Bluetooth, con otro número de registro. La velocidad en el pit lane se vio en el chip del coche (prefijo <code>09</code>), no en el mando."
+    it:"Del MAC O2 passano da qui 2 byte, come nel programma ufficiale: sono gli stessi che sul Bluetooth stanno sotto un altro numero di registro. La velocità in pit lane è un'impostazione del <b>controller</b>: il chip auto accetta la scrittura dello stesso registro e risponde <code>DO</code>, ma la ignora — per questo sull'auto il campo non c'è.",
+    en:"2 bytes of the O2 MAC go through here, as in the official program: they are the same ones that sit under a different register number on Bluetooth. Pit-lane speed is a <b>controller</b> setting: the car chip accepts a write to the same register and answers <code>DO</code>, but ignores it — that is why the field is not offered on the car.",
+    es:"Del MAC O2 pasan por aquí 2 bytes, como en el programa oficial: son los mismos que en Bluetooth están bajo otro número de registro. La velocidad en el pit lane es un ajuste del <b>mando</b>: el chip del coche acepta la escritura del mismo registro y responde <code>DO</code>, pero la ignora — por eso en el coche el campo no está."
   },
   fldRead:{it:"letto",en:"read",es:"leído"},
-  fldWritten:{it:"scritto ✓",en:"written ✓",es:"escrito ✓"},
-  fldNoAck:{it:"nessuna conferma DO — scrittura non confermata",en:"no DO ack — write not confirmed",es:"sin confirmación DO — escritura no confirmada"},
   fldBadVal:{it:"valore non valido",en:"invalid value",es:"valor no válido"},
   fldBadRead:{it:"risposta di lunghezza inattesa: {m} byte invece di {n}",en:"reply of unexpected length: {m} bytes instead of {n}",es:"respuesta de longitud inesperada: {m} bytes en vez de {n}"},
+  fldRejected:{it:"AB: il dispositivo ha rifiutato il comando",en:"AB: the device rejected the command",es:"AB: el dispositivo ha rechazado el comando"},
+  confirmPair:{
+    it:"Stai per cambiare l'abbinamento di questa auto in {new}: dal prossimo riavvio risponderà al controller con quel MAC e non più al suo. {cur} Procedo?",
+    en:"You are about to change this car's pairing to {new}: from the next restart it will answer the controller with that MAC and no longer its own. {cur} Proceed?",
+    es:"Vas a cambiar la vinculación de este coche a {new}: desde el siguiente reinicio responderá al mando con ese MAC y ya no al suyo. {cur} ¿Continúo?"
+  },
   confirmMac:{
-    it:"Stai per riscrivere il MAC di questo dispositivo (funzione di clonazione). Hai annotato il valore attuale? Procedo?",
-    en:"You are about to rewrite this device's MAC (cloning feature). Have you written down the current value? Proceed?",
-    es:"Vas a reescribir el MAC de este dispositivo (función de clonación). ¿Has anotado el valor actual? ¿Continúo?"
+    it:"Stai per cambiare il MAC O2 di questo controller in {new}: dal prossimo riavvio le auto abbinate a lui non gli risponderanno più, finché non rimetti il valore originale. {cur} Procedo?",
+    en:"You are about to change this controller's O2 MAC to {new}: from the next restart the cars paired with it will no longer answer it, until you put the original value back. {cur} Proceed?",
+    es:"Vas a cambiar el MAC O2 de este mando a {new}: desde el siguiente reinicio los coches vinculados a él dejarán de responderle, hasta que vuelvas a poner el valor original. {cur} ¿Continúo?"
+  },
+  curRead:{it:"Valore attuale letto: {v} — annotalo.",en:"Current value read: {v} — write it down.",es:"Valor actual leído: {v} — anótalo."},
+  curNone:{
+    it:"Non hai ancora letto il valore attuale: annulla, premi «Leggi» e annotalo.",
+    en:"You have not read the current value yet: cancel, press “Read” and write it down.",
+    es:"Todavía no has leído el valor actual: cancela, pulsa «Leer» y anótalo."
   },
 
+  /* ---- esito di una scrittura: conta SOLO la risposta ai dati ---- */
+  wrOk:{
+    it:"scritto ✓ — DO all'intestazione e ai dati. Vale dal prossimo riavvio del dispositivo.",
+    en:"written ✓ — DO to the header and to the data. Takes effect from the device's next restart.",
+    es:"escrito ✓ — DO a la cabecera y a los datos. Vale desde el siguiente reinicio del dispositivo."
+  },
+  wrHdrAb:{
+    it:"intestazione rifiutata (AB): i dati non sono stati mandati, niente è cambiato.",
+    en:"header rejected (AB): the data was not sent, nothing changed.",
+    es:"cabecera rechazada (AB): los datos no se han enviado, no ha cambiado nada."
+  },
+  wrHdrNone:{
+    it:"nessun DO all'intestazione: i dati non sono stati mandati. Se il dispositivo non risponde il dongle resta in attesa: esci con STOPBOOT e riprova.",
+    en:"no DO to the header: the data was not sent. If the device does not answer, the dongle keeps waiting: leave with STOPBOOT and try again.",
+    es:"sin DO a la cabecera: los datos no se han enviado. Si el dispositivo no responde, el dongle se queda esperando: sal con STOPBOOT y vuelve a intentarlo."
+  },
+  wrHdrOther:{
+    it:"risposta inattesa all'intestazione ({r}): i dati non sono stati mandati.",
+    en:"unexpected reply to the header ({r}): the data was not sent.",
+    es:"respuesta inesperada a la cabecera ({r}): los datos no se han enviado."
+  },
+  wrDataAb:{
+    it:"il dispositivo ha rifiutato i dati (AB): scrittura NON eseguita.",
+    en:"the device rejected the data (AB): write NOT done.",
+    es:"el dispositivo ha rechazado los datos (AB): escritura NO realizada."
+  },
+  wrDataNone:{
+    it:"nessuna conferma ai dati: scrittura non confermata.",
+    en:"no acknowledgement to the data: write not confirmed.",
+    es:"sin confirmación a los datos: escritura no confirmada."
+  },
+  wrDataOther:{
+    it:"risposta inattesa ai dati ({r}): scrittura non confermata.",
+    en:"unexpected reply to the data ({r}): write not confirmed.",
+    es:"respuesta inesperada a los datos ({r}): escritura no confirmada."
+  },
+
+  /* ---- console registri ---- */
   titleReg:{it:"Console registri",en:"Register console",es:"Consola de registros"},
   expLabel:{it:"sperimentale",en:"experimental",es:"experimental"},
   regTargetHint:{
-    it:"Il dispositivo è quello scelto sopra, e ne decide il prefisso: <b>chip</b>→<code>09</code>, <b>controller</b>→<code>0a</code>, <b>dongle</b>→<code>0c</code>. Entra prima in boot.",
-    en:"The device is the one selected above, and it decides the prefix: <b>chip</b>→<code>09</code>, <b>controller</b>→<code>0a</code>, <b>dongle</b>→<code>0c</code>. Enter boot mode first.",
-    es:"El dispositivo es el elegido arriba, y decide el prefijo: <b>chip</b>→<code>09</code>, <b>mando</b>→<code>0a</code>, <b>dongle</b>→<code>0c</code>. Entra antes en boot."
+    it:"Il dispositivo è quello in boot, e ne decide il prefisso: <b>controller SCP-3</b> → <code>09</code>, <b>chip auto</b> → <code>0a</code>, <b>dongle</b> → <code>0c</code>. Valgono le lunghezze della tabella qui sotto: l'app non manda i frame che non le rispettano, e dice perché.",
+    en:"The device is the one in boot mode, and it decides the prefix: <b>SCP-3 controller</b> → <code>09</code>, <b>car chip</b> → <code>0a</code>, <b>dongle</b> → <code>0c</code>. The lengths in the table below apply: the app does not send frames that break them, and says why.",
+    es:"El dispositivo es el que está en boot, y decide el prefijo: <b>mando SCP-3</b> → <code>09</code>, <b>chip del coche</b> → <code>0a</code>, <b>dongle</b> → <code>0c</code>. Valen las longitudes de la tabla de abajo: la app no envía las tramas que no las respetan, y dice por qué."
   },
   lblReg:{it:"registro (hex)",en:"register (hex)",es:"registro (hex)"},
   lblOp:{it:"op lettura",en:"read op",es:"op de lectura"},
+  optOp12:{it:"0x12 — impostazioni",en:"0x12 — settings",es:"0x12 — ajustes"},
+  optOp11:{it:"0x11 — flash",en:"0x11 — flash",es:"0x11 — flash"},
   opHint:{
-    it:"<code>0x12</code> (<code>EEPROM_BLK_RDG</code>) legge le <b>impostazioni</b>, <code>0x11</code> (<code>FLASH_BLK_RDG</code>) legge la <b>flash</b>: sono due spazi di memoria diversi, non due varianti della stessa lettura. Le scritture corrispondenti sono <code>0x02</code> (<code>EEPROM_BLK_WRT</code>) e <code>0x01</code> (<code>FLASH_BLK_WRT</code>) — il bit 4 è la maschera di lettura.",
-    en:"<code>0x12</code> (<code>EEPROM_BLK_RDG</code>) reads the <b>settings</b>, <code>0x11</code> (<code>FLASH_BLK_RDG</code>) reads the <b>flash</b>: two different memory spaces, not two flavours of the same read. The matching writes are <code>0x02</code> (<code>EEPROM_BLK_WRT</code>) and <code>0x01</code> (<code>FLASH_BLK_WRT</code>) — bit 4 is the read mask.",
-    es:"<code>0x12</code> (<code>EEPROM_BLK_RDG</code>) lee los <b>ajustes</b>, <code>0x11</code> (<code>FLASH_BLK_RDG</code>) lee la <b>flash</b>: son dos espacios de memoria distintos, no dos variantes de la misma lectura. Las escrituras correspondientes son <code>0x02</code> (<code>EEPROM_BLK_WRT</code>) y <code>0x01</code> (<code>FLASH_BLK_WRT</code>) — el bit 4 es la máscara de lectura."
+    it:"<code>0x12</code> legge le <b>impostazioni</b>, <code>0x11</code> la <b>flash</b>: sono due spazi diversi. In flash ci sono solo <code>0x80</code> (versione firmware) e <code>0x82</code> (codice applicazione); gli altri registri restituiscono l'eco del comando. Le impostazioni si scrivono con <code>0x02</code>.",
+    en:"<code>0x12</code> reads the <b>settings</b>, <code>0x11</code> the <b>flash</b>: two different spaces. In flash there are only <code>0x80</code> (firmware version) and <code>0x82</code> (application code); other registers return the echo of the command. Settings are written with <code>0x02</code>.",
+    es:"<code>0x12</code> lee los <b>ajustes</b>, <code>0x11</code> la <b>flash</b>: son dos espacios distintos. En flash solo están <code>0x80</code> (versión de firmware) y <code>0x82</code> (código de aplicación); los demás registros devuelven el eco del comando. Los ajustes se escriben con <code>0x02</code>."
   },
-  regNames:{
-    it:"<b>Registri noti</b> (nomi del firmware): <code>0x00</code> <code>EPR_MAIN_REL</code> versione · <code>0x02</code> <code>EPR_ID_BYTE</code> ID · <code>0x10</code> <code>EPR_PIT_SPD</code> velocità pit-lane · <code>0x11</code> <code>EPR_FRQ_DNG</code> frequenza · <code>0x16</code> <code>EPR_IR_MODE</code> modalità IR · <code>0x20</code> <code>EPR_MAC_BYTE</code> MAC/abbinamento · <code>0x40</code> <code>EPR_CHK_BYTE</code> byte di controllo · <code>0x70</code> <code>EPR_MAC_COPY</code> copia MAC (de-clone) · <code>0x80</code> <code>EPR_DFU_MODE</code> lancia il DFU. In <b>flash</b> (op <code>0x11</code>): <code>0x80</code> <code>FLS_MAIN_REL</code> versione · <code>0x82</code> <code>FLS_APP_CODE</code> codice app.",
-    en:"<b>Known registers</b> (firmware names): <code>0x00</code> <code>EPR_MAIN_REL</code> version · <code>0x02</code> <code>EPR_ID_BYTE</code> ID · <code>0x10</code> <code>EPR_PIT_SPD</code> pit lane speed · <code>0x11</code> <code>EPR_FRQ_DNG</code> frequency · <code>0x16</code> <code>EPR_IR_MODE</code> IR mode · <code>0x20</code> <code>EPR_MAC_BYTE</code> MAC/binding · <code>0x40</code> <code>EPR_CHK_BYTE</code> check byte · <code>0x70</code> <code>EPR_MAC_COPY</code> MAC copy (de-clone) · <code>0x80</code> <code>EPR_DFU_MODE</code> launches DFU. In <b>flash</b> (op <code>0x11</code>): <code>0x80</code> <code>FLS_MAIN_REL</code> version · <code>0x82</code> <code>FLS_APP_CODE</code> app code.",
-    es:"<b>Registros conocidos</b> (nombres del firmware): <code>0x00</code> <code>EPR_MAIN_REL</code> versión · <code>0x02</code> <code>EPR_ID_BYTE</code> ID · <code>0x10</code> <code>EPR_PIT_SPD</code> velocidad pit-lane · <code>0x11</code> <code>EPR_FRQ_DNG</code> frecuencia · <code>0x16</code> <code>EPR_IR_MODE</code> modo IR · <code>0x20</code> <code>EPR_MAC_BYTE</code> MAC/vinculación · <code>0x40</code> <code>EPR_CHK_BYTE</code> byte de control · <code>0x70</code> <code>EPR_MAC_COPY</code> copia del MAC (de-clon) · <code>0x80</code> <code>EPR_DFU_MODE</code> lanza el DFU. En <b>flash</b> (op <code>0x11</code>): <code>0x80</code> <code>FLS_MAIN_REL</code> versión · <code>0x82</code> <code>FLS_APP_CODE</code> código de app."
+  conDongle:{
+    it:"Sul <b>dongle</b> esistono solo due letture: <code>0c 11 00 00 02</code> (versione) e <code>0c 12 00 40 01</code> (<code>ff</code> = nessun aggiornamento in corso). A ogni altro <code>0c</code> il dongle ripete la risposta precedente, che sembrerebbe una lettura vera: l'app non li manda. Niente scritture.",
+    en:"On the <b>dongle</b> there are only two reads: <code>0c 11 00 00 02</code> (version) and <code>0c 12 00 40 01</code> (<code>ff</code> = no update in progress). To any other <code>0c</code> the dongle repeats its previous reply, which would look like a real read: the app does not send them. No writes.",
+    es:"En el <b>dongle</b> solo hay dos lecturas: <code>0c 11 00 00 02</code> (versión) y <code>0c 12 00 40 01</code> (<code>ff</code> = ninguna actualización en curso). A cualquier otro <code>0c</code> el dongle repite la respuesta anterior, que parecería una lectura de verdad: la app no los envía. Sin escrituras."
   },
   lblLen:{it:"byte da leggere",en:"bytes to read",es:"bytes a leer"},
   lblVal:{it:"valore (hex)",en:"value (hex)",es:"valor (hex)"},
-  lblValDongle:{it:"valore (2 byte: alto basso)",en:"value (2 bytes: high low)",es:"valor (2 bytes: alto bajo)"},
-  phVal:{it:"es. cc / 04 0e",en:"e.g. cc / 04 0e",es:"p. ej. cc / 04 0e"},
+  phVal:{it:"es. 05 05 05",en:"e.g. 05 05 05",es:"p. ej. 05 05 05"},
   btnReadReg:{it:"Leggi",en:"Read",es:"Leer"},
   btnWriteReg:{it:"Scrivi",en:"Write",es:"Escribir"},
   lblPreview:{it:"frame che verrà inviato",en:"frame that will be sent",es:"trama que se enviará"},
   regWriteWarn:{
-    it:"⚠️ <b>Qui la forma del frame è giusta, ma il registro lo scegli tu.</b> La scrittura segue le catture (intestazione + dati + checksum) e su questa parte non ci sono più dubbi; quello che resta incerto è <b>a quale campo</b> corrisponda un registro che non sia fra quelli noti qui sopra. Scrivere in un registro che non conosci cambia una configurazione che non sai quale sia. Solo su hardware tuo.",
-    en:"⚠️ <b>The frame shape here is right, but the register is your choice.</b> The write follows the captures (header + data + checksum) and that part is no longer in doubt; what is still uncertain is <b>which field</b> a register maps to, when it is not one of the known ones above. Writing to a register you do not know changes a setting you cannot name. Only on your own hardware.",
-    es:"⚠️ <b>Aquí la forma de la trama es correcta, pero el registro lo eliges tú.</b> La escritura sigue las capturas (cabecera + datos + checksum) y esa parte ya no está en duda; lo que sigue siendo incierto es <b>a qué campo</b> corresponde un registro que no sea de los conocidos de arriba. Escribir en un registro que no conoces cambia un ajuste que no sabes cuál es. Solo en tu propio hardware."
-  },
-  noiseWarn:{
-    it:"⚠️ <b>Spegni i controller mentre leggi i registri.</b> Da specifica il dongle blu manda per conto suo la telemetria di gara (un record da 13 byte ogni 10 ms) sulla <b>stessa</b> porta: con un controller acceso la risposta può contenere byte che non c'entrano nulla. Se il numero di byte non torna, di solito è questo.",
-    en:"⚠️ <b>Switch the controllers off while reading registers.</b> Per the specification the blue dongle sends race telemetry on its own (a 13-byte record every 10 ms) over the <b>same</b> port: with a controller powered on, the reply may contain bytes that have nothing to do with it. If the byte count does not add up, this is usually why.",
-    es:"⚠️ <b>Apaga los mandos mientras lees registros.</b> Según la especificación, el dongle azul envía por su cuenta la telemetría de carrera (un registro de 13 bytes cada 10 ms) por el <b>mismo</b> puerto: con un mando encendido, la respuesta puede contener bytes que no vienen al caso. Si el número de bytes no cuadra, suele ser por esto."
+    it:"⚠️ La scrittura è confermata solo se il dispositivo risponde <code>DO</code> ai <b>dati</b>: un <code>AB</code> vuol dire che non è stata eseguita. L'app scrive solo i registri che il dispositivo in boot gestisce davvero, con la loro lunghezza: sugli altri risponderebbe <code>DO</code> senza cambiare niente. Solo su hardware tuo.",
+    en:"⚠️ A write is confirmed only if the device answers <code>DO</code> to the <b>data</b>: an <code>AB</code> means it was not done. The app only writes registers that the device in boot mode really handles, with their length: on the others it would answer <code>DO</code> without changing anything. Only on your own hardware.",
+    es:"⚠️ La escritura solo se confirma si el dispositivo responde <code>DO</code> a los <b>datos</b>: un <code>AB</code> significa que no se ha hecho. La app solo escribe los registros que el dispositivo en boot gestiona de verdad, con su longitud: en los demás respondería <code>DO</code> sin cambiar nada. Solo en tu propio hardware."
   },
 
   titleRules:{it:"Regole del frame",en:"Frame rules",es:"Reglas de la trama"},
   rulesBody:{
-    it:"<b>Lettura</b> <code>&lt;prefisso&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: l'ultimo byte è il <b>numero di byte da leggere</b>, e la risposta ha sempre quella lunghezza. L'op di lettura compare sia come <code>0x12</code> sia come <code>0x11</code>: <b>sono due spazi di memoria diversi</b> — <code>0x12</code> (<code>EEPROM_BLK_RDG</code>) legge le impostazioni, <code>0x11</code> (<code>FLASH_BLK_RDG</code>) legge la flash.<br><b>Scrittura</b>, in <b>due</b> frame: prima <code>&lt;prefisso&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, poi un frame a parte con gli <code>&lt;n&gt;</code> byte di <b>dati</b>. Il dispositivo risponde <code>DO</code> a tutti e due. Il <b>checksum</b> è la somma a 8 bit dei byte di dati: se il dato è di un byte solo, il checksum coincide con il valore — ed è per questo che un frame unico sembrava funzionare.<br><b>Dati su più byte</b>: ogni byte utile va <b>ripetuto tre volte</b> e seguito da <code>ff</code>. Il MAC (2 byte) diventa <code>hi hi hi ff lo lo lo ff</code>, cioè <code>n</code>=8; l'ID diventa <code>id id id</code>, cioè <code>n</code>=3, senza <code>ff</code> finale. Non è una codifica da decodificare: il firmware <b>scrive più copie</b> dello stesso valore (l'ID finisce in tre celle) e in lettura del MAC guarda solo il 1° e il 5° byte — per questo <code>12 12 12 ff 34</code> è il MAC <code>12:34</code>.<br><b>Dongle</b>: frame diverso, <code>0c &lt;reg&gt; &lt;alto&gt; &lt;basso&gt; &lt;op&gt;</code> con op <code>02</code>=leggi e <code>01</code>=imposta (conferma <code>ff</code>); qui il numero di byte non si indica.",
-    en:"<b>Read</b> <code>&lt;prefix&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: the last byte is the <b>number of bytes to read</b>, and the reply always has that length. The read op appears both as <code>0x12</code> and as <code>0x11</code>: <b>they are two different memory spaces</b> — <code>0x12</code> (<code>EEPROM_BLK_RDG</code>) reads the settings, <code>0x11</code> (<code>FLASH_BLK_RDG</code>) reads the flash.<br><b>Write</b>, in <b>two</b> frames: first <code>&lt;prefix&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, then a separate frame with the <code>&lt;n&gt;</code> <b>data</b> bytes. The device answers <code>DO</code> to both. The <b>checksum</b> is the 8-bit sum of the data bytes: if the data is a single byte, the checksum equals the value — which is why one single frame appeared to work.<br><b>Multi-byte data</b>: every useful byte is <b>repeated three times</b> and followed by <code>ff</code>. The MAC (2 bytes) becomes <code>hi hi hi ff lo lo lo ff</code>, so <code>n</code>=8; the ID becomes <code>id id id</code>, so <code>n</code>=3, with no trailing <code>ff</code>. It is not an encoding to decode: the firmware <b>writes several copies</b> of the same value (the ID lands in three cells) and when reading the MAC it only looks at bytes 1 and 5 — which is why <code>12 12 12 ff 34</code> is the MAC <code>12:34</code>.<br><b>Dongle</b>: different frame, <code>0c &lt;reg&gt; &lt;high&gt; &lt;low&gt; &lt;op&gt;</code> with op <code>02</code>=read and <code>01</code>=set (ack <code>ff</code>); here you do not state a byte count.",
-    es:"<b>Lectura</b> <code>&lt;prefijo&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: el último byte es el <b>número de bytes a leer</b>, y la respuesta siempre tiene esa longitud. La op de lectura aparece tanto como <code>0x12</code> como <code>0x11</code>: <b>son dos espacios de memoria distintos</b> — <code>0x12</code> (<code>EEPROM_BLK_RDG</code>) lee los ajustes, <code>0x11</code> (<code>FLASH_BLK_RDG</code>) lee la flash.<br><b>Escritura</b>, en <b>dos</b> tramas: primero <code>&lt;prefijo&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, luego una trama aparte con los <code>&lt;n&gt;</code> bytes de <b>datos</b>. El dispositivo responde <code>DO</code> a las dos. El <b>checksum</b> es la suma de 8 bits de los bytes de datos: si el dato es de un solo byte, el checksum coincide con el valor — y por eso una trama única parecía funcionar.<br><b>Datos de varios bytes</b>: cada byte útil se <b>repite tres veces</b> y va seguido de <code>ff</code>. El MAC (2 bytes) se convierte en <code>hi hi hi ff lo lo lo ff</code>, o sea <code>n</code>=8; el ID en <code>id id id</code>, o sea <code>n</code>=3, sin <code>ff</code> final. No es una codificación que haya que decodificar: el firmware <b>escribe varias copias</b> del mismo valor (el ID acaba en tres celdas) y al leer el MAC solo mira los bytes 1 y 5 — por eso <code>12 12 12 ff 34</code> es el MAC <code>12:34</code>.<br><b>Dongle</b>: trama distinta, <code>0c &lt;reg&gt; &lt;alto&gt; &lt;bajo&gt; &lt;op&gt;</code> con op <code>02</code>=leer y <code>01</code>=fijar (confirmación <code>ff</code>); aquí no se indica el número de bytes."
+    it:"<b>Lettura</b> <code>&lt;prefisso&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: l'ultimo byte è il numero di byte da leggere, e la risposta ha quella lunghezza.<br><b>Scrittura</b>, in <b>due</b> messaggi: prima l'intestazione <code>&lt;prefisso&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, a cui il dongle risponde <code>DO</code> quando il dispositivo l'ha ricevuta (<code>AB</code> se l'eco non coincide); <b>solo dopo quel <code>DO</code></b> si mandano gli <code>&lt;n&gt;</code> byte di dati, e il dispositivo risponde <code>DO</code> (scritto) o <code>AB</code> (rifiutato). Il messaggio dei dati c'è sempre, anche con un byte solo; il <b>checksum</b> è la somma a 8 bit dei dati.<br><b>Dati ripetuti</b>: il programma ufficiale manda l'ID come <code>id id id</code> (<code>n</code>=3) e il MAC come <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). Il dispositivo usa solo il primo byte (il 1° e il 5° per il MAC), ma il checksum li copre tutti. In lettura il MAC torna come <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> è <code>12:34</code>.<br><b>Limiti</b>: al massimo 32 byte per messaggio USB (oltre, il dongle smette di seguire il PC finché non riapri la porta). I comandi verso chip auto e controller sono di 5 o 6 byte, e i dispositivi non controllano la lunghezza di quello che ricevono: un messaggio più lungo al posto di un comando può bloccarli. Per questo, in boot su auto o controller, la console grezza manda solo letture.",
+    en:"<b>Read</b> <code>&lt;prefix&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: the last byte is the number of bytes to read, and the reply has that length.<br><b>Write</b>, in <b>two</b> messages: first the header <code>&lt;prefix&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, to which the dongle answers <code>DO</code> once the device has received it (<code>AB</code> if the echo does not match); <b>only after that <code>DO</code></b> are the <code>&lt;n&gt;</code> data bytes sent, and the device answers <code>DO</code> (written) or <code>AB</code> (rejected). The data message is always there, even with a single byte; the <b>checksum</b> is the 8-bit sum of the data.<br><b>Repeated data</b>: the official program sends the ID as <code>id id id</code> (<code>n</code>=3) and the MAC as <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). The device only uses the first byte (the 1st and 5th for the MAC), but the checksum covers them all. When read back, the MAC comes as <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> is <code>12:34</code>.<br><b>Limits</b>: at most 32 bytes per USB message (beyond that the dongle stops following the PC until you reopen the port). Commands to the car chip and the controller are 5 or 6 bytes long, and the devices do not check the length of what they receive: a longer message in place of a command can hang them. That is why, in boot mode on a car or controller, the raw console only sends reads.",
+    es:"<b>Lectura</b> <code>&lt;prefijo&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: el último byte es el número de bytes a leer, y la respuesta tiene esa longitud.<br><b>Escritura</b>, en <b>dos</b> mensajes: primero la cabecera <code>&lt;prefijo&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, a la que el dongle responde <code>DO</code> cuando el dispositivo la ha recibido (<code>AB</code> si el eco no coincide); <b>solo después de ese <code>DO</code></b> se envían los <code>&lt;n&gt;</code> bytes de datos, y el dispositivo responde <code>DO</code> (escrito) o <code>AB</code> (rechazado). El mensaje de datos siempre está, incluso con un solo byte; el <b>checksum</b> es la suma de 8 bits de los datos.<br><b>Datos repetidos</b>: el programa oficial envía el ID como <code>id id id</code> (<code>n</code>=3) y el MAC como <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). El dispositivo solo usa el primer byte (el 1.º y el 5.º para el MAC), pero el checksum los cubre todos. Al leerlo, el MAC llega como <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> es <code>12:34</code>.<br><b>Límites</b>: como máximo 32 bytes por mensaje USB (más allá, el dongle deja de seguir al PC hasta que vuelvas a abrir el puerto). Los comandos al chip del coche y al mando son de 5 o 6 bytes, y los dispositivos no comprueban la longitud de lo que reciben: un mensaje más largo en lugar de un comando puede bloquearlos. Por eso, en boot en un coche o un mando, la consola en bruto solo envía lecturas."
   },
 
-  titleRegTable:{it:"Registri visti nelle catture",en:"Registers seen in the captures",es:"Registros vistos en las capturas"},
-  regTableWarn:{
-    it:"Le righe <b>confermate</b> vengono da catture in cui il programma ufficiale ha cambiato <b>un solo campo per volta</b>, con l'azione scritta nel nome del file: il valore riletto subito dopo combacia, e il checksum torna su tutte le scritture. Le righe segnate <b>ipotesi</b> sono comandi visti passare senza sapere a quale campo corrispondano: dai soli byte un ID e una modalità sono due numerini piccoli uguali. I valori mostrati sono quelli delle prove, non i tuoi.",
-    en:"The <b>confirmed</b> rows come from captures where the official program changed <b>one field at a time</b>, with the action written in the file name: the value read back straight after matches, and the checksum adds up on every write. The rows marked <b>hypothesis</b> are commands seen going past without knowing which field they map to: from the bytes alone, an ID and a mode are two identical small numbers. The values shown are the ones from the tests, not yours.",
-    es:"Las filas <b>confirmadas</b> vienen de capturas donde el programa oficial cambió <b>un solo campo cada vez</b>, con la acción escrita en el nombre del archivo: el valor releído justo después coincide, y el checksum cuadra en todas las escrituras. Las filas marcadas como <b>hipótesis</b> son comandos vistos pasar sin saber a qué campo corresponden: solo con los bytes, un ID y un modo son dos números pequeños iguales. Los valores mostrados son los de las pruebas, no los tuyos."
+  titleRegTable:{it:"Registri via dongle",en:"Registers through the dongle",es:"Registros a través del dongle"},
+  regTableIntro:{
+    it:"Numerazione del canale USB: sul Bluetooth gli stessi campi hanno numeri diversi. «In cattura» vuol dire visto nelle catture USB del programma ufficiale; le altre righe vengono dall'analisi del protocollo e vanno ancora provate. Byte = quanti se ne leggono (op <code>0x12</code>) / quanti se ne scrivono.",
+    en:"USB channel numbering: over Bluetooth the same fields have different numbers. “In capture” means seen in the official program's USB captures; the other rows come from the protocol analysis and still need testing. Bytes = how many are read (op <code>0x12</code>) / how many are written.",
+    es:"Numeración del canal USB: en Bluetooth los mismos campos tienen números distintos. «En captura» significa visto en las capturas USB del programa oficial; las demás filas vienen del análisis del protocolo y aún hay que probarlas. Bytes = cuántos se leen (op <code>0x12</code>) / cuántos se escriben."
   },
-  thCmd:{it:"comando",en:"command",es:"comando"},
-  thTarget:{it:"dispositivo",en:"device",es:"dispositivo"},
-  thRead:{it:"risposta vista",en:"observed reply",es:"respuesta vista"},
-  thState:{it:"stato",en:"status",es:"estado"},
-  thMeaning:{it:"cosa sappiamo",en:"what we know",es:"qué sabemos"},
-  tagConf:{it:"confermato",en:"confirmed",es:"confirmado"},
-  tagHyp:{it:"ipotesi",en:"hypothesis",es:"hipótesis"},
-  tDongle:{it:"dongle",en:"dongle",es:"dongle"},
-  tChip:{it:"chip auto",en:"car chip",es:"chip del coche"},
-  tCtrl:{it:"controller",en:"controller",es:"mando"},
-  rgFwDongle:{
-    it:"versione firmware del dongle (qui 4.14). Sola lettura.",
-    en:"dongle firmware version (4.14 here). Read-only.",
-    es:"versión de firmware del dongle (aquí 4.14). Solo lectura."
+  thReg:{it:"reg",en:"reg",es:"reg"},
+  thMeaning:{it:"contenuto",en:"content",es:"contenido"},
+  thCar:{it:"chip auto (0a)",en:"car chip (0a)",es:"chip del coche (0a)"},
+  thCtrl:{it:"controller (09)",en:"controller (09)",es:"mando (09)"},
+  thLen:{it:"byte L / S",en:"bytes R / W",es:"bytes L / E"},
+  thCap:{it:"verifica",en:"check",es:"verificación"},
+  cRW:{it:"lettura e scrittura",en:"read and write",es:"lectura y escritura"},
+  cR:{it:"sola lettura",en:"read-only",es:"solo lectura"},
+  cW:{it:"sola scrittura",en:"write-only",es:"solo escritura"},
+  cIgn:{it:"accettato ma ignorato: risponde DO",en:"accepted but ignored: answers DO",es:"aceptado pero ignorado: responde DO"},
+  cNone:{it:"non gestito",en:"not handled",es:"no gestionado"},
+  cDfu:{it:"scrittura = aggiornamento firmware: bloccata",en:"write = firmware update: blocked",es:"escritura = actualización de firmware: bloqueada"},
+  tagConf:{it:"in cattura",en:"in capture",es:"en captura"},
+  tagTodo:{it:"da provare",en:"to be tested",es:"por probar"},
+  orWord:{it:" o ",en:" or ",es:" o "},
+  rgVer:{it:"versione firmware, <code>principale secondaria</code>",en:"firmware version, <code>major minor</code>",es:"versión de firmware, <code>principal secundaria</code>"},
+  rgId:{it:"ID, da 1 a 20",en:"ID, 1 to 20",es:"ID, de 1 a 20"},
+  rgPit:{it:"velocità in pit lane",en:"pit-lane speed",es:"velocidad en el pit lane"},
+  rgFreq:{it:"frequenza / canale radio",en:"radio frequency / channel",es:"frecuencia / canal de radio"},
+  rgTrack:{it:"track call",en:"track call",es:"track call"},
+  rgIr:{it:"modo IR / codifica dell'ID",en:"IR mode / ID encoding",es:"modo IR / codificación del ID"},
+  rgArc:{it:"configurazione dei pulsanti ARC",en:"ARC button configuration",es:"configuración de los botones ARC"},
+  rgMac:{
+    it:"chip auto: <b>abbinamento</b>, i 2 byte del MAC del controller a cui risponde. Controller: il suo <b>MAC O2</b>, cioè l'indirizzo radio",
+    en:"car chip: <b>pairing</b>, the 2 bytes of the MAC of the controller it answers to. Controller: its <b>O2 MAC</b>, that is the radio address",
+    es:"chip del coche: <b>vinculación</b>, los 2 bytes del MAC del mando al que responde. Mando: su <b>MAC O2</b>, es decir, la dirección de radio"
   },
-  rgFwChip:{
-    it:"versione firmware del chip (qui 4.18). Lo stesso valore torna anche dal registro 0x00. Sola lettura.",
-    en:"chip firmware version (4.18 here). The same value also comes back from register 0x00. Read-only.",
-    es:"versión de firmware del chip (aquí 4.18). El mismo valor vuelve también del registro 0x00. Solo lectura."
+  rgChk:{it:"byte di controllo, sempre <code>ff ff</code>",en:"check byte, always <code>ff ff</code>",es:"byte de control, siempre <code>ff ff</code>"},
+  rgCopy:{
+    it:"controller: copia del MAC O2 (2 byte, non ripetuti) che lui riscrive a ogni accensione — <b>non</b> riporta il MAC originale, per quello si riscrive <code>0x20</code>. Chip auto: in lettura torna l'eco del comando",
+    en:"controller: copy of the O2 MAC (2 bytes, not repeated) that it rewrites at every power-on — it does <b>not</b> restore the original MAC; for that, write <code>0x20</code> again. Car chip: a read returns the echo of the command",
+    es:"mando: copia del MAC O2 (2 bytes, sin repetir) que él reescribe en cada encendido — <b>no</b> devuelve el MAC original; para eso se reescribe <code>0x20</code>. Chip del coche: al leerlo vuelve el eco del comando"
   },
-  rgFwCtrl:{
-    it:"versione firmware del controller (qui 4.12). Sola lettura.",
-    en:"controller firmware version (4.12 here). Read-only.",
-    es:"versión de firmware del mando (aquí 4.12). Solo lectura."
-  },
-  rg12Dongle:{
-    it:"scrittura sul dongle vista all'ingresso in boot, prima delle letture: significato ignoto, <code>ff</code> è solo la conferma.",
-    en:"a write to the dongle seen right after entering boot, before the reads: meaning unknown, <code>ff</code> is just the acknowledgement.",
-    es:"escritura en el dongle vista al entrar en boot, antes de las lecturas: significado desconocido, <code>ff</code> es solo la confirmación."
-  },
-  rg02Chip:{
-    it:"<b>ID dell'auto.</b> Nella cattura «cambio ID» il programma ufficiale scrive 1, 2, 3, 4, 5, 6 uno dopo l'altro e la rilettura restituisce ogni volta lo stesso numero. I dati vanno triplicati: <code>id id id</code>, quindi <code>n</code>=3.",
-    en:"<b>Car ID.</b> In the \"change ID\" capture the official program writes 1, 2, 3, 4, 5, 6 one after another and the read-back returns the same number every time. The data is tripled: <code>id id id</code>, so <code>n</code>=3.",
-    es:"<b>ID del coche.</b> En la captura «cambio de ID» el programa oficial escribe 1, 2, 3, 4, 5, 6 uno tras otro y la relectura devuelve cada vez el mismo número. Los datos van triplicados: <code>id id id</code>, o sea <code>n</code>=3."
-  },
-  rg02Ctrl:{
-    it:"<b>ID del controller.</b> Stesso registro e stessa forma dell'ID auto, con il prefisso del controller.",
-    en:"<b>Controller ID.</b> Same register and same shape as the car ID, with the controller prefix.",
-    es:"<b>ID del mando.</b> Mismo registro y misma forma que el ID del coche, con el prefijo del mando."
-  },
-  rg11Chip:{
-    it:"due byte uguali, significato ignoto.",
-    en:"two identical bytes, meaning unknown.",
-    es:"dos bytes iguales, significado desconocido."
-  },
-  rg20Chip:{
-    it:"<b>MAC del chip, 2 byte</b> — è la clonazione. La cattura si chiama «cambio MAC 45-67 poi 12-34 poi ff-ff poi 00-00» e sul filo passano esattamente quei quattro valori. In scrittura <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8); in lettura bastano 5 byte, con il byte basso in fondo.",
-    en:"<b>Chip MAC, 2 bytes</b> — this is the cloning. The capture is named \"change MAC 45-67 then 12-34 then ff-ff then 00-00\", and exactly those four values go over the wire. Written as <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8); on reads 5 bytes are enough, with the low byte at the end.",
-    es:"<b>MAC del chip, 2 bytes</b> — es la clonación. La captura se llama «cambio de MAC 45-67 luego 12-34 luego ff-ff luego 00-00», y por el cable pasan exactamente esos cuatro valores. En escritura <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8); en lectura bastan 5 bytes, con el byte bajo al final."
-  },
-  rg20Ctrl:{
-    it:"<b>MAC del controller, 2 byte</b> (clonazione). Stesso registro e stessa forma del MAC del chip. È lo stesso campo che sul canale Bluetooth ha un altro numero di registro.",
-    en:"<b>Controller MAC, 2 bytes</b> (cloning). Same register and same shape as the chip MAC. It is the same field that carries a different register number on the Bluetooth channel.",
-    es:"<b>MAC del mando, 2 bytes</b> (clonación). Mismo registro y misma forma que el MAC del chip. Es el mismo campo que en el canal Bluetooth lleva otro número de registro."
-  },
-  rg40Chip:{
-    it:"due byte, sempre <code>ff ff</code> nelle catture: significato ignoto.",
-    en:"two bytes, always <code>ff ff</code> in the captures: meaning unknown.",
-    es:"dos bytes, siempre <code>ff ff</code> en las capturas: significado desconocido."
-  },
-  rg82Chip:{
-    it:"due byte letti insieme alla versione firmware, sempre uguali: significato ignoto.",
-    en:"two bytes read alongside the firmware version, always the same: meaning unknown.",
-    es:"dos bytes leídos junto a la versión de firmware, siempre iguales: significado desconocido."
-  },
-  rg70Chip:{
-    it:"due byte scrivibili, <b>non</b> triplicati come gli altri campi a più byte: fa storia a sé, e a quale campo corrisponda non si sa. Visto una volta sola.",
-    en:"two writable bytes, <b>not</b> tripled like the other multi-byte fields: it is an exception, and which field it maps to is unknown. Seen only once.",
-    es:"dos bytes escribibles, <b>no</b> triplicados como los demás campos de varios bytes: es una excepción, y no se sabe a qué campo corresponde. Visto una sola vez."
-  },
-  rg10Chip:{
-    it:"<b>Velocità in corsia box.</b> Nella cattura «cambio velocità pit lane» il programma ufficiale scrive 26, 51, 89, 117, 201, 204, 255 e la rilettura restituisce ogni volta lo stesso numero, ripetuto due volte. Un byte solo, quindi il checksum coincide col valore.",
-    en:"<b>Pit-lane speed.</b> In the \"change pit-lane speed\" capture the official program writes 26, 51, 89, 117, 201, 204, 255 and the read-back returns the same number each time, repeated twice. A single byte, so the checksum equals the value.",
-    es:"<b>Velocidad en el pit lane.</b> En la captura «cambio de velocidad del pit lane» el programa oficial escribe 26, 51, 89, 117, 201, 204, 255 y la relectura devuelve cada vez el mismo número, repetido dos veces. Un solo byte, así que el checksum coincide con el valor."
-  },
-  rg16Ctrl:{
-    it:"un byte del controller che assume pochi valori: sembra una scelta fra opzioni (freno? pattern di frequenza? RCS?), non confermato.",
-    en:"a controller byte that takes only a few values: it looks like a choice among options (brake? frequency pattern? RCS?), unconfirmed.",
-    es:"un byte del mando que toma pocos valores: parece una elección entre opciones (¿freno? ¿patrón de frecuencia? ¿RCS?), sin confirmar."
+  rgDfu:{it:"ingresso nell'aggiornamento firmware (DFU)",en:"entry into the firmware update (DFU)",es:"entrada en la actualización de firmware (DFU)"},
+  regTableFoot:{
+    it:"<b>Registri che non sono in tabella</b>: in lettura delle impostazioni rispondono <code>ff…</code>; in scrittura il dispositivo risponde <code>DO</code> ma non cambia nulla, per questo la console non li scrive. <b>Lettura flash</b> (<code>0x11</code>): <code>0x80</code> = versione, <code>0x82</code> = codice applicazione, gli altri restituiscono l'eco del comando.",
+    en:"<b>Registers not in the table</b>: settings reads return <code>ff…</code>; on a write the device answers <code>DO</code> but changes nothing, which is why the console does not write them. <b>Flash read</b> (<code>0x11</code>): <code>0x80</code> = version, <code>0x82</code> = application code, the others return the echo of the command.",
+    es:"<b>Registros que no están en la tabla</b>: en lectura de ajustes responden <code>ff…</code>; en escritura el dispositivo responde <code>DO</code> pero no cambia nada, por eso la consola no los escribe. <b>Lectura de flash</b> (<code>0x11</code>): <code>0x80</code> = versión, <code>0x82</code> = código de aplicación, los demás devuelven el eco del comando."
   },
   helpNote:{
-    it:"<b>Vuoi aiutare a confermare quelli che restano?</b> È esattamente così che sono stati chiusi ID, MAC e velocità in corsia box: una cattura per campo, con <b>un solo</b> campo cambiato e l'azione scritta nel nome del file. Qui: entra in boot, leggi il registro, cambia quel campo dal programma ufficiale, rileggi lo stesso registro e scrivi nel riquadro «Annota» che cosa hai cambiato. Poi scarica il registro qui sotto.",
-    en:"<b>Want to help confirm the ones that are left?</b> This is exactly how the ID, the MAC and the pit-lane speed were closed: one capture per field, with <b>one single</b> field changed and the action written in the file name. Here: enter boot, read the register, change that field in the official program, read the same register again and write in the \"Note\" box what you changed. Then download the log below.",
-    es:"<b>¿Quieres ayudar a confirmar los que quedan?</b> Así es exactamente como se cerraron el ID, el MAC y la velocidad del pit lane: una captura por campo, con <b>un solo</b> campo cambiado y la acción escrita en el nombre del archivo. Aquí: entra en boot, lee el registro, cambia ese campo en el programa oficial, vuelve a leer el mismo registro y escribe en el recuadro «Anota» qué has cambiado. Luego descarga el registro de abajo."
+    it:"<b>Vuoi aiutare a confermare le righe «da provare»?</b> È così che sono stati chiusi ID, MAC e velocità in pit lane: una cattura per campo, con <b>un solo</b> campo cambiato e l'azione scritta nel nome del file. Qui: entra in boot, leggi il registro, cambia quel campo dal programma ufficiale, rileggilo e scrivi nel riquadro «Annota» che cosa hai cambiato. Poi scarica il registro qui sotto.",
+    en:"<b>Want to help confirm the rows marked “to be tested”?</b> This is how the ID, the MAC and the pit-lane speed were closed: one capture per field, with <b>one single</b> field changed and the action written in the file name. Here: enter boot, read the register, change that field in the official program, read it again and write in the “Note” box what you changed. Then download the log below.",
+    es:"<b>¿Quieres ayudar a confirmar las filas «por probar»?</b> Así se cerraron el ID, el MAC y la velocidad del pit lane: una captura por campo, con <b>un solo</b> campo cambiado y la acción escrita en el nombre del archivo. Aquí: entra en boot, lee el registro, cambia ese campo en el programa oficial, vuelve a leerlo y escribe en el recuadro «Anota» qué has cambiado. Luego descarga el registro de abajo."
   },
 
+  /* ---- limiti ---- */
   titleLimits:{it:"Cosa questa app non fa (e perché)",en:"What this app does not do (and why)",es:"Lo que esta app no hace (y por qué)"},
   limFlash:{
-    it:"<b>Non aggiorna il firmware.</b> Il programma ufficiale lo fa; qui no. Nelle catture, appena parte il comando di aggiornamento non segue nessun blocco di dati e non ricompare nessun dispositivo in modalità aggiornamento: quel percorso ha bisogno del bootloader del produttore, che le unità di prova non hanno. Finché non è chiarito, un pulsante «aggiorna» sarebbe solo un modo per lasciare a metà un dispositivo.",
-    en:"<b>It does not update firmware.</b> The official program does; this does not. In the captures, as soon as the update command goes out no data block follows and no device reappears in update mode: that path needs the manufacturer's bootloader, which the test units do not have. Until that is cleared up, an \"update\" button would only be a way to leave a device half-written.",
-    es:"<b>No actualiza el firmware.</b> El programa oficial sí; aquí no. En las capturas, en cuanto sale el comando de actualización no sigue ningún bloque de datos ni reaparece ningún dispositivo en modo actualización: ese camino necesita el bootloader del fabricante, que las unidades de prueba no tienen. Mientras no se aclare, un botón «actualizar» solo serviría para dejar un dispositivo a medias."
+    it:"<b>Non aggiorna il firmware.</b> Via dongle, chip auto e controller attuali non accettano la scrittura del firmware (rispondono <code>AB</code>): si aggiornano via Bluetooth. Un pulsante «aggiorna» qui non farebbe niente di utile.",
+    en:"<b>It does not update firmware.</b> Through the dongle, current car chips and controllers do not accept a firmware write (they answer <code>AB</code>): they are updated over Bluetooth. An “update” button here would do nothing useful.",
+    es:"<b>No actualiza el firmware.</b> A través del dongle, los chips de coche y los mandos actuales no aceptan la escritura del firmware (responden <code>AB</code>): se actualizan por Bluetooth. Un botón «actualizar» aquí no haría nada útil."
   },
   limDfu:{
-    it:"<b>Niente comandi di aggiornamento forzato o di reset come pulsanti.</b> Esistono e sono documentati nello studio del protocollo, ma senza un bootloader pronto a raccogliere il dispositivo lo lasciano inutilizzabile: per questo non sono qui. Per lo stesso motivo la console rifiuta la <b>scrittura</b> sul registro <code>0x80</code> di chip e controller, che su quel bus avvia proprio quella procedura; leggerlo, invece, dà solo la versione firmware ed è innocuo.",
-    en:"<b>No forced-update or reset commands as buttons.</b> They exist and are documented in the protocol study, but without a bootloader ready to catch the device they leave it unusable: that is why they are not here. For the same reason the console refuses <b>writes</b> to register <code>0x80</code> on chip and controller, which on that bus starts exactly that procedure; reading it, on the other hand, only returns the firmware version and is harmless.",
-    es:"<b>Ningún comando de actualización forzada o de reinicio como botón.</b> Existen y están documentados en el estudio del protocolo, pero sin un bootloader listo para recoger el dispositivo lo dejan inservible: por eso no están aquí. Por lo mismo, la consola rechaza la <b>escritura</b> en el registro <code>0x80</code> de chip y mando, que en ese bus inicia justamente ese proceso; leerlo, en cambio, solo devuelve la versión de firmware y es inofensivo."
+    it:"<b>Niente comandi di aggiornamento forzato o di reset come pulsanti.</b> Senza un bootloader pronto a raccogliere il dispositivo lo lasciano inutilizzabile. Per lo stesso motivo la console rifiuta la <b>scrittura</b> del registro <code>0x80</code> di chip auto e controller, anche scritta a mano in esadecimale: avvia proprio quella procedura. La versione si legge sempre da <code>0x80</code>, ma in flash (op <code>0x11</code>), ed è innocua.",
+    en:"<b>No forced-update or reset commands as buttons.</b> Without a bootloader ready to catch the device they leave it unusable. For the same reason the console refuses <b>writes</b> to register <code>0x80</code> on the car chip and the controller, even typed by hand in hex: they start exactly that procedure. The version is still read from <code>0x80</code>, but in flash (op <code>0x11</code>), which is harmless.",
+    es:"<b>Ningún comando de actualización forzada o de reinicio como botón.</b> Sin un bootloader listo para recoger el dispositivo lo dejan inservible. Por lo mismo, la consola rechaza la <b>escritura</b> del registro <code>0x80</code> del chip del coche y del mando, aunque se escriba a mano en hexadecimal: inicia justamente ese proceso. La versión se sigue leyendo de <code>0x80</code>, pero en flash (op <code>0x11</code>), que es inofensivo."
+  },
+  limAct:{
+    it:"<b>Non calcola né suggerisce la chiave di attivazione.</b> La fornisce Slot.it per il MAC del dongle; l'app la inoltra soltanto, e non usa i comandi che leggono o cancellano la licenza.",
+    en:"<b>It does not compute or suggest the activation key.</b> Slot.it supplies it for the dongle's MAC; the app only forwards it, and does not use the commands that read or clear the licence.",
+    es:"<b>No calcula ni sugiere la clave de activación.</b> La proporciona Slot.it para el MAC del dongle; la app solo la reenvía, y no usa los comandos que leen o borran la licencia."
   },
   limConfig:{
-    it:"<b>Non replica ancora tutti i campi di configurazione</b> del programma ufficiale. Ci sono ID, MAC (clonazione) e velocità in corsia box, perché per quelli esiste una cattura che li dimostra. <b>Mancano</b> modalità auto/tipo pista, pattern di frequenza, modalità freno e database dei controller: si sa <i>per dove</i> passano — sono questi stessi frame a registri — ma non <i>quale</i> registro sia quale, e offrirli adesso vorrebbe dire tirare a indovinare sulla configurazione del tuo hardware.",
-    en:"<b>It does not replicate all the configuration fields</b> of the official program yet. The ID, the MAC (cloning) and the pit-lane speed are here, because for those there is a capture that proves them. <b>Missing</b>: car mode/track type, frequency pattern, brake mode and the controller database — we know <i>where</i> they travel (these same register frames) but not <i>which</i> register is which, and offering them now would mean guessing at your hardware's configuration.",
-    es:"<b>Todavía no replica todos los campos de configuración</b> del programa oficial. Están el ID, el MAC (clonación) y la velocidad en el pit lane, porque para esos hay una captura que los demuestra. <b>Faltan</b>: modo coche/tipo de pista, patrón de frecuencia, modo de freno y base de datos de mandos — se sabe <i>por dónde</i> pasan (estas mismas tramas de registros) pero no <i>qué</i> registro es cuál, y ofrecerlos ahora sería adivinar sobre la configuración de tu hardware."
+    it:"<b>Non ha un campo per ogni impostazione.</b> Ci sono ID, abbinamento, velocità in pit lane e MAC O2. Frequenza (<code>0x11</code>), modo IR (<code>0x16</code>), track call (<code>0x12</code>) e pulsanti ARC (<code>0x17</code>) si raggiungono dalla console, ma il significato dei singoli valori non è documentato: un campo con un nome vorrebbe dire tirare a indovinare sulla configurazione del tuo hardware.",
+    en:"<b>It does not have a field for every setting.</b> The ID, the pairing, the pit-lane speed and the O2 MAC are here. Frequency (<code>0x11</code>), IR mode (<code>0x16</code>), track call (<code>0x12</code>) and ARC buttons (<code>0x17</code>) can be reached from the console, but the meaning of the individual values is not documented: a named field would mean guessing at your hardware's configuration.",
+    es:"<b>No tiene un campo para cada ajuste.</b> Están el ID, la vinculación, la velocidad en el pit lane y el MAC O2. Frecuencia (<code>0x11</code>), modo IR (<code>0x16</code>), track call (<code>0x12</code>) y botones ARC (<code>0x17</code>) se alcanzan desde la consola, pero el significado de cada valor no está documentado: un campo con nombre sería adivinar sobre la configuración de tu hardware."
   },
   limRace:{
     it:"<b>Non gestisce la gara.</b> Sulla stessa porta viaggiano anche i comandi di gara e la telemetria, ma stanno nel <a href=\"../chron02/\">contagiri</a>: qui c'è solo la configurazione.",
@@ -510,25 +588,74 @@ window.I18N_STRINGS = {
     es:"<b>No gestiona la carrera.</b> Por el mismo puerto viajan también los comandos de carrera y la telemetría, pero están en el <a href=\"../chron02/\">cuentavueltas</a>: aquí solo hay configuración."
   },
 
+  /* ---- dati grezzi e registro ---- */
   sumRawLog:{it:"Dati grezzi e registro",en:"Raw data and log",es:"Datos crudos y registro"},
   lblSendRaw:{it:"Invia (hex o testo)",en:"Send (hex or text)",es:"Enviar (hex o texto)"},
   btnSend:{it:"Invia",en:"Send",es:"Enviar"},
+  rawHint:{
+    it:"In boot su chip auto o controller: solo letture (<code>&lt;prefisso&gt; 11|12 00 &lt;reg&gt; &lt;n&gt;</code>). Sul dongle: le due letture e <code>READMACVL</code>. Per scrivere usa la console registri; <code>BOOT</code> e <code>STOPBOOT</code> stanno nei pulsanti.",
+    en:"In boot mode on a car chip or controller: reads only (<code>&lt;prefix&gt; 11|12 00 &lt;reg&gt; &lt;n&gt;</code>). On the dongle: the two reads and <code>READMACVL</code>. To write, use the register console; <code>BOOT</code> and <code>STOPBOOT</code> are on the buttons.",
+    es:"En boot en un chip de coche o un mando: solo lecturas (<code>&lt;prefijo&gt; 11|12 00 &lt;reg&gt; &lt;n&gt;</code>). En el dongle: las dos lecturas y <code>READMACVL</code>. Para escribir usa la consola de registros; <code>BOOT</code> y <code>STOPBOOT</code> están en los botones."
+  },
   lblNote:{it:"Annota cosa stai facendo",en:"Note what you are doing",es:"Anota lo que estás haciendo"},
-  phNote:{it:"es. cambiato l'ID auto da 4 a 5",en:"e.g. changed the car ID from 4 to 5",es:"p. ej. cambiado el ID del coche de 4 a 5"},
+  phNote:{it:"es. cambiato l'ID del controller da 4 a 5",en:"e.g. changed the controller ID from 4 to 5",es:"p. ej. cambiado el ID del mando de 4 a 5"},
   btnNote:{it:"Annota",en:"Note",es:"Anotar"},
   btnSaveLog:{it:"Scarica registro",en:"Download log",es:"Descargar registro"},
 
   /* ---- stringhe dinamiche (JS) ---- */
   stConnected:{it:"connesso",en:"connected",es:"conectado"},
   stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
+  stReopening:{it:"riapro la porta…",en:"reopening the port…",es:"reabriendo el puerto…"},
+  devDongle:{it:"dongle",en:"dongle",es:"dongle"},
+  devCar:{it:"chip auto",en:"car chip",es:"chip del coche"},
+  devCtrl:{it:"controller SCP-3",en:"SCP-3 controller",es:"mando SCP-3"},
   logConnected:{it:"[connesso]",en:"[connected]",es:"[conectado]"},
   logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]"},
   logLost:{
-    it:"[porta USB persa — di solito è il dongle che si è riavviato (uscita dal boot, o dispositivo che non risponde). Riconnetti.]",
-    en:"[USB port lost — usually the dongle rebooted (leaving boot, or a device not answering). Reconnect.]",
-    es:"[puerto USB perdido — normalmente el dongle se ha reiniciado (salida del boot, o un dispositivo que no responde). Reconecta.]"
+    it:"[porta USB persa: di solito è il dongle che si è riavviato]",
+    en:"[USB port lost: usually the dongle rebooted]",
+    es:"[puerto USB perdido: normalmente el dongle se ha reiniciado]"
+  },
+  logWaitBack:{it:"[aspetto che il dongle ricompaia…]",en:"[waiting for the dongle to come back…]",es:"[esperando a que reaparezca el dongle…]"},
+  logBack:{it:"[dongle di nuovo collegato: porta riaperta]",en:"[dongle back: port reopened]",es:"[dongle conectado de nuevo: puerto reabierto]"},
+  logNotBack:{
+    it:"[il dongle non è ricomparso: ricollegalo e premi «Connetti dongle»]",
+    en:"[the dongle did not come back: plug it in again and press “Connect dongle”]",
+    es:"[el dongle no ha reaparecido: vuelve a conectarlo y pulsa «Conectar dongle»]"
+  },
+  logMultiPorts:{
+    it:"[ci sono più porte 1fee/0002: se hai due dongle collegati, lascia solo quello che usi]",
+    en:"[there are several 1fee/0002 ports: if two dongles are plugged in, leave only the one you are using]",
+    es:"[hay varios puertos 1fee/0002: si tienes dos dongles conectados, deja solo el que usas]"
+  },
+  logDtrFail:{it:"DTR non impostato",en:"DTR not set",es:"DTR no establecido"},
+  logReopenFirst:{
+    it:"[riapro la porta: STOPBOOT deve essere il primo messaggio]",
+    en:"[reopening the port: STOPBOOT must be the first message]",
+    es:"[reabro el puerto: STOPBOOT debe ser el primer mensaje]"
+  },
+  logResetStart:{
+    it:"[STOPBOOT come primo messaggio: il dongle si riavvia]",
+    en:"[STOPBOOT as the first message: the dongle reboots]",
+    es:"[STOPBOOT como primer mensaje: el dongle se reinicia]"
+  },
+  logNoReset:{
+    it:"[il dongle non si è riavviato dopo STOPBOOT: staccalo, riattaccalo e premi «Connetti dongle»]",
+    en:"[the dongle did not reboot after STOPBOOT: unplug it, plug it back in and press “Connect dongle”]",
+    es:"[el dongle no se ha reiniciado tras STOPBOOT: desconéctalo, vuelve a conectarlo y pulsa «Conectar dongle»]"
+  },
+  logActNot:{
+    it:"[ACTIVENOT: il dongle non è attivato — vedi «Attivazione del dongle»]",
+    en:"[ACTIVENOT: the dongle is not activated — see “Dongle activation”]",
+    es:"[ACTIVENOT: el dongle no está activado — mira «Activación del dongle»]"
+  },
+  logKeySent:{
+    it:"-> [chiave di attivazione, 6 byte: non riportata nel registro]",
+    en:"-> [activation key, 6 bytes: not written to the log]",
+    es:"-> [clave de activación, 6 bytes: no se escribe en el registro]"
   },
   errWord:{it:"errore",en:"error",es:"error"},
+  errNoPort:{it:"porta non aperta",en:"port not open",es:"puerto no abierto"},
   noSerialLog:{
     it:"[!] Web Serial non supportato: usa Chrome/Edge su computer.",
     en:"[!] Web Serial not supported: use Chrome/Edge on a computer.",
@@ -536,7 +663,12 @@ window.I18N_STRINGS = {
   },
   bootOkMsg:{it:"BOOTOK ricevuto — in boot su",en:"BOOTOK received — in boot on",es:"BOOTOK recibido — en boot en"},
   bootNoOkMsg:{it:"nessun BOOTOK (risposta:",en:"no BOOTOK (reply:",es:"sin BOOTOK (respuesta:"},
-  bootExitMsg:{it:"[STOPBOOT inviato — il dongle si riavvia, la porta può cadere]",en:"[STOPBOOT sent — the dongle reboots, the port may drop]",es:"[STOPBOOT enviado — el dongle se reinicia, el puerto puede caerse]"},
+  bootDropMsg:{
+    it:"[il dispositivo non ha risposto a BOOT e il dongle si è riavviato da solo: è in modalità programmazione, ed è vicino?]",
+    en:"[the device did not answer BOOT and the dongle rebooted by itself: is it in programming mode, and nearby?]",
+    es:"[el dispositivo no ha respondido a BOOT y el dongle se ha reiniciado solo: ¿está en modo programación, y cerca?]"
+  },
+  bootExitMsg:{it:"[STOPBOOT inviato: il dongle si riavvia]",en:"[STOPBOOT sent: the dongle reboots]",es:"[STOPBOOT enviado: el dongle se reinicia]"},
   bootStOn:{it:"in boot",en:"in boot",es:"en boot"},
   bootStOff:{it:"non in boot",en:"not in boot",es:"fuera de boot"},
   dtResponse:{it:"risposta",en:"reply",es:"respuesta"},
@@ -546,78 +678,200 @@ window.I18N_STRINGS = {
     es:"sin respuesta — el dongle no ha dicho nada dentro del tiempo de espera"
   },
   needBootMsg:{
-    it:"⚠️ Prima entra in boot. Fuori dalla sessione di boot il dongle è in modalità gara e a questi comandi non risponde: il frame parte e non torna niente. Scegli il dispositivo qui sopra e premi «Entra in boot» — quando risponde BOOTOK, i comandi si accendono.",
-    en:"⚠️ Enter boot first. Outside a boot session the dongle is in race mode and does not answer these commands: the frame goes out and nothing comes back. Pick the device above and press “Enter boot” — the commands light up when it replies BOOTOK.",
-    es:"⚠️ Entra primero en boot. Fuera de la sesión de boot el dongle está en modo carrera y no responde a estos comandos: la trama sale y no vuelve nada. Elige el dispositivo arriba y pulsa «Entrar en boot» — los comandos se activan cuando responde BOOTOK."
+    it:"⚠️ Prima entra in boot. Fuori dal boot il dongle non risponde ai comandi a registri: il frame partirebbe e non tornerebbe niente. Scegli il dispositivo e premi «Entra in boot»: quando risponde BOOTOK i comandi si accendono.",
+    en:"⚠️ Enter boot first. Outside boot mode the dongle does not answer register commands: the frame would go out and nothing would come back. Pick the device and press “Enter boot”: the commands light up when it replies BOOTOK.",
+    es:"⚠️ Entra primero en boot. Fuera del modo boot el dongle no responde a los comandos de registros: la trama saldría y no volvería nada. Elige el dispositivo y pulsa «Entrar en boot»: los comandos se activan cuando responde BOOTOK."
+  },
+  hActNot:{
+    it:"⚠️ Il dongle non è attivato (ha mandato ACTIVENOT): finché non lo attivi accetta solo i comandi di attivazione. Vedi «Attivazione del dongle» qui sopra.",
+    en:"⚠️ The dongle is not activated (it sent ACTIVENOT): until you activate it, it only accepts the activation commands. See “Dongle activation” above.",
+    es:"⚠️ El dongle no está activado (ha enviado ACTIVENOT): hasta que lo actives solo acepta los comandos de activación. Mira «Activación del dongle» arriba."
+  },
+  hWaitKey:{
+    it:"⚠️ Il dongle aspetta la chiave di attivazione e prenderebbe come chiave qualunque altro messaggio: gli altri comandi restano spenti finché non mandi la chiave.",
+    en:"⚠️ The dongle is waiting for the activation key and would take any other message as the key: the other commands stay off until you send the key.",
+    es:"⚠️ El dongle espera la clave de activación y tomaría como clave cualquier otro mensaje: los demás comandos quedan desactivados hasta que envíes la clave."
+  },
+  hOtherTarget:{
+    it:"⚠️ Sei in boot sul {cur}. Per parlare con il {sel} premi di nuovo «Entra in boot»: l'app riavvia il dongle e rientra sul dispositivo scelto.",
+    en:"⚠️ You are in boot mode on the {cur}. To talk to the {sel}, press “Enter boot” again: the app reboots the dongle and re-enters on the selected device.",
+    es:"⚠️ Estás en boot en el {cur}. Para hablar con el {sel} pulsa otra vez «Entrar en boot»: la app reinicia el dongle y vuelve a entrar en el dispositivo elegido."
+  },
+  hReopening:{
+    it:"Il dongle si sta riavviando: aspetta che la porta venga riaperta.",
+    en:"The dongle is rebooting: wait for the port to be reopened.",
+    es:"El dongle se está reiniciando: espera a que se vuelva a abrir el puerto."
   },
   fwOut:{it:"versione firmware",en:"firmware version",es:"versión de firmware"},
-  macOut:{it:"MAC",en:"MAC",es:"MAC"},
-  macOnlyDongle:{
-    it:"la lettura del MAC vale per il dongle: seleziona «Dongle».",
-    en:"reading the MAC applies to the dongle: select \"Dongle\".",
-    es:"la lectura del MAC vale para el dongle: selecciona «Dongle»."
-  },
+  macOut:{it:"MAC del dongle",en:"dongle MAC",es:"MAC del dongle"},
   regReadOut:{it:"lettura",en:"read",es:"lectura"},
   regWriteOut:{it:"scrittura",en:"write",es:"escritura"},
-  regAckDo:{it:"conferma DO ✓",en:"DO ack ✓",es:"confirmación DO ✓"},
-  regAckFf:{it:"conferma ff ✓",en:"ff ack ✓",es:"confirmación ff ✓"},
-  regNoAck:{it:"nessuna conferma attesa nella risposta",en:"no expected acknowledgement in the reply",es:"sin la confirmación esperada en la respuesta"},
   regNoResp:{it:"nessuna risposta",en:"no reply",es:"sin respuesta"},
   lenOk:{it:"lunghezza attesa ✓",en:"expected length ✓",es:"longitud esperada ✓"},
-  lenBad:{it:"attesi {n} byte, ricevuti {m} — controller accesi? (vedi avviso sopra)",en:"expected {n} bytes, got {m} — controllers powered on? (see the warning above)",es:"esperados {n} bytes, recibidos {m} — ¿mandos encendidos? (mira el aviso de arriba)"},
-  tripleHint:{it:"dati triplicati → valore {v}",en:"tripled data → value {v}",es:"datos triplicados → valor {v}"},
+  lenBad:{it:"attesi {n} byte, ricevuti {m}",en:"expected {n} bytes, got {m}",es:"esperados {n} bytes, recibidos {m}"},
+  tripleHint:{it:"dati ripetuti → valore {v}",en:"repeated data → value {v}",es:"datos repetidos → valor {v}"},
   badHex:{it:"valore hex non valido",en:"invalid hex value",es:"valor hex no válido"},
   confirmWrite:{
-    it:"Scrittura SPERIMENTALE su registro. La forma del frame non è confermata: potresti cambiare la configurazione del dispositivo senza volerlo. Procedo?",
-    en:"EXPERIMENTAL register write. The frame shape is not confirmed: you might change the device's settings without meaning to. Proceed?",
-    es:"Escritura EXPERIMENTAL en registro. La forma de la trama no está confirmada: podrías cambiar la configuración del dispositivo sin querer. ¿Continúo?"
+    it:"Scrittura del registro {reg} sul {dev}: cambia una sua impostazione. Hai annotato il valore attuale? Procedo?",
+    en:"Writing register {reg} on the {dev}: it changes one of its settings. Have you written down the current value? Proceed?",
+    es:"Escritura del registro {reg} en el {dev}: cambia uno de sus ajustes. ¿Has anotado el valor actual? ¿Continúo?"
+  },
+
+  /* ---- frame rifiutati prima di partire ---- */
+  ckDongleOnly2:{
+    it:"Non inviato: il dongle risponde solo a <code>0c 11 00 00 02</code> (versione) e <code>0c 12 00 40 01</code> (stato aggiornamento). A ogni altro <code>0c</code> ripete la risposta precedente, che sembrerebbe una lettura vera.",
+    en:"Not sent: the dongle only answers <code>0c 11 00 00 02</code> (version) and <code>0c 12 00 40 01</code> (update status). To any other <code>0c</code> it repeats its previous reply, which would look like a real read.",
+    es:"No enviado: el dongle solo responde a <code>0c 11 00 00 02</code> (versión) y <code>0c 12 00 40 01</code> (estado de actualización). A cualquier otro <code>0c</code> repite la respuesta anterior, que parecería una lectura de verdad."
+  },
+  ckReadLen:{it:"Non inviato: il registro {reg} si legge con al massimo {n} byte.",en:"Not sent: register {reg} is read with at most {n} bytes.",es:"No enviado: el registro {reg} se lee con {n} bytes como máximo."},
+  ckReadLenMax:{it:"Non inviato: da 1 a 8 byte per lettura.",en:"Not sent: 1 to 8 bytes per read.",es:"No enviado: de 1 a 8 bytes por lectura."},
+  ckRead80:{
+    it:"Non inviato: <code>0x80</code> non è un'impostazione. La versione firmware si legge in flash, con op <code>0x11</code>: <code>{pfx} 11 00 80 02</code>.",
+    en:"Not sent: <code>0x80</code> is not a setting. The firmware version is read from flash, with op <code>0x11</code>: <code>{pfx} 11 00 80 02</code>.",
+    es:"No enviado: <code>0x80</code> no es un ajuste. La versión de firmware se lee en flash, con op <code>0x11</code>: <code>{pfx} 11 00 80 02</code>."
+  },
+  ckBadOp:{
+    it:"Non inviato: le letture usano l'op 0x12 (impostazioni) o 0x11 (flash).",
+    en:"Not sent: reads use op 0x12 (settings) or 0x11 (flash).",
+    es:"No enviado: las lecturas usan la op 0x12 (ajustes) o 0x11 (flash)."
   },
   blockedDfuReg:{
-    it:"Scrittura non consentita: sul chip e sul controller il registro 0x80 avvia l'aggiornamento forzato e lascia il dispositivo inutilizzabile se non c'è un bootloader pronto. In lettura, invece, dà la versione firmware.",
-    en:"Write not allowed: on the chip and the controller, register 0x80 starts the forced update and leaves the device unusable if no bootloader is ready. Reading it, instead, returns the firmware version.",
-    es:"Escritura no permitida: en el chip y el mando, el registro 0x80 inicia la actualización forzada y deja el dispositivo inservible si no hay un bootloader listo. En lectura, en cambio, da la versión de firmware."
+    it:"Scrittura non consentita: su chip auto e controller il registro 0x80 avvia l'aggiornamento firmware e lascia il dispositivo inutilizzabile se non c'è un bootloader pronto. La versione si legge da 0x80 in flash (op 0x11).",
+    en:"Write not allowed: on the car chip and the controller, register 0x80 starts the firmware update and leaves the device unusable if no bootloader is ready. The version is read from 0x80 in flash (op 0x11).",
+    es:"Escritura no permitida: en el chip del coche y el mando, el registro 0x80 inicia la actualización de firmware y deja el dispositivo inservible si no hay un bootloader listo. La versión se lee de 0x80 en flash (op 0x11)."
+  },
+  ckNoDongleWrite:{it:"Il dongle non ha registri da scrivere da qui.",en:"The dongle has no registers to write from here.",es:"El dongle no tiene registros que escribir desde aquí."},
+  ckWriteUnknown:{
+    it:"Non inviato: il {dev} non gestisce il registro {reg}. Risponderebbe DO senza cambiare nulla.",
+    en:"Not sent: the {dev} does not handle register {reg}. It would answer DO without changing anything.",
+    es:"No enviado: el {dev} no gestiona el registro {reg}. Respondería DO sin cambiar nada."
+  },
+  ckWriteRO:{it:"Non inviato: il registro {reg} è in sola lettura.",en:"Not sent: register {reg} is read-only.",es:"No enviado: el registro {reg} es de solo lectura."},
+  ckWriteIgnored:{
+    it:"Non inviato: il {dev} ignora il registro {reg} (risponde DO ma non cambia nulla). Vale solo sul controller.",
+    en:"Not sent: the {dev} ignores register {reg} (it answers DO but changes nothing). It only applies to the controller.",
+    es:"No enviado: el {dev} ignora el registro {reg} (responde DO pero no cambia nada). Solo vale en el mando."
+  },
+  ckWriteLen:{
+    it:"Non inviato: il registro {reg} vuole {n} byte di dati (ne hai scritti {m}).",
+    en:"Not sent: register {reg} takes {n} data bytes (you wrote {m}).",
+    es:"No enviado: el registro {reg} lleva {n} bytes de datos (has escrito {m})."
+  },
+  ckTooLong:{
+    it:"Non inviato: al massimo 32 byte per messaggio (oltre, il dongle smette di seguire il PC finché non riapri la porta).",
+    en:"Not sent: at most 32 bytes per message (beyond that the dongle stops following the PC until you reopen the port).",
+    es:"No enviado: como máximo 32 bytes por mensaje (más allá, el dongle deja de seguir al PC hasta que vuelvas a abrir el puerto)."
+  },
+  ckUseButtons:{
+    it:"Non inviato: BOOT e STOPBOOT si mandano dai pulsanti, che prima riavviano il dongle. Come primo messaggio dopo una riapertura, BOOT verrebbe letto anche come comando di gara.",
+    en:"Not sent: BOOT and STOPBOOT are sent from the buttons, which reboot the dongle first. As the first message after a reopening, BOOT would also be read as a race command.",
+    es:"No enviado: BOOT y STOPBOOT se envían desde los botones, que antes reinician el dongle. Como primer mensaje tras una reapertura, BOOT se leería también como comando de carrera."
   },
   blockedRaw:{
-    it:"[comando non inviato: riguarda aggiornamento forzato, reset o attivazione — questa app non li espone]",
-    en:"[command not sent: it concerns forced update, reset or activation — this app does not expose those]",
-    es:"[comando no enviado: se refiere a actualización forzada, reinicio o activación — esta app no los expone]"
+    it:"Non inviato: riguarda aggiornamento forzato, reset, attivazione o licenza — questa app non li manda da qui.",
+    en:"Not sent: it concerns forced update, reset, activation or licence — this app does not send those from here.",
+    es:"No enviado: se refiere a actualización forzada, reinicio, activación o licencia — esta app no los envía desde aquí."
+  },
+  ckRawPfx:{
+    it:"Non inviato: in boot sul {dev} il primo byte deve essere {pfx}.",
+    en:"Not sent: in boot mode on the {dev} the first byte must be {pfx}.",
+    es:"No enviado: en boot en el {dev} el primer byte debe ser {pfx}."
+  },
+  ckRawUseWrite:{
+    it:"Non inviato: per scrivere usa «Scrivi» della console registri, che manda l'intestazione, aspetta DO e solo allora i dati.",
+    en:"Not sent: to write, use “Write” in the register console, which sends the header, waits for DO and only then sends the data.",
+    es:"No enviado: para escribir usa «Escribir» de la consola de registros, que envía la cabecera, espera el DO y solo entonces los datos."
+  },
+  ckRawOnlyReads:{
+    it:"Non inviato: in boot su chip auto o controller la console grezza manda solo letture di 5 byte (prefisso, 11 o 12, 00, registro, lunghezza).",
+    en:"Not sent: in boot mode on a car chip or controller the raw console only sends 5-byte reads (prefix, 11 or 12, 00, register, length).",
+    es:"No enviado: en boot en un chip de coche o un mando la consola en bruto solo envía lecturas de 5 bytes (prefijo, 11 o 12, 00, registro, longitud)."
+  },
+  ckWaitKey:{
+    it:"Non inviato: il dongle aspetta la chiave di attivazione e prenderebbe questo messaggio come chiave.",
+    en:"Not sent: the dongle is waiting for the activation key and would take this message as the key.",
+    es:"No enviado: el dongle espera la clave de activación y tomaría este mensaje como clave."
   },
   noteMark:{it:"nota",en:"note",es:"nota"}
 };
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="o2-bootloader",APP_VERSION="1.6.0";
+const APP="o2-bootloader",APP_VERSION="1.7.0";
 const VID=0x1fee,PID=0x0002;
 /* Il programma ufficiale apre la COM a 9600 8N1 (visto nelle catture USB). Sul
    dongle è una COM virtuale, quindi il valore è nominale — ma se un giorno in
    mezzo ci finisce un convertitore seriale vero, il baud giusto è questo. */
 const BAUD=9600;
+const MAX_USB=32;        // byte per messaggio: oltre, il dongle smette di seguire il PC
+const RESET_WAIT=3000;   // ms entro cui la porta deve cadere dopo STOPBOOT
+const BACK_WAIT=10000;   // ms entro cui il dongle deve ricomparire dopo un riavvio
+const BOOT_WAIT=2500;    // ms per BOOTOK: via radio il dongle chiama per ~1 s, poi si riavvia
 
-/* Un dispositivo per riga: il byte che lo seleziona dopo BOOT è lo stesso che poi
-   fa da prefisso ai frame a registri. Il dongle fa storia a sé: due comandi per
-   entrare in boot, e un frame di forma diversa.
-
-   ⚠️ chip e controller erano INVERTITI fino al 14/10/2026. Questi numeri sono quelli
-   dell'header di dispositivo usato dal dongle (0x09 = SCP-3, 0x0a = auto tipo C) e
-   NON coincidono con quelli del BLE, dove 0x09 è il chip auto e 0x0a l'SCP-3: due
-   numerazioni diverse con gli stessi due numeri, scambiarle è facilissimo.
-   Prova: le catture di un SCP-3 (cambio ID, MAC, velocità pit lane) usano tutte 0x09. */
+/* Il byte dopo BOOT sceglie il dispositivo, ed è lo stesso che fa da prefisso ai
+   frame a registri. Il dongle entra in boot con due messaggi: BOOT 05 non risponde
+   (ferma la radio di gara) e lascia valido il BOOT 0c che segue.
+   ⚠️ È la numerazione del DONGLE: 09 = controller SCP-3, 0a = chip auto. Sul BLE è
+   il contrario (09 = chip, 0a = SCP-3): stessi due numeri, scambiarli è facilissimo.
+   Prova: le catture USB di un SCP-3 (cambio ID, MAC, velocità pit lane) usano 09. */
 const TARGETS={
-  dongle:    {pfx:0x0c, boot:[0x05,0x0c], fwReg:0x11},
-  controller:{pfx:0x09, boot:[0x09],      fwReg:0x80},
-  chip:      {pfx:0x0a, boot:[0x0a],      fwReg:0x80}
+  dongle:    {pfx:0x0c, boot:[0x05,0x0c], dev:"devDongle"},
+  controller:{pfx:0x09, boot:[0x09],      dev:"devCtrl"},
+  chip:      {pfx:0x0a, boot:[0x0a],      dev:"devCar"}
 };
+/* Il dongle risponde soltanto a queste due letture. A ogni altro frame 0c rimanda
+   la risposta precedente: mostrarla vorrebbe dire inventare una lettura. */
+const DONGLE_READS=[[0x0c,0x11,0x00,0x00,0x02],[0x0c,0x12,0x00,0x40,0x01]];
 
-let port,writer,reader,acc=[],reading=false;
-let connState=false,inBoot=false,bootTarget=null,lastInfo=null;
+/* Registri di chip auto e controller via dongle. Da qui nascono sia la tabella a
+   video sia i controlli della console: un dato, un posto.
+   car/ctrl: "rw" lettura e scrittura, "r" sola lettura, "w" sola scrittura,
+   "ign" scrittura accettata (risponde DO) ma ignorata, null non gestito,
+   "dfu" la scrittura avvia l'aggiornamento firmware.
+   r = byte massimi in lettura (op 0x12), w = lunghezze ammesse per i dati in
+   scrittura (il dispositivo usa il 1° byte, il 1° e il 5° per 0x20, ma il checksum
+   li copre tutti). cap = visto nelle catture USB del programma ufficiale. */
+const REGS=[
+  {reg:0x00,d:"rgVer",  car:"r",  ctrl:"r",  r:2, w:null,  cap:true},
+  {reg:0x02,d:"rgId",   car:"rw", ctrl:"rw", r:2, w:[3],   cap:true},
+  {reg:0x10,d:"rgPit",  car:"ign",ctrl:"rw", r:2, w:[1],   cap:true},
+  {reg:0x11,d:"rgFreq", car:"rw", ctrl:"rw", r:2, w:[1,3], cap:true},
+  {reg:0x12,d:"rgTrack",car:null, ctrl:"w",  r:0, w:[1,3], cap:false},
+  {reg:0x16,d:"rgIr",   car:"rw", ctrl:"rw", r:2, w:[1,3], cap:true},
+  {reg:0x17,d:"rgArc",  car:null, ctrl:"rw", r:2, w:[1,3], cap:false},
+  {reg:0x20,d:"rgMac",  car:"rw", ctrl:"rw", r:5, w:[8],   cap:true},
+  {reg:0x40,d:"rgChk",  car:"r",  ctrl:"r",  r:2, w:null,  cap:true},
+  {reg:0x70,d:"rgCopy", car:"ign",ctrl:"rw", r:2, w:[2],   cap:true},
+  {reg:0x80,d:"rgDfu",  car:"dfu",ctrl:"dfu",r:0, w:null,  cap:false}
+];
+const REG={};REGS.forEach(g=>{REG[g.reg]=g;});
+
+/* ---------- stato ---------- */
+let port=null,writer=null,reader=null,loopDone=null,wantIds=null;
+let connState=false;       // l'utente ha connesso (anche mentre la porta si riapre)
+let busy=false;            // un'operazione è in corso: niente comandi sovrapposti
+let reconnecting=null;     // promessa della riapertura dopo un riavvio del dongle
+let wakeUp=null;           // risveglia l'attesa quando il browser annuncia una porta
+let sentSinceOpen=0;       // messaggi mandati da quando la porta è aperta
+let fresh=false;           // porta riaperta dopo un riavvio, e ancora intatta
+let inBoot=false,bootTarget=null;
+let activation="unknown";  // unknown | not | waitKey | yes
+let actMsg=null,lastInfo=null;
+let col=null,rxTail="";
+const dropWaiters=[];
+
 const $=id=>document.getElementById(id);
-const hx=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join(" ");
+const hex2=b=>(b&0xff).toString(16).padStart(2,"0");
+const hx=b=>[...b].map(hex2).join(" ");
 const asc=b=>[...b].map(x=>x>=32&&x<127?String.fromCharCode(x):".").join("");
+const raw=b=>String.fromCharCode(...b);
+const eqb=(a,b)=>a.length===b.length&&a.every((x,i)=>x===b[i]);
+const macTxt=m=>m.map(b=>hex2(b).toUpperCase()).join(":");
+const stripTags=s=>String(s).replace(/<[^>]+>/g,"");
+const devName=t=>I18N.t(TARGETS[t].dev);
 const t0=performance.now();
 const stamp=()=>"["+((performance.now()-t0)/1000).toFixed(3).padStart(8)+"] ";
-/* Con un controller acceso il dongle manda telemetria ogni 10 ms: senza un tetto
-   il registro cresce all'infinito e la pagina si impunta. Si tiene la coda. */
+/* Il registro ha un tetto: senza, cresce all'infinito e la pagina si impunta. */
 const log=s=>{const l=$("log");let x=l.textContent+stamp()+s+"\n";
   if(x.length>120000)x=x.slice(-80000);l.textContent=x;l.scrollTop=l.scrollHeight;};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -625,141 +879,386 @@ const enc=s=>[...new TextEncoder().encode(s)];
 const parseHex=s=>{s=(s||"").trim();if(!s)return[];if(!/^[0-9a-f ]+$/i.test(s))return null;
   const c=s.replace(/ /g,"");if(c.length%2)return null;return[...c.matchAll(/../g)].map(m=>parseInt(m[0],16));};
 const tgt=()=>$("tgt").value;
+const span=(cls,s)=>'<span class="'+cls+'">'+s+"</span>";
+const ckHtml=e=>span("bad",I18N.t(e.k,e.p));
 
-/* ---------- connessione ---------- */
-function renderStatus(){const on=connState;$("st").textContent=on?I18N.t("stConnected"):I18N.t("stDisconnected");$("st").className="pill"+(on?" on":"");}
-function renderBootPill(){const p=$("bootSt");if(!connState){p.textContent="";p.className="pill";return;}
-  p.textContent=inBoot?(I18N.t("bootStOn")+(bootTarget?" · "+bootTarget:"")):I18N.t("bootStOff");
-  p.className="pill"+(inBoot?" on":"");
-  syncBoot();}
-function setConn(on){connState=on;if(!on){inBoot=false;bootTarget=null;}renderStatus();renderBootPill();
-  $("btnConn").disabled=on;
-  document.querySelectorAll(".needc").forEach(b=>b.disabled=!on);
-  syncBoot();}
+/* ---------- porta: aprire, leggere, chiudere, ritrovare ---------- */
+async function openPort(p){
+  await p.open({baudRate:BAUD});
+  /* Senza DTR il dongle non legge e non scrive. Va rimesso a OGNI apertura. */
+  try{await p.setSignals({dataTerminalReady:true});}
+  catch(e){log("["+I18N.t("logDtrFail")+": "+e+"]");}
+  port=p;writer=p.writable.getWriter();
+  sentSinceOpen=0;fresh=false;rxTail="";
+  loopDone=readLoop(p);
+}
+async function readLoop(p){
+  for(;;){
+    const rs=p.readable;if(!rs)break;
+    let r;try{r=rs.getReader();}catch(e){break;}
+    if(p===port)reader=r;
+    let fatal=true;
+    try{for(;;){const{value,done}=await r.read();if(done)break;if(value&&value.length)onRx(value);}}
+    catch(e){fatal=false;}          // errore: se la porta ha un nuovo readable era recuperabile
+    finally{try{r.releaseLock();}catch(e){}}
+    if(p!==port)return;             // l'abbiamo chiusa noi
+    if(fatal)break;
+  }
+  if(p===port)onPortLost(p);
+}
+async function closePort(){
+  const p=port;if(!p)return;
+  port=null;                        // prima di tutto: così il ciclo di lettura sa che è voluto
+  try{if(reader)await reader.cancel();}catch(e){}
+  try{if(loopDone)await loopDone;}catch(e){}
+  try{if(writer)writer.releaseLock();}catch(e){}
+  try{await p.close();}catch(e){}
+  reader=null;writer=null;
+}
+async function reopenSame(){const p=port;await closePort();await sleep(100);await openPort(p);}
 
-/* I comandi a registri hanno senso solo DENTRO una sessione di boot: fuori, il
-   dongle è in modalità gara e non risponde. Prima erano attivi appena connessi
-   e sparavano nel vuoto — l'utente vedeva partire il frame e tornare il nulla,
-   senza capire che gli mancava un passaggio. Ora sono spenti finché non arriva
-   BOOTOK, e la riga qui sotto dice perché. */
-function syncBoot(){
-  const pronto=connState&&inBoot;
-  document.querySelectorAll(".needboot").forEach(b=>b.disabled=!pronto);
-  const n=$("bootHint"); if(n){n.hidden=!connState||inBoot; if(!n.hidden)n.textContent=I18N.t("needBootMsg");}
+/* La porta è caduta senza che l'abbiamo chiusa: il dongle si è riavviato (STOPBOOT,
+   oppure un BOOT a cui il dispositivo non ha risposto). Lo si aspetta e si riapre. */
+function onPortLost(p){
+  try{if(writer)writer.releaseLock();}catch(e){}
+  port=null;writer=null;reader=null;
+  try{p.close().catch(()=>{});}catch(e){}
+  inBoot=false;bootTarget=null;
+  if(!dropWaiters.length)log(I18N.t("logLost"));
+  const back=reopenAfterReset().finally(()=>{reconnecting=null;syncUi();});
+  reconnecting=back;
+  /* chi aspettava la caduta riceve la promessa della riapertura, non la va a
+     rileggere dopo: a quel punto `reconnecting` potrebbe essere già tornato null */
+  dropWaiters.splice(0).forEach(f=>f(back));
+  syncUi();
+}
+async function reopenAfterReset(){
+  log(I18N.t("logWaitBack"));
+  const ok=await waitForDongle(BACK_WAIT);
+  if(ok){fresh=true;log(I18N.t("logBack"));}
+  else if(connState){setConn(false);$("devname").textContent="";log(I18N.t("logNotBack"));}
+  return ok;
+}
+/* Dopo un riavvio il permesso sulla porta resta (il dongle ha un numero di serie),
+   ma il browser la ripresenta come porta nuova: la si ritrova fra quelle già
+   concesse con lo stesso VID/PID. L'evento `connect` sveglia l'attesa prima. */
+async function waitForDongle(ms){
+  const ids=wantIds||{vid:VID,pid:PID};
+  const start=performance.now();let warned=false;
+  while(performance.now()-start<ms){
+    if(!connState)return false;     // l'utente ha premuto «Disconnetti» nel frattempo
+    let ports=[];
+    try{ports=await navigator.serial.getPorts();}catch(e){}
+    const c=ports.filter(p=>{const i=p.getInfo?p.getInfo():{};
+      return i.usbVendorId===ids.vid&&i.usbProductId===ids.pid&&p.connected!==false;});
+    if(c.length>1&&!warned){warned=true;log(I18N.t("logMultiPorts"));}
+    for(const p of c){try{await openPort(p);return true;}catch(e){}}
+    await Promise.race([sleep(250),new Promise(r=>{wakeUp=r;})]);
+    wakeUp=null;
+  }
+  return false;
+}
+function expectDrop(){const d={done:false,back:null};d.fn=b=>{d.done=true;d.back=b;};dropWaiters.push(d.fn);return d;}
+function cancelDrop(d){const i=dropWaiters.indexOf(d.fn);if(i>=0)dropWaiters.splice(i,1);}
+
+function onRx(v){
+  const a=[...v];
+  if(col)col.push(...a);
+  /* Un dongle non attivato si presenta da solo con ACTIVENOT all'apertura. */
+  rxTail=(rxTail+raw(a)).slice(-48);
+  if(rxTail.includes("ACTIVENOT")){
+    rxTail="";
+    if(activation!=="waitKey"&&activation!=="not"){activation="not";log(I18N.t("logActNot"));syncUi();}
+  }
+  log("<- "+hx(a)+"  |"+asc(a)+"|");
 }
 
+/* Ogni scrittura passa da qui, ed è qui che stanno i divieti che non dipendono
+   da chi chiama: il tetto dei 32 byte e il silenzio mentre il dongle aspetta la
+   chiave (prenderebbe qualunque messaggio come chiave). */
+async function write(bytes,opts={}){
+  if(!port||!writer)throw new Error(I18N.t("errNoPort"));
+  if(bytes.length>MAX_USB)throw new Error(stripTags(I18N.t("ckTooLong")));
+  if(activation==="waitKey"&&!opts.key&&raw(bytes)!=="READACTIV")throw new Error(stripTags(I18N.t("ckWaitKey")));
+  await writer.write(new Uint8Array(bytes));
+  sentSinceOpen++;fresh=false;
+  log(opts.key?I18N.t("logKeySent"):"-> "+hx(bytes)+"  |"+asc(bytes)+"|");
+}
+/* Manda e raccoglie la risposta: si ferma prima del tempo massimo se `until` dice
+   che è arrivato tutto, o se la porta cade. */
+async function sendCollect(bytes,ms=500,until=null,opts={}){
+  const mine=[];col=mine;
+  try{
+    await write(bytes,opts);
+    const start=performance.now();
+    while(performance.now()-start<ms){
+      await sleep(15);
+      if(!port)break;
+      if(until&&until(mine)){await sleep(40);break;}
+    }
+  }finally{if(col===mine)col=null;}
+  return mine;
+}
+
+/* Un'operazione per volta: le risposte non hanno un'intestazione che dica a quale
+   comando appartengono, e due comandi sovrapposti si rubano i byte a vicenda. */
+async function run(fn){
+  if(busy)return;
+  busy=true;syncUi();
+  try{await fn();}
+  catch(e){log("["+I18N.t("errWord")+": "+((e&&e.message)||e)+"]");}
+  finally{
+    if(reconnecting){try{await reconnecting;}catch(e){}}
+    busy=false;syncUi();
+  }
+}
+
+/* ---------- connessione ---------- */
 async function connect(){
   if(!navigator.serial){$("nobt").style.display="block";return;}
-  try{
-    /* ⚠️ NIENTE filtro sul selettore delle porte.
-       `requestPort({filters:[…]})` non "suggerisce" il dispositivo giusto: lo
-       IMPONE, e il browser mostra soltanto chi combacia. Basta che il dongle
-       si presenti con un VID/PID diverso — un adattatore seriale in mezzo, un
-       bootloader diverso, un dongle di un'altra generazione — e la finestra
-       esce VUOTA, senza spiegare niente. È il difetto per cui l'utente vedeva
-       il dispositivo su altri siti (che non filtrano) e non qui.
-       Quindi: mostriamo tutte le porte, e dopo diciamo se quella scelta ha
-       l'aria giusta — un avviso, non un divieto. */
-    port=await navigator.serial.requestPort();
-    await port.open({baudRate:BAUD});
-    writer=port.writable.getWriter();
-    const i=port.getInfo?port.getInfo():{};
+  let p;
+  /* ⚠️ NIENTE filtro sul selettore delle porte: `requestPort({filters})` impone, non
+     suggerisce, e con un VID/PID diverso la finestra esce vuota. Mostriamo tutte le
+     porte e poi diciamo se quella scelta ha l'aria giusta — un avviso, non un divieto. */
+  try{p=await navigator.serial.requestPort();}
+  catch(e){log("["+I18N.t("errWord")+": "+e+"]");return;}
+  await run(async()=>{
+    const i=p.getInfo?p.getInfo():{};
+    wantIds=i.usbVendorId!=null?{vid:i.usbVendorId,pid:i.usbProductId}:null;
+    activation="unknown";actMsg=null;inBoot=false;bootTarget=null;
+    await openPort(p);
     const atteso=(i.usbVendorId===VID&&i.usbProductId===PID);
     const idtxt=i.usbVendorId!=null
       ?("VID "+i.usbVendorId.toString(16).padStart(4,"0")+"/PID "+i.usbProductId.toString(16).padStart(4,"0"))
       :I18N.t("portNoId");
-    $("devname").textContent=idtxt+" · "+BAUD+" 8N1";
+    $("devname").textContent=idtxt+" · "+BAUD+" 8N1 · DTR";
     setConn(true);log(I18N.t("logConnected"));
     log(atteso?I18N.t("portOk",{id:idtxt}):I18N.t("portOther",{id:idtxt}));
-    $("portWarn").hidden=atteso; if(!atteso)$("portWarn").textContent=I18N.t("portOther",{id:idtxt});
-    readLoop();
-  }catch(e){log("["+I18N.t("errWord")+": "+e+"]");}
+    $("portWarn").hidden=atteso;if(!atteso)$("portWarn").textContent=I18N.t("portOther",{id:idtxt});
+    await sleep(400);   // un dongle non attivato si presenta da solo con ACTIVENOT
+    renderAct();
+  });
 }
-async function disconnect(){try{reading=false;if(reader){await reader.cancel().catch(()=>{});}
-  if(writer){writer.releaseLock();}await port.close();}catch(e){}setConn(false);$("devname").textContent="";log(I18N.t("logDisconnected"));}
-async function readLoop(){reading=true;
-  while(reading&&port.readable){reader=port.readable.getReader();
-    try{while(true){const{value,done}=await reader.read();if(done)break;
-      for(const b of value)acc.push(b);if(acc.length>20000)acc=acc.slice(-8000);
-      log("<- "+hx(value)+"  |"+asc(value)+"|");}}
-    catch(e){}finally{try{reader.releaseLock();}catch(e){}}}
-  // uscita non richiesta dal loop = porta caduta (il dongle si è riavviato)
-  if(connState){setConn(false);$("devname").textContent="";log(I18N.t("logLost"));}
+async function disconnect(){
+  await closePort();setConn(false);$("devname").textContent="";$("portWarn").hidden=true;
+  log(I18N.t("logDisconnected"));
 }
-async function write(bytes){await writer.write(new Uint8Array(bytes));log("-> "+hx(bytes)+"  |"+asc(bytes)+"|");}
-async function sendCollect(bytes,ms=400){const start=acc.length;await write(bytes);await sleep(ms);return acc.slice(start);}
+function setConn(on){
+  connState=on;
+  if(!on){inBoot=false;bootTarget=null;activation="unknown";actMsg=null;fresh=false;renderAct();}
+  syncUi();
+}
 
-/* ---------- boot: il byte dopo BOOT sceglie il dispositivo ---------- */
+/* ---------- riavvio del dongle con STOPBOOT ----------
+   BOOT e STOPBOOT valgono solo come PRIMO messaggio dopo l'apertura della porta, e
+   se la porta è stata riaperta senza staccare il dongle (dopo il contagiri, per
+   esempio) quel primo messaggio viene letto anche come frame di gara: "BOOT…" ha lo
+   stato 2 = partenza nel primo byte. La sequenza sicura è: aprire, STOPBOOT come
+   primo messaggio (il dongle si riavvia e la porta cade), aspettare che ricompaia,
+   riaprire, e solo allora BOOT. STOPBOOT fa anche da sonda dell'attivazione: un
+   dongle non attivato non si riavvia, risponde ACTIVENOT.
+   -> "reset" | "notActivated" | "noReset" | "lost" */
+async function resetDongle(){
+  if(!inBoot&&sentSinceOpen>0){log(I18N.t("logReopenFirst"));await reopenSame();}
+  log(I18N.t("logResetStart"));
+  const d=expectDrop();
+  const mine=[];col=mine;
+  let res="noReset";
+  try{
+    await write(enc("STOPBOOT"));
+    const start=performance.now();
+    while(performance.now()-start<RESET_WAIT){
+      await sleep(20);
+      if(d.done){res="drop";break;}
+      /* ACTIVFAKE: il dongle era fermo ad aspettare una chiave e ha preso STOPBOOT
+         per una chiave sbagliata. Anche questo vuol dire «non attivato». */
+      if(/ACTIV(ENOT|FAKE)/.test(raw(mine))){res="notActivated";break;}
+    }
+  }finally{if(col===mine)col=null;}
+  if(res==="drop"){
+    const ok=await d.back;
+    if(ok){activation="yes";return "reset";}
+    return "lost";
+  }
+  cancelDrop(d);
+  if(res==="notActivated"){if(activation!=="not")log(I18N.t("logActNot"));activation="not";}
+  else log(I18N.t("logNoReset"));
+  return res;
+}
+
+/* ---------- boot ---------- */
 async function enterBoot(){
-  const t=tgt();acc=[];
+  const t=tgt();
+  if(!(fresh&&sentSinceOpen===0)){
+    const r=await resetDongle();
+    if(r!=="reset")return;
+  }
+  const seq=TARGETS[t].boot;
+  /* Via radio il dongle chiama il dispositivo per circa un secondo; se non risponde
+     si riavvia da solo e la porta cade. */
+  const d=expectDrop();
   let r=[];
-  for(const b of TARGETS[t].boot) r=await sendCollect([...enc("BOOT"),b], b===TARGETS[t].boot[TARGETS[t].boot.length-1]?500:200);
-  if(asc(r).includes("BOOTOK")){inBoot=true;bootTarget=t;log("["+I18N.t("bootOkMsg")+" "+t+"]");}
-  else{inBoot=false;bootTarget=null;log("["+I18N.t("bootNoOkMsg")+" "+(r.length?hx(r):"—")+")]");}
-  renderBootPill();
+  for(let i=0;i<seq.length&&!d.done;i++){
+    const last=i===seq.length-1;
+    r=await sendCollect([...enc("BOOT"),seq[i]],last?BOOT_WAIT:250,last?(x=>raw(x).includes("BOOTOK")):null);
+  }
+  if(d.done){log(I18N.t("bootDropMsg"));await d.back;return;}
+  cancelDrop(d);
+  if(raw(r).includes("BOOTOK")){inBoot=true;bootTarget=t;activation="yes";log("["+I18N.t("bootOkMsg")+" "+devName(t)+"]");}
+  else log("["+I18N.t("bootNoOkMsg")+" "+(r.length?hx(r):"—")+")]");
 }
 async function exitBoot(){
+  const d=expectDrop();
   await write(enc("STOPBOOT"));log(I18N.t("bootExitMsg"));
-  inBoot=false;bootTarget=null;renderBootPill();
+  const start=performance.now();
+  while(!d.done&&performance.now()-start<RESET_WAIT)await sleep(20);
+  if(d.done){await d.back;return;}
+  cancelDrop(d);inBoot=false;bootTarget=null;log(I18N.t("logNoReset"));
+}
+
+/* ---------- attivazione ----------
+   READACTIV -> "ACT" + 6 byte: il MAC negato bit a bit e in ordine inverso rispetto
+   a READMACVL. Lo si rimette nell'ordine di READMACVL, che è quello che vuole Slot.it.
+   Un dongle già attivato a READACTIV non risponde. */
+const ACT_TOKENS=["ACTIVENOT","ACTIVDONE","ACTIVFAKE","ACTIVECLR","ACTIVEYES"];
+function findActMac(r){
+  for(let i=0;i+9<=r.length;i++){
+    if(r[i]!==0x41||r[i+1]!==0x43||r[i+2]!==0x54)continue;       // "ACT"
+    if(ACT_TOKENS.includes(raw(r.slice(i,i+9)))){i+=8;continue;}
+    return r.slice(i+3,i+9).map(b=>(~b)&0xff).reverse();
+  }
+  return null;
+}
+async function readActiv(){
+  if(activation!=="not"&&activation!=="waitKey"&&!(fresh&&sentSinceOpen===0)){
+    const r=await resetDongle();
+    if(r!=="reset"&&r!=="notActivated")return;
+  }
+  const r=await sendCollect(enc("READACTIV"),900,x=>findActMac(x)!==null);
+  const mac=findActMac(r);
+  if(mac){activation="waitKey";actMsg={k:"actMacOut",p:{mac:macTxt(mac)},c:"ok"};}
+  else if(!r.length){activation="yes";actMsg={k:"actAlready",c:"ok"};}
+  else actMsg={k:"actOdd",p:{r:hx(r)+"  |"+asc(r)+"|"},c:"warn"};
+  renderAct();
+}
+function keyBytes(s){
+  const c=(s||"").replace(/[\s:.\-]/g,"");
+  if(!/^[0-9a-f]{12}$/i.test(c))return null;
+  return c.match(/../g).map(h=>parseInt(h,16));
+}
+async function sendKey(){
+  const k=keyBytes($("actKey").value);
+  if(!k||activation!=="waitKey")return;
+  const r=await sendCollect(k,2000,x=>/ACTIV(DONE|FAKE)/.test(raw(x)),{key:true});
+  const s=raw(r);
+  if(s.includes("ACTIVDONE")){activation="yes";actMsg={k:"actDone",c:"ok"};}
+  else if(s.includes("ACTIVFAKE"))actMsg={k:"actFake",c:"bad"};      // il dongle aspetta ancora
+  else if(!r.length)actMsg={k:"actNoReply",c:"warn"};
+  else actMsg={k:"actOdd",p:{r:hx(r)+"  |"+asc(r)+"|"},c:"warn"};
+  renderAct();
 }
 
 /* ---------- frame a registri ----------
-   Lettura  chip/controller : <pfx> <op> 00 <reg> <n>   -> risposta di <n> byte
-   Lettura  dongle          : 0c <reg> 00 00 02         -> il valore (2 byte sul registro visto)
-   Scrittura chip/controller: DUE frame —
-       intestazione  <pfx> 02 00 <reg> <n> <checksum>   -> conferma "DO"
-       dati          <n> byte                           -> conferma "DO"
-   Scrittura dongle         : 0c <reg> <alto> <basso> 01 -> conferma 0xff
-
-   ⚠️ Prima l'app mandava un frame solo, coi dati attaccati all'intestazione. Con un
-   dato da un byte sembrava funzionare — ma per un caso fortunato: con un byte solo
-   il checksum COINCIDE col valore, quindi l'intestazione risultava giusta per sbaglio
-   e il frame dei dati mancante passava inosservato. Su tutto il resto era sbagliata.  */
+   Lettura  : <pfx> <op> 00 <reg> <n>          -> risposta di <n> byte
+   Scrittura: DUE messaggi —
+       intestazione <pfx> 02 00 <reg> <n> <checksum> -> "DO" (o "AB")
+       dati         <n> byte, SOLO dopo quel DO       -> "DO" scritto / "AB" rifiutato
+   ⚠️ Conta la risposta ai DATI. Prima l'app cercava "DO" nelle due risposte messe
+   insieme, e un AB sui dati passava per "scritto ✓" grazie al DO dell'intestazione.
+   E se l'intestazione non riceve DO i dati non si mandano: il dongle è tornato ad
+   aspettare un comando, e li inoltrerebbe come se fossero un comando. */
 const cks=d=>d.reduce((a,b)=>(a+b)&0xff,0);
-function buildRead(t,reg,op,len){
-  if(t==="dongle")return[0x0c,reg,0x00,0x00,0x02];
-  return[TARGETS[t].pfx,op,0x00,reg,len];
+const pfxOf=t=>TARGETS[t].pfx;
+const buildRead=(t,op,reg,len)=>[pfxOf(t),op,0x00,reg,len];
+const buildWrite=(t,reg,data)=>[[pfxOf(t),0x02,0x00,reg,data.length,cks(data)],[...data]];
+
+async function doWrite(t,reg,data){
+  const [hdr,dat]=buildWrite(t,reg,data);
+  const r1=await sendCollect(hdr,500,x=>x.length>=2);
+  if(raw(r1)!=="DO")return {ok:false,stage:"hdr",r1};
+  const r2=await sendCollect(dat,800,x=>x.length>=2);
+  return {ok:raw(r2)==="DO",stage:"data",r1,r2};
 }
-/* -> [intestazione, dati] per chip/controller; [frame unico] per il dongle */
-function buildWrite(t,reg,data){
-  if(t==="dongle")return[[0x0c,reg,data[0]||0,data[1]||0,0x01]];
-  return[[TARGETS[t].pfx,0x02,0x00,reg,data.length,cks(data)],[...data]];
-}
-/* Manda l'intestazione, aspetta, poi i dati: il dispositivo conferma "DO" a
-   entrambi. Torna tutto quello che è arrivato, così chi chiama cerca la conferma. */
-async function sendWrite(frames,ms=350){
-  let r=[];
-  for(const f of frames) r=r.concat(await sendCollect(f,ms));
-  return r;
+function writeResultHtml(res){
+  if(res.ok)return span("ok",I18N.t("wrOk"));
+  if(res.stage==="hdr"){
+    const r=res.r1;
+    if(raw(r)==="AB")return span("bad",I18N.t("wrHdrAb"));
+    return span("bad",r.length?I18N.t("wrHdrOther",{r:hx(r)}):I18N.t("wrHdrNone"));
+  }
+  const r=res.r2;
+  if(raw(r)==="AB")return span("bad",I18N.t("wrDataAb"));
+  return span("warn",r.length?I18N.t("wrDataOther",{r:hx(r)}):I18N.t("wrDataNone"));
 }
 
-/* ---------- campi con un nome dimostrato ----------
-   Ogni riga viene da una cattura del programma ufficiale in cui è stata cambiata
-   quella sola cosa (l'azione è scritta nel nome del file) e la rilettura combacia.
+/* -> null se il frame si può mandare, altrimenti {k:chiave, p:parametri} */
+function checkRead(t,op,reg,len){
+  if(t==="dongle")return DONGLE_READS.some(f=>eqb(f,[0x0c,op,0x00,reg,len]))?null:{k:"ckDongleOnly2"};
+  if(op!==0x11&&op!==0x12)return {k:"ckBadOp"};
+  if(!(len>=1&&len<=8))return {k:"ckReadLenMax"};
+  /* 0x80 in lettura flash è la versione; fra le impostazioni non c'è. */
+  if(op===0x12&&reg===0x80)return {k:"ckRead80",p:{pfx:hex2(pfxOf(t))}};
+  let max=8;
+  if(op===0x11)max=(reg===0x80||reg===0x82)?2:5;
+  else if(REG[reg]&&REG[reg].r)max=REG[reg].r;
+  if(len>max)return {k:"ckReadLen",p:{reg:"0x"+hex2(reg),n:max}};
+  return null;
+}
+function checkWrite(t,reg,data){
+  if(t==="dongle")return {k:"ckNoDongleWrite"};
+  if(reg===0x80)return {k:"blockedDfuReg"};
+  const g=REG[reg],a=g?g[t==="chip"?"car":"ctrl"]:null;
+  const P={reg:"0x"+hex2(reg),dev:devName(t)};
+  if(!a)return {k:"ckWriteUnknown",p:P};
+  if(a==="r")return {k:"ckWriteRO",p:P};
+  if(a==="ign")return {k:"ckWriteIgnored",p:P};
+  if(!g.w.includes(data.length))return {k:"ckWriteLen",p:{reg:P.reg,n:g.w.join(I18N.t("orWord")),m:data.length}};
+  return null;
+}
+/* Invio grezzo. In boot su chip auto o controller tutto quello che non è STOPBOOT
+   finisce via radio, e i dispositivi non controllano la lunghezza di un comando:
+   per questo qui passano solo letture ben formate. */
+const RAW_FUORI=/DFU|RST|RESET|ACTIV|LIC/i;
+function checkRaw(b){
+  if(!b.length)return {k:"badHex"};
+  if(b.length>MAX_USB)return {k:"ckTooLong"};
+  const s=asc(b).toUpperCase();
+  if(/^(STOP)?BOOT/.test(s))return {k:"ckUseButtons"};
+  if(RAW_FUORI.test(s))return {k:"blockedRaw"};
+  if(b.length>=4&&b[1]===0x02&&b[2]===0x00&&b[3]===0x80)return {k:"blockedDfuReg"};
+  if(activation==="waitKey")return {k:"ckWaitKey"};
+  if(!inBoot)return {k:"needBootMsg"};
+  const t=bootTarget;
+  if(t==="dongle")return(asc(b)==="READMACVL"||DONGLE_READS.some(f=>eqb(f,b)))?null:{k:"ckDongleOnly2"};
+  if(b[0]!==pfxOf(t))return {k:"ckRawPfx",p:{dev:devName(t),pfx:hex2(pfxOf(t))}};
+  if(b.length===6&&b[1]===0x02)return {k:"ckRawUseWrite"};
+  if(b.length===5&&b[2]===0x00)return checkRead(t,b[1],b[3],b[4]);
+  return {k:"ckRawOnlyReads"};
+}
+
+/* ---------- campi con un significato documentato ----------
    `enc` costruisce i byte di DATI, `dec` rilegge la risposta.
-   ⚠️ La numerazione dei registri qui è quella del canale USB: sul Bluetooth gli
-   stessi campi hanno numeri diversi, non si copiano da un'app all'altra. */
-/* Nomi ufficiali dei registri (dai sorgenti): 0x02 = EPR_ID_BYTE, 0x10 = EPR_PIT_SPD,
- * 0x20 = EPR_MAC_BYTE. Sul CONTROLLER 0x20 e' la sua identita' O2; sull'AUTO e' il
- * controller_ID, cioe' a quale telecomando risponde (abbinamento, non "clone"). */
+   ⚠️ La numerazione dei registri è quella del canale USB: sul Bluetooth gli stessi
+   campi hanno numeri diversi, non si copiano da un'app all'altra.
+   ⚠️ 0x20 non è la stessa cosa sui due dispositivi: sul controller è il suo MAC O2,
+   sul chip auto è l'abbinamento (il MAC del controller a cui l'auto risponde). */
+const mac2=m=>[m[0],m[0],m[0],0xff,m[1],m[1],m[1],0xff];   // hi hi hi ff lo lo lo ff (n=8)
 const FIELDS={
-  /* id triplicato SENZA ff finale: n=3 */
-  carId:  {t:"chip",      reg:0x02, rd:2,        v:"vCarId",  o:"oCarId",  p:"pCarId",
+  /* ID ripetuto tre volte SENZA ff finale: n=3. Si rilegge con un byte solo. */
+  carId:  {t:"chip",      reg:0x02, rlen:1, v:"vCarId",  o:"oCarId",  p:"pCarId",
            enc:v=>[v,v,v], dec:r=>r[0], num:[1,20]},
-  ctrlId: {t:"controller",reg:0x02, rd:2,        v:"vCtrlId", o:"oCtrlId", p:"pCtrlId",
+  pair:   {t:"chip",      reg:0x20, rlen:5, v:"vPair",   o:"oPair",   p:"pPair",
+           enc:mac2, dec:r=>[r[0],r[4]], mac:true, confirm:"confirmPair"},
+  ctrlId: {t:"controller",reg:0x02, rlen:1, v:"vCtrlId", o:"oCtrlId", p:"pCtrlId",
            enc:v=>[v,v,v], dec:r=>r[0], num:[1,20]},
-  /* un byte solo: niente triplicazione, e il checksum coincide col valore */
-  pit:    {t:"chip",      reg:0x10, rd:2, rlen:2,  v:"vPit",  o:"oPit",    p:"pPit",
+  /* un byte solo: niente ripetizione, e il checksum coincide col valore. Solo sul
+     controller: il chip auto accetta la scrittura e la ignora. */
+  pit:    {t:"controller",reg:0x10, rlen:2, v:"vPit",    o:"oPit",    p:"pPit",
            enc:v=>[v], dec:r=>r[0], num:[0,255]},
-  /* MAC 2 byte: hi hi hi ff lo lo lo ff (n=8); in lettura 5 byte, basso in fondo */
-  macChip:{t:"chip",      reg:0x20, rd:2, rlen:5,  v:"vMacChip", o:"oMacChip", p:"pMacChip",
-           enc:m=>[m[0],m[0],m[0],0xff,m[1],m[1],m[1],0xff], dec:r=>[r[0],r[4]], mac:true},
-  macCtrl:{t:"controller",reg:0x20, rd:2, rlen:5,  v:"vMacCtrl", o:"oMacCtrl", p:"pMacCtrl",
-           enc:m=>[m[0],m[0],m[0],0xff,m[1],m[1],m[1],0xff], dec:r=>[r[0],r[4]], mac:true}
+  macCtrl:{t:"controller",reg:0x20, rlen:5, v:"vMacCtrl",o:"oMacCtrl",p:"pMacCtrl",
+           enc:mac2, dec:r=>[r[0],r[4]], mac:true, confirm:"confirmMac"}
 };
-const RD_OP=0x12;   // EEPROM_BLK_RDG: legge le IMPOSTAZIONI (0x11 = FLASH_BLK_RDG, la flash)
-const fldReadLen=f=>f.rlen||1;
-const hex2=b=>b.toString(16).padStart(2,"0");
+const RD_OP=0x12;   // lettura delle impostazioni (0x11 = flash)
 
 /* Il campo MAC accetta due byte in esadecimale. Il limite lo fa il filtro, NON
    l'attributo maxlength: con maxlength il browser tronca PRIMA che il JS pulisca,
@@ -782,108 +1281,114 @@ function fldFrames(k){
   return buildWrite(f.t,f.reg,f.enc(val));
 }
 async function fldRead(k){
-  const f=FIELDS[k],out=$(f.o),len=fldReadLen(f);
-  const r=await sendCollect(buildRead(f.t,f.reg,RD_OP,len),400);
+  const f=FIELDS[k],out=$(f.o),len=f.rlen;
+  const r=await sendCollect(buildRead(f.t,RD_OP,f.reg,len),500,x=>x.length>=len);
   if(r.length!==len){
-    out.innerHTML='<span class="warn">'+I18N.t("fldBadRead",{m:r.length,n:len})+"</span>";
+    out.innerHTML=span("warn",raw(r)==="AB"?I18N.t("fldRejected"):I18N.t("fldBadRead",{m:r.length,n:len}));
     return;
   }
   const d=f.dec(r);
-  if(f.mac){$(f.v).value=hex2(d[0])+" "+hex2(d[1]);
-    out.innerHTML='<span class="ok">'+I18N.t("fldRead")+": "+hex2(d[0])+":"+hex2(d[1])+"</span>";}
-  else{$(f.v).value=d;out.innerHTML='<span class="ok">'+I18N.t("fldRead")+": "+d+"</span>";}
+  if(f.mac){f.cur=hex2(d[0])+":"+hex2(d[1]);$(f.v).value=hex2(d[0])+" "+hex2(d[1]);
+    out.innerHTML=span("ok",I18N.t("fldRead")+": "+f.cur);}
+  else{$(f.v).value=d;out.innerHTML=span("ok",I18N.t("fldRead")+": "+d);}
   renderFields();
 }
 async function fldWrite(k){
-  const f=FIELDS[k],out=$(f.o),frames=fldFrames(k);
-  if(!frames){out.innerHTML='<span class="bad">'+I18N.t("fldBadVal")+"</span>";return;}
-  if(f.mac&&!confirm(I18N.t("confirmMac")))return;
-  const r=await sendWrite(frames);
-  out.innerHTML=asc(r).includes("DO")
-    ? '<span class="ok">'+I18N.t("fldWritten")+"</span>"
-    : '<span class="warn">'+I18N.t("fldNoAck")+"</span>";
+  const f=FIELDS[k],out=$(f.o),val=fldValue(k);
+  if(val===null){out.innerHTML=span("bad",I18N.t("fldBadVal"));return;}
+  const data=f.enc(val),e=checkWrite(f.t,f.reg,data);
+  if(e){out.innerHTML=ckHtml(e);return;}
+  if(f.mac){
+    const cur=f.cur?I18N.t("curRead",{v:f.cur}):I18N.t("curNone");
+    if(!confirm(I18N.t(f.confirm,{new:hex2(val[0])+":"+hex2(val[1]),cur:cur})))return;
+  }
+  out.innerHTML=writeResultHtml(await doWrite(f.t,f.reg,data));
 }
 
 /* Mostra solo i campi del dispositivo scelto: sul dongle non ne esiste nessuno,
    e allora la card lo dice invece di restare vuota. */
 function renderFields(){
   const t=tgt();let visibili=0;
-  document.querySelectorAll(".fld").forEach(d=>{
-    const on=d.dataset.tgt===t;d.hidden=!on;if(on)visibili++;
+  document.querySelectorAll("[data-tgt]").forEach(d=>{
+    const on=d.dataset.tgt===t;d.hidden=!on;if(on&&d.classList.contains("fld"))visibili++;
   });
   /* innerHTML e non textContent: la stringa ha del grassetto dentro, ed è nostra
-     (viene dal dizionario, non dal dispositivo) — con textContent si leggerebbero
-     i tag a video. */
+     (viene dal dizionario, non dal dispositivo). */
   const h=$("fldHint");h.hidden=visibili>0;
   if(!h.hidden)$("fldHintTxt").innerHTML=I18N.t("fldPickChip");
   for(const k in FIELDS){
     const f=FIELDS[k];if(f.t!==t)continue;
     const fr=fldFrames(k);
-    $(f.p).textContent=I18N.t("regReadOut")+": "+hx(buildRead(f.t,f.reg,RD_OP,fldReadLen(f)))+
+    $(f.p).textContent=I18N.t("regReadOut")+": "+hx(buildRead(f.t,RD_OP,f.reg,f.rlen))+
       "   ·   "+I18N.t("regWriteOut")+": "+(fr?hx(fr[0])+" + "+hx(fr[1]):"—");
   }
 }
-/* Il selettore parte da "dongle", e su quel dispositivo questi campi non
-   esistono: la card resta vuota e la funzione sembra non esserci. Spiegarlo non
-   basta — chi legge deve comunque andare a cercare una tendina che sta in
-   un'altra card. Due pulsanti ce lo portano in un clic. */
-function vaiA(t){ $("tgt").value=t; $("tgt").dispatchEvent(new Event("change")); }
+/* Il selettore parte da "dongle", dove questi campi non esistono: due pulsanti
+   portano a chi li ha, in un clic. */
+function vaiA(t){$("tgt").value=t;$("tgt").dispatchEvent(new Event("change"));}
 $("goChip").onclick=()=>vaiA("chip");
 $("goCtrl").onclick=()=>vaiA("controller");
 
-const curReg=()=>parseInt(($("regA").value||"0").trim(),16)&0xff;
+/* ---------- console registri ---------- */
+const curReg=()=>{const s=($("regA").value||"").trim();return /^[0-9a-f]{1,2}$/i.test(s)?parseInt(s,16):null;};
 const curOp=()=>parseInt($("regOp").value,16)&0xff;
-const curLen=()=>Math.max(1,Math.min(16,+$("regL").value||1));
-
-/* Sul chip e sul controller la scrittura del registro 0x80 avvia l'aggiornamento
-   forzato: senza un bootloader pronto il dispositivo resta inutilizzabile. In
-   lettura lo stesso registro dà solo la versione firmware, quindi si blocca solo
-   la scrittura. */
-const writeBlocked=(t,reg)=>(t!=="dongle"&&reg===0x80);
+const curLen=()=>parseInt($("regL").value,10)||0;
 
 function renderPreview(){
-  const t=tgt(),dg=t==="dongle";
-  $("regL").disabled=dg;$("regOp").disabled=dg;
-  $("lbLen").style.opacity=dg?".45":"";
-  $("lbVal").textContent=I18N.t(dg?"lblValDongle":"lblVal");
-  $("prevR").textContent=I18N.t("regReadOut")+": "+hx(buildRead(t,curReg(),curOp(),curLen()));
-  /* Quello che si scrive nel campo sono i byte di DATI, cioè quelli che finiscono
-     nel secondo frame: lunghezza e checksum dell'intestazione li calcola l'app.
-     Per i campi a più byte i dati vanno già triplicati — la regola è qui sotto. */
+  const t=tgt(),reg=curReg();
+  $("prevR").textContent=I18N.t("regReadOut")+": "+(reg===null?"—":hx(buildRead(t,curOp(),reg,curLen()&0xff)));
+  /* Quello che si scrive nel campo sono i byte di DATI, cioè quelli del secondo
+     messaggio: lunghezza e checksum dell'intestazione li calcola l'app. */
   const v=parseHex($("regV").value);
-  const fr=(v&&v.length)?buildWrite(t,curReg(),v):null;
-  $("prevW").textContent=I18N.t("regWriteOut")+": "+
-    (fr?(fr.length>1?hx(fr[0])+" + "+hx(fr[1]):hx(fr[0])):"—");
+  const fr=(t!=="dongle"&&reg!==null&&v&&v.length)?buildWrite(t,reg,v):null;
+  $("prevW").textContent=I18N.t("regWriteOut")+": "+(fr?hx(fr[0])+" + "+hx(fr[1]):"—");
+  const n=$("conHint");n.hidden=t!=="dongle";if(!n.hidden)n.innerHTML=I18N.t("conDongle");
 }
-
 async function readReg(){
-  const t=tgt(),reg=curReg(),len=curLen();
-  const r=await sendCollect(buildRead(t,reg,curOp(),len),400);
+  const t=tgt(),reg=curReg(),op=curOp(),len=curLen();
+  if(reg===null){$("regOut").innerHTML=span("bad",I18N.t("badHex"));return;}
+  const e=checkRead(t,op,reg,len);
+  if(e){$("regOut").innerHTML=ckHtml(e);return;}
+  const r=await sendCollect(buildRead(t,op,reg,len),500,x=>x.length>=len);
   let extra="";
-  if(!r.length)extra="";
-  else if(t!=="dongle")extra=(r.length===len)
-    ? ' <span class="ok">'+I18N.t("lenOk")+"</span>"
-    : ' <span class="warn">'+I18N.t("lenBad").replace("{n}",len).replace("{m}",r.length)+"</span>";
-  /* Un tempo qui si segnalavano i «marcatori a blocchi RRR/SSS». Non esistono:
-     erano semplicemente i dati triplicati (52 52 52 ff = il byte 0x52 ripetuto),
-     che a stamparli come testo somigliano a "RRR". Ora si dice il valore vero. */
+  if(r.length)extra=" "+(r.length===len?span("ok",I18N.t("lenOk")):span("warn",I18N.t("lenBad",{n:len,m:r.length})));
+  /* 52 52 52 ff non è un «marcatore RRR»: è il byte 0x52 ripetuto. */
   if(r.length>=4&&r[0]===r[1]&&r[1]===r[2]&&r[3]===0xff)
-    extra+=' <span class="ok">'+I18N.t("tripleHint",{v:"0x"+hex2(r[0])})+"</span>";
-  $("regOut").innerHTML="<b>"+I18N.t("regReadOut")+"</b> 0x"+reg.toString(16).padStart(2,"0")+" ["+t+"] → "+
+    extra+=" "+span("ok",I18N.t("tripleHint",{v:"0x"+hex2(r[0])}));
+  $("regOut").innerHTML="<b>"+I18N.t("regReadOut")+"</b> 0x"+hex2(reg)+" ["+devName(t)+"] → "+
     (r.length?hx(r)+"  |"+asc(r)+"|":I18N.t("regNoResp"))+extra;
 }
 async function writeReg(){
   const t=tgt(),reg=curReg();
-  if(writeBlocked(t,reg)){$("regOut").innerHTML='<span class="bad">'+I18N.t("blockedDfuReg")+"</span>";return;}
+  if(reg===null){$("regOut").innerHTML=span("bad",I18N.t("badHex"));return;}
   const vals=parseHex($("regV").value);
-  if(vals===null||!vals.length){$("regOut").innerHTML='<span class="bad">'+I18N.t("badHex")+"</span>";return;}
-  if(!confirm(I18N.t("confirmWrite")))return;
-  const r=await sendWrite(buildWrite(t,reg,vals),400);
-  const s=asc(r);let ack="";
-  if(t==="dongle")ack=r.includes(0xff)?' <span class="ok">'+I18N.t("regAckFf")+"</span>":' <span class="warn">'+I18N.t("regNoAck")+"</span>";
-  else ack=s.includes("DO")?' <span class="ok">'+I18N.t("regAckDo")+"</span>":' <span class="warn">'+I18N.t("regNoAck")+"</span>";
-  $("regOut").innerHTML="<b>"+I18N.t("regWriteOut")+"</b> 0x"+reg.toString(16).padStart(2,"0")+" ["+t+"] → "+
-    (r.length?hx(r)+"  |"+asc(r)+"|":I18N.t("regNoResp"))+ack;
+  if(vals===null||!vals.length){$("regOut").innerHTML=span("bad",I18N.t("badHex"));return;}
+  const e=checkWrite(t,reg,vals);
+  if(e){$("regOut").innerHTML=ckHtml(e);return;}
+  if(!confirm(I18N.t("confirmWrite",{reg:"0x"+hex2(reg),dev:devName(t)})))return;
+  const res=await doWrite(t,reg,vals);
+  $("regOut").innerHTML="<b>"+I18N.t("regWriteOut")+"</b> 0x"+hex2(reg)+" ["+devName(t)+"] → "+
+    hx(res.r1||[])+(res.r2?" · "+hx(res.r2):"")+" — "+writeResultHtml(res);
+}
+async function sendRaw(){
+  const s=$("rawIn").value.trim();if(!s)return;
+  const isHex=/^[0-9a-f ]+$/i.test(s)&&s.replace(/ /g,"").length%2===0;
+  const b=isHex?parseHex(s):enc(s);
+  const e=checkRaw(b);
+  if(e){$("rawOut").innerHTML=ckHtml(e);log("["+stripTags(I18N.t(e.k,e.p))+"]");return;}
+  $("rawOut").innerHTML="";
+  await sendCollect(b,500);
+}
+
+/* La tabella dei registri si disegna da REGS: è la stessa tabella che decide che
+   cosa la console accetta, quindi non può dire una cosa diversa. */
+function renderRegTable(){
+  const cell=a=>I18N.t({rw:"cRW",r:"cR",w:"cW",ign:"cIgn",dfu:"cDfu"}[a]||"cNone");
+  const len=g=>(g.r?g.r:"—")+" / "+(g.w?g.w.join(I18N.t("orWord")):"—");
+  $("regTbody").innerHTML=REGS.map(g=>"<tr><td><code>0x"+hex2(g.reg)+"</code></td><td>"+I18N.t(g.d)+
+    "</td><td>"+cell(g.car)+"</td><td>"+cell(g.ctrl)+'</td><td class="len"><code>'+len(g)+"</code></td><td>"+
+    (g.cap?'<span class="tag conf">'+I18N.t("tagConf")+"</span>":'<span class="tag hyp">'+I18N.t("tagTodo")+"</span>")+
+    "</td></tr>").join("");
 }
 
 /* ---------- info in sola lettura ---------- */
@@ -891,49 +1396,121 @@ function renderInfo(){
   if(!lastInfo)return;
   const{kind,t,r}=lastInfo;
   let out;
-  if(kind==="fw"&&r.length>=2)out="<b>"+I18N.t("fwOut")+" ["+t+"]</b> → v"+r[0]+"."+r[1]+"  ("+hx(r.slice(0,2))+")";
-  else if(kind==="mac"&&r.length>=6)out="<b>"+I18N.t("macOut")+"</b> → "+
-    [...r.slice(0,6)].reverse().map(b=>b.toString(16).padStart(2,"0").toUpperCase()).join(":");
-  else out="<b>"+I18N.t("dtResponse")+" ["+t+"]</b> → "+(r.length?hx(r)+"  |"+asc(r)+"|":I18N.t("dtEmpty"));
+  if(kind==="fw"&&r.length>=2)out="<b>"+I18N.t("fwOut")+" ["+devName(t)+"]</b> → v"+r[0]+"."+r[1]+"  ("+hx(r.slice(0,2))+")";
+  /* READMACVL manda già il byte più significativo per primo, come lo mostra il
+     programma ufficiale: non si gira. */
+  else if(kind==="mac"&&r.length>=6)out="<b>"+I18N.t("macOut")+"</b> → "+macTxt(r.slice(0,6));
+  else out="<b>"+I18N.t("dtResponse")+" ["+devName(t)+"]</b> → "+(r.length?hx(r)+"  |"+asc(r)+"|":I18N.t("dtEmpty"));
   $("infoOut").innerHTML=out;
 }
 async function readFw(){
   const t=tgt();
-  // Stesso frame del programma ufficiale: sul dongle 0c 11 00 00 02, altrove il registro 0x80.
-  const f=t==="dongle"?buildRead("dongle",TARGETS.dongle.fwReg,0,0):buildRead(t,TARGETS[t].fwReg,0x11,2);
-  const r=await sendCollect(f,400);
+  /* Stesso frame del programma ufficiale: sul dongle 0c 11 00 00 02, altrove il
+     registro 0x80 letto in flash. */
+  const f=t==="dongle"?DONGLE_READS[0]:buildRead(t,0x11,0x80,2);
+  const r=await sendCollect(f,500,x=>x.length>=2);
   lastInfo={kind:"fw",t:t,r:r};renderInfo();
 }
 async function readMac(){
-  if(tgt()!=="dongle"){$("infoOut").innerHTML='<span class="warn">'+I18N.t("macOnlyDongle")+"</span>";return;}
-  const r=await sendCollect(enc("READMACVL"),400);
+  const r=await sendCollect(enc("READMACVL"),500,x=>x.length>=6);
   lastInfo={kind:"mac",t:"dongle",r:r};renderInfo();
 }
 
-/* ---------- wiring ---------- */
-$("btnConn").onclick=connect;$("btnDisc").onclick=disconnect;
-$("btnBoot").onclick=enterBoot;$("btnStop").onclick=exitBoot;
-$("btnFw").onclick=readFw;$("btnMac").onclick=readMac;
-$("btnRead").onclick=readReg;$("btnWrite").onclick=writeReg;
+/* ---------- stato a video ---------- */
+function renderStatus(){
+  const s=$("st");
+  if(reconnecting){s.textContent=I18N.t("stReopening");s.className="pill warn";}
+  else if(connState){s.textContent=I18N.t("stConnected");s.className="pill on";}
+  else{s.textContent=I18N.t("stDisconnected");s.className="pill";}
+}
+function renderBootPill(){
+  const p=$("bootSt");
+  p.hidden=!connState;
+  if(!connState){p.textContent="";p.className="pill";return;}
+  p.textContent=inBoot?(I18N.t("bootStOn")+" · "+devName(bootTarget)):I18N.t("bootStOff");
+  p.className="pill"+(inBoot?" on":"");
+}
+function renderAct(){
+  const p=$("actSt");
+  p.hidden=!connState;
+  if(!connState){p.textContent="";p.className="pill";}
+  else{
+    const m={unknown:["actStUnknown",""],not:["actStNot"," bad"],waitKey:["actStWait"," warn"],yes:["actStYes"," on"]}[activation];
+    p.textContent=I18N.t(m[0]);p.className="pill"+m[1];
+  }
+  $("actOut").innerHTML=actMsg?span(actMsg.c,I18N.t(actMsg.k,actMsg.p)):"";
+}
+/* Perché i comandi sono spenti: una riga sola, la più importante. */
+function gateMsg(){
+  if(!connState)return null;
+  if(reconnecting)return I18N.t("hReopening");
+  if(activation==="not")return I18N.t("hActNot");
+  if(activation==="waitKey")return I18N.t("hWaitKey");
+  if(!inBoot)return I18N.t("needBootMsg");
+  if(bootTarget!==tgt())return I18N.t("hOtherTarget",{cur:devName(bootTarget),sel:devName(tgt())});
+  return null;
+}
+function actGate(){
+  if(!connState)return null;
+  if(inBoot)return I18N.t("hActInBoot");
+  if(activation==="yes")return I18N.t("hActYes");
+  if(activation!=="waitKey")return I18N.t("hActNeedRead");
+  if(!keyBytes($("actKey").value))return I18N.t("hActBadKey");
+  return null;
+}
+/* Un pulsante attivo promette che funzionerà: se manca una precondizione resta
+   spento, e la riga accanto dice quale. */
+function syncUi(){
+  const idle=connState&&!!port&&!busy&&!reconnecting;
+  const actBlock=activation==="not"||activation==="waitKey";
+  const t=tgt();
+  const ready=idle&&inBoot&&bootTarget===t&&!actBlock;
+  $("btnConn").disabled=connState||busy||!navigator.serial;
+  $("btnDisc").disabled=!connState||busy;
+  $("btnBoot").disabled=!idle||actBlock;
+  $("btnStop").disabled=!idle||!inBoot;
+  document.querySelectorAll(".needboot").forEach(b=>{b.disabled=!ready;});
+  $("btnMac").disabled=!ready||t!=="dongle";       // READMACVL esiste solo sul dongle
+  $("btnWrite").disabled=!ready||t==="dongle";     // sul dongle non c'è niente da scrivere
+  $("btnRaw").disabled=!(idle&&inBoot&&!actBlock);
+  $("btnActRead").disabled=!idle||inBoot;
+  $("btnActSend").disabled=!idle||activation!=="waitKey"||!keyBytes($("actKey").value);
+  const g=gateMsg(),n=$("bootHint");n.hidden=!g;if(g)n.textContent=g;
+  const a=actGate(),h=$("actHint");h.hidden=!a;if(a)h.textContent=a;
+  document.querySelectorAll(".needboot").forEach(b=>{b.title=b.disabled&&g?g:"";});
+  $("btnActSend").title=$("btnActSend").disabled&&a?a:"";
+  renderStatus();renderBootPill();renderAct();
+  document.body.setAttribute("aria-busy",(busy||reconnecting)?"true":"false");
+}
+
+/* ---------- collegamenti ---------- */
+$("btnConn").onclick=connect;
+$("btnDisc").onclick=()=>run(disconnect);
+$("btnBoot").onclick=()=>run(enterBoot);
+$("btnStop").onclick=()=>run(exitBoot);
+$("btnFw").onclick=()=>run(readFw);
+$("btnMac").onclick=()=>run(readMac);
+$("btnRead").onclick=()=>run(readReg);
+$("btnWrite").onclick=()=>run(writeReg);
+$("btnRaw").onclick=()=>run(sendRaw);
+$("btnActRead").onclick=()=>run(readActiv);
+$("btnActSend").onclick=()=>run(sendKey);
+$("actKey").oninput=syncUi;
 ["tgt","regA","regOp","regL","regV"].forEach(id=>{$(id).oninput=renderPreview;$(id).onchange=renderPreview;});
+$("tgt").addEventListener("change",()=>{renderFields();syncUi();});
 
 /* campi noti: i pulsanti si chiamano b<Nome>R / b<Nome>W, uno per campo */
-const BTN={carId:"CarId",ctrlId:"CtrlId",pit:"Pit",macChip:"MacChip",macCtrl:"MacCtrl"};
+const BTN={carId:"CarId",pair:"Pair",ctrlId:"CtrlId",pit:"Pit",macCtrl:"MacCtrl"};
 for(const k in BTN){
-  $("b"+BTN[k]+"R").onclick=()=>fldRead(k);
-  $("b"+BTN[k]+"W").onclick=()=>fldWrite(k);
+  $("b"+BTN[k]+"R").onclick=()=>run(()=>fldRead(k));
+  $("b"+BTN[k]+"W").onclick=()=>run(()=>fldWrite(k));
   $(FIELDS[k].v).oninput=renderFields;
   $(FIELDS[k].v).onchange=renderFields;
 }
-$("tgt").addEventListener("change",renderFields);
 
-/* Invio grezzo: utile per provare frame a mano, ma i comandi che avviano
-   aggiornamenti forzati, reset o toccano l'attivazione restano fuori. */
-const RAW_FUORI=/DFU|RST|RESET|ACTIV|LIC/i;
-$("btnRaw").onclick=async()=>{const s=$("rawIn").value.trim();if(!s)return;
-  const isHex=/^[0-9a-f ]+$/i.test(s)&&s.replace(/ /g,"").length%2===0;
-  if(!isHex&&RAW_FUORI.test(s)){log(I18N.t("blockedRaw"));return;}
-  await write(isHex?parseHex(s):enc(s));};
+/* Il browser annuncia una porta che ricompare: sveglia chi la sta aspettando. */
+if(navigator.serial&&navigator.serial.addEventListener)
+  navigator.serial.addEventListener("connect",()=>{if(wakeUp){const f=wakeUp;wakeUp=null;f();}});
 
 $("btnNote").onclick=()=>{const s=$("noteIn").value.trim();if(!s)return;
   log("## "+I18N.t("noteMark")+": "+s);$("noteIn").value="";};
@@ -944,8 +1521,8 @@ $("btnSave").onclick=()=>{
   a.download="configuratore-dongle-"+new Date().toISOString().replace(/[:.]/g,"-")+".txt";
   a.click();URL.revokeObjectURL(a.href);};
 
-/* ri-render del dinamico al cambio lingua */
-function renderAll(){renderStatus();renderBootPill();renderInfo();renderPreview();renderFields();}
+/* ri-render del dinamico al cambio lingua (e a dizionario pronto) */
+function renderAll(){renderInfo();renderPreview();renderFields();renderRegTable();syncUi();}
 document.addEventListener("i18n:changed",renderAll);
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",renderAll);
 renderAll();
