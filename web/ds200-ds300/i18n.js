@@ -347,10 +347,13 @@
     },
   };
 
-  const STORAGE_KEY = 'ds200.lang';
+  // Una sola chiave per tutto il sito (vedi cronometro/i18n.js); la vecchia
+  // resta come ripiego per chi aveva già scelto una lingua prima.
+  const STORAGE_KEY = 'lang';
+  const OLD_KEY = 'ds200.lang';
 
   function detect() {
-    const saved = (() => { try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; } })();
+    const saved = (() => { try { return localStorage.getItem(STORAGE_KEY) || localStorage.getItem(OLD_KEY); } catch (e) { return null; } })();
     if (saved && LANGS.includes(saved)) return saved;
     const nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
     const two = nav.slice(0, 2).toLowerCase();

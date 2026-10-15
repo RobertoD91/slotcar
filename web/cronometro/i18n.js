@@ -592,11 +592,17 @@
     }
   };
 
-  var STORAGE_KEY = "cronometro.lang";
+  /* Una sola chiave per tutto il sito: la lingua scelta in una pagina vale in
+     tutte le altre (prima ogni motore di traduzione aveva la sua, e scegliere
+     l'inglese nell'indice non cambiava il cronometro). La vecchia chiave resta
+     come ripiego per chi aveva già scelto prima della modifica. Le pagine a 3
+     lingue, se trovano fr o de, ripiegano sulla lingua del browser. */
+  var STORAGE_KEY = "lang";
+  var OLD_KEY = "cronometro.lang";
 
   function detect() {
     var saved = null;
-    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) { saved = null; }
+    try { saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(OLD_KEY); } catch (e) { saved = null; }
     if (saved && LANGS.indexOf(saved) >= 0) return saved;
     var nav = (navigator.languages && navigator.languages[0]) || navigator.language || "en";
     var two = nav.slice(0, 2).toLowerCase();

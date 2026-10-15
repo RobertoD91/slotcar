@@ -109,6 +109,18 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   ok(bodyEn.includes('DS200 / DS300 lap counter'), 'card DS200 tradotta in EN');
   ok((await page.locator('#__disc').innerText()).includes('Independent, unofficial'), 'disclaimer EN');
   ok((await page.locator('#ver').innerText()).includes('site v'), 'footer ri-renderizzato in EN');
+  /* La lingua è UNA per tutto il sito: i motori di traduzione sono tre (i18n.js e
+     quelli di cronometro e DS200) e ognuno aveva la sua chiave, quindi scegliere
+     l'inglese qui non cambiava le altre due app. Ora leggono tutti "lang". */
+  // Spagnolo, non inglese: il browser dei test è già in inglese, e con "en" il
+  // controllo passerebbe anche se ogni app ripiegasse sulla lingua del browser.
+  await page.selectOption('#__langsel', 'es');
+  for (const path of ['cronometro/', 'ds200-ds300/']) {
+    await page.goto(BASE + '/' + path, { waitUntil: 'networkidle' });
+    const l = await page.evaluate(() => document.documentElement.lang);
+    ok(l === 'es', `${path.padEnd(14)} segue la lingua scelta nell'indice (lang=${l})`);
+  }
+  await page.goto(BASE + '/', { waitUntil: 'networkidle' });
   await page.selectOption('#__langsel', 'it');
 
   // ---------- ogni app: carica + link di ritorno ----------
