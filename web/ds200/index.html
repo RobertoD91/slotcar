@@ -35,17 +35,28 @@
 /* Questa pagina esiste SOLO come rete di sicurezza, e si può cancellare fra qualche mese.
    L'app stava qui ed è una PWA con service worker CACHE-FIRST: chi l'aveva aperta ha un SW
    registrato su questo percorso che continuerebbe a servire la copia in cache, senza mai
-   vedere che l'app si è spostata. Quindi prima lo disinstalliamo e svuotiamo le cache. */
+   vedere che l'app si è spostata. Quindi prima lo disinstalliamo e buttiamo le sue cache.
+
+   ⚠️ SOLO le sue. Il dominio ospita il resto del sito (e altri siti): prima qui si
+   disinstallavano TUTTI i service worker dell'origine e si svuotavano TUTTE le cache,
+   compresa quella del Cronometro web — che offline poi non si apriva più.
+   - service worker: solo quello con lo scope che finisce in /ds200/;
+   - cache: solo quelle che iniziano con `ds200-` (la vecchia app le chiamava
+     `ds200-v…`), ma NON `ds200-ds300-…`, che sono dell'app nuova. */
+function nostraCache(k) { return k.indexOf("ds200-") === 0 && k.indexOf("ds200-ds300-") !== 0; }
 var jobs = [];
 try {
   if ("serviceWorker" in navigator) {
     jobs.push(navigator.serviceWorker.getRegistrations()
-      .then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })
+      .then(function (rs) {
+        return Promise.all(rs.filter(function (r) { return /\/ds200\/$/.test(r.scope); })
+                             .map(function (r) { return r.unregister(); }));
+      })
       .catch(function () {}));
   }
   if (window.caches && caches.keys) {
     jobs.push(caches.keys()
-      .then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })
+      .then(function (ks) { return Promise.all(ks.filter(nostraCache).map(function (k) { return caches.delete(k); })); })
       .catch(function () {}));
   }
 } catch (e) {}

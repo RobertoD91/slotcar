@@ -118,6 +118,12 @@ L'utente è italiano: **rispondere in italiano**.
       sui casi che la documentazione non copre (modalità GP, gara in pausa, fine gara,
       rifornimenti).
 
+**Sito — tutte le pagine**
+- [ ] ⭐ **Cronometro offline dopo il DS200** (service worker corretti, sito 2.28.0): apri il
+      Cronometro web, poi il contagiri DS200, poi stacca la rete (modalità aereo) e **riapri
+      il Cronometro: deve aprirsi**. Prima le due PWA si cancellavano la cache a vicenda, e
+      il cronometro offline non partiva più. Già che ci sei, riapri anche il DS200 offline.
+
 ### Cronometro web — le prossime tappe
 Motore, simulatore, modalità *pratica* e *GP a giri*, guidatori modificabili, voce, 5 lingue
 e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla volta:
@@ -232,7 +238,9 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   in `web/index.html`, altrimenti compare il banner «Aggiorna» a vuoto. Le PWA
   (`ds200-ds300/`, `cronometro/`) hanno una cache propria **cache-first**: lì vanno alzati
   anche `CACHE` in `sw.js`, le query `?v=` e `APP_VERSION` — se te ne dimentichi, chi ha
-  già aperto la pagina resta sulla copia vecchia per sempre.
+  già aperto la pagina resta sulla copia vecchia per sempre. Tutte le query portano **la
+  versione dell'app**, anche `../ui.css` (era `?v=2`, fermo mentre il foglio cambiava):
+  lo controlla `check-versions.js`.
 - ⭐ **I colori stanno in `web/ui.css`, uno solo — e lo verifica `check-style.js`.** Se
   aggiungi una pagina, linka quello e non ricopiare `:root{--bg:…}`: prima era copiato in
   sette file e aveva già prodotto due rossi e quattro gialli diversi. `ui.css` va caricato
@@ -594,6 +602,15 @@ distinguibili e il giro veloce non è una lotteria. Il grande orologio resta a d
   all'inizio, non quanti ne regge: «aggiungi guidatore» nasceva spento su una pista finta
   che ti avrebbe seguito volentieri. Nella definizione ci va **quanti ne accetta**; il
   numero si stringe sul reale alla connessione.
+- ⭐ **Service worker che puliscono casa degli altri.** Le cache stanno per ORIGINE, non
+  per cartella: Cronometro e DS200 condividono lo stesso «armadio» (e sul dominio ci sono
+  anche altri siti). Ognuno all'attivazione cancellava «tutto quello che non si chiama come
+  me»: aperto il DS200 spariva la cache del cronometro, e offline non si apriva più. Lo
+  stub `ds200/` faceva di peggio, disinstallava TUTTI i service worker e svuotava TUTTE le
+  cache. Regola: ognuno cancella solo il **proprio prefisso** (`oxigen-web-`, `cronometro-`,
+  `ds200-`) e cerca solo nella **propria** cache. E `version.json` non si mette mai in cache:
+  la radice ne salvava una copia per ogni pagina aperta (`?_=<ora>`), senza limite.
+  Lo smoke test apre le due PWA una dopo l'altra e conta le cache.
 - **Rientranza nel simulatore**: nel ciclo che spara gli eventi scaduti, un evento può far
   finire la gara → chi ascolta ferma il simulatore → il piano diventa `null` **mentre siamo
   ancora dentro il ciclo**. Il controllo all'ingresso non basta: va rifatto ad ogni giro.

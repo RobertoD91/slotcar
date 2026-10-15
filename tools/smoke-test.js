@@ -253,6 +253,63 @@ const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fail+
   }
   await stretta.close();
 
+  /* ⭐ Le cache stanno per ORIGINE, non per cartella: Cronometro e DS200 le
+     tengono nello stesso posto. Ognuno all'attivazione cancellava «tutto quello
+     che non si chiama come me», quindi aperto il DS200 spariva la cache del
+     cronometro — che offline non si apriva più. E il service worker di radice
+     metteva in cache ogni `version.json?_=<ora>`: una copia per pagina aperta,
+     senza limite. Nessuno dei due difetti si vede a rete accesa: si contano le
+     cache. Contesto nuovo, così si parte da zero. */
+  console.log('\n== SERVICE WORKER E CACHE ==');
+  const swCtx = await browser.newContext();
+  const sw = await swCtx.newPage();
+  const cache = () => sw.evaluate(async () => {
+    const out = { nomi: [], versioni: 0 };
+    for (const k of await caches.keys()) {
+      out.nomi.push(k);
+      const c = await caches.open(k);
+      out.versioni += (await c.keys()).filter((r) => /\/version\.json/.test(r.url)).length;
+    }
+    return out;
+  });
+  /* La cache-first riempie la sua cache all'installazione: si aspetta che ci sia. */
+  const aspettaCache = async (prefisso) => {
+    for (let i = 0; i < 40; i++) {
+      if ((await cache()).nomi.some((k) => k.startsWith(prefisso))) return true;
+      await sw.waitForTimeout(250);
+    }
+    return false;
+  };
+  await sw.goto(BASE + '/', { waitUntil: 'networkidle' });
+  await sw.goto(BASE + '/cronometro/', { waitUntil: 'networkidle' });
+  ok(await aspettaCache('cronometro-'), 'il cronometro ha la sua cache');
+  await sw.goto(BASE + '/ds200-ds300/', { waitUntil: 'networkidle' });
+  ok(await aspettaCache('ds200-'), 'il DS200 ha la sua cache');
+  await sw.waitForTimeout(500);                 // l'attivazione cancella le vecchie
+  let c = await cache();
+  ok(c.nomi.some((k) => k.startsWith('cronometro-')) && c.nomi.some((k) => k.startsWith('ds200-')),
+    'dopo cronometro e DS200 ci sono ENTRAMBE le cache: ' + c.nomi.join(', '));
+  /* version.json: aprendo più pagine le copie non devono crescere (e infatti
+     non ce ne deve essere nessuna: va sempre in rete). */
+  const prima = c.versioni;
+  for (const p of ['', 'car-config/', 'chron02/', 'guida-oxigen/', 'ninco/', '']) {
+    await sw.goto(BASE + '/' + p, { waitUntil: 'networkidle' });
+  }
+  c = await cache();
+  ok(c.versioni === 0 && c.versioni <= prima,
+    `version.json non finisce in cache aprendo sei pagine (copie: ${prima} → ${c.versioni})`);
+  /* Lo stub della vecchia app DS200 deve togliere solo il SUO service worker e le
+     SUE cache: il cronometro deve restare installato e con la cache piena. */
+  await sw.goto(BASE + '/ds200/');
+  await sw.waitForURL(/ds200-ds300\/$/, { timeout: 6000 }).catch(() => {});
+  await sw.waitForLoadState('networkidle');
+  c = await cache();
+  const scope = await sw.evaluate(async () =>
+    (await navigator.serviceWorker.getRegistrations()).map((r) => r.scope.replace(location.origin, '')));
+  ok(c.nomi.some((k) => k.startsWith('cronometro-')) && scope.includes('/cronometro/'),
+    'lo stub ds200/ non tocca il cronometro (cache: ' + c.nomi.join(', ') + ' · sw: ' + scope.join(' ') + ')');
+  await swCtx.close();
+
   console.log('\n== ERRORI CONSOLE ==');
   // L'unica risorsa esterna del sito è esp-web-tools (unpkg) su flash.html: in questa
   // sandbox l'egress è bloccato, quindi quel fallimento è atteso e non conta come bug.

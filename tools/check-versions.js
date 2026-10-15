@@ -79,6 +79,41 @@ for (const voce of fs.readdirSync(WEB, { withFileTypes: true })) {
   }
 }
 
+/* ⭐ Le due PWA cache-first. Lì la versione non basta scriverla in un posto: il
+ * nome della cache in sw.js e OGNI query `?v=` (in index.html e nell'elenco di
+ * sw.js) devono portare APP_VERSION. Se la cache non cambia nome, chi ha già
+ * aperto l'app resta sulla copia vecchia per sempre; se una query resta
+ * indietro, quel file non si aggiorna — è successo a `ui.css?v=2`, fermo mentre
+ * il foglio comune cambiava sotto. */
+const PWA = [
+  ['cronometro', 'cronometro/app.js', /var APP_VERSION = "([^"]+)"/],
+  ['ds200-ds300', 'ds200-ds300/app.js', /const APP_VERSION = '([^']+)'/],
+];
+for (const [dir, appRel, re] of PWA) {
+  const leggi = (rel) => {
+    const f = path.join(WEB, rel);
+    return fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : null;
+  };
+  const app = leggi(appRel), sw = leggi(dir + '/sw.js'), html = leggi(dir + '/index.html');
+  const mv = app && app.match(re);
+  if (!mv || !sw || !html) { console.log(`❌ ${dir}: manca APP_VERSION, sw.js o index.html`); errori++; continue; }
+  const v = mv[1];
+  const mc = sw.match(/const CACHE = [^\n]*?v([0-9][0-9.]*)['"]/);
+  if (!mc) { console.log(`❌ ${dir}/sw.js: non trovo la versione nel nome della cache`); errori++; }
+  else if (mc[1] !== v) {
+    console.log(`❌ ${dir}/sw.js: cache v${mc[1]}, APP_VERSION ${v} ` +
+                `(→ chi ha già aperto l'app resta sulla copia vecchia)`);
+    errori++;
+  } else visti++;
+  for (const [rel, testo] of [[dir + '/index.html', html], [dir + '/sw.js', sw]]) {
+    const storte = [...testo.matchAll(/([\w./-]+)\?v=([^"'&\s]+)/g)].filter((m) => m[2] !== v);
+    for (const m of storte) {
+      console.log(`❌ ${rel}: ${m[1]}?v=${m[2]}, ma l'app è ${v} (→ quel file resta vecchio in cache)`);
+      errori++;
+    }
+  }
+}
+
 /* E il contrario: voci pubblicate che nessuno dichiara. Non è un errore — una
    pagina statica può non avere versione — ma vale la pena vederle. */
 const dichiarate = new Set(sorgenti.map(([rel, re, k]) => {
