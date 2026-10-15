@@ -31,7 +31,7 @@
 </head>
 <body class="app">
   <!-- `noser`, non `nobt`: è la fascia della Web Serial (il nome veniva dalle app Bluetooth). -->
-  <div id="noser" class="banner nope" hidden data-i18n-html="noSerial"></div>
+  <div id="noser" class="banner nope" hidden data-i18n-html="noDongle"></div>
   <div id="notact" class="banner nope" hidden data-i18n-html="notActBanner"></div>
   <div id="nover" class="banner error" hidden data-i18n-html="noVerBanner"></div>
   <div id="upd" class="banner upd" hidden><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
@@ -174,247 +174,301 @@
 
 <script>
 window.I18N_STRINGS = {
-  portNoId:{it:"porta senza identificativo USB",en:"port with no USB id",es:"puerto sin identificador USB"},
+  portNoId:{it:"porta senza identificativo USB",en:"port with no USB id",es:"puerto sin identificador USB",fr:"port sans identifiant USB",de:"Port ohne USB-Kennung"},
   portOk:{
     it:"Porta {id}: è il dongle oXigen atteso.",
     en:"Port {id}: this is the expected oXigen dongle.",
-    es:"Puerto {id}: es el dongle oXigen esperado."
+    es:"Puerto {id}: es el dongle oXigen esperado.",
+    fr:"Port {id} : c'est bien le dongle oXigen attendu.",
+    de:"Port {id}: Das ist der erwartete oXigen-Dongle."
   },
   portOther:{
     it:"⚠️ Porta {id}: non è il VID/PID del dongle oXigen (1fee/0002). Provo lo stesso — potrebbe essere un adattatore seriale in mezzo, o un dongle diverso. Se non risponde alla richiesta di versione, hai scelto la porta sbagliata.",
     en:"⚠️ Port {id}: this is not the oXigen dongle VID/PID (1fee/0002). Trying anyway — it may be a serial adapter in between, or a different dongle. If it does not answer the version request, you picked the wrong port.",
-    es:"⚠️ Puerto {id}: no es el VID/PID del dongle oXigen (1fee/0002). Lo intento igualmente — puede ser un adaptador serie por medio, o un dongle distinto. Si no responde a la petición de versión, has elegido el puerto equivocado."
+    es:"⚠️ Puerto {id}: no es el VID/PID del dongle oXigen (1fee/0002). Lo intento igualmente — puede ser un adaptador serie por medio, o un dongle distinto. Si no responde a la petición de versión, has elegido el puerto equivocado.",
+    fr:"⚠️ Port {id} : ce n'est pas le VID/PID du dongle oXigen (1fee/0002). J'essaie quand même — il y a peut-être un adaptateur série entre les deux, ou un autre dongle. S'il ne répond pas à la demande de version, tu as choisi le mauvais port.",
+    de:"⚠️ Port {id}: Das ist nicht die VID/PID des oXigen-Dongles (1fee/0002). Ich versuche es trotzdem — vielleicht steckt ein serieller Adapter dazwischen, oder es ist ein anderer Dongle. Antwortet er nicht auf die Versionsabfrage, hast du den falschen Port gewählt."
   },
 
   sub:{
-    it:"Contagiri e gestione gara oXigen col dongle USB Slot.it (<b>Web Serial</b>, VID 1FEE/PID 0002): comanda la gara, manda i limiti ai telecomandi e mostra telemetria e classifica dal vivo. <b>Solo su hardware tuo.</b>",
-    en:"oXigen lap counter and race manager with the Slot.it USB dongle (<b>Web Serial</b>, VID 1FEE/PID 0002): it runs the race, sends limits to the controllers and shows live telemetry and leaderboard. <b>Only on your own hardware.</b>",
-    es:"Cuentavueltas y gestor de carrera oXigen con el dongle USB Slot.it (<b>Web Serial</b>, VID 1FEE/PID 0002): manda la carrera, envía los límites a los mandos y muestra telemetría y clasificación en vivo. <b>Solo en tu propio hardware.</b>"
+    it:"Contagiri e gestione gara oXigen col dongle USB Slot.it (<b>Web Serial</b>, su Android <b>WebUSB</b>; VID 1FEE/PID 0002): comanda la gara, manda i limiti ai controller e mostra telemetria e classifica dal vivo. <b>Solo su hardware tuo.</b>",
+    en:"oXigen lap counter and race manager with the Slot.it USB dongle (<b>Web Serial</b>, <b>WebUSB</b> on Android; VID 1FEE/PID 0002): it runs the race, sends limits to the controllers and shows live telemetry and leaderboard. <b>Only on your own hardware.</b>",
+    es:"Cuentavueltas y gestor de carrera oXigen con el dongle USB Slot.it (<b>Web Serial</b>, en Android <b>WebUSB</b>; VID 1FEE/PID 0002): manda la carrera, envía los límites a los mandos y muestra telemetría y clasificación en vivo. <b>Solo en tu propio hardware.</b>",
+    fr:"Compte-tours et gestion de course oXigen avec le dongle USB Slot.it (<b>Web Serial</b>, <b>WebUSB</b> sur Android ; VID 1FEE/PID 0002) : il dirige la course, envoie les limites aux manettes et affiche en direct la télémétrie et le classement. <b>Uniquement sur ton propre matériel.</b>",
+    de:"Rundenzähler und Rennsteuerung für oXigen mit dem USB-Dongle von Slot.it (<b>Web Serial</b>, auf Android <b>WebUSB</b>; VID 1FEE/PID 0002): steuert das Rennen, schickt die Limits an die Handregler und zeigt Telemetrie und Wertung live. <b>Nur mit eigener Hardware.</b>"
   },
-  h1title:{it:"Contagiri gara (chron02)",en:"Race lap counter (chron02)",es:"Cuentavueltas de carrera (chron02)"},
-  btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle"},
-  btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
+  h1title:{it:"Contagiri gara (chron02)",en:"Race lap counter (chron02)",es:"Cuentavueltas de carrera (chron02)",fr:"Compte-tours de course (chron02)",de:"Renn-Rundenzähler (chron02)"},
+  btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle",fr:"🔌 Connecter le dongle",de:"🔌 Dongle verbinden"},
+  btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar",fr:"Déconnecter",de:"Trennen"},
 
   notActBanner:{
     it:"⚠️ Questo dongle <b>non è attivato</b>: risponde <code>ACTIVENOT</code> e la radio di gara resta spenta, quindi qui non si può fare niente. L'attivazione si fa dal <a href=\"../o2-bootloader/\">configuratore dongle</a> (premi prima Disconnetti: la porta la può usare una pagina alla volta).",
     en:"⚠️ This dongle is <b>not activated</b>: it answers <code>ACTIVENOT</code> and the race radio stays off, so nothing can be done here. Activation is done from the <a href=\"../o2-bootloader/\">dongle configurator</a> (press Disconnect first: only one page at a time can use the port).",
-    es:"⚠️ Este dongle <b>no está activado</b>: responde <code>ACTIVENOT</code> y la radio de carrera queda apagada, así que aquí no se puede hacer nada. La activación se hace desde el <a href=\"../o2-bootloader/\">configurador del dongle</a> (pulsa antes Desconectar: el puerto solo lo puede usar una página a la vez)."
+    es:"⚠️ Este dongle <b>no está activado</b>: responde <code>ACTIVENOT</code> y la radio de carrera queda apagada, así que aquí no se puede hacer nada. La activación se hace desde el <a href=\"../o2-bootloader/\">configurador del dongle</a> (pulsa antes Desconectar: el puerto solo lo puede usar una página a la vez).",
+    fr:"⚠️ Ce dongle <b>n'est pas activé</b> : il répond <code>ACTIVENOT</code> et la radio de course reste éteinte, donc on ne peut rien faire ici. L'activation se fait depuis le <a href=\"../o2-bootloader/\">configurateur du dongle</a> (appuie d'abord sur Déconnecter : le port ne peut servir qu'à une page à la fois).",
+    de:"⚠️ Dieser Dongle ist <b>nicht aktiviert</b>: Er antwortet <code>ACTIVENOT</code> und der Rennfunk bleibt aus, hier lässt sich also nichts machen. Die Aktivierung erfolgt im <a href=\"../o2-bootloader/\">Dongle-Konfigurator</a> (drücke vorher Trennen: Den Port kann immer nur eine Seite gleichzeitig nutzen)."
   },
   noVerBanner:{
     it:"⚠️ Il dongle <b>non ha risposto alla richiesta di versione</b> entro un secondo, e senza quella risposta non si avvia la radio. Succede quando la porta viene riaperta senza staccare il dongle: resta agganciato alla sessione precedente e ignora un nuovo avvio. Premi Disconnetti, <b>stacca e riattacca il dongle</b>, poi Connetti (in alternativa, il reset del <a href=\"../o2-bootloader/\">configuratore dongle</a>).",
     en:"⚠️ The dongle <b>did not answer the version request</b> within one second, and without that answer the radio does not start. It happens when the port is reopened without unplugging the dongle: it stays locked to the previous session and ignores a new start. Press Disconnect, <b>unplug and replug the dongle</b>, then Connect (or use the reset in the <a href=\"../o2-bootloader/\">dongle configurator</a>).",
-    es:"⚠️ El dongle <b>no ha respondido a la petición de versión</b> en un segundo, y sin esa respuesta la radio no arranca. Pasa cuando el puerto se reabre sin desenchufar el dongle: sigue enganchado a la sesión anterior e ignora un nuevo arranque. Pulsa Desconectar, <b>desenchufa y vuelve a enchufar el dongle</b> y luego Conectar (o usa el reset del <a href=\"../o2-bootloader/\">configurador del dongle</a>)."
+    es:"⚠️ El dongle <b>no ha respondido a la petición de versión</b> en un segundo, y sin esa respuesta la radio no arranca. Pasa cuando el puerto se reabre sin desenchufar el dongle: sigue enganchado a la sesión anterior e ignora un nuevo arranque. Pulsa Desconectar, <b>desenchufa y vuelve a enchufar el dongle</b> y luego Conectar (o usa el reset del <a href=\"../o2-bootloader/\">configurador del dongle</a>).",
+    fr:"⚠️ Le dongle <b>n'a pas répondu à la demande de version</b> en moins d'une seconde, et sans cette réponse la radio ne démarre pas. Cela arrive quand le port est rouvert sans débrancher le dongle : il reste accroché à la session précédente et ignore un nouveau démarrage. Appuie sur Déconnecter, <b>débranche et rebranche le dongle</b>, puis sur Connecter (ou bien utilise la réinitialisation du <a href=\"../o2-bootloader/\">configurateur du dongle</a>).",
+    de:"⚠️ Der Dongle <b>hat nicht innerhalb einer Sekunde auf die Versionsabfrage geantwortet</b>, und ohne diese Antwort startet der Funk nicht. Das passiert, wenn der Port wieder geöffnet wird, ohne den Dongle abzuziehen: Er hängt noch an der vorherigen Sitzung und ignoriert einen neuen Start. Drücke Trennen, <b>zieh den Dongle ab und steck ihn wieder ein</b>, dann Verbinden (oder nutze den Reset im <a href=\"../o2-bootloader/\">Dongle-Konfigurator</a>)."
   },
-  hsWait:{it:"attendo la versione…",en:"waiting for the version…",es:"esperando la versión…"},
-  hsSynced:{it:"dongle v{v} · agganciato",en:"dongle v{v} · locked",es:"dongle v{v} · enganchado"},
-  hsNoVer:{it:"nessuna risposta",en:"no answer",es:"sin respuesta"},
-  hsNotAct:{it:"dongle non attivato",en:"dongle not activated",es:"dongle no activado"},
+  hsWait:{it:"attendo la versione…",en:"waiting for the version…",es:"esperando la versión…",fr:"en attente de la version…",de:"warte auf die Version…"},
+  hsSynced:{it:"dongle v{v} · agganciato",en:"dongle v{v} · locked",es:"dongle v{v} · enganchado",fr:"dongle v{v} · synchronisé",de:"Dongle v{v} · synchronisiert"},
+  hsNoVer:{it:"nessuna risposta",en:"no answer",es:"sin respuesta",fr:"aucune réponse",de:"keine Antwort"},
+  hsNotAct:{it:"dongle non attivato",en:"dongle not activated",es:"dongle no activado",fr:"dongle non activé",de:"Dongle nicht aktiviert"},
 
-  titleRaceCtrl:{it:"Controllo gara",en:"Race control",es:"Control de carrera"},
-  rsFree:{it:"🟢 Gara libera",en:"🟢 Free run",es:"🟢 Carrera libre"},
-  rsStart:{it:"▶ Avvia gara",en:"▶ Start race",es:"▶ Iniciar carrera"},
-  rsPause:{it:"⏸ Pausa",en:"⏸ Pause",es:"⏸ Pausa"},
-  rsStop:{it:"⏹ Stop (ferma auto)",en:"⏹ Stop (halt cars)",es:"⏹ Stop (parar coches)"},
-  rsPace:{it:"🐢 Pace car",en:"🐢 Pace car",es:"🐢 Pace car"},
-  rsPaceLc:{it:"🐢 Pace car, corsia bloccata",en:"🐢 Pace car, lane change locked",es:"🐢 Pace car, cambio de carril bloqueado"},
+  titleRaceCtrl:{it:"Controllo gara",en:"Race control",es:"Control de carrera",fr:"Direction de course",de:"Rennleitung"},
+  rsFree:{it:"🟢 Gara libera",en:"🟢 Free run",es:"🟢 Carrera libre",fr:"🟢 Roulage libre",de:"🟢 Freies Fahren"},
+  rsStart:{it:"▶ Avvia gara",en:"▶ Start race",es:"▶ Iniciar carrera",fr:"▶ Lancer la course",de:"▶ Rennen starten"},
+  rsPause:{it:"⏸ Pausa",en:"⏸ Pause",es:"⏸ Pausa",fr:"⏸ Pause",de:"⏸ Pause"},
+  rsStop:{it:"⏹ Stop (ferma auto)",en:"⏹ Stop (halt cars)",es:"⏹ Stop (parar coches)",fr:"⏹ Stop (arrête les voitures)",de:"⏹ Stop (Autos anhalten)"},
+  rsPace:{it:"🐢 Pace car",en:"🐢 Pace car",es:"🐢 Pace car",fr:"🐢 Pace car",de:"🐢 Pace-Car"},
+  rsPaceLc:{it:"🐢 Pace car, corsia bloccata",en:"🐢 Pace car, lane change locked",es:"🐢 Pace car, cambio de carril bloqueado",fr:"🐢 Pace car, changement de voie bloqué",de:"🐢 Pace-Car, Spurwechsel gesperrt"},
   needSync:{
     it:"I pulsanti si accendono quando il dongle ha risposto con la versione: connettilo prima.",
     en:"The buttons turn on once the dongle has answered with its version: connect it first.",
-    es:"Los botones se activan cuando el dongle ha respondido con su versión: conéctalo primero."
+    es:"Los botones se activan cuando el dongle ha respondido con su versión: conéctalo primero.",
+    fr:"Les boutons s'activent quand le dongle a répondu avec sa version : connecte-le d'abord.",
+    de:"Die Schaltflächen werden aktiv, sobald der Dongle mit seiner Version geantwortet hat: Verbinde ihn zuerst."
   },
-  lblPit:{it:"Giri in pit-lane",en:"Laps in the pit lane",es:"Vueltas en el pit-lane"},
-  optPit60:{it:"non contati",en:"not counted",es:"no contadas"},
-  optPit00:{it:"contati all'entrata",en:"counted at the entry",es:"contadas a la entrada"},
-  optPit20:{it:"contati all'uscita",en:"counted at the exit",es:"contadas a la salida"},
-  lblMaxSpeed:{it:"Velocità max (gara e pace car)",en:"Max speed (race and pace car)",es:"Velocidad máx. (carrera y pace car)"},
-  lblTimer:{it:"Cronometro",en:"Race timer",es:"Cronómetro"},
-  txLabel:{it:"ultimo frame inviato:",en:"last frame sent:",es:"última trama enviada:"},
+  lblPit:{it:"Giri in pit-lane",en:"Laps in the pit lane",es:"Vueltas en el pit-lane",fr:"Tours dans la voie des stands",de:"Runden in der Boxengasse"},
+  optPit60:{it:"non contati",en:"not counted",es:"no contadas",fr:"non comptés",de:"nicht gezählt"},
+  optPit00:{it:"contati all'entrata",en:"counted at the entry",es:"contadas a la entrada",fr:"comptés à l'entrée",de:"bei der Einfahrt gezählt"},
+  optPit20:{it:"contati all'uscita",en:"counted at the exit",es:"contadas a la salida",fr:"comptés à la sortie",de:"bei der Ausfahrt gezählt"},
+  lblMaxSpeed:{it:"Velocità max (gara e pace car)",en:"Max speed (race and pace car)",es:"Velocidad máx. (carrera y pace car)",fr:"Vitesse max (course et pace car)",de:"Höchstgeschwindigkeit (Rennen und Pace-Car)"},
+  lblTimer:{it:"Cronometro",en:"Race timer",es:"Cronómetro",fr:"Chronomètre",de:"Rennuhr"},
+  txLabel:{it:"ultimo frame inviato:",en:"last frame sent:",es:"última trama enviada:",fr:"dernière trame envoyée :",de:"zuletzt gesendeter Frame:"},
   raceHint:{
-    it:"All'avvio il dongle è in <b>gara libera</b>: i telecomandi guidano senza limiti e la velocità max qui sopra non conta. <b>Stop</b> e <b>Pausa</b> fermano tutte le auto. <b>Avvia</b> dopo uno Stop (o la prima volta) azzera giri, tempi e comandi nel dongle: l'app rimanda da sola i limiti che hai impostato. In gara libera i telecomandi tengono la velocità che avevano, che dopo Stop o Pausa è zero: per questo, tornando in gara libera da lì, l'app passa per mezzo secondo da pace car a velocità piena. Il dongle non ha timeout: <b>Disconnetti</b> durante una gara manda prima uno Stop.",
+    it:"All'avvio il dongle è in <b>gara libera</b>: i controller guidano senza limiti e la velocità max qui sopra non conta. <b>Stop</b> e <b>Pausa</b> fermano tutte le auto. <b>Avvia</b> dopo uno Stop (o la prima volta) azzera giri, tempi e comandi nel dongle: l'app rimanda da sola i limiti che hai impostato. In gara libera i controller tengono la velocità che avevano, che dopo Stop o Pausa è zero: per questo, tornando in gara libera da lì, l'app passa per mezzo secondo da pace car a velocità piena. Il dongle non ha timeout: <b>Disconnetti</b> durante una gara manda prima uno Stop.",
     en:"At startup the dongle is in <b>free run</b>: the controllers drive with no limit and the max speed above does not apply. <b>Stop</b> and <b>Pause</b> halt every car. <b>Start</b> after a Stop (or the first time) clears laps, times and commands in the dongle: the app re-sends the limits you set on its own. In free run the controllers keep the speed they had, which is zero after Stop or Pause: so, going back to free run from there, the app goes through pace car at full speed for half a second. The dongle has no timeout: <b>Disconnect</b> during a race sends a Stop first.",
-    es:"Al arrancar el dongle está en <b>carrera libre</b>: los mandos conducen sin límites y la velocidad máx. de arriba no cuenta. <b>Stop</b> y <b>Pausa</b> paran todos los coches. <b>Iniciar</b> después de un Stop (o la primera vez) pone a cero vueltas, tiempos y comandos en el dongle: la app reenvía sola los límites que has puesto. En carrera libre los mandos mantienen la velocidad que tenían, que después de Stop o Pausa es cero: por eso, al volver a carrera libre desde ahí, la app pasa medio segundo por pace car a velocidad máxima. El dongle no tiene timeout: <b>Desconectar</b> durante una carrera envía antes un Stop."
+    es:"Al arrancar el dongle está en <b>carrera libre</b>: los mandos conducen sin límites y la velocidad máx. de arriba no cuenta. <b>Stop</b> y <b>Pausa</b> paran todos los coches. <b>Iniciar</b> después de un Stop (o la primera vez) pone a cero vueltas, tiempos y comandos en el dongle: la app reenvía sola los límites que has puesto. En carrera libre los mandos mantienen la velocidad que tenían, que después de Stop o Pausa es cero: por eso, al volver a carrera libre desde ahí, la app pasa medio segundo por pace car a velocidad máxima. El dongle no tiene timeout: <b>Desconectar</b> durante una carrera envía antes un Stop.",
+    fr:"Au démarrage, le dongle est en <b>roulage libre</b> : les manettes roulent sans limite et la vitesse max ci-dessus ne compte pas. <b>Stop</b> et <b>Pause</b> arrêtent toutes les voitures. <b>Lancer</b> après un Stop (ou la première fois) remet à zéro les tours, les temps et les commandes dans le dongle : l'app renvoie d'elle-même les limites que tu as définies. En roulage libre, les manettes gardent la vitesse qu'elles avaient, qui est nulle après Stop ou Pause : c'est pourquoi, quand tu reviens de là au roulage libre, l'app passe une demi-seconde en pace car à pleine vitesse. Le dongle n'a pas de délai d'expiration : <b>Déconnecter</b> pendant une course envoie d'abord un Stop.",
+    de:"Beim Start ist der Dongle im <b>freien Fahren</b>: Die Handregler fahren ohne Begrenzung, und die Höchstgeschwindigkeit oben gilt nicht. <b>Stop</b> und <b>Pause</b> halten alle Autos an. <b>Starten</b> nach einem Stop (oder beim ersten Mal) setzt Runden, Zeiten und Befehle im Dongle zurück: Die App schickt die eingestellten Limits von selbst erneut. Im freien Fahren behalten die Handregler ihre bisherige Geschwindigkeit, und die ist nach Stop oder Pause null: Deshalb schaltet die App beim Wechsel von dort ins freie Fahren eine halbe Sekunde lang auf Pace-Car mit voller Geschwindigkeit. Der Dongle hat kein Timeout: <b>Trennen</b> während eines Rennens schickt vorher ein Stop."
   },
 
-  titleCarCmd:{it:"Limiti e comandi ai telecomandi",en:"Limits and commands to the controllers",es:"Límites y comandos a los mandos"},
-  lblTo:{it:"Destinatario",en:"Recipient",es:"Destinatario"},
-  optToAll:{it:"tutte le auto",en:"all cars",es:"todos los coches"},
-  optToOne:{it:"una sola auto, ID",en:"one car, ID",es:"un solo coche, ID"},
-  lblCmd:{it:"Comando",en:"Command",es:"Comando"},
-  lblArg:{it:"Valore",en:"Value",es:"Valor"},
-  btnSend:{it:"Invia",en:"Send",es:"Enviar"},
-  cmd1:{it:"Velocità in pit-lane",en:"Pit lane speed",es:"Velocidad en pit-lane"},
-  cmd2:{it:"Velocità massima",en:"Maximum speed",es:"Velocidad máxima"},
-  cmd3:{it:"Velocità minima (penalità)",en:"Minimum speed (penalty)",es:"Velocidad mínima (penalización)"},
-  cmd4:{it:"Potenza radio",en:"Radio power",es:"Potencia de radio"},
-  cmd5:{it:"Freno massimo",en:"Maximum brake",es:"Freno máximo"},
-  cmd7:{it:"Tempo minimo sul giro",en:"Minimum lap time",es:"Tiempo mínimo por vuelta"},
+  titleCarCmd:{it:"Limiti e comandi ai controller",en:"Limits and commands to the controllers",es:"Límites y comandos a los mandos",fr:"Limites et commandes aux manettes",de:"Limits und Befehle an die Handregler"},
+  lblTo:{it:"Destinatario",en:"Recipient",es:"Destinatario",fr:"Destinataire",de:"Empfänger"},
+  optToAll:{it:"tutte le auto",en:"all cars",es:"todos los coches",fr:"toutes les voitures",de:"alle Autos"},
+  optToOne:{it:"una sola auto, ID",en:"one car, ID",es:"un solo coche, ID",fr:"une seule voiture, ID",de:"ein einzelnes Auto, ID"},
+  lblCmd:{it:"Comando",en:"Command",es:"Comando",fr:"Commande",de:"Befehl"},
+  lblArg:{it:"Valore",en:"Value",es:"Valor",fr:"Valeur",de:"Wert"},
+  btnSend:{it:"Invia",en:"Send",es:"Enviar",fr:"Envoyer",de:"Senden"},
+  cmd1:{it:"Velocità in pit-lane",en:"Pit lane speed",es:"Velocidad en pit-lane",fr:"Vitesse dans les stands",de:"Tempo in der Boxengasse"},
+  cmd2:{it:"Velocità massima",en:"Maximum speed",es:"Velocidad máxima",fr:"Vitesse maximale",de:"Höchstgeschwindigkeit"},
+  cmd3:{it:"Velocità minima (penalità)",en:"Minimum speed (penalty)",es:"Velocidad mínima (sanción)",fr:"Vitesse minimale (pénalité)",de:"Mindesttempo (Strafe)"},
+  cmd4:{it:"Potenza radio",en:"Radio power",es:"Potencia de radio",fr:"Puissance radio",de:"Sendeleistung"},
+  cmd5:{it:"Freno massimo",en:"Maximum brake",es:"Freno máximo",fr:"Frein maximal",de:"Maximale Bremskraft"},
+  cmd7:{it:"Tempo minimo sul giro",en:"Minimum lap time",es:"Tiempo mínimo por vuelta",fr:"Temps au tour minimal",de:"Mindestrundenzeit"},
   hint1:{
     it:"0–255. Vale l'ultima ricevuta, che sia per tutte o per una sola auto.",
     en:"0–255. The last one received wins, whether for all cars or for one.",
-    es:"0–255. Vale la última recibida, sea para todos o para un solo coche."
+    es:"0–255. Vale la última recibida, sea para todos o para un solo coche.",
+    fr:"0–255. C'est la dernière reçue qui compte, qu'elle soit pour toutes les voitures ou pour une seule.",
+    de:"0–255. Es gilt der zuletzt empfangene Wert, egal ob für alle Autos oder für ein einzelnes."
   },
   hint2:{
     it:"0–255, 255 = nessun limite. Fra il valore per tutte e quello per l'auto vale il più basso.",
     en:"0–255, 255 = no limit. Between the all-cars value and the per-car one, the lower wins.",
-    es:"0–255, 255 = sin límite. Entre el valor para todos y el del coche vale el más bajo."
+    es:"0–255, 255 = sin límite. Entre el valor para todos y el del coche vale el más bajo.",
+    fr:"0–255, 255 = aucune limite. Entre la valeur pour toutes et celle de la voiture, c'est la plus basse qui compte.",
+    de:"0–255, 255 = keine Begrenzung. Zwischen dem Wert für alle und dem für das Auto gilt der niedrigere."
   },
   hint3:{
-    it:"0–63: il telecomando lo moltiplica per 4 (63 → 252). Da 64 in su (bit 6 e 7) si accende anche il <b>cambio corsia forzato</b>. 0 = nessuna penalità. Un valore per tutte diverso da 0 ha la precedenza, e mandarlo azzera quelli per auto.",
+    it:"0–63: il controller lo moltiplica per 4 (63 → 252). Da 64 in su (bit 6 e 7) si accende anche il <b>cambio corsia forzato</b>. 0 = nessuna penalità. Un valore per tutte diverso da 0 ha la precedenza, e mandarlo azzera quelli per auto.",
     en:"0–63: the controller multiplies it by 4 (63 → 252). From 64 up (bits 6 and 7) it also turns on the <b>forced lane change</b>. 0 = no penalty. An all-cars value other than 0 takes precedence, and sending it clears the per-car ones.",
-    es:"0–63: el mando lo multiplica por 4 (63 → 252). Desde 64 (bits 6 y 7) se activa también el <b>cambio de carril forzado</b>. 0 = sin penalización. Un valor para todos distinto de 0 tiene prioridad, y enviarlo pone a cero los de cada coche."
+    es:"0–63: el mando lo multiplica por 4 (63 → 252). Desde 64 (bits 6 y 7) se activa también el <b>cambio de carril forzado</b>. 0 = sin penalización. Un valor para todos distinto de 0 tiene prioridad, y enviarlo pone a cero los de cada coche.",
+    fr:"0–63 : la manette le multiplie par 4 (63 → 252). À partir de 64 (bits 6 et 7), le <b>changement de voie forcé</b> s'active aussi. 0 = aucune pénalité. Une valeur pour toutes différente de 0 a la priorité, et l'envoyer remet à zéro celles de chaque voiture.",
+    de:"0–63: Der Handregler multipliziert ihn mit 4 (63 → 252). Ab 64 (Bit 6 und 7) wird zusätzlich der <b>erzwungene Spurwechsel</b> aktiviert. 0 = keine Strafe. Ein Wert für alle ungleich 0 hat Vorrang, und wenn du ihn sendest, werden die Werte pro Auto gelöscht."
   },
   hint4:{
-    it:"0 = −8 dBm, 1 = −4 dBm, 2 = 0 dBm, 3 = +4 dBm (il massimo). Solo per tutte le auto: per una sola i telecomandi la ignorano.",
+    it:"0 = −8 dBm, 1 = −4 dBm, 2 = 0 dBm, 3 = +4 dBm (il massimo). Solo per tutte le auto: per una sola i controller la ignorano.",
     en:"0 = −8 dBm, 1 = −4 dBm, 2 = 0 dBm, 3 = +4 dBm (the maximum). All cars only: the controllers ignore it for a single car.",
-    es:"0 = −8 dBm, 1 = −4 dBm, 2 = 0 dBm, 3 = +4 dBm (el máximo). Solo para todos: para un solo coche los mandos la ignoran."
+    es:"0 = −8 dBm, 1 = −4 dBm, 2 = 0 dBm, 3 = +4 dBm (el máximo). Solo para todos: para un solo coche los mandos la ignoran.",
+    fr:"0 = −8 dBm, 1 = −4 dBm, 2 = 0 dBm, 3 = +4 dBm (le maximum). Pour toutes les voitures seulement : pour une seule, les manettes l'ignorent.",
+    de:"0 = −8 dBm, 1 = −4 dBm, 2 = 0 dBm, 3 = +4 dBm (das Maximum). Nur für alle Autos: Für ein einzelnes ignorieren die Handregler sie."
   },
   hint5:{
     it:"0–255, 255 = nessun limite. Fra il valore per tutte e quello per l'auto vale il più basso.",
     en:"0–255, 255 = no limit. Between the all-cars value and the per-car one, the lower wins.",
-    es:"0–255, 255 = sin límite. Entre el valor para todos y el del coche vale el más bajo."
+    es:"0–255, 255 = sin límite. Entre el valor para todos y el del coche vale el más bajo.",
+    fr:"0–255, 255 = aucune limite. Entre la valeur pour toutes et celle de la voiture, c'est la plus basse qui compte.",
+    de:"0–255, 255 = keine Begrenzung. Zwischen dem Wert für alle und dem für das Auto gilt der niedrigere."
   },
   hint7:{
     it:"In decimi di secondo (0 = nessuno): i giri più corti non vengono contati.",
     en:"In tenths of a second (0 = none): shorter laps are not counted.",
-    es:"En décimas de segundo (0 = ninguno): las vueltas más cortas no se cuentan."
+    es:"En décimas de segundo (0 = ninguno): las vueltas más cortas no se cuentan.",
+    fr:"En dixièmes de seconde (0 = aucun) : les tours plus courts ne sont pas comptés.",
+    de:"In Zehntelsekunden (0 = keine): Kürzere Runden werden nicht gezählt."
   },
-  prevG:{it:"byte 3/4 = {c} {a}",en:"bytes 3/4 = {c} {a}",es:"bytes 3/4 = {c} {a}"},
-  prevI:{it:"byte 2 = {id}, byte 5/6 = {c} {a}",en:"byte 2 = {id}, bytes 5/6 = {c} {a}",es:"byte 2 = {id}, bytes 5/6 = {c} {a}"},
-  prevMin:{it:" → minimo {v}, cambio corsia forzato: {lc}",en:" → minimum {v}, forced lane change: {lc}",es:" → mínimo {v}, cambio de carril forzado: {lc}"},
-  prevPwr:{it:" → {d} dBm",en:" → {d} dBm",es:" → {d} dBm"},
-  prevMinLap:{it:" → {s} s",en:" → {s} s",es:" → {s} s"},
-  wordYes:{it:"sì",en:"yes",es:"sí"},
-  wordNo:{it:"no",en:"no",es:"no"},
+  prevG:{it:"byte 3/4 = {c} {a}",en:"bytes 3/4 = {c} {a}",es:"bytes 3/4 = {c} {a}",fr:"octets 3/4 = {c} {a}",de:"Byte 3/4 = {c} {a}"},
+  prevI:{it:"byte 2 = {id}, byte 5/6 = {c} {a}",en:"byte 2 = {id}, bytes 5/6 = {c} {a}",es:"byte 2 = {id}, bytes 5/6 = {c} {a}",fr:"octet 2 = {id}, octets 5/6 = {c} {a}",de:"Byte 2 = {id}, Byte 5/6 = {c} {a}"},
+  prevMin:{it:" → minimo {v}, cambio corsia forzato: {lc}",en:" → minimum {v}, forced lane change: {lc}",es:" → mínimo {v}, cambio de carril forzado: {lc}",fr:" → minimum {v}, changement de voie forcé : {lc}",de:" → Minimum {v}, erzwungener Spurwechsel: {lc}"},
+  prevPwr:{it:" → {d} dBm",en:" → {d} dBm",es:" → {d} dBm",fr:" → {d} dBm",de:" → {d} dBm"},
+  prevMinLap:{it:" → {s} s",en:" → {s} s",es:" → {s} s",fr:" → {s} s",de:" → {s} s"},
+  wordYes:{it:"sì",en:"yes",es:"sí",fr:"oui",de:"ja"},
+  wordNo:{it:"no",en:"no",es:"no",fr:"non",de:"nein"},
   errId:{
     it:"ID «{id}» non valido: il dongle accetta destinatari da 1 a 24. Niente inviato.",
     en:"ID “{id}” is not valid: the dongle accepts recipients from 1 to 24. Nothing sent.",
-    es:"ID «{id}» no válido: el dongle acepta destinatarios del 1 al 24. No se ha enviado nada."
+    es:"ID «{id}» no válido: el dongle acepta destinatarios del 1 al 24. No se ha enviado nada.",
+    fr:"ID « {id} » non valide : le dongle accepte les destinataires de 1 à 24. Rien n'a été envoyé.",
+    de:"ID „{id}“ ungültig: Der Dongle akzeptiert Empfänger von 1 bis 24. Nichts gesendet."
   },
   errArg:{
     it:"Valore fuori intervallo (0–{max}). Niente inviato.",
     en:"Value out of range (0–{max}). Nothing sent.",
-    es:"Valor fuera de rango (0–{max}). No se ha enviado nada."
+    es:"Valor fuera de rango (0–{max}). No se ha enviado nada.",
+    fr:"Valeur hors plage (0–{max}). Rien n'a été envoyé.",
+    de:"Wert außerhalb des Bereichs (0–{max}). Nichts gesendet."
   },
   errPwrInd:{
-    it:"La potenza radio vale solo per tutte le auto: per una sola i telecomandi la ignorano. Niente inviato.",
+    it:"La potenza radio vale solo per tutte le auto: per una sola i controller la ignorano. Niente inviato.",
     en:"Radio power only applies to all cars: the controllers ignore it for a single car. Nothing sent.",
-    es:"La potencia de radio solo vale para todos los coches: para uno solo los mandos la ignoran. No se ha enviado nada."
+    es:"La potencia de radio solo vale para todos los coches: para uno solo los mandos la ignoran. No se ha enviado nada.",
+    fr:"La puissance radio ne vaut que pour toutes les voitures : pour une seule, les manettes l'ignorent. Rien n'a été envoyé.",
+    de:"Die Sendeleistung gilt nur für alle Autos: Für ein einzelnes ignorieren die Handregler sie. Nichts gesendet."
   },
   errFull:{
     it:"Il dongle tiene al massimo 5 comandi diversi per destinatario e questo verrebbe scartato senza avviso. Le code si svuotano con Stop e poi Avvia. Niente inviato.",
     en:"The dongle keeps at most 5 different commands per recipient, and this one would be dropped silently. The queues are emptied by Stop then Start. Nothing sent.",
-    es:"El dongle guarda como máximo 5 comandos distintos por destinatario y este se descartaría sin aviso. Las colas se vacían con Stop y luego Iniciar. No se ha enviado nada."
+    es:"El dongle guarda como máximo 5 comandos distintos por destinatario y este se descartaría sin aviso. Las colas se vacían con Stop y luego Iniciar. No se ha enviado nada.",
+    fr:"Le dongle garde au maximum 5 commandes différentes par destinataire, et celle-ci serait écartée sans avertissement. Les files se vident avec Stop puis Lancer. Rien n'a été envoyé.",
+    de:"Der Dongle hält höchstens 5 verschiedene Befehle pro Empfänger, und dieser würde ohne Hinweis verworfen. Die Warteschlangen leeren sich mit Stop und danach Starten. Nichts gesendet."
   },
-  msgQueued:{it:"Inviato: {what}. Il dongle lo ripete finché non lo cambi.",en:"Sent: {what}. The dongle repeats it until you change it.",es:"Enviado: {what}. El dongle lo repite hasta que lo cambies."},
-  msgDropped:{it:"Tolto: {what}, rimandato col valore neutro {v}.",en:"Removed: {what}, re-sent with the neutral value {v}.",es:"Quitado: {what}, reenviado con el valor neutro {v}."},
+  msgQueued:{it:"Inviato: {what}. Il dongle lo ripete finché non lo cambi.",en:"Sent: {what}. The dongle repeats it until you change it.",es:"Enviado: {what}. El dongle lo repite hasta que lo cambies.",fr:"Envoyée : {what}. Le dongle la répète jusqu'à ce que tu la changes.",de:"Gesendet: {what}. Der Dongle wiederholt den Befehl, bis du ihn änderst."},
+  msgDropped:{it:"Tolto: {what}, rimandato col valore neutro {v}.",en:"Removed: {what}, re-sent with the neutral value {v}.",es:"Quitado: {what}, reenviado con el valor neutro {v}.",fr:"Retirée : {what}, renvoyée avec la valeur neutre {v}.",de:"Entfernt: {what}, erneut gesendet mit dem neutralen Wert {v}."},
   msgDroppedPit:{
     it:"Tolto dall'elenco: {what}. La velocità pit-lane non ha un valore neutro: il dongle continua a ripetere l'ultima finché non ne mandi un'altra, o fino al prossimo Avvia dopo uno Stop.",
     en:"Removed from the list: {what}. Pit lane speed has no neutral value: the dongle keeps repeating the last one until you send another, or until the next Start after a Stop.",
-    es:"Quitado de la lista: {what}. La velocidad en pit-lane no tiene valor neutro: el dongle sigue repitiendo la última hasta que envíes otra, o hasta el próximo Iniciar después de un Stop."
+    es:"Quitado de la lista: {what}. La velocidad en pit-lane no tiene valor neutro: el dongle sigue repitiendo la última hasta que envíes otra, o hasta el próximo Iniciar después de un Stop.",
+    fr:"Retirée de la liste : {what}. La vitesse dans la voie des stands n'a pas de valeur neutre : le dongle continue de répéter la dernière jusqu'à ce que tu en envoies une autre, ou jusqu'au prochain Lancer après un Stop.",
+    de:"Aus der Liste entfernt: {what}. Die Geschwindigkeit in der Boxengasse hat keinen neutralen Wert: Der Dongle wiederholt weiter den letzten, bis du einen anderen sendest, oder bis zum nächsten Starten nach einem Stop."
   },
-  titleLimits:{it:"Limiti attivi — l'app li rimanda dopo ogni Avvia da Stop",en:"Active limits — the app re-sends them after every Start from Stop",es:"Límites activos — la app los reenvía tras cada Iniciar desde Stop"},
-  thTo:{it:"destinatario",en:"recipient",es:"destinatario"},
-  thCmd:{it:"comando",en:"command",es:"comando"},
-  thVal:{it:"valore",en:"value",es:"valor"},
-  limAll:{it:"tutte",en:"all",es:"todos"},
-  limCar:{it:"auto {id}",en:"car {id}",es:"coche {id}"},
-  btnDrop:{it:"togli",en:"remove",es:"quitar"},
-  limEmpty:{it:"Nessun limite impostato.",en:"No limit set.",es:"Ningún límite puesto."},
+  titleLimits:{it:"Limiti attivi — l'app li rimanda dopo ogni Avvia da Stop",en:"Active limits — the app re-sends them after every Start from Stop",es:"Límites activos — la app los reenvía tras cada Iniciar desde Stop",fr:"Limites actives — l'app les renvoie après chaque Lancer depuis Stop",de:"Aktive Limits — die App sendet sie nach jedem Starten aus Stop erneut"},
+  thTo:{it:"destinatario",en:"recipient",es:"destinatario",fr:"destinataire",de:"Empfänger"},
+  thCmd:{it:"comando",en:"command",es:"comando",fr:"commande",de:"Befehl"},
+  thVal:{it:"valore",en:"value",es:"valor",fr:"valeur",de:"Wert"},
+  limAll:{it:"tutte",en:"all",es:"todos",fr:"toutes",de:"alle"},
+  limCar:{it:"auto {id}",en:"car {id}",es:"coche {id}",fr:"voiture {id}",de:"Auto {id}"},
+  btnDrop:{it:"togli",en:"remove",es:"quitar",fr:"retirer",de:"entfernen"},
+  limEmpty:{it:"Nessun limite impostato.",en:"No limit set.",es:"Ningún límite puesto.",fr:"Aucune limite définie.",de:"Keine Limits gesetzt."},
   carCmdHint:{
     it:"Il dongle <b>ripete ogni comando all'infinito</b>, finché non lo cambi: per annullarlo si rimanda lo stesso comando col valore neutro (velocità massima e freno 255, velocità minima e tempo minimo 0, potenza radio 3), ed è quello che fa «togli». Tiene al massimo <b>5 comandi diversi</b> per destinatario; le code si svuotano solo con <b>Avvia dopo uno Stop</b>, e a quel punto l'app rimanda l'elenco qui sopra. Un comando per una sola auto arriva entro circa 300 ms, uno per tutte entro 10 ms.",
     en:"The dongle <b>repeats every command forever</b>, until you change it: to cancel one you re-send the same command with its neutral value (max speed and brake 255, min speed and min lap time 0, radio power 3), which is what “remove” does. It keeps at most <b>5 different commands</b> per recipient; the queues are emptied only by <b>Start after a Stop</b>, and at that point the app re-sends the list above. A command for one car arrives within about 300 ms, one for all cars within 10 ms.",
-    es:"El dongle <b>repite cada comando indefinidamente</b>, hasta que lo cambies: para anularlo se reenvía el mismo comando con su valor neutro (velocidad máxima y freno 255, velocidad mínima y tiempo mínimo 0, potencia de radio 3), y eso es lo que hace «quitar». Guarda como máximo <b>5 comandos distintos</b> por destinatario; las colas solo se vacían con <b>Iniciar después de un Stop</b>, y entonces la app reenvía la lista de arriba. Un comando para un solo coche llega en unos 300 ms, uno para todos en 10 ms."
+    es:"El dongle <b>repite cada comando indefinidamente</b>, hasta que lo cambies: para anularlo se reenvía el mismo comando con su valor neutro (velocidad máxima y freno 255, velocidad mínima y tiempo mínimo 0, potencia de radio 3), y eso es lo que hace «quitar». Guarda como máximo <b>5 comandos distintos</b> por destinatario; las colas solo se vacían con <b>Iniciar después de un Stop</b>, y entonces la app reenvía la lista de arriba. Un comando para un solo coche llega en unos 300 ms, uno para todos en 10 ms.",
+    fr:"Le dongle <b>répète chaque commande indéfiniment</b>, jusqu'à ce que tu la changes : pour l'annuler, on renvoie la même commande avec sa valeur neutre (vitesse maximale et frein 255, vitesse minimale et temps minimal 0, puissance radio 3), et c'est ce que fait « retirer ». Il garde au maximum <b>5 commandes différentes</b> par destinataire ; les files ne se vident qu'avec <b>Lancer après un Stop</b>, et à ce moment-là l'app renvoie la liste ci-dessus. Une commande pour une seule voiture arrive en 300 ms environ, une pour toutes en 10 ms.",
+    de:"Der Dongle <b>wiederholt jeden Befehl endlos</b>, bis du ihn änderst: Um ihn aufzuheben, sendet man denselben Befehl mit seinem neutralen Wert erneut (Höchstgeschwindigkeit und Bremse 255, Mindestgeschwindigkeit und Mindestrundenzeit 0, Sendeleistung 3), und genau das macht „entfernen“. Er hält höchstens <b>5 verschiedene Befehle</b> pro Empfänger; die Warteschlangen leeren sich nur mit <b>Starten nach einem Stop</b>, und dann sendet die App die Liste oben erneut. Ein Befehl für ein einzelnes Auto kommt in etwa 300 ms an, einer für alle in 10 ms."
   },
 
-  titleBoard:{it:"Classifica live",en:"Live leaderboard",es:"Clasificación en vivo"},
-  btnResetData:{it:"Azzera dati",en:"Reset data",es:"Restablecer datos"},
-  thLaps:{it:"giri",en:"laps",es:"vueltas"},
-  thLastLap:{it:"ultimo giro (s)",en:"last lap (s)",es:"última vuelta (s)"},
-  thBestLap:{it:"miglior giro (s)",en:"best lap (s)",es:"mejor vuelta (s)"},
-  thTrigger:{it:"grilletto",en:"trigger",es:"gatillo"},
-  thPit:{it:"pit",en:"pit",es:"pit"},
-  thFlagsTitle:{it:"frecce, pulsante tondo e segnalazioni",en:"arrows, round button and flags",es:"flechas, botón redondo y avisos"},
-  thVer:{it:"versioni",en:"versions",es:"versiones"},
-  thUpdate:{it:"aggiorn.",en:"updated",es:"actualiz."},
+  titleBoard:{it:"Classifica live",en:"Live leaderboard",es:"Clasificación en vivo",fr:"Classement en direct",de:"Live-Wertung"},
+  btnResetData:{it:"Azzera dati",en:"Reset data",es:"Restablecer datos",fr:"Remettre à zéro",de:"Daten zurücksetzen"},
+  thLaps:{it:"giri",en:"laps",es:"vueltas",fr:"tours",de:"Runden"},
+  thLastLap:{it:"ultimo giro (s)",en:"last lap (s)",es:"última vuelta (s)",fr:"dernier tour (s)",de:"letzte Runde (s)"},
+  thBestLap:{it:"miglior giro (s)",en:"best lap (s)",es:"mejor vuelta (s)",fr:"meilleur tour (s)",de:"schnellste Runde (s)"},
+  thTrigger:{it:"grilletto",en:"trigger",es:"gatillo",fr:"gâchette",de:"Gasdrücker"},
+  thPit:{it:"pit",en:"pit",es:"pit",fr:"stand",de:"Box"},
+  thFlagsTitle:{it:"frecce, pulsante tondo e segnalazioni",en:"arrows, round button and flags",es:"flechas, botón redondo y avisos",fr:"flèches, bouton rond et signalements",de:"Pfeile, runde Taste und Meldungen"},
+  thVer:{it:"versioni",en:"versions",es:"versiones",fr:"versions",de:"Versionen"},
+  thUpdate:{it:"aggiorn.",en:"updated",es:"actualiz.",fr:"mis à jour",de:"aktualisiert"},
   boardEmpty:{
-    it:"Nessun telecomando ancora. Connetti il dongle e accendi un telecomando: compare entro mezzo secondo.",
+    it:"Nessun controller ancora. Connetti il dongle e accendi un controller: compare entro mezzo secondo.",
     en:"No controller yet. Connect the dongle and turn on a controller: it shows up within half a second.",
-    es:"Aún no hay mandos. Conecta el dongle y enciende un mando: aparece en medio segundo."
+    es:"Aún no hay mandos. Conecta el dongle y enciende un mando: aparece en medio segundo.",
+    fr:"Aucune manette pour l'instant. Connecte le dongle et allume une manette : elle apparaît en moins d'une demi-seconde.",
+    de:"Noch kein Handregler. Verbinde den Dongle und schalte einen Handregler ein: Er erscheint innerhalb einer halben Sekunde."
   },
   noteHint:{
     it:"⚠️ Da banco (senza auto in pista) i <b>giri</b> restano 0, ma il <b>grilletto</b> si muove: la telemetria è comunque dal vivo. I giri che arrivano in <b>Stop o Pausa non contano</b>: il dongle li passa lo stesso (e quelli fatti in pausa li consegna tutti insieme alla ripresa), quindi li scarta l'app — restano nel log giri come «scartati» e il numero fra parentesi li conta. Dopo lo Stop c'è una tolleranza di 0,6 s per il giro appena chiuso, perché il dongle aggiorna ogni auto circa ogni 300 ms.",
     en:"⚠️ On the bench (no car on track) the <b>laps</b> stay 0, but the <b>trigger</b> moves: telemetry is live anyway. Laps arriving during <b>Stop or Pause do not count</b>: the dongle passes them on anyway (and hands over the ones made during a pause all at once on resume), so the app drops them — they stay in the lap log as “dropped” and the number in brackets counts them. After a Stop there is a 0.6 s tolerance for the lap just completed, because the dongle refreshes each car about every 300 ms.",
-    es:"⚠️ En banco (sin coche en pista) las <b>vueltas</b> quedan en 0, pero el <b>gatillo</b> se mueve: la telemetría sigue en vivo. Las vueltas que llegan en <b>Stop o Pausa no cuentan</b>: el dongle las pasa igualmente (y las hechas en pausa las entrega todas juntas al reanudar), así que las descarta la app — quedan en el registro como «descartadas» y el número entre paréntesis las cuenta. Tras el Stop hay una tolerancia de 0,6 s para la vuelta recién cerrada, porque el dongle actualiza cada coche cada unos 300 ms."
+    es:"⚠️ En banco (sin coche en pista) las <b>vueltas</b> quedan en 0, pero el <b>gatillo</b> se mueve: la telemetría sigue en vivo. Las vueltas que llegan en <b>Stop o Pausa no cuentan</b>: el dongle las pasa igualmente (y las hechas en pausa las entrega todas juntas al reanudar), así que las descarta la app — quedan en el registro como «descartadas» y el número entre paréntesis las cuenta. Tras el Stop hay una tolerancia de 0,6 s para la vuelta recién cerrada, porque el dongle actualiza cada coche cada unos 300 ms.",
+    fr:"⚠️ Sur la table (sans voiture sur la piste), les <b>tours</b> restent à 0, mais la <b>gâchette</b> bouge : la télémétrie est bien en direct. Les tours qui arrivent en <b>Stop ou Pause ne comptent pas</b> : le dongle les transmet quand même (et ceux faits pendant la pause, il les livre tous ensemble à la reprise), donc c'est l'app qui les écarte — ils restent dans le journal des tours comme « écartés » et le nombre entre parenthèses les compte. Après le Stop, il y a une tolérance de 0,6 s pour le tour qui vient de se terminer, car le dongle met à jour chaque voiture environ toutes les 300 ms.",
+    de:"⚠️ Auf dem Tisch (ohne Auto auf der Bahn) bleiben die <b>Runden</b> bei 0, aber der <b>Gasdrücker</b> bewegt sich: Die Telemetrie ist trotzdem live. Runden, die bei <b>Stop oder Pause</b> ankommen, <b>zählen nicht</b>: Der Dongle gibt sie trotzdem weiter (und die in der Pause gefahrenen liefert er alle zusammen beim Weiterfahren), also verwirft sie die App — sie bleiben im Rundenprotokoll als „verworfen“ stehen, und die Zahl in Klammern zählt sie. Nach dem Stop gibt es eine Toleranz von 0,6 s für die gerade beendete Runde, weil der Dongle jedes Auto etwa alle 300 ms aktualisiert."
   },
-  trigNoCar:{it:"nessuna auto",en:"no car",es:"sin coche"},
-  verUnknown:{it:"non nota",en:"unknown",es:"desconocida"},
-  fReset:{it:"telecomando riavviato",en:"controller restarted",es:"mando reiniciado"},
-  fLink:{it:"collegamento con l'auto perso o ritrovato",en:"link with the car lost or regained",es:"enlace con el coche perdido o recuperado"},
-  fBatt:{it:"batteria scarica",en:"low battery",es:"batería baja"},
-  fCall:{it:"richiesta track call",en:"track call request",es:"petición de track call"},
-  fUp:{it:"freccia su",en:"up arrow",es:"flecha arriba"},
-  fDn:{it:"freccia giù",en:"down arrow",es:"flecha abajo"},
-  fRound:{it:"pulsante tondo",en:"round button",es:"botón redondo"},
-  fPit:{it:"in pit-lane",en:"in the pit lane",es:"en el pit-lane"},
-  fDisc:{it:"giri scartati (Stop, Pausa o ripresa)",en:"dropped laps (Stop, Pause or resume)",es:"vueltas descartadas (Stop, Pausa o reanudación)"},
+  trigNoCar:{it:"nessuna auto",en:"no car",es:"sin coche",fr:"aucune voiture",de:"kein Auto"},
+  verUnknown:{it:"non nota",en:"unknown",es:"desconocida",fr:"inconnue",de:"unbekannt"},
+  fReset:{it:"controller riavviato",en:"controller restarted",es:"mando reiniciado",fr:"manette redémarrée",de:"Handregler neu gestartet"},
+  fLink:{it:"collegamento con l'auto perso o ritrovato",en:"link with the car lost or regained",es:"enlace con el coche perdido o recuperado",fr:"liaison avec la voiture perdue ou retrouvée",de:"Verbindung zum Auto verloren oder wiederhergestellt"},
+  fBatt:{it:"batteria scarica",en:"low battery",es:"batería baja",fr:"batterie faible",de:"Batterie schwach"},
+  fCall:{it:"richiesta track call",en:"track call request",es:"petición de track call",fr:"demande de track call",de:"Track-Call-Anfrage"},
+  fUp:{it:"freccia su",en:"up arrow",es:"flecha arriba",fr:"flèche haut",de:"Pfeil hoch"},
+  fDn:{it:"freccia giù",en:"down arrow",es:"flecha abajo",fr:"flèche bas",de:"Pfeil runter"},
+  fRound:{it:"pulsante tondo",en:"round button",es:"botón redondo",fr:"bouton rond",de:"runde Taste"},
+  fPit:{it:"in pit-lane",en:"in the pit lane",es:"en el pit-lane",fr:"dans la voie des stands",de:"in der Boxengasse"},
+  fDisc:{it:"giri scartati (Stop, Pausa o ripresa)",en:"dropped laps (Stop, Pause or resume)",es:"vueltas descartadas (Stop, Pausa o reanudación)",fr:"tours écartés (Stop, Pause ou reprise)",de:"verworfene Runden (Stop, Pause oder Weiterfahren)"},
 
-  titleLapLog:{it:"Log giri",en:"Lap log",es:"Registro de vueltas"},
-  llWhen:{it:"orario",en:"time",es:"hora"},
-  llLapN:{it:"giro n°",en:"lap #",es:"vuelta n.º"},
-  llTime:{it:"tempo (s)",en:"time (s)",es:"tiempo (s)"},
-  llCount:{it:"conteggi",en:"counts",es:"cuentas"},
-  llNote:{it:"nota",en:"note",es:"nota"},
-  lapLogEmpty:{it:"Nessun giro registrato.",en:"No laps recorded.",es:"Ninguna vuelta registrada."},
-  lapDiscStop:{it:"scartato: arrivato in Stop",en:"dropped: arrived during Stop",es:"descartada: llegó en Stop"},
-  lapDiscPause:{it:"scartato: arrivato in Pausa",en:"dropped: arrived during Pause",es:"descartada: llegó en Pausa"},
-  lapDiscResume:{it:"scartato: fatto in pausa, arrivato alla ripresa",en:"dropped: made during the pause, arrived on resume",es:"descartada: hecha en pausa, llegó al reanudar"},
+  titleLapLog:{it:"Log giri",en:"Lap log",es:"Registro de vueltas",fr:"Journal des tours",de:"Rundenprotokoll"},
+  llWhen:{it:"orario",en:"time",es:"hora",fr:"heure",de:"Uhrzeit"},
+  llLapN:{it:"giro n°",en:"lap #",es:"vuelta n.º",fr:"tour n°",de:"Runde Nr."},
+  llTime:{it:"tempo (s)",en:"time (s)",es:"tiempo (s)",fr:"temps (s)",de:"Zeit (s)"},
+  llCount:{it:"conteggi",en:"counts",es:"cuentas",fr:"ticks",de:"Ticks"},
+  llNote:{it:"nota",en:"note",es:"nota",fr:"note",de:"Hinweis"},
+  lapLogEmpty:{it:"Nessun giro registrato.",en:"No laps recorded.",es:"Ninguna vuelta registrada.",fr:"Aucun tour enregistré.",de:"Keine Runden aufgezeichnet."},
+  lapDiscStop:{it:"scartato: arrivato in Stop",en:"dropped: arrived during Stop",es:"descartada: llegó en Stop",fr:"écarté : arrivé en Stop",de:"verworfen: bei Stop angekommen"},
+  lapDiscPause:{it:"scartato: arrivato in Pausa",en:"dropped: arrived during Pause",es:"descartada: llegó en Pausa",fr:"écarté : arrivé en Pause",de:"verworfen: bei Pause angekommen"},
+  lapDiscResume:{it:"scartato: fatto in pausa, arrivato alla ripresa",en:"dropped: made during the pause, arrived on resume",es:"descartada: hecha en pausa, llegó al reanudar",fr:"écarté : fait pendant la pause, arrivé à la reprise",de:"verworfen: in der Pause gefahren, beim Weiterfahren angekommen"},
 
-  sumAdv:{it:"Avanzate e registro grezzo",en:"Advanced and raw log",es:"Avanzado y registro en bruto"},
-  lblFactor:{it:"Conteggi al secondo",en:"Counts per second",es:"Cuentas por segundo"},
+  sumAdv:{it:"Avanzate e registro grezzo",en:"Advanced and raw log",es:"Avanzado y registro en bruto",fr:"Avancé et journal brut",de:"Erweitert und Rohprotokoll"},
+  lblFactor:{it:"Conteggi al secondo",en:"Counts per second",es:"Cuentas por segundo",fr:"Ticks par seconde",de:"Ticks pro Sekunde"},
   factorHint:{
-    it:"Il tempo sul giro arriva in <b>conteggi</b> del telecomando (colonna «conteggi» del log). Il documento ufficiale dice di dividere per <b>99,25</b>, ma il contatore del telecomando ne fa circa <b>97,7</b> al secondo: il valore giusto va misurato in pista, cronometrando a mano qualche giro. Predefinito 99,25; il valore resta salvato in questo browser.",
+    it:"Il tempo sul giro arriva in <b>conteggi</b> del controller (colonna «conteggi» del log). Il documento ufficiale dice di dividere per <b>99,25</b>, ma il contatore del controller ne fa circa <b>97,7</b> al secondo: il valore giusto va misurato in pista, cronometrando a mano qualche giro. Predefinito 99,25; il valore resta salvato in questo browser.",
     en:"The lap time arrives in controller <b>counts</b> (the “counts” column of the log). The official document says to divide by <b>99.25</b>, but the controller counter does about <b>97.7</b> per second: the right value must be measured on the track, timing a few laps by hand. Default 99.25; the value is saved in this browser.",
-    es:"El tiempo por vuelta llega en <b>cuentas</b> del mando (columna «cuentas» del registro). El documento oficial dice dividir por <b>99,25</b>, pero el contador del mando hace unas <b>97,7</b> por segundo: el valor correcto se mide en pista, cronometrando a mano algunas vueltas. Por defecto 99,25; el valor queda guardado en este navegador."
+    es:"El tiempo por vuelta llega en <b>cuentas</b> del mando (columna «cuentas» del registro). El documento oficial dice dividir por <b>99,25</b>, pero el contador del mando hace unas <b>97,7</b> por segundo: el valor correcto se mide en pista, cronometrando a mano algunas vueltas. Por defecto 99,25; el valor queda guardado en este navegador.",
+    fr:"Le temps au tour arrive en <b>ticks</b> de la manette (colonne « ticks » du journal). Le document officiel dit de diviser par <b>99,25</b>, mais le compteur de la manette en fait environ <b>97,7</b> par seconde : la bonne valeur se mesure sur la piste, en chronométrant quelques tours à la main. Par défaut 99,25 ; la valeur reste enregistrée dans ce navigateur.",
+    de:"Die Rundenzeit kommt in <b>Ticks</b> des Handreglers an (Spalte „Ticks“ im Protokoll). Laut offiziellem Dokument soll man durch <b>99,25</b> teilen, aber der Zähler des Handreglers macht etwa <b>97,7</b> pro Sekunde: Der richtige Wert muss auf der Bahn gemessen werden, indem du ein paar Runden von Hand stoppst. Standard 99,25; der Wert bleibt in diesem Browser gespeichert."
   },
-  lblB7:{it:"Colonna grilletto",en:"Trigger column",es:"Columna gatillo"},
-  optB7trig:{it:"media del grilletto",en:"trigger average",es:"media del gatillo"},
-  optB7pwm:{it:"media del PWM",en:"PWM average",es:"media del PWM"},
+  lblB7:{it:"Colonna grilletto",en:"Trigger column",es:"Columna gatillo",fr:"Colonne gâchette",de:"Spalte Gasdrücker"},
+  optB7trig:{it:"media del grilletto",en:"trigger average",es:"media del gatillo",fr:"moyenne de la gâchette",de:"Mittelwert des Gasdrückers"},
+  optB7pwm:{it:"media del PWM",en:"PWM average",es:"media del PWM",fr:"moyenne du PWM",de:"Mittelwert der PWM"},
 
   /* ---- stringhe dinamiche (JS) ---- */
-  stConnected:{it:"connesso",en:"connected",es:"conectado"},
-  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
-  logConnected:{it:"[connesso]",en:"[connected]",es:"[conectado]"},
-  logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]"},
-  logLost:{it:"[la porta si è chiusa da sola: dongle staccato?]",en:"[the port closed by itself: dongle unplugged?]",es:"[el puerto se cerró solo: ¿dongle desenchufado?]"},
-  errWord:{it:"errore",en:"error",es:"error"},
-  noSerialLog:{
-    it:"[!] Web Serial non supportato: usa Chrome/Edge su computer.",
-    en:"[!] Web Serial not supported: use Chrome/Edge on a computer.",
-    es:"[!] Web Serial no compatible: usa Chrome/Edge en un ordenador."
+  stConnected:{it:"connesso",en:"connected",es:"conectado",fr:"connecté",de:"verbunden"},
+  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado",fr:"non connecté",de:"nicht verbunden"},
+  logConnected:{it:"[connesso]",en:"[connected]",es:"[conectado]",fr:"[connecté]",de:"[verbunden]"},
+  logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]",fr:"[déconnecté]",de:"[getrennt]"},
+  logLost:{it:"[la porta si è chiusa da sola: dongle staccato?]",en:"[the port closed by itself: dongle unplugged?]",es:"[el puerto se cerró solo: ¿dongle desenchufado?]",fr:"[le port s'est fermé tout seul : dongle débranché ?]",de:"[der Port hat sich von selbst geschlossen: Dongle abgezogen?]"},
+  errWord:{it:"errore",en:"error",es:"error",fr:"erreur",de:"Fehler"},
+  noDongleLog:{
+    it:"[!] Né Web Serial né WebUSB: usa Chrome/Edge su computer o Chrome su Android.",
+    en:"[!] Neither Web Serial nor WebUSB: use Chrome/Edge on a computer or Chrome on Android.",
+    es:"[!] Ni Web Serial ni WebUSB: usa Chrome/Edge en un ordenador o Chrome en Android.",
+    fr:"[!] Ni Web Serial ni WebUSB : utilise Chrome/Edge sur ordinateur ou Chrome sur Android.",
+    de:"[!] Weder Web Serial noch WebUSB: Nutze Chrome/Edge am Computer oder Chrome auf Android."
   },
-  logDtr:{it:"[DTR non impostato: {e}]",en:"[DTR not set: {e}]",es:"[DTR no activado: {e}]"},
-  logVer:{it:"versione dongle {v}",en:"dongle version {v}",es:"versión del dongle {v}"},
-  logSync:{it:"frame di aggancio inviato",en:"lock-on frame sent",es:"trama de enganche enviada"},
-  logNotAct:{it:"il dongle risponde ACTIVENOT: non è attivato",en:"the dongle answers ACTIVENOT: it is not activated",es:"el dongle responde ACTIVENOT: no está activado"},
-  logShortVer:{it:"versione {v} da dongle non attivato",en:"version {v} from a dongle that is not activated",es:"versión {v} de un dongle no activado"},
-  logNoVer:{it:"nessuna versione entro 1 s",en:"no version within 1 s",es:"ninguna versión en 1 s"},
-  logStopOnDisc:{it:"Stop inviato prima di chiudere: il dongle non ha timeout",en:"Stop sent before closing: the dongle has no timeout",es:"Stop enviado antes de cerrar: el dongle no tiene timeout"},
-  logBadId:{it:"dati con ID {id}, fuori da 1..24: ignorati",en:"data with ID {id}, outside 1..24: ignored",es:"datos con ID {id}, fuera de 1..24: ignorados"},
-  logUnknown:{it:"messaggio non riconosciuto ({n} byte): {hex}",en:"unrecognised message ({n} bytes): {hex}",es:"mensaje no reconocido ({n} bytes): {hex}"},
-  logToken:{it:"risposta testuale: {s}",en:"text answer: {s}",es:"respuesta de texto: {s}"},
-  logResend:{it:"Avvia dopo Stop: il dongle ha svuotato le code, rimando {n} limiti",en:"Start after Stop: the dongle emptied its queues, re-sending {n} limits",es:"Iniciar tras Stop: el dongle vació sus colas, reenvío {n} límites"},
-  logTooLong:{it:"scrittura di {n} byte rifiutata: il dongle ne accetta al massimo 32",en:"write of {n} bytes refused: the dongle accepts at most 32",es:"escritura de {n} bytes rechazada: el dongle acepta como máximo 32"},
-  stFree:{it:"gara libera",en:"free run",es:"carrera libre"},
-  stRunning:{it:"in gara",en:"running",es:"en carrera"},
-  stPaused:{it:"in pausa",en:"paused",es:"en pausa"},
-  stStopped:{it:"ferma (Stop)",en:"stopped (Stop)",es:"parada (Stop)"},
-  stPace:{it:"pace car",en:"pace car",es:"pace car"},
-  stPaceLc:{it:"pace car, corsia bloccata",en:"pace car, lane locked",es:"pace car, carril bloqueado"}
+  logViaUsb:{
+    it:"[via WebUSB: la pagina fa da driver del dongle, come serve su Android]",
+    en:"[via WebUSB: the page acts as the dongle's driver, as needed on Android]",
+    es:"[vía WebUSB: la página hace de driver del dongle, como hace falta en Android]",
+    fr:"[via WebUSB : la page fait office de pilote du dongle, comme il le faut sur Android]",
+    de:"[über WebUSB: Die Seite ist selbst der Treiber des Dongles, wie auf Android nötig]"
+  },
+  logDtr:{it:"[DTR non impostato: {e}]",en:"[DTR not set: {e}]",es:"[DTR no activado: {e}]",fr:"[DTR non activé : {e}]",de:"[DTR nicht gesetzt: {e}]"},
+  logVer:{it:"versione dongle {v}",en:"dongle version {v}",es:"versión del dongle {v}",fr:"version du dongle {v}",de:"Dongle-Version {v}"},
+  logSync:{it:"frame di aggancio inviato",en:"lock-on frame sent",es:"trama de enganche enviada",fr:"trame de synchronisation envoyée",de:"Synchronisations-Frame gesendet"},
+  logNotAct:{it:"il dongle risponde ACTIVENOT: non è attivato",en:"the dongle answers ACTIVENOT: it is not activated",es:"el dongle responde ACTIVENOT: no está activado",fr:"le dongle répond ACTIVENOT : il n'est pas activé",de:"der Dongle antwortet ACTIVENOT: Er ist nicht aktiviert"},
+  logShortVer:{it:"versione {v} da dongle non attivato",en:"version {v} from a dongle that is not activated",es:"versión {v} de un dongle no activado",fr:"version {v} d'un dongle non activé",de:"Version {v} von einem nicht aktivierten Dongle"},
+  logNoVer:{it:"nessuna versione entro 1 s",en:"no version within 1 s",es:"ninguna versión en 1 s",fr:"aucune version en 1 s",de:"keine Version innerhalb von 1 s"},
+  logStopOnDisc:{it:"Stop inviato prima di chiudere: il dongle non ha timeout",en:"Stop sent before closing: the dongle has no timeout",es:"Stop enviado antes de cerrar: el dongle no tiene timeout",fr:"Stop envoyé avant de fermer : le dongle n'a pas de délai d'expiration",de:"Stop vor dem Schließen gesendet: Der Dongle hat kein Timeout"},
+  logBadId:{it:"dati con ID {id}, fuori da 1..24: ignorati",en:"data with ID {id}, outside 1..24: ignored",es:"datos con ID {id}, fuera de 1..24: ignorados",fr:"données avec l'ID {id}, hors de 1..24 : ignorées",de:"Daten mit ID {id}, außerhalb von 1..24: ignoriert"},
+  logUnknown:{it:"messaggio non riconosciuto ({n} byte): {hex}",en:"unrecognised message ({n} bytes): {hex}",es:"mensaje no reconocido ({n} bytes): {hex}",fr:"message non reconnu ({n} octets) : {hex}",de:"unbekannte Nachricht ({n} Byte): {hex}"},
+  logToken:{it:"risposta testuale: {s}",en:"text answer: {s}",es:"respuesta de texto: {s}",fr:"réponse texte : {s}",de:"Textantwort: {s}"},
+  logResend:{it:"Avvia dopo Stop: il dongle ha svuotato le code, rimando {n} limiti",en:"Start after Stop: the dongle emptied its queues, re-sending {n} limits",es:"Iniciar tras Stop: el dongle vació sus colas, reenvío {n} límites",fr:"Lancer après Stop : le dongle a vidé ses files, je renvoie {n} limites",de:"Starten nach Stop: Der Dongle hat seine Warteschlangen geleert, ich sende {n} Limits erneut"},
+  logTooLong:{it:"scrittura di {n} byte rifiutata: il dongle ne accetta al massimo 32",en:"write of {n} bytes refused: the dongle accepts at most 32",es:"escritura de {n} bytes rechazada: el dongle acepta como máximo 32",fr:"écriture de {n} octets refusée : le dongle en accepte 32 au maximum",de:"Schreiben von {n} Byte abgelehnt: Der Dongle akzeptiert höchstens 32"},
+  stFree:{it:"gara libera",en:"free run",es:"carrera libre",fr:"roulage libre",de:"freies Fahren"},
+  stRunning:{it:"in gara",en:"running",es:"en carrera",fr:"en course",de:"im Rennen"},
+  stPaused:{it:"in pausa",en:"paused",es:"en pausa",fr:"en pause",de:"pausiert"},
+  stStopped:{it:"ferma (Stop)",en:"stopped (Stop)",es:"parada (Stop)",fr:"arrêtée (Stop)",de:"angehalten (Stop)"},
+  stPace:{it:"pace car",en:"pace car",es:"pace car",fr:"pace car",de:"Pace-Car"},
+  stPaceLc:{it:"pace car, corsia bloccata",en:"pace car, lane locked",es:"pace car, carril bloqueado",fr:"pace car, changement de voie bloqué",de:"Pace-Car, Spurwechsel gesperrt"}
 };
 </script>
 <script src="../i18n.js"></script>
+<script src="../seriale.js"></script>
 <script>
-const APP="chron02",APP_VERSION="1.4.1";
+const APP="chron02",APP_VERSION="1.5.0";
 const VID=0x1fee,PID=0x0002;
 
 /* ===== Protocollo, per quello che serve a questa pagina =====
@@ -508,8 +562,9 @@ async function connect(){
        si presenti con un VID/PID diverso — un adattatore seriale in mezzo, un
        bootloader diverso, un dongle di un'altra generazione — e la finestra
        esce VUOTA, senza spiegare niente. Quindi: mostriamo tutte le porte, e
-       dopo diciamo se quella scelta ha l'aria giusta — un avviso, non un divieto. */
-    port=await navigator.serial.requestPort();
+       dopo diciamo se quella scelta ha l'aria giusta — un avviso, non un divieto.
+       La porta la dà seriale.js: Web Serial su computer, WebUSB su Android. */
+    port=await Seriale.richiedi();
     await port.open({baudRate:9600});      // il baud non conta: è una COM virtuale
     /* Senza DTR il dongle non legge e non scrive. */
     try{if(port.setSignals)await port.setSignals({dataTerminalReady:true});}
@@ -523,6 +578,7 @@ async function connect(){
     $("devname").textContent=idtxt;
     resetSession();
     userClosing=false;setConn(true);log(I18N.t("logConnected"));
+    if(Seriale.via==="usb")log(I18N.t("logViaUsb"));
     log(atteso?I18N.t("portOk",{id:idtxt}):I18N.t("portOther",{id:idtxt}));
     readLoop();startTimers();
     /* Avvio: il PRIMO messaggio deve contenere un byte 0x06. Accende la radio
@@ -966,8 +1022,8 @@ $("lapK").onchange=()=>{const v=parseFloat($("lapK").value);
   renderBoard();renderLapLog();};
 /* Pagina chiusa durante una gara: tentativo di Stop, senza garanzie. */
 window.addEventListener("pagehide",()=>{if(phase==="synced"&&RUNNING.has(raceSt)){raceSt=ST.STOP;holdUntil=0;write(buildFrame(null,null));}});
-try{if(navigator.serial&&navigator.serial.addEventListener)navigator.serial.addEventListener("disconnect",e=>{
-  if(port&&e.target===port&&connState){userClosing=true;log(I18N.t("logLost"));closePort();}});}catch(e){}
+Seriale.on("disconnect",p=>{
+  if(port&&p===port&&connState){userClosing=true;log(I18N.t("logLost"));closePort();}});
 
 /* ri-render del dinamico al cambio lingua */
 function renderAll(){renderStatus();setPhase(phase);renderBoard();renderLapLog();}
@@ -976,10 +1032,10 @@ function boot(){renderAll();$("timerVal").textContent=fmtCs(0);}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 
 /* compat + sw + versione */
-if(!navigator.serial){$("noser").hidden=false;$("btnConn").disabled=true;
+if(!Seriale.via){$("noser").hidden=false;$("btnConn").disabled=true;
   /* Il messaggio va nel registro solo a dizionario pronto: i18n.js lo costruisce
      su DOMContentLoaded, e scritto adesso nel registro finiva la chiave grezza. */
-  const avvisa=()=>log(I18N.t("noSerialLog"));
+  const avvisa=()=>log(I18N.t("noDongleLog"));
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",avvisa);else avvisa();}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
 /* versione: nel piè, e la fascia «Aggiorna» se quella pubblicata è un'altra */

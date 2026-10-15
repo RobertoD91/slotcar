@@ -101,7 +101,7 @@
     <div class="row"><label data-i18n="lblMac"></label><input id="cMac" size="6" inputmode="latin" autocomplete="off" spellcheck="false" placeholder="1A2B" aria-describedby="macHint">
       <button class="warn act" data-fn="mac" disabled data-i18n="btnWriteMac"></button>
       <button class="sec act" data-fn="rstmac" disabled data-i18n="btnRstMac"></button></div>
-    <div class="warnbox" data-i18n-html="cloneWarn"></div>
+    <div id="macHint" class="warnbox" data-i18n-html="cloneWarn"></div>
   </div>
 
   <!-- ===== Avanzato ===== -->
@@ -127,240 +127,304 @@ window.I18N_STRINGS = {
   sub:{
     it:"Legge/scrive i registri del chip via BLE (NUS a registri). Chrome/Edge desktop o Chrome Android. <b>Solo su hardware tuo.</b>",
     en:"Reads/writes the chip's registers over BLE (register-based NUS). Chrome/Edge on desktop or Chrome on Android. <b>Only on your own hardware.</b>",
-    es:"Lee/escribe los registros del chip por BLE (NUS por registros). Chrome/Edge en escritorio o Chrome en Android. <b>Solo en hardware de tu propiedad.</b>"
+    es:"Lee/escribe los registros del chip por BLE (NUS por registros). Chrome/Edge en escritorio o Chrome en Android. <b>Solo en hardware de tu propiedad.</b>",
+    fr:"Lit/écrit les registres de la puce via BLE (NUS à registres). Chrome/Edge sur ordinateur ou Chrome sur Android. <b>Uniquement sur ton propre matériel.</b>",
+    de:"Liest/schreibt die Register des Chips über BLE (registerbasiertes NUS). Chrome/Edge am Computer oder Chrome auf Android. <b>Nur mit eigener Hardware.</b>"
   },
-  backHome:{it:"← Slot Car Web Tools",en:"← Slot Car Web Tools",es:"← Slot Car Web Tools"},
-  h1title:{it:"Configuratore auto BLE",en:"Car configurator BLE",es:"Configurador de coche BLE"},
-  stConnected:{it:"connesso",en:"connected",es:"conectado"},
-  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
-  btnConn:{it:"🔵 Connetti",en:"🔵 Connect",es:"🔵 Conectar"},
-  btnDisc:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
-  secConfig:{it:"Configurazione",en:"Configuration",es:"Configuración"},
+  backHome:{it:"← Slot Car Web Tools",en:"← Slot Car Web Tools",es:"← Slot Car Web Tools",fr:"← Slot Car Web Tools",de:"← Slot Car Web Tools"},
+  h1title:{it:"Configuratore auto BLE",en:"Car configurator BLE",es:"Configurador de coche BLE",fr:"Configurateur de voiture BLE",de:"Auto-Konfigurator BLE"},
+  stConnected:{it:"connesso",en:"connected",es:"conectado",fr:"connecté",de:"verbunden"},
+  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado",fr:"non connecté",de:"nicht verbunden"},
+  btnConn:{it:"🔵 Connetti",en:"🔵 Connect",es:"🔵 Conectar",fr:"🔵 Connecter",de:"🔵 Verbinden"},
+  btnDisc:{it:"Disconnetti",en:"Disconnect",es:"Desconectar",fr:"Déconnecter",de:"Trennen"},
+  secConfig:{it:"Configurazione",en:"Configuration",es:"Configuración",fr:"Configuration",de:"Konfiguration"},
   btnReadAll:{
     it:"↺ Leggi configurazione dal chip",
     en:"↺ Read configuration from chip",
-    es:"↺ Leer configuración del chip"
+    es:"↺ Leer configuración del chip",
+    fr:"↺ Lire la configuration de la puce",
+    de:"↺ Konfiguration aus dem Chip lesen"
   },
   readAllHint:{
     it:"← premi qui per primo, poi i valori compaiono nei campi",
     en:"← press this first, then the values appear in the fields",
-    es:"← pulsa aquí primero, luego los valores aparecen en los campos"
+    es:"← pulsa aquí primero, luego los valores aparecen en los campos",
+    fr:"← appuie ici en premier, puis les valeurs apparaissent dans les champs",
+    de:"← drück zuerst hier, dann erscheinen die Werte in den Feldern"
   },
   rebootHint:{
     it:"Ogni scrittura viene salvata subito, ma l'auto la <b>applica dal prossimo riavvio</b>: finché è collegata in Bluetooth la radio di gara è spenta. Fanno eccezione il test motore e il test luci, che agiscono subito.",
     en:"Every write is saved immediately, but the car <b>applies it from the next restart</b>: while it is connected over Bluetooth the race radio is off. The motor and lights tests are the exception: they act at once.",
-    es:"Cada escritura se guarda enseguida, pero el coche la <b>aplica desde el próximo reinicio</b>: mientras está conectado por Bluetooth la radio de carrera está apagada. Las excepciones son la prueba de motor y la de luces, que actúan al momento."
+    es:"Cada escritura se guarda enseguida, pero el coche la <b>aplica desde el próximo reinicio</b>: mientras está conectado por Bluetooth la radio de carrera está apagada. Las excepciones son la prueba de motor y la de luces, que actúan al momento.",
+    fr:"Chaque écriture est enregistrée tout de suite, mais la voiture ne l'<b>applique qu'au prochain redémarrage</b> : tant qu'elle est connectée en Bluetooth, la radio de course est éteinte. Seuls le test moteur et le test des feux font exception : ils agissent immédiatement.",
+    de:"Jeder Schreibvorgang wird sofort gespeichert, aber das Auto <b>übernimmt ihn erst beim nächsten Neustart</b>: Solange es per Bluetooth verbunden ist, ist der Rennfunk abgeschaltet. Ausnahmen sind der Motortest und der Lichttest, die sofort wirken."
   },
-  lblName:{it:"Nome",en:"Name",es:"Nombre"},
-  phName:{it:"es. La mia auto",en:"e.g. My car",es:"p. ej. Mi coche"},
+  lblName:{it:"Nome",en:"Name",es:"Nombre",fr:"Nom",de:"Name"},
+  phName:{it:"es. La mia auto",en:"e.g. My car",es:"p. ej. Mi coche",fr:"ex. Ma voiture",de:"z. B. Mein Auto"},
   nameHint:{
     it:"Registro <code>0x83</code>: <b>14 caratteri ASCII</b> esatti, il resto si completa con spazi. Le lettere accentate perdono l'accento e gli altri simboli non ASCII si scartano. Il nome nuovo compare nell'elenco Bluetooth al prossimo avvio in modalità Bluetooth.",
     en:"Register <code>0x83</code>: exactly <b>14 ASCII characters</b>, padded with spaces. Accented letters lose the accent and other non-ASCII symbols are dropped. The new name shows up in the Bluetooth list the next time the car starts in Bluetooth mode.",
-    es:"Registro <code>0x83</code>: exactamente <b>14 caracteres ASCII</b>, completados con espacios. Las letras acentuadas pierden el acento y los demás símbolos no ASCII se descartan. El nombre nuevo aparece en la lista Bluetooth la próxima vez que el coche arranque en modo Bluetooth."
+    es:"Registro <code>0x83</code>: exactamente <b>14 caracteres ASCII</b>, completados con espacios. Las letras acentuadas pierden el acento y los demás símbolos no ASCII se descartan. El nombre nuevo aparece en la lista Bluetooth la próxima vez que el coche arranque en modo Bluetooth.",
+    fr:"Registre <code>0x83</code> : exactement <b>14 caractères ASCII</b>, complétés par des espaces. Les lettres accentuées perdent leur accent et les autres symboles non ASCII sont ignorés. Le nouveau nom apparaît dans la liste Bluetooth au prochain démarrage de la voiture en mode Bluetooth.",
+    de:"Register <code>0x83</code>: genau <b>14 ASCII-Zeichen</b>, der Rest wird mit Leerzeichen aufgefüllt. Buchstaben mit Akzent oder Umlaut verlieren ihn, andere Nicht-ASCII-Zeichen werden verworfen. Der neue Name erscheint in der Bluetooth-Liste, sobald das Auto das nächste Mal im Bluetooth-Modus startet."
   },
-  btnSet:{it:"Imposta",en:"Set",es:"Establecer"},
-  lblCarId:{it:"ID auto (1–20)",en:"Car ID (1–20)",es:"ID coche (1–20)"},
-  lblMode:{it:"Modalità LED IR",en:"IR LED mode",es:"Modo LED IR"},
+  btnSet:{it:"Imposta",en:"Set",es:"Establecer",fr:"Définir",de:"Setzen"},
+  lblCarId:{it:"ID auto (1–20)",en:"Car ID (1–20)",es:"ID coche (1–20)",fr:"ID voiture (1–20)",de:"Auto-ID (1–20)"},
+  lblMode:{it:"Modalità LED IR",en:"IR LED mode",es:"Modo LED IR",fr:"Mode LED IR",de:"IR-LED-Modus"},
   modeHint:{
     it:"Registro <code>0x91</code>: a quale sistema parla il LED a infrarossi dell'auto. <b>Puro</b> = solo quel sistema; <b>ibrido</b> = anche gli scambi oXigen. Il <code>4</code> è <b>Carrera</b>, non D132: la corsia D132 sta nel registro <code>0x95</code>. Il tempo IR della modalità ibrida (<code>0x94</code>) l'auto lo salva ma non lo usa.",
     en:"Register <code>0x91</code>: which system the car's infrared LED talks to. <b>Pure</b> = that system only; <b>hybrid</b> = oXigen lane changers too. <code>4</code> is <b>Carrera</b>, not D132: the D132 lane is in register <code>0x95</code>. The car saves the hybrid-mode IR time (<code>0x94</code>) but does not use it.",
-    es:"Registro <code>0x91</code>: a qué sistema habla el LED infrarrojo del coche. <b>Puro</b> = solo ese sistema; <b>híbrido</b> = también los cambios oXigen. El <code>4</code> es <b>Carrera</b>, no D132: el carril D132 está en el registro <code>0x95</code>. El tiempo IR del modo híbrido (<code>0x94</code>) el coche lo guarda pero no lo usa."
+    es:"Registro <code>0x91</code>: a qué sistema habla el LED infrarrojo del coche. <b>Puro</b> = solo ese sistema; <b>híbrido</b> = también los cambios oXigen. El <code>4</code> es <b>Carrera</b>, no D132: el carril D132 está en el registro <code>0x95</code>. El tiempo IR del modo híbrido (<code>0x94</code>) el coche lo guarda pero no lo usa.",
+    fr:"Registre <code>0x91</code> : le système auquel parle la LED infrarouge de la voiture. <b>Pur</b> = ce système seulement ; <b>hybride</b> = aussi les aiguillages oXigen. Le <code>4</code> correspond à <b>Carrera</b>, pas à D132 : la voie D132 se trouve dans le registre <code>0x95</code>. La voiture enregistre la durée IR du mode hybride (<code>0x94</code>) mais ne l'utilise pas.",
+    de:"Register <code>0x91</code>: mit welchem System die Infrarot-LED des Autos spricht. <b>Rein</b> = nur dieses System; <b>hybrid</b> = auch die oXigen-Weichen. Die <code>4</code> ist <b>Carrera</b>, nicht D132: Die D132-Spur steht in Register <code>0x95</code>. Die IR-Zeit des Hybridmodus (<code>0x94</code>) speichert das Auto, nutzt sie aber nicht."
   },
-  optSsdPure:{it:"SSD puro",en:"SSD pure",es:"SSD puro"},
-  optSsdHyb:{it:"SSD ibrido",en:"SSD hybrid",es:"SSD híbrido"},
-  optO2Pure:{it:"oXigen puro",en:"oXigen pure",es:"oXigen puro"},
-  optO2Hyb:{it:"oXigen ibrido",en:"oXigen hybrid",es:"oXigen híbrido"},
-  optCarPure:{it:"Carrera puro",en:"Carrera pure",es:"Carrera puro"},
-  optCarHyb:{it:"Carrera ibrido",en:"Carrera hybrid",es:"Carrera híbrido"},
+  optSsdPure:{it:"SSD puro",en:"SSD pure",es:"SSD puro",fr:"SSD pur",de:"SSD rein"},
+  optSsdHyb:{it:"SSD ibrido",en:"SSD hybrid",es:"SSD híbrido",fr:"SSD hybride",de:"SSD hybrid"},
+  optO2Pure:{it:"oXigen puro",en:"oXigen pure",es:"oXigen puro",fr:"oXigen pur",de:"oXigen rein"},
+  optO2Hyb:{it:"oXigen ibrido",en:"oXigen hybrid",es:"oXigen híbrido",fr:"oXigen hybride",de:"oXigen hybrid"},
+  optCarPure:{it:"Carrera puro",en:"Carrera pure",es:"Carrera puro",fr:"Carrera pur",de:"Carrera rein"},
+  optCarHyb:{it:"Carrera ibrido",en:"Carrera hybrid",es:"Carrera híbrido",fr:"Carrera hybride",de:"Carrera hybrid"},
   optReadCfg:{
     it:"— (leggi configurazione)",
     en:"— (read configuration)",
-    es:"— (leer configuración)"
+    es:"— (leer configuración)",
+    fr:"— (lire la configuration)",
+    de:"— (Konfiguration lesen)"
   },
   secLimits:{
     it:"Limiti velocità / freno",
     en:"Speed / brake limits",
-    es:"Límites de velocidad / freno"
+    es:"Límites de velocidad / freno",
+    fr:"Limites de vitesse / frein",
+    de:"Grenzwerte Geschwindigkeit / Bremse"
   },
   lblLimits:{
     it:"Usa i valori dell'auto",
     en:"Use the car's values",
-    es:"Usar los valores del coche"
+    es:"Usar los valores del coche",
+    fr:"Utiliser les valeurs de la voiture",
+    de:"Werte des Autos verwenden"
   },
-  lblMinSpeed:{it:"Velocità min (non usata)",en:"Min speed (not used)",es:"Velocidad mín (no se usa)"},
-  lblMaxSpeed:{it:"Velocità max",en:"Max speed",es:"Velocidad máx"},
-  lblBrake:{it:"Freno (brake)",en:"Brake",es:"Freno"},
+  lblMinSpeed:{it:"Velocità min (non usata)",en:"Min speed (not used)",es:"Velocidad mín (no se usa)",fr:"Vitesse min (non utilisée)",de:"Min. Geschwindigkeit (nicht genutzt)"},
+  lblMaxSpeed:{it:"Velocità max",en:"Max speed",es:"Velocidad máx",fr:"Vitesse max",de:"Max. Geschwindigkeit"},
+  lblBrake:{it:"Freno (brake)",en:"Brake",es:"Freno",fr:"Frein",de:"Bremse"},
   limHint:{
-    it:"Registro <code>0x87</code>: decide <b>da dove l'auto prende velocità massima e freno</b> — spuntato (1) = dai <b>suoi</b> registri <code>0x84</code> e <code>0x86</code>, non spuntato (0) = dal <b>telecomando</b>. Gli slider si possono sempre scrivere, ma l'auto li applica solo con la spunta attiva. La <b>velocità minima</b> (<code>0x85</code>) l'auto la salva ma <b>non la usa</b>: scriverla non cambia niente in pista. <code>0x8D</code> è un secondo numero per <code>0x86</code>: stesso valore.",
-    en:"Register <code>0x87</code>: decides <b>where the car takes max speed and brake from</b> — checked (1) = from <b>its own</b> registers <code>0x84</code> and <code>0x86</code>, unchecked (0) = from the <b>handset</b>. The sliders can always be written, but the car only applies them when it is checked. The car saves the <b>minimum speed</b> (<code>0x85</code>) but <b>does not use it</b>: writing it changes nothing on the track. <code>0x8D</code> is a second number for <code>0x86</code>: same value.",
-    es:"Registro <code>0x87</code>: decide <b>de dónde toma el coche la velocidad máxima y el freno</b> — marcado (1) = de <b>sus propios</b> registros <code>0x84</code> y <code>0x86</code>, sin marcar (0) = del <b>mando</b>. Los deslizadores se pueden escribir siempre, pero el coche solo los aplica si está marcado. La <b>velocidad mínima</b> (<code>0x85</code>) el coche la guarda pero <b>no la usa</b>: escribirla no cambia nada en pista. <code>0x8D</code> es un segundo número para <code>0x86</code>: mismo valor."
+    it:"Registro <code>0x87</code>: decide <b>da dove l'auto prende velocità massima e freno</b> — spuntato (1) = dai <b>suoi</b> registri <code>0x84</code> e <code>0x86</code>, non spuntato (0) = dal <b>controller</b>. Gli slider si possono sempre scrivere, ma l'auto li applica solo con la spunta attiva. La <b>velocità minima</b> (<code>0x85</code>) l'auto la salva ma <b>non la usa</b>: scriverla non cambia niente in pista. <code>0x8D</code> è un secondo numero per <code>0x86</code>: stesso valore.",
+    en:"Register <code>0x87</code>: decides <b>where the car takes max speed and brake from</b> — checked (1) = from <b>its own</b> registers <code>0x84</code> and <code>0x86</code>, unchecked (0) = from the <b>controller</b>. The sliders can always be written, but the car only applies them when it is checked. The car saves the <b>minimum speed</b> (<code>0x85</code>) but <b>does not use it</b>: writing it changes nothing on the track. <code>0x8D</code> is a second number for <code>0x86</code>: same value.",
+    es:"Registro <code>0x87</code>: decide <b>de dónde toma el coche la velocidad máxima y el freno</b> — marcado (1) = de <b>sus propios</b> registros <code>0x84</code> y <code>0x86</code>, sin marcar (0) = del <b>mando</b>. Los deslizadores se pueden escribir siempre, pero el coche solo los aplica si está marcado. La <b>velocidad mínima</b> (<code>0x85</code>) el coche la guarda pero <b>no la usa</b>: escribirla no cambia nada en pista. <code>0x8D</code> es un segundo número para <code>0x86</code>: mismo valor.",
+    fr:"Registre <code>0x87</code> : décide <b>d'où la voiture prend la vitesse maximale et le frein</b> — coché (1) = de <b>ses propres</b> registres <code>0x84</code> et <code>0x86</code>, décoché (0) = de la <b>manette</b>. Les curseurs peuvent toujours être écrits, mais la voiture ne les applique que si la case est cochée. La voiture enregistre la <b>vitesse minimale</b> (<code>0x85</code>) mais <b>ne l'utilise pas</b> : l'écrire ne change rien sur la piste. <code>0x8D</code> est un deuxième numéro pour <code>0x86</code> : même valeur.",
+    de:"Register <code>0x87</code>: legt fest, <b>woher das Auto Höchstgeschwindigkeit und Bremse nimmt</b> — angehakt (1) = aus seinen <b>eigenen</b> Registern <code>0x84</code> und <code>0x86</code>, nicht angehakt (0) = vom <b>Handregler</b>. Die Schieberegler lassen sich immer schreiben, aber das Auto übernimmt sie nur mit gesetztem Haken. Die <b>Mindestgeschwindigkeit</b> (<code>0x85</code>) speichert das Auto, <b>nutzt sie aber nicht</b>: Sie zu schreiben ändert auf der Bahn nichts. <code>0x8D</code> ist eine zweite Nummer für <code>0x86</code>: gleicher Wert."
   },
-  secTest:{it:"Test",en:"Test",es:"Prueba"},
-  btnMotor:{it:"🔧 Test motore",en:"🔧 Motor test",es:"🔧 Prueba de motor"},
-  btnLights:{it:"💡 Test luci",en:"💡 Lights test",es:"💡 Prueba de luces"},
-  lblHall:{it:"Sensore hall",en:"Hall sensor",es:"Sensor hall"},
-  hallLbl:{it:"impulsi giro:",en:"lap pulses:",es:"impulsos de vuelta:"},
-  btnReset:{it:"azzera",en:"reset",es:"poner a cero"},
+  secTest:{it:"Test",en:"Test",es:"Prueba",fr:"Test",de:"Test"},
+  btnMotor:{it:"🔧 Test motore",en:"🔧 Motor test",es:"🔧 Prueba de motor",fr:"🔧 Test moteur",de:"🔧 Motortest"},
+  btnLights:{it:"💡 Test luci",en:"💡 Lights test",es:"💡 Prueba de luces",fr:"💡 Test des feux",de:"💡 Lichttest"},
+  lblHall:{it:"Sensore hall",en:"Hall sensor",es:"Sensor hall",fr:"Capteur Hall",de:"Hall-Sensor"},
+  hallLbl:{it:"impulsi giro:",en:"lap pulses:",es:"impulsos de vuelta:",fr:"impulsions de tour :",de:"Rundenimpulse:"},
+  btnReset:{it:"azzera",en:"reset",es:"poner a cero",fr:"remettre à zéro",de:"zurücksetzen"},
   hallHint:{
     it:"Il pallino lampeggia verde a ogni passaggio calamita (impulso <code>09 02 9c 00</code>). " +
       "Serve che il chip stia emettendo gli impulsi (test sensore / passaggio sul traguardo).",
     en:"The dot flashes green on each magnet pass (pulse <code>09 02 9c 00</code>). " +
       "The chip must be emitting the pulses (sensor test / passing over the finish line).",
     es:"El punto parpadea en verde en cada paso del imán (impulso <code>09 02 9c 00</code>). " +
-      "El chip debe estar emitiendo los impulsos (prueba del sensor / paso por la meta)."
+      "El chip debe estar emitiendo los impulsos (prueba del sensor / paso por la meta).",
+    fr:"Le point clignote en vert à chaque passage d'aimant (impulsion <code>09 02 9c 00</code>). " +
+      "Il faut que la puce émette les impulsions (test du capteur / passage sur la ligne d'arrivée).",
+    de:"Der Punkt blinkt bei jedem Magnetdurchgang grün (Impuls <code>09 02 9c 00</code>). " +
+      "Dafür muss der Chip die Impulse senden (Sensortest / Fahrt über die Ziellinie)."
   },
   secClone:{
-    it:"Abbinamento al telecomando (ex \"clonazione MAC\")",
-    en:"Handset binding (formerly \"MAC cloning\")",
-    es:"Vinculación al mando (antes \"clonación MAC\")"
+    it:"Abbinamento al controller (ex \"clonazione MAC\")",
+    en:"Controller binding (formerly \"MAC cloning\")",
+    es:"Vinculación al mando (antes \"clonación MAC\")",
+    fr:"Appairage à la manette (anciennement « clonage MAC »)",
+    de:"Kopplung an den Handregler (früher „MAC-Klonen“)"
   },
   lblMac:{
-    it:"2 byte O2 del telecomando (hi, lo)",
-    en:"handset's 2 O2 bytes (hi, lo)",
-    es:"2 bytes O2 del mando (hi, lo)"
+    it:"2 byte O2 del controller (hi, lo)",
+    en:"controller's 2 O2 bytes (hi, lo)",
+    es:"2 bytes O2 del mando (hi, lo)",
+    fr:"2 octets O2 de la manette (hi, lo)",
+    de:"2 O2-Bytes des Handreglers (hi, lo)"
   },
-  btnWriteMac:{it:"Abbina",en:"Bind",es:"Vincular"},
+  btnWriteMac:{it:"Abbina",en:"Bind",es:"Vincular",fr:"Appairer",de:"Koppeln"},
   btnRstMac:{
     it:"Ripristina di fabbrica",
     en:"Restore factory value",
-    es:"Restaurar de fábrica"
+    es:"Restaurar de fábrica",
+    fr:"Rétablir la valeur d'usine",
+    de:"Werkseinstellung wiederherstellen"
   },
   confirmRstMac:{
-    it:"Ripristinare l'abbinamento di fabbrica (registro 0x9F)? L'auto torna al valore ricavato dal MAC del proprio chip e smette di rispondere al telecomando abbinato ora. Ha effetto dal prossimo riavvio.",
-    en:"Restore the factory binding (register 0x9F)? The car goes back to the value derived from its own chip MAC and stops answering the handset it is bound to now. Takes effect from the next restart.",
-    es:"¿Restaurar la vinculación de fábrica (registro 0x9F)? El coche vuelve al valor derivado del MAC de su propio chip y deja de responder al mando vinculado ahora. Tiene efecto desde el próximo reinicio."
+    it:"Ripristinare l'abbinamento di fabbrica (registro 0x9F)? L'auto torna al valore ricavato dal MAC del proprio chip e smette di rispondere al controller abbinato ora. Ha effetto dal prossimo riavvio.",
+    en:"Restore the factory binding (register 0x9F)? The car goes back to the value derived from its own chip MAC and stops answering the controller it is bound to now. Takes effect from the next restart.",
+    es:"¿Restaurar la vinculación de fábrica (registro 0x9F)? El coche vuelve al valor derivado del MAC de su propio chip y deja de responder al mando vinculado ahora. Tiene efecto desde el próximo reinicio.",
+    fr:"Rétablir l'appairage d'usine (registre 0x9F) ? La voiture revient à la valeur tirée du MAC de sa propre puce et cesse de répondre à la manette à laquelle elle est appairée maintenant. Prend effet au prochain redémarrage.",
+    de:"Werkskopplung wiederherstellen (Register 0x9F)? Das Auto kehrt zu dem Wert zurück, der aus der MAC seines eigenen Chips abgeleitet ist, und antwortet nicht mehr dem Handregler, an den es jetzt gekoppelt ist. Wirkt ab dem nächsten Neustart."
   },
   cloneWarn:{
-    it:"⚠️ Il registro <code>0x90</code> non è il MAC dell'auto: sono i <b>2 byte dell'identità radio O2 del telecomando</b> a cui l'auto risponde (prima il byte alto, poi il basso); da questi si ricava l'indirizzo radio del collegamento. Riscriverlo vuol dire <b>abbinare</b> l'auto a un altro telecomando. Due auto con gli stessi 2 byte e lo stesso ID rispondono insieme. <b>Ripristina di fabbrica</b> scrive <code>0x9F</code>, che rimette il valore ricavato dal MAC del chip dell'auto: non va mandato dopo <b>Abbina</b>, perché annullerebbe l'abbinamento appena scritto. Entrambi hanno effetto dal prossimo riavvio. (<code>0x80</code>, l'aggiornamento firmware, non è esposto qui apposta.)",
-    en:"⚠️ Register <code>0x90</code> is not the car's MAC: it holds the <b>2 bytes of the O2 radio identity of the handset</b> the car answers to (high byte first, then low); the radio address of the link is derived from them. Rewriting it means <b>binding</b> the car to another handset. Two cars with the same two bytes and the same ID answer together. <b>Restore factory value</b> writes <code>0x9F</code>, which puts back the value derived from the car's chip MAC: do not send it after <b>Bind</b>, because it would undo the binding you just wrote. Both take effect from the next restart. (<code>0x80</code>, the firmware update, is intentionally not exposed here.)",
-    es:"⚠️ El registro <code>0x90</code> no es el MAC del coche: son los <b>2 bytes de la identidad de radio O2 del mando</b> al que responde el coche (primero el byte alto, luego el bajo); de ellos se obtiene la dirección de radio del enlace. Reescribirlo significa <b>vincular</b> el coche a otro mando. Dos coches con los mismos dos bytes y el mismo ID responden juntos. <b>Restaurar de fábrica</b> escribe <code>0x9F</code>, que devuelve el valor derivado del MAC del chip del coche: no hay que enviarlo después de <b>Vincular</b>, porque anularía la vinculación recién escrita. Ambos tienen efecto desde el próximo reinicio. (<code>0x80</code>, la actualización de firmware, no se expone aquí a propósito.)"
+    it:"⚠️ Il registro <code>0x90</code> non è il MAC dell'auto: sono i <b>2 byte dell'identità radio O2 del controller</b> a cui l'auto risponde (prima il byte alto, poi il basso); da questi si ricava l'indirizzo radio del collegamento. Riscriverlo vuol dire <b>abbinare</b> l'auto a un altro controller. Due auto con gli stessi 2 byte e lo stesso ID rispondono insieme. <b>Ripristina di fabbrica</b> scrive <code>0x9F</code>, che rimette il valore ricavato dal MAC del chip dell'auto: non va mandato dopo <b>Abbina</b>, perché annullerebbe l'abbinamento appena scritto. Entrambi hanno effetto dal prossimo riavvio. (<code>0x80</code>, l'aggiornamento firmware, non è esposto qui apposta.)",
+    en:"⚠️ Register <code>0x90</code> is not the car's MAC: it holds the <b>2 bytes of the O2 radio identity of the controller</b> the car answers to (high byte first, then low); the radio address of the link is derived from them. Rewriting it means <b>binding</b> the car to another controller. Two cars with the same two bytes and the same ID answer together. <b>Restore factory value</b> writes <code>0x9F</code>, which puts back the value derived from the car's chip MAC: do not send it after <b>Bind</b>, because it would undo the binding you just wrote. Both take effect from the next restart. (<code>0x80</code>, the firmware update, is intentionally not exposed here.)",
+    es:"⚠️ El registro <code>0x90</code> no es el MAC del coche: son los <b>2 bytes de la identidad de radio O2 del mando</b> al que responde el coche (primero el byte alto, luego el bajo); de ellos se obtiene la dirección de radio del enlace. Reescribirlo significa <b>vincular</b> el coche a otro mando. Dos coches con los mismos dos bytes y el mismo ID responden juntos. <b>Restaurar de fábrica</b> escribe <code>0x9F</code>, que devuelve el valor derivado del MAC del chip del coche: no hay que enviarlo después de <b>Vincular</b>, porque anularía la vinculación recién escrita. Ambos tienen efecto desde el próximo reinicio. (<code>0x80</code>, la actualización de firmware, no se expone aquí a propósito.)",
+    fr:"⚠️ Le registre <code>0x90</code> n'est pas le MAC de la voiture : ce sont les <b>2 octets de l'identité radio O2 de la manette</b> à laquelle la voiture répond (d'abord l'octet haut, puis le bas) ; c'est d'eux que l'on tire l'adresse radio de la liaison. Le réécrire revient à <b>appairer</b> la voiture à une autre manette. Deux voitures avec les mêmes 2 octets et le même ID répondent ensemble. <b>Rétablir la valeur d'usine</b> écrit <code>0x9F</code>, qui remet la valeur tirée du MAC de la puce de la voiture : ne l'envoie pas après <b>Appairer</b>, car il annulerait l'appairage que tu viens d'écrire. Les deux prennent effet au prochain redémarrage. (<code>0x80</code>, la mise à jour du firmware, n'est volontairement pas proposé ici.)",
+    de:"⚠️ Register <code>0x90</code> ist nicht die MAC des Autos: Es enthält die <b>2 Bytes der O2-Funkidentität des Handreglers</b>, auf den das Auto antwortet (zuerst das hohe Byte, dann das niedrige); daraus ergibt sich die Funkadresse der Verbindung. Wer es neu schreibt, <b>koppelt</b> das Auto an einen anderen Handregler. Zwei Autos mit denselben 2 Bytes und derselben ID antworten gemeinsam. <b>Werkseinstellung wiederherstellen</b> schreibt <code>0x9F</code>, das den aus der MAC des Auto-Chips abgeleiteten Wert zurückholt: Sende es nicht nach <b>Koppeln</b>, denn es würde die gerade geschriebene Kopplung aufheben. Beide wirken ab dem nächsten Neustart. (<code>0x80</code>, das Firmware-Update, wird hier absichtlich nicht angeboten.)"
   },
   advSummary:{
     it:"Avanzato — registri grezzi",
     en:"Advanced — raw registers",
-    es:"Avanzado — registros en bruto"
+    es:"Avanzado — registros en bruto",
+    fr:"Avancé — registres bruts",
+    de:"Erweitert — Rohregister"
   },
   rawHint:{
     it:"La console accetta solo i registri della tabella, con il numero di byte giusto per ciascuno: a un registro che non gestisce l'auto risponde <b>«DO»</b> lo stesso, senza aver scritto niente, e con un frame di lunghezza diversa salva byte a caso. Valori in esadecimale (<code>32</code>, <code>1a 2b</code>); per <code>0x83</code> si scrive il nome in chiaro. Bloccati apposta: la <b>lettura</b> di <code>0x9A</code> (blocca l'auto finché non le si toglie corrente), la scrittura di <code>0x80</code> (aggiornamento firmware), di <code>0x8E</code> (sola lettura: risponde sempre «AB») e dei registri di attivazione <code>0x81</code>/<code>0x82</code>.",
     en:"The console only accepts the registers in the table, with the right number of bytes for each one: the car answers <b>\"DO\"</b> even to a register it does not handle, without writing anything, and a frame of a different length makes it save random bytes. Values in hex (<code>32</code>, <code>1a 2b</code>); for <code>0x83</code> type the name as plain text. Blocked on purpose: <b>reading</b> <code>0x9A</code> (it locks the car until power is removed), writing <code>0x80</code> (firmware update), <code>0x8E</code> (read-only: always answers \"AB\") and the activation registers <code>0x81</code>/<code>0x82</code>.",
-    es:"La consola solo acepta los registros de la tabla, con el número de bytes correcto para cada uno: a un registro que no gestiona el coche responde <b>«DO»</b> igualmente, sin haber escrito nada, y con una trama de otra longitud guarda bytes al azar. Valores en hexadecimal (<code>32</code>, <code>1a 2b</code>); para <code>0x83</code> se escribe el nombre en claro. Bloqueados a propósito: la <b>lectura</b> de <code>0x9A</code> (bloquea el coche hasta que se le quita la corriente), la escritura de <code>0x80</code> (actualización de firmware), de <code>0x8E</code> (solo lectura: responde siempre «AB») y de los registros de activación <code>0x81</code>/<code>0x82</code>."
+    es:"La consola solo acepta los registros de la tabla, con el número de bytes correcto para cada uno: a un registro que no gestiona el coche responde <b>«DO»</b> igualmente, sin haber escrito nada, y con una trama de otra longitud guarda bytes al azar. Valores en hexadecimal (<code>32</code>, <code>1a 2b</code>); para <code>0x83</code> se escribe el nombre en claro. Bloqueados a propósito: la <b>lectura</b> de <code>0x9A</code> (bloquea el coche hasta que se le quita la corriente), la escritura de <code>0x80</code> (actualización de firmware), de <code>0x8E</code> (solo lectura: responde siempre «AB») y de los registros de activación <code>0x81</code>/<code>0x82</code>.",
+    fr:"La console n'accepte que les registres du tableau, avec le bon nombre d'octets pour chacun : à un registre qu'elle ne gère pas, la voiture répond quand même <b>« DO »</b>, sans rien avoir écrit, et avec une trame d'une autre longueur elle enregistre des octets au hasard. Valeurs en hexadécimal (<code>32</code>, <code>1a 2b</code>) ; pour <code>0x83</code>, on écrit le nom en clair. Bloqués exprès : la <b>lecture</b> de <code>0x9A</code> (elle bloque la voiture jusqu'à ce qu'on lui coupe le courant), l'écriture de <code>0x80</code> (mise à jour du firmware), de <code>0x8E</code> (lecture seule : répond toujours « AB ») et des registres d'activation <code>0x81</code>/<code>0x82</code>.",
+    de:"Die Konsole nimmt nur die Register aus der Tabelle an, jeweils mit der richtigen Anzahl Bytes: Auf ein Register, das es nicht verarbeitet, antwortet das Auto trotzdem <b>„DO“</b>, ohne etwas geschrieben zu haben, und bei einem Frame anderer Länge speichert es zufällige Bytes. Werte in Hexadezimal (<code>32</code>, <code>1a 2b</code>); für <code>0x83</code> schreibt man den Namen im Klartext. Absichtlich gesperrt: das <b>Lesen</b> von <code>0x9A</code> (es blockiert das Auto, bis man ihm den Strom nimmt), das Schreiben von <code>0x80</code> (Firmware-Update), von <code>0x8E</code> (nur lesbar: antwortet immer „AB“) und der Aktivierungsregister <code>0x81</code>/<code>0x82</code>."
   },
-  lblReadReg:{it:"Leggi reg",en:"Read reg",es:"Leer reg"},
-  btnRead:{it:"Leggi",en:"Read",es:"Leer"},
-  lblWriteReg:{it:"Scrivi reg",en:"Write reg",es:"Escribir reg"},
-  phWriteVal:{it:"32 / 1a2b / nome per 0x83",en:"32 / 1a2b / name for 0x83",es:"32 / 1a2b / nombre para 0x83"},
-  btnWrite:{it:"Scrivi",en:"Write",es:"Escribir"},
-  thName:{it:"nome",en:"name",es:"nombre"},
-  thValue:{it:"valore",en:"value",es:"valor"},
-  btnReadLc:{it:"leggi",en:"read",es:"leer"},
-  advLog:{it:"Log",en:"Log",es:"Registro"},
-  thReg:{it:"reg",en:"reg",es:"reg"},
+  lblReadReg:{it:"Leggi reg",en:"Read reg",es:"Leer reg",fr:"Lire reg",de:"Reg lesen"},
+  btnRead:{it:"Leggi",en:"Read",es:"Leer",fr:"Lire",de:"Lesen"},
+  lblWriteReg:{it:"Scrivi reg",en:"Write reg",es:"Escribir reg",fr:"Écrire reg",de:"Reg schreiben"},
+  phWriteVal:{it:"32 / 1a2b / nome per 0x83",en:"32 / 1a2b / name for 0x83",es:"32 / 1a2b / nombre para 0x83",fr:"32 / 1a2b / nom pour 0x83",de:"32 / 1a2b / Name für 0x83"},
+  btnWrite:{it:"Scrivi",en:"Write",es:"Escribir",fr:"Écrire",de:"Schreiben"},
+  thName:{it:"nome",en:"name",es:"nombre",fr:"nom",de:"Name"},
+  thValue:{it:"valore",en:"value",es:"valor",fr:"valeur",de:"Wert"},
+  btnReadLc:{it:"leggi",en:"read",es:"leer",fr:"lire",de:"lesen"},
+  advLog:{it:"Log",en:"Log",es:"Registro",fr:"Journal",de:"Protokoll"},
+  thReg:{it:"reg",en:"reg",es:"reg",fr:"reg",de:"Reg"},
   // --- nomi dei registri (tabella) ---
-  rgVer:{it:"versione firmware (si legge con un frame da 5 byte)",en:"firmware version (read with a 5-byte frame)",es:"versión de firmware (se lee con una trama de 5 bytes)"},
-  rgChipMac:{it:"MAC del chip (sola lettura)",en:"chip MAC (read-only)",es:"MAC del chip (solo lectura)"},
-  rgActDate:{it:"data di attivazione (qui solo lettura)",en:"activation date (read-only here)",es:"fecha de activación (aquí solo lectura)"},
-  rgActLock:{it:"blocco di attivazione: salvato ma non usato (qui solo lettura)",en:"activation lock: saved but not used (read-only here)",es:"bloqueo de activación: se guarda pero no se usa (aquí solo lectura)"},
-  rgName:{it:"nome (14 caratteri ASCII)",en:"name (14 ASCII characters)",es:"nombre (14 caracteres ASCII)"},
-  rgSpdMax:{it:"velocità massima (usata solo se 0x87 = 1)",en:"max speed (used only if 0x87 = 1)",es:"velocidad máxima (solo se usa si 0x87 = 1)"},
-  rgSpdMin:{it:"velocità minima: salvata ma non usata",en:"min speed: saved but not used",es:"velocidad mínima: se guarda pero no se usa"},
-  rgBrake:{it:"freno (usato solo se 0x87 = 1)",en:"brake (used only if 0x87 = 1)",es:"freno (solo se usa si 0x87 = 1)"},
-  rgDataFrom:{it:"limiti: 0 = dal telecomando, 1 = dall'auto (0x84/0x86)",en:"limits: 0 = from the handset, 1 = from the car (0x84/0x86)",es:"límites: 0 = del mando, 1 = del coche (0x84/0x86)"},
-  rgBrakeAlias:{it:"freno: stesso valore di 0x86",en:"brake: same value as 0x86",es:"freno: mismo valor que 0x86"},
-  rgCarMode:{it:"modo: 0 oXigen / 1 SSD / 2 D132 (sola lettura)",en:"mode: 0 oXigen / 1 SSD / 2 D132 (read-only)",es:"modo: 0 oXigen / 1 SSD / 2 D132 (solo lectura)"},
-  rgId:{it:"ID auto (1–20)",en:"car ID (1–20)",es:"ID coche (1–20)"},
-  rgBind:{it:"telecomando abbinato: identità O2 (alto, basso)",en:"bound handset: O2 identity (high, low)",es:"mando vinculado: identidad O2 (alto, bajo)"},
-  rgLed:{it:"modalità LED IR (0–5)",en:"IR LED mode (0–5)",es:"modo LED IR (0–5)"},
-  rgIrTmr:{it:"tempo IR in ibrido (50–250 ms): salvato ma non usato",en:"hybrid IR time (50–250 ms): saved but not used",es:"tiempo IR en híbrido (50–250 ms): se guarda pero no se usa"},
-  rgD132:{it:"corsia D132 (2 o 4)",en:"D132 lane (2 or 4)",es:"carril D132 (2 o 4)"},
-  rgSp44:{it:"kit luci SP44: non usato",en:"SP44 light kit: not used",es:"kit de luces SP44: no se usa"},
-  rgMotor:{it:"test motore (comando: non va mai letto)",en:"motor test (command: never read it)",es:"prueba de motor (comando: no leer nunca)"},
-  rgLights:{it:"test luci (comando)",en:"lights test (command)",es:"prueba de luces (comando)"},
-  rgRstBind:{it:"ripristina abbinamento di fabbrica (comando)",en:"restore factory binding (command)",es:"restaurar vinculación de fábrica (comando)"},
+  rgVer:{it:"versione firmware (si legge con un frame da 5 byte)",en:"firmware version (read with a 5-byte frame)",es:"versión de firmware (se lee con una trama de 5 bytes)",fr:"version du firmware (se lit avec une trame de 5 octets)",de:"Firmware-Version (wird mit einem 5-Byte-Frame gelesen)"},
+  rgChipMac:{it:"MAC del chip (sola lettura)",en:"chip MAC (read-only)",es:"MAC del chip (solo lectura)",fr:"MAC de la puce (lecture seule)",de:"MAC des Chips (nur lesbar)"},
+  rgActDate:{it:"data di attivazione (qui solo lettura)",en:"activation date (read-only here)",es:"fecha de activación (aquí solo lectura)",fr:"date d'activation (ici en lecture seule)",de:"Aktivierungsdatum (hier nur lesbar)"},
+  rgActLock:{it:"blocco di attivazione: salvato ma non usato (qui solo lettura)",en:"activation lock: saved but not used (read-only here)",es:"bloqueo de activación: se guarda pero no se usa (aquí solo lectura)",fr:"verrou d'activation : enregistré mais pas utilisé (ici en lecture seule)",de:"Aktivierungssperre: gespeichert, aber nicht genutzt (hier nur lesbar)"},
+  rgName:{it:"nome (14 caratteri ASCII)",en:"name (14 ASCII characters)",es:"nombre (14 caracteres ASCII)",fr:"nom (14 caractères ASCII)",de:"Name (14 ASCII-Zeichen)"},
+  rgSpdMax:{it:"velocità massima (usata solo se 0x87 = 1)",en:"max speed (used only if 0x87 = 1)",es:"velocidad máxima (solo se usa si 0x87 = 1)",fr:"vitesse maximale (utilisée seulement si 0x87 = 1)",de:"Höchstgeschwindigkeit (nur genutzt, wenn 0x87 = 1)"},
+  rgSpdMin:{it:"velocità minima: salvata ma non usata",en:"min speed: saved but not used",es:"velocidad mínima: se guarda pero no se usa",fr:"vitesse minimale : enregistrée mais pas utilisée",de:"Mindestgeschwindigkeit: gespeichert, aber nicht genutzt"},
+  rgBrake:{it:"freno (usato solo se 0x87 = 1)",en:"brake (used only if 0x87 = 1)",es:"freno (solo se usa si 0x87 = 1)",fr:"frein (utilisé seulement si 0x87 = 1)",de:"Bremse (nur genutzt, wenn 0x87 = 1)"},
+  rgDataFrom:{it:"limiti: 0 = dal controller, 1 = dall'auto (0x84/0x86)",en:"limits: 0 = from the controller, 1 = from the car (0x84/0x86)",es:"límites: 0 = del mando, 1 = del coche (0x84/0x86)",fr:"limites : 0 = de la manette, 1 = de la voiture (0x84/0x86)",de:"Grenzwerte: 0 = vom Handregler, 1 = vom Auto (0x84/0x86)"},
+  rgBrakeAlias:{it:"freno: stesso valore di 0x86",en:"brake: same value as 0x86",es:"freno: mismo valor que 0x86",fr:"frein : même valeur que 0x86",de:"Bremse: gleicher Wert wie 0x86"},
+  rgCarMode:{it:"modo: 0 oXigen / 1 SSD / 2 D132 (sola lettura)",en:"mode: 0 oXigen / 1 SSD / 2 D132 (read-only)",es:"modo: 0 oXigen / 1 SSD / 2 D132 (solo lectura)",fr:"mode : 0 oXigen / 1 SSD / 2 D132 (lecture seule)",de:"Modus: 0 oXigen / 1 SSD / 2 D132 (nur lesbar)"},
+  rgId:{it:"ID auto (1–20)",en:"car ID (1–20)",es:"ID coche (1–20)",fr:"ID voiture (1–20)",de:"Auto-ID (1–20)"},
+  rgBind:{it:"controller abbinato: identità O2 (alto, basso)",en:"bound controller: O2 identity (high, low)",es:"mando vinculado: identidad O2 (alto, bajo)",fr:"manette appairée : identité O2 (haut, bas)",de:"gekoppelter Handregler: O2-Identität (hoch, niedrig)"},
+  rgLed:{it:"modalità LED IR (0–5)",en:"IR LED mode (0–5)",es:"modo LED IR (0–5)",fr:"mode LED IR (0–5)",de:"IR-LED-Modus (0–5)"},
+  rgIrTmr:{it:"tempo IR in ibrido (50–250 ms): salvato ma non usato",en:"hybrid IR time (50–250 ms): saved but not used",es:"tiempo IR en híbrido (50–250 ms): se guarda pero no se usa",fr:"durée IR en hybride (50–250 ms) : enregistrée mais pas utilisée",de:"IR-Zeit im Hybridmodus (50–250 ms): gespeichert, aber nicht genutzt"},
+  rgD132:{it:"corsia D132 (2 o 4)",en:"D132 lane (2 or 4)",es:"carril D132 (2 o 4)",fr:"voie D132 (2 ou 4)",de:"D132-Spur (2 oder 4)"},
+  rgSp44:{it:"kit luci SP44: non usato",en:"SP44 light kit: not used",es:"kit de luces SP44: no se usa",fr:"kit d'éclairage SP44 : pas utilisé",de:"Lichtset SP44: nicht genutzt"},
+  rgMotor:{it:"test motore (comando: non va mai letto)",en:"motor test (command: never read it)",es:"prueba de motor (comando: no leer nunca)",fr:"test moteur (commande : ne jamais le lire)",de:"Motortest (Befehl: niemals lesen)"},
+  rgLights:{it:"test luci (comando)",en:"lights test (command)",es:"prueba de luces (comando)",fr:"test des feux (commande)",de:"Lichttest (Befehl)"},
+  rgRstBind:{it:"ripristina abbinamento di fabbrica (comando)",en:"restore factory binding (command)",es:"restaurar vinculación de fábrica (comando)",fr:"rétablir l'appairage d'usine (commande)",de:"Werkskopplung wiederherstellen (Befehl)"},
   // --- motivi dei blocchi della console ---
-  blkBadReg:{it:"numero di registro non valido (es. 8f).",en:"invalid register number (e.g. 8f).",es:"número de registro no válido (p. ej. 8f)."},
-  blkBadVal:{it:"valore non valido: scrivi i byte in esadecimale (es. 32 oppure 1a 2b).",en:"invalid value: write the bytes in hex (e.g. 32 or 1a 2b).",es:"valor no válido: escribe los bytes en hexadecimal (p. ej. 32 o 1a 2b)."},
+  blkBadReg:{it:"numero di registro non valido (es. 8f).",en:"invalid register number (e.g. 8f).",es:"número de registro no válido (p. ej. 8f).",fr:"numéro de registre non valide (ex. 8f).",de:"Ungültige Registernummer (z. B. 8f)."},
+  blkBadVal:{it:"valore non valido: scrivi i byte in esadecimale (es. 32 oppure 1a 2b).",en:"invalid value: write the bytes in hex (e.g. 32 or 1a 2b).",es:"valor no válido: escribe los bytes en hexadecimal (p. ej. 32 o 1a 2b).",fr:"valeur non valide : écris les octets en hexadécimal (ex. 32 ou 1a 2b).",de:"Ungültiger Wert: Schreib die Bytes hexadezimal (z. B. 32 oder 1a 2b)."},
   blkUnknown:{
     it:"registro fuori tabella, non lo mando: a un registro che non gestisce l'auto risponde «DO» lo stesso, senza scrivere niente.",
     en:"register not in the table, not sent: the car answers \"DO\" even to a register it does not handle, without writing anything.",
-    es:"registro fuera de la tabla, no lo envío: a un registro que no gestiona el coche responde «DO» igualmente, sin escribir nada."
+    es:"registro fuera de la tabla, no lo envío: a un registro que no gestiona el coche responde «DO» igualmente, sin escribir nada.",
+    fr:"registre hors du tableau, je ne l'envoie pas : à un registre qu'elle ne gère pas, la voiture répond quand même « DO », sans rien écrire.",
+    de:"Register nicht in der Tabelle, wird nicht gesendet: Auf ein Register, das es nicht verarbeitet, antwortet das Auto trotzdem „DO“, ohne etwas zu schreiben."
   },
   blkUnknownR:{
     it:"registro fuori tabella, non lo leggo: a un registro che non gestisce l'auto non risponde, e non è provato che la lettura sia innocua.",
     en:"register not in the table, not read: the car does not answer for a register it does not handle, and reading it has not been proven harmless.",
-    es:"registro fuera de la tabla, no lo leo: a un registro que no gestiona el coche no responde, y no está probado que leerlo sea inocuo."
+    es:"registro fuera de la tabla, no lo leo: a un registro que no gestiona el coche no responde, y no está probado que leerlo sea inocuo.",
+    fr:"registre hors du tableau, je ne le lis pas : la voiture ne répond pas pour un registre qu'elle ne gère pas, et il n'est pas prouvé que la lecture soit sans danger.",
+    de:"Register nicht in der Tabelle, wird nicht gelesen: Auf ein Register, das es nicht verarbeitet, antwortet das Auto nicht, und es ist nicht erwiesen, dass das Lesen harmlos ist."
   },
-  blkRO:{it:"registro di sola lettura.",en:"read-only register.",es:"registro de solo lectura."},
-  blkWO:{it:"è un comando, non un valore: si scrive soltanto.",en:"it is a command, not a value: it can only be written.",es:"es un comando, no un valor: solo se escribe."},
+  blkRO:{it:"registro di sola lettura.",en:"read-only register.",es:"registro de solo lectura.",fr:"registre en lecture seule.",de:"Nur lesbares Register."},
+  blkWO:{it:"è un comando, non un valore: si scrive soltanto.",en:"it is a command, not a value: it can only be written.",es:"es un comando, no un valor: solo se escribe.",fr:"c'est une commande, pas une valeur : on ne peut que l'écrire.",de:"Das ist ein Befehl, kein Wert: Er wird nur geschrieben."},
   blk9a:{
     it:"la lettura di 0x9A blocca l'auto finché non le si toglie corrente. 0x9A si usa solo in scrittura: è il test motore.",
     en:"reading 0x9A locks the car until power is removed. 0x9A is only for writing: it is the motor test.",
-    es:"leer 0x9A bloquea el coche hasta que se le quita la corriente. 0x9A solo se usa en escritura: es la prueba de motor."
+    es:"leer 0x9A bloquea el coche hasta que se le quita la corriente. 0x9A solo se usa en escritura: es la prueba de motor.",
+    fr:"lire 0x9A bloque la voiture jusqu'à ce qu'on lui coupe le courant. 0x9A ne s'utilise qu'en écriture : c'est le test moteur.",
+    de:"Das Lesen von 0x9A blockiert das Auto, bis man ihm den Strom nimmt. 0x9A wird nur geschrieben: Es ist der Motortest."
   },
   blk8e:{
     it:"sull'auto 0x8E è di sola lettura: il modo lo decide l'auto all'avvio e la scrittura risponde sempre «AB».",
     en:"on the car 0x8E is read-only: the car sets the mode at startup and a write always answers \"AB\".",
-    es:"en el coche 0x8E es de solo lectura: el modo lo decide el coche al arrancar y la escritura responde siempre «AB»."
+    es:"en el coche 0x8E es de solo lectura: el modo lo decide el coche al arrancar y la escritura responde siempre «AB».",
+    fr:"sur la voiture, 0x8E est en lecture seule : c'est la voiture qui décide du mode au démarrage, et l'écriture répond toujours « AB ».",
+    de:"Am Auto ist 0x8E nur lesbar: Den Modus legt das Auto beim Start fest, und ein Schreibvorgang antwortet immer „AB“."
   },
   blkDfu:{
     it:"0x80 avvia l'aggiornamento firmware: questa app non lo manda.",
     en:"0x80 starts the firmware update: this app does not send it.",
-    es:"0x80 inicia la actualización de firmware: esta app no lo envía."
+    es:"0x80 inicia la actualización de firmware: esta app no lo envía.",
+    fr:"0x80 lance la mise à jour du firmware : cette app ne l'envoie pas.",
+    de:"0x80 startet das Firmware-Update: Diese App sendet es nicht."
   },
   blkAct:{
     it:"registro dell'attivazione: qui si legge soltanto.",
     en:"activation register: here it can only be read.",
-    es:"registro de activación: aquí solo se lee."
+    es:"registro de activación: aquí solo se lee.",
+    fr:"registre d'activation : ici, on ne peut que le lire.",
+    de:"Aktivierungsregister: Hier wird es nur gelesen."
   },
   blkLen:{
     it:"{reg} vuole {n} byte, ne hai dati {m}: con un frame di lunghezza diversa il dispositivo salva byte a caso.",
     en:"{reg} wants {n} bytes, you gave {m}: with a frame of a different length the device saves random bytes.",
-    es:"{reg} quiere {n} bytes, has dado {m}: con una trama de otra longitud el dispositivo guarda bytes al azar."
+    es:"{reg} quiere {n} bytes, has dado {m}: con una trama de otra longitud el dispositivo guarda bytes al azar.",
+    fr:"{reg} veut {n} octets, tu en as donné {m} : avec une trame d'une autre longueur, l'appareil enregistre des octets au hasard.",
+    de:"{reg} erwartet {n} Bytes, du hast {m} angegeben: Bei einem Frame anderer Länge speichert das Gerät zufällige Bytes."
   },
-  blkRange:{it:"valore fuori intervallo ({min}–{max}).",en:"value out of range ({min}–{max}).",es:"valor fuera de rango ({min}–{max})."},
+  blkRange:{it:"valore fuori intervallo ({min}–{max}).",en:"value out of range ({min}–{max}).",es:"valor fuera de rango ({min}–{max}).",fr:"valeur hors plage ({min}–{max}).",de:"Wert außerhalb des Bereichs ({min}–{max})."},
   // --- stringhe dinamiche (JS) ---
   logNoBt:{
     it:"[!] Web Bluetooth non supportato: usa Chrome/Edge desktop o Chrome Android.",
     en:"[!] Web Bluetooth not supported: use Chrome/Edge desktop or Chrome Android.",
-    es:"[!] Web Bluetooth no compatible: usa Chrome/Edge escritorio o Chrome Android."
+    es:"[!] Web Bluetooth no compatible: usa Chrome/Edge escritorio o Chrome Android.",
+    fr:"[!] Web Bluetooth non pris en charge : utilise Chrome/Edge sur ordinateur ou Chrome sur Android.",
+    de:"[!] Web Bluetooth wird nicht unterstützt: Nutze Chrome/Edge am Computer oder Chrome auf Android."
   },
   logNoBtInit:{
     it:"[!] Web Bluetooth non supportato. Usa Chrome/Edge desktop o Chrome Android. NON iOS/Safari.",
     en:"[!] Web Bluetooth not supported. Use Chrome/Edge desktop or Chrome Android. NOT iOS/Safari.",
-    es:"[!] Web Bluetooth no compatible. Usa Chrome/Edge escritorio o Chrome Android. NO iOS/Safari."
+    es:"[!] Web Bluetooth no compatible. Usa Chrome/Edge escritorio o Chrome Android. NO iOS/Safari.",
+    fr:"[!] Web Bluetooth non pris en charge. Utilise Chrome/Edge sur ordinateur ou Chrome sur Android. PAS iOS/Safari.",
+    de:"[!] Web Bluetooth wird nicht unterstützt. Nutze Chrome/Edge am Computer oder Chrome auf Android. NICHT iOS/Safari."
   },
-  logDisconnected:{it:"disconnesso",en:"disconnected",es:"desconectado"},
-  logConnectedTo:{it:"connesso a",en:"connected to",es:"conectado a"},
-  logError:{it:"errore",en:"error",es:"error"},
-  logLapPulse:{it:"impulso giro",en:"lap pulse",es:"impulso de vuelta"},
-  logBlocked:{it:"non inviato",en:"not sent",es:"no enviado"},
-  logDo:{it:"(DO: frame accettato)",en:"(DO: frame accepted)",es:"(DO: trama aceptada)"},
-  logAb:{it:"(AB: frame rifiutato)",en:"(AB: frame rejected)",es:"(AB: trama rechazada)"},
-  noResp:{it:"(nessuna risp.)",en:"(no resp)",es:"(sin resp.)"},
+  logDisconnected:{it:"disconnesso",en:"disconnected",es:"desconectado",fr:"déconnecté",de:"getrennt"},
+  logConnectedTo:{it:"connesso a",en:"connected to",es:"conectado a",fr:"connecté à",de:"verbunden mit"},
+  logError:{it:"errore",en:"error",es:"error",fr:"erreur",de:"Fehler"},
+  logLapPulse:{it:"impulso giro",en:"lap pulse",es:"impulso de vuelta",fr:"impulsion de tour",de:"Rundenimpuls"},
+  logBlocked:{it:"non inviato",en:"not sent",es:"no enviado",fr:"non envoyé",de:"nicht gesendet"},
+  logDo:{it:"(DO: frame accettato)",en:"(DO: frame accepted)",es:"(DO: trama aceptada)",fr:"(DO : trame acceptée)",de:"(DO: Frame angenommen)"},
+  logAb:{it:"(AB: frame rifiutato)",en:"(AB: frame rejected)",es:"(AB: trama rechazada)",fr:"(AB : trame refusée)",de:"(AB: Frame abgelehnt)"},
+  noResp:{it:"(nessuna risp.)",en:"(no resp)",es:"(sin resp.)",fr:"(pas de rép.)",de:"(keine Antw.)"},
   alertMode:{
     it:'Modalità: premi prima "Leggi configurazione", oppure scegline una.',
     en:'Mode: press "Read configuration" first, or choose one.',
-    es:'Modo: pulsa primero "Leer configuración", o elige uno.'
+    es:'Modo: pulsa primero "Leer configuración", o elige uno.',
+    fr:"Mode : appuie d'abord sur « Lire la configuration », ou choisis-en un.",
+    de:"Modus: Drück zuerst „Konfiguration lesen“ oder wähle einen aus."
   },
   alertName:{
     it:"Nome vuoto: scrivi almeno un carattere.",
     en:"Empty name: type at least one character.",
-    es:"Nombre vacío: escribe al menos un carácter."
+    es:"Nombre vacío: escribe al menos un carácter.",
+    fr:"Nom vide : écris au moins un caractère.",
+    de:"Leerer Name: Gib mindestens ein Zeichen ein."
   },
   alertMac:{
     it:"Servono 2 byte, cioè 4 cifre esadecimali (es. 1A2B).",
     en:"2 bytes are needed, i.e. 4 hex digits (e.g. 1A2B).",
-    es:"Hacen falta 2 bytes, es decir 4 cifras hexadecimales (p. ej. 1A2B)."
+    es:"Hacen falta 2 bytes, es decir 4 cifras hexadecimales (p. ej. 1A2B).",
+    fr:"Il faut 2 octets, soit 4 chiffres hexadécimaux (ex. 1A2B).",
+    de:"Es braucht 2 Bytes, also 4 Hexadezimalziffern (z. B. 1A2B)."
   },
   confirmMac:{
-    it:"Abbino l'auto al telecomando con identità O2 {mac} (registro 0x90)? Ha effetto dal prossimo riavvio.",
-    en:"Bind the car to the handset with O2 identity {mac} (register 0x90)? Takes effect from the next restart.",
-    es:"¿Vinculo el coche al mando con identidad O2 {mac} (registro 0x90)? Tiene efecto desde el próximo reinicio."
+    it:"Abbino l'auto al controller con identità O2 {mac} (registro 0x90)? Ha effetto dal prossimo riavvio.",
+    en:"Bind the car to the controller with O2 identity {mac} (register 0x90)? Takes effect from the next restart.",
+    es:"¿Vinculo el coche al mando con identidad O2 {mac} (registro 0x90)? Tiene efecto desde el próximo reinicio.",
+    fr:"J'appaire la voiture à la manette d'identité O2 {mac} (registre 0x90) ? Prend effet au prochain redémarrage.",
+    de:"Auto an den Handregler mit der O2-Identität {mac} koppeln (Register 0x90)? Wirkt ab dem nächsten Neustart."
   }
 };
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="car-config",APP_VERSION="1.5.1";
+const APP="car-config",APP_VERSION="1.6.0";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const DEV=0x09;          // byte del dispositivo in BLE: 0x09 = auto (0x0a = telecomando)
 /* I registri dell'auto. Solo questi si leggono e si scrivono, e ciascuno con la

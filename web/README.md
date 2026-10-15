@@ -7,7 +7,8 @@ pagine (solo il firmware ESP32 viene compilato e depositato in `ds200/firmware/`
 ```
 index.html        landing: l'indice con le card di tutte le app
 ui.css            ⭐ token dei colori + cornice condivisa (link di ritorno, note, badge)
-i18n.js           motore multilingua condiviso (IT/EN/ES) + disclaimer legale
+i18n.js           motore multilingua condiviso (IT/EN/ES/FR/DE) + disclaimer legale
+seriale.js        la porta USB del dongle oXigen: Web Serial su computer, WebUSB su Android
 sw.js             service worker network-first (root)
 version.json      versione del sito e delle singole app
 cronometro/       ⭐ Cronometro web: gara su qualsiasi sistema — PWA autonoma (i18n e sw suoi)
@@ -15,8 +16,8 @@ cronometro/       ⭐ Cronometro web: gara su qualsiasi sistema — PWA autonoma
                   ⚠️ carica ../ds200-ds300/ds200.js: il decoder è uno solo, non copiato
 car-config/       chip auto oXigen — Web Bluetooth
 remote-config/    controller SCP-3 oXigen — Web Bluetooth
-chron02/          contagiri e gestione gara oXigen — Web Serial
-o2-bootloader/    configuratore oXigen (boot, info, registri) — Web Serial
+chron02/          contagiri e gestione gara oXigen — Web Serial (WebUSB su Android)
+o2-bootloader/    configuratore oXigen (boot, info, registri) — Web Serial (WebUSB su Android)
 guida-oxigen/     guida rapida tasti/LED/pairing — pagina statica con ricerca
 modes/            stub: rimanda a guida-oxigen/ (vecchio nome della guida)
 ds200-ds300/      contagiri DS200/DS300 — Web Serial, PWA autonoma
@@ -69,12 +70,13 @@ pagina usa **percorsi relativi**: `../version.json`, `../` per tornare all'indic
 `i18n.js` / `../i18n.js` a seconda del livello. **Mai** percorsi assoluti (`/qualcosa`):
 si romperebbero fuori dalla root del dominio.
 
-## Multilingua (IT/EN/ES) e disclaimer — app oXigen
+## Multilingua (IT/EN/ES/FR/DE) e disclaimer
 
 `i18n.js` dà a ogni pagina che lo carica:
 
 - rilevamento automatico della lingua dal browser (`navigator.languages`, fallback inglese);
-- un **selettore lingua** in alto a destra, con la scelta salvata in `localStorage`;
+- un **selettore lingua** in alto a sinistra, con la scelta salvata in `localStorage`
+  (chiave `lang`, la stessa del cronometro e del DS200: la lingua è una per tutto il sito);
 - il **disclaimer legale** in fondo alla pagina, tradotto una volta sola qui dentro.
 
 Come si aggiunge testo traducibile:
@@ -84,7 +86,7 @@ Come si aggiunge testo traducibile:
 <p data-i18n-html="chiave"></p>             <!-- innerHTML, per <b>/<code> -->
 <input data-i18n-attr="placeholder:chiave"> <!-- attributi -->
 
-<script>window.I18N_STRINGS = { chiave:{it:"…",en:"…",es:"…"} };</script>
+<script>window.I18N_STRINGS = { chiave:{it:"…",en:"…",es:"…",fr:"…",de:"…"} };</script>
 <script src="../i18n.js"></script>          <!-- DOPO le stringhe -->
 ```
 
@@ -92,13 +94,16 @@ Le stringhe generate da JS usano `I18N.t("chiave")` e vanno ri-renderizzate sull
 `i18n:changed` del `document` (viene emesso ad ogni cambio lingua).
 
 Chiavi **condivise** già pronte: `disclaimer`, `updateAvail` / `updateBtn` (banner di
-aggiornamento), `noBt` (browser senza Web Bluetooth), `noSerial` (browser senza Web Serial).
+aggiornamento), `noBt` (browser senza Web Bluetooth), `noDongle` (né Web Serial né WebUSB:
+il dongle non si apre), `noSerial` (browser senza Web Serial, per i cavi seriali).
+`tools/check-i18n.js` pretende tutte e cinque le lingue in ogni voce.
 
 > `ds200-ds300/` e `cronometro/` **non** usano questo motore: hanno un `i18n.js` proprio
-> con cinque lingue (it/en/es/fr/de) e chiavi puntate (`hdr.pos`), perché hanno il
-> vocabolario di gara e gli annunci vocali che qui non servono. Se aggiungi una stringa
-> lì, aggiornala nel loro dizionario. Sono due motori diversi apposta: quello condiviso
-> serve alle pagine di configurazione, quello a cinque lingue alle app di gara.
+> con le stesse cinque lingue e chiavi puntate (`hdr.pos`), perché hanno il vocabolario
+> di gara e gli annunci vocali che qui non servono. Se aggiungi una stringa lì,
+> aggiornala nel loro dizionario. Sono due motori diversi apposta: quello condiviso
+> serve alle pagine di configurazione, l'altro alle app di gara. L'installer ESP32 è una
+> bozza e resta solo in italiano.
 
 ## Cache e versioni
 

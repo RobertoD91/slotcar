@@ -15,16 +15,16 @@
    `version.json` non passa di qui: una copia in cache direbbe sempre che non
    c'e' niente di nuovo. */
 const PREFISSO = 'ds200-';
-const CACHE = 'ds200-ds300-v1.7.3';
+const CACHE = 'ds200-ds300-v1.7.4';
 const ASSETS = [
   './',
   './index.html',
-  '../ui.css?v=1.7.3',
-  '../tema.js?v=1.7.3',
-  './i18n.js?v=1.7.3',
-  './app.js?v=1.7.3',
-  './ds200.js?v=1.7.3',
-  './styles.css?v=1.7.3',
+  '../ui.css?v=1.7.4',
+  '../tema.js?v=1.7.4',
+  './i18n.js?v=1.7.4',
+  './app.js?v=1.7.4',
+  './ds200.js?v=1.7.4',
+  './styles.css?v=1.7.4',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',

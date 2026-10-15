@@ -125,8 +125,10 @@ jobs:
         run: node tools/test-o2bootloader.js
       - name: Contagiri oXigen (avvio, frame di gara, giri scartati)
         run: node tools/test-chron02.js
-      - name: Configuratori Bluetooth (auto e telecomando)
+      - name: Configuratori Bluetooth (auto e controller)
         run: node tools/test-ble-config.js
+      - name: Dongle via WebUSB (la strada di Android)
+        run: node tools/test-seriale-usb.js
 
   firmware:
     runs-on: ubuntu-latest

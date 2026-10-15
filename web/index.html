@@ -164,9 +164,11 @@
 <script>
 window.I18N_STRINGS = {
   sub:{
-    it:"Strumenti web per slot car digitali: <b>oXigen</b> (Slot.it), centraline <b>DS Electronic</b> e <b>Ninco Digital</b>.<br>Girano nel browser, senza installare nulla. Usare Chrome/Edge desktop o Chrome Android.",
-    en:"Web tools for digital slot cars: <b>oXigen</b> (Slot.it), <b>DS Electronic</b> timer boxes and <b>Ninco Digital</b>.<br>They run in the browser, nothing to install. Use Chrome/Edge on desktop or Chrome on Android.",
-    es:"Herramientas web para slot cars digitales: <b>oXigen</b> (Slot.it), centrales <b>DS Electronic</b> y <b>Ninco Digital</b>.<br>Funcionan en el navegador, sin instalar nada. Usa Chrome/Edge en escritorio o Chrome en Android."
+    it:"Strumenti web per slot car digitali: <b>oXigen</b> (Slot.it), centraline <b>DS Electronic</b> e <b>Ninco Digital</b>.<br>Girano nel browser, senza installare nulla. Usa Chrome o Edge su computer, oppure Chrome su Android (Bluetooth e dongle oXigen; i cavi seriali solo su alcuni telefoni).",
+    en:"Web tools for digital slot cars: <b>oXigen</b> (Slot.it), <b>DS Electronic</b> timer boxes and <b>Ninco Digital</b>.<br>They run in the browser, nothing to install. Use Chrome or Edge on a computer, or Chrome on Android (Bluetooth and the oXigen dongle; serial cables only on some phones).",
+    es:"Herramientas web para slot cars digitales: <b>oXigen</b> (Slot.it), centrales <b>DS Electronic</b> y <b>Ninco Digital</b>.<br>Funcionan en el navegador, sin instalar nada. Usa Chrome o Edge en un ordenador, o Chrome en Android (Bluetooth y dongle oXigen; los cables serie solo en algunos teléfonos).",
+    fr:"Outils web pour slot cars numériques : <b>oXigen</b> (Slot.it), centrales <b>DS Electronic</b> et <b>Ninco Digital</b>.<br>Ils tournent dans le navigateur, sans rien installer. Utilise Chrome ou Edge sur ordinateur, ou Chrome sur Android (Bluetooth et dongle oXigen ; les câbles série seulement sur certains téléphones).",
+    de:"Web-Tools für digitale Autorennbahnen: <b>oXigen</b> (Slot.it), Zentralen von <b>DS Electronic</b> und <b>Ninco Digital</b>.<br>Sie laufen im Browser, ohne Installation. Nutze Chrome oder Edge am Computer oder Chrome auf Android (Bluetooth und oXigen-Dongle; serielle Kabel nur auf manchen Telefonen)."
   },
   noSsl:{
     it:"🔒 Questa pagina è aperta in <b>http</b>, non in <b>https</b>. Web Bluetooth e Web Serial " +
@@ -177,7 +179,13 @@ window.I18N_STRINGS = {
        "Reopen the site using <b>https://</b>",
     es:"🔒 Esta página se ha abierto por <b>http</b>, no por <b>https</b>. Web Bluetooth y Web Serial " +
        "solo funcionan con <b>conexión segura</b>: desde aquí ninguna herramienta podrá conectarse. " +
-       "Vuelve a abrir el sitio con <b>https://</b>"
+       "Vuelve a abrir el sitio con <b>https://</b>",
+    fr:"🔒 Cette page est ouverte en <b>http</b>, pas en <b>https</b>. Web Bluetooth et Web Serial " +
+       "ne fonctionnent <b>que sur une connexion sécurisée</b> : d'ici, aucun outil ne pourra se connecter. " +
+       "Rouvre le site avec <b>https://</b>",
+    de:"🔒 Diese Seite wurde über <b>http</b> geöffnet, nicht über <b>https</b>. Web Bluetooth und Web Serial " +
+       "funktionieren <b>nur über eine sichere Verbindung</b>: Von hier aus kann sich kein Tool verbinden. " +
+       "Öffne die Seite erneut mit <b>https://</b>"
   },
   devWarn:{
     it:"⚠️ <b>Versioni di sviluppo.</b> Questi strumenti nascono per chi programma e sperimenta: " +
@@ -192,97 +200,133 @@ window.I18N_STRINGS = {
        "cacharreros: <b>todavía no están pensadas para el usuario final</b>. Interfaces toscas, " +
        "funciones incompletas, posibles errores. Algunas <b>escriben</b> en los dispositivos " +
        "(configuración, MAC, reinicio, DFU) y pueden dejarlos inservibles. Úsalas solo en hardware " +
-       "tuyo y sabiendo lo que haces."
+       "tuyo y sabiendo lo que haces.",
+    fr:"⚠️ <b>Versions de développement.</b> Ces outils sont faits pour ceux qui programment et " +
+       "bricolent : <b>ils ne sont pas (encore) pensés pour l'utilisateur final</b>. Interfaces brutes, " +
+       "fonctions incomplètes, erreurs possibles. Certains <b>écrivent</b> dans les appareils " +
+       "(configuration, MAC, réinitialisation, DFU) et peuvent les rendre inutilisables. Ne les utilise " +
+       "que sur ton propre matériel, en sachant ce que tu fais.",
+    de:"⚠️ <b>Entwicklungsversionen.</b> Diese Tools sind für Leute gemacht, die programmieren und " +
+       "tüfteln, <b>und (noch) nicht für Endnutzer gedacht</b>. Rohe Oberflächen, unvollständige " +
+       "Funktionen, mögliche Fehler. Einige <b>schreiben</b> auf die Geräte (Konfiguration, MAC, Reset, " +
+       "DFU) und können sie unbrauchbar machen. Nutze sie nur mit eigener Hardware und nur, wenn du " +
+       "weißt, was du tust."
   },
   secOxigen:{
     it:"oXigen — Slot.it <small>(controller SCP-3, chip auto, dongle)</small>",
     en:"oXigen — Slot.it <small>(SCP-3 controller, car chip, dongle)</small>",
-    es:"oXigen — Slot.it <small>(mando SCP-3, chip del coche, dongle)</small>"
+    es:"oXigen — Slot.it <small>(mando SCP-3, chip del coche, dongle)</small>",
+    fr:"oXigen — Slot.it <small>(manette SCP-3, puce de voiture, dongle)</small>",
+    de:"oXigen — Slot.it <small>(Handregler SCP-3, Fahrzeugchip, Dongle)</small>"
   },
   secDs:{
     it:"DS Electronic <small>(centraline DS200 / DS300)</small>",
     en:"DS Electronic <small>(DS200 / DS300 timer boxes)</small>",
-    es:"DS Electronic <small>(centrales DS200 / DS300)</small>"
+    es:"DS Electronic <small>(centrales DS200 / DS300)</small>",
+    fr:"DS Electronic <small>(centrales DS200 / DS300)</small>",
+    de:"DS Electronic <small>(Zentralen DS200 / DS300)</small>"
   },
   secNinco:{
     it:"Ninco Digital <small>(power base)</small>",
     en:"Ninco Digital <small>(power base)</small>",
-    es:"Ninco Digital <small>(power base)</small>"
+    es:"Ninco Digital <small>(power base)</small>",
+    fr:"Ninco Digital <small>(power base)</small>",
+    de:"Ninco Digital <small>(Power Base)</small>"
   },
-  ncTitle:{it:"Contagiri Ninco Digital",en:"Ninco Digital lap counter",es:"Cuentavueltas Ninco Digital"},
+  ncTitle:{it:"Contagiri Ninco Digital",en:"Ninco Digital lap counter",es:"Cuentavueltas Ninco Digital",fr:"Compte-tours Ninco Digital",de:"Rundenzähler Ninco Digital"},
   ncDesc:{
     it:"Legge la power base N-Digital via <b>RS-232</b>: posizioni, giri, benzina e riserva, modalità amatore/professionale, tempi sul giro (firmware ≥ 1.08) e dati grezzi esportabili. <b>→ confluirà nel Cronometro web.</b>",
     en:"Reads the N-Digital power base over <b>RS-232</b>: positions, laps, fuel and reserve, amateur/professional mode, lap times (firmware ≥ 1.08) and exportable raw data. <b>→ will be folded into the Web lap timer.</b>",
-    es:"Lee la power base N-Digital por <b>RS-232</b>: posiciones, vueltas, combustible y reserva, modo amateur/profesional, tiempos por vuelta (firmware ≥ 1.08) y datos en crudo exportables. <b>→ se integrará en el Cronómetro web.</b>"
+    es:"Lee la power base N-Digital por <b>RS-232</b>: posiciones, vueltas, combustible y reserva, modo amateur/profesional, tiempos por vuelta (firmware ≥ 1.08) y datos en crudo exportables. <b>→ se integrará en el Cronómetro web.</b>",
+    fr:"Lit la power base N-Digital via <b>RS-232</b> : positions, tours, carburant et réserve, mode amateur/professionnel, temps au tour (firmware ≥ 1.08) et données brutes exportables. <b>→ sera intégré au Chronomètre web.</b>",
+    de:"Liest die Power Base N-Digital über <b>RS-232</b>: Positionen, Runden, Sprit und Reserve, Amateur-/Profimodus, Rundenzeiten (Firmware ≥ 1.08) und exportierbare Rohdaten. <b>→ wird in die Web-Zeitmessung übernommen.</b>"
   },
-  badgeActive:{it:"funziona",en:"works",es:"funciona"},
-  badgeWip:{it:"in sviluppo",en:"in progress",es:"en desarrollo"},
-  badgePartial:{it:"funziona in parte",en:"partly working",es:"funciona en parte"},
-  badgeUntested:{it:"non testato",en:"untested",es:"sin probar"},
-  badgeAlpha:{it:"molto acerbo",en:"very rough",es:"muy verde"},
-  chronoTitle:{it:"Cronometro web",en:"Web lap timer",es:"Cronómetro web"},
+  badgeActive:{it:"funziona",en:"works",es:"funciona",fr:"fonctionne",de:"funktioniert"},
+  badgeWip:{it:"in sviluppo",en:"in progress",es:"en desarrollo",fr:"en développement",de:"in Entwicklung"},
+  badgePartial:{it:"funziona in parte",en:"partly working",es:"funciona en parte",fr:"fonctionne en partie",de:"funktioniert teilweise"},
+  badgeUntested:{it:"non testato",en:"untested",es:"sin probar",fr:"non testé",de:"ungetestet"},
+  badgeAlpha:{it:"molto acerbo",en:"very rough",es:"muy verde",fr:"très brut",de:"sehr unausgereift"},
+  chronoTitle:{it:"Cronometro web",en:"Web lap timer",es:"Cronómetro web",fr:"Chronomètre web",de:"Web-Zeitmessung"},
   chronoDesc:{
     it:"<b>Un cronometro solo, per tutti e tre i sistemi.</b> Gestire una gara — giri, tempi, classifica, benzina — con la stessa interfaccia, che la pista sia <b>oXigen</b> (via dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modalità <b>pratica</b> e <b>GP a giri</b>, guidatori con nome, annunci vocali, cinque lingue.<br><b>Si può già usare</b> con una <b>pista simulata</b> (nessun hardware) e con un <b>DS200/DS300</b>: via cavo RS-232 oppure senza fili, attraverso il <b>ponte ESP32</b> (rete o Bluetooth). Ninco e oXigen arrivano dopo: la gara si gestirà da qui, e i contagiri qui sotto resteranno strumenti per leggere i dati grezzi.",
     en:"<b>One lap timer for all three systems.</b> Run a race — laps, times, standings, fuel — from the same interface, whether the track is <b>oXigen</b> (via the dongle), a <b>DS200/DS300</b> or a <b>Ninco power base</b>. <b>Practice</b> and <b>GP by laps</b> modes, named drivers, voice announcements, five languages.<br><b>You can already use it</b> with a <b>simulated track</b> (no hardware) and with a <b>DS200/DS300</b>: over the RS-232 cable or wirelessly, through the <b>ESP32 bridge</b> (network or Bluetooth). Ninco and oXigen come next: races will be run from here, and the lap counters below will stay as tools for reading the raw data.",
-    es:"<b>Un solo cronómetro para los tres sistemas.</b> Gestionar una carrera — vueltas, tiempos, clasificación, combustible — con la misma interfaz, ya sea la pista <b>oXigen</b> (vía dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modos <b>práctica</b> y <b>GP a vueltas</b>, pilotos con nombre, anuncios de voz, cinco idiomas.<br><b>Ya se puede usar</b> con una <b>pista simulada</b> (sin hardware) y con un <b>DS200/DS300</b>: por cable RS-232 o sin cables, a través del <b>puente ESP32</b> (red o Bluetooth). Ninco y oXigen llegan después: la carrera se gestionará desde aquí, y los cuentavueltas de abajo seguirán siendo herramientas para leer los datos en crudo."
+    es:"<b>Un solo cronómetro para los tres sistemas.</b> Gestionar una carrera — vueltas, tiempos, clasificación, combustible — con la misma interfaz, ya sea la pista <b>oXigen</b> (vía dongle), un <b>DS200/DS300</b> o una <b>power base Ninco</b>. Modos <b>práctica</b> y <b>GP a vueltas</b>, pilotos con nombre, anuncios de voz, cinco idiomas.<br><b>Ya se puede usar</b> con una <b>pista simulada</b> (sin hardware) y con un <b>DS200/DS300</b>: por cable RS-232 o sin cables, a través del <b>puente ESP32</b> (red o Bluetooth). Ninco y oXigen llegan después: la carrera se gestionará desde aquí, y los cuentavueltas de abajo seguirán siendo herramientas para leer los datos en crudo.",
+    fr:"<b>Un seul chronomètre pour les trois systèmes.</b> Gérer une course — tours, temps, classement, carburant — avec la même interface, que la piste soit <b>oXigen</b> (via le dongle), un <b>DS200/DS300</b> ou une <b>power base Ninco</b>. Modes <b>essais</b> et <b>GP en tours</b>, pilotes avec leur nom, annonces vocales, cinq langues.<br><b>Il est déjà utilisable</b> avec une <b>piste simulée</b> (sans matériel) et avec un <b>DS200/DS300</b> : par câble RS-232 ou sans fil, via le <b>pont ESP32</b> (réseau ou Bluetooth). Ninco et oXigen arrivent ensuite : la course se gérera d'ici, et les compte-tours ci-dessous resteront des outils pour lire les données brutes.",
+    de:"<b>Eine Zeitmessung für alle drei Systeme.</b> Ein Rennen — Runden, Zeiten, Wertung, Sprit — mit derselben Oberfläche verwalten, ob die Bahn <b>oXigen</b> (über den Dongle), eine <b>DS200/DS300</b> oder eine <b>Ninco Power Base</b> ist. Modi <b>Training</b> und <b>GP nach Runden</b>, Fahrer mit Namen, Sprachansagen, fünf Sprachen.<br><b>Schon jetzt nutzbar</b> mit einer <b>simulierten Bahn</b> (ohne Hardware) und mit einer <b>DS200/DS300</b>: per RS-232-Kabel oder kabellos über die <b>ESP32-Brücke</b> (Netzwerk oder Bluetooth). Ninco und oXigen folgen: Dann wird das Rennen von hier aus verwaltet, und die Rundenzähler weiter unten bleiben Werkzeuge zum Lesen der Rohdaten."
   },
-  techSim:{it:"pista simulata",en:"simulated track",es:"pista simulada"},
+  techSim:{it:"pista simulata",en:"simulated track",es:"pista simulada",fr:"piste simulée",de:"simulierte Bahn"},
   restIntro:{
     it:"Qui sotto gli <b>strumenti di servizio</b>: configurazione, diagnostica e i contagiri specifici di ogni sistema.",
     en:"Below are the <b>service tools</b>: configuration, diagnostics and the per-system lap counters.",
-    es:"Debajo están las <b>herramientas de servicio</b>: configuración, diagnóstico y los cuentavueltas de cada sistema."
+    es:"Debajo están las <b>herramientas de servicio</b>: configuración, diagnóstico y los cuentavueltas de cada sistema.",
+    fr:"Ci-dessous, les <b>outils de service</b> : configuration, diagnostic et les compte-tours propres à chaque système.",
+    de:"Weiter unten die <b>Service-Tools</b>: Konfiguration, Diagnose und die Rundenzähler der einzelnen Systeme."
   },
-  techStatic:{it:"pagina statica",en:"static page",es:"página estática"},
-  techPwa:{it:"PWA offline",en:"offline PWA",es:"PWA sin conexión"},
-  carTitle:{it:"Configuratore auto BLE",en:"Car configurator BLE",es:"Configurador de coche BLE"},
+  techStatic:{it:"pagina statica",en:"static page",es:"página estática",fr:"page statique",de:"statische Seite"},
+  techPwa:{it:"PWA offline",en:"offline PWA",es:"PWA sin conexión",fr:"PWA hors ligne",de:"Offline-PWA"},
+  carTitle:{it:"Configuratore auto BLE",en:"Car configurator BLE",es:"Configurador de coche BLE",fr:"Configurateur de voiture BLE",de:"Auto-Konfigurator BLE"},
   carDesc:{
-    it:"Legge/scrive i registri del chip via BLE: nome, ID, modalità, velocità, freno, limiti, abbinamento al telecomando, test motore/luci/hall.",
-    en:"Reads/writes the chip's registers over BLE: name, ID, mode, speed, brake, limits, pairing to the handset, motor/lights/hall test.",
-    es:"Lee/escribe los registros del chip por BLE: nombre, ID, modo, velocidad, freno, límites, vinculación al mando, prueba de motor/luces/hall."
+    it:"Legge/scrive i registri del chip via BLE: nome, ID, modalità, velocità, freno, limiti, abbinamento al controller, test motore/luci/hall.",
+    en:"Reads/writes the chip's registers over BLE: name, ID, mode, speed, brake, limits, pairing to the controller, motor/lights/hall test.",
+    es:"Lee/escribe los registros del chip por BLE: nombre, ID, modo, velocidad, freno, límites, vinculación al mando, prueba de motor/luces/hall.",
+    fr:"Lit/écrit les registres de la puce via BLE : nom, ID, mode, vitesse, frein, limites, appairage à la manette, test moteur/feux/hall.",
+    de:"Liest/schreibt die Register des Chips über BLE: Name, ID, Modus, Geschwindigkeit, Bremse, Grenzwerte, Kopplung an den Handregler, Test von Motor/Licht/Hall-Sensor."
   },
-  ctrlTitle:{it:"Configuratore controller BLE",en:"Controller configurator BLE",es:"Configurador del mando BLE"},
+  ctrlTitle:{it:"Configuratore controller BLE",en:"Controller configurator BLE",es:"Configurador del mando BLE",fr:"Configurateur de manette BLE",de:"Handregler-Konfigurator BLE"},
   ctrlDesc:{
     it:"Config del controller SCP-3 via BLE: nome, brake setting, ID, MAC; legge firmware, versione e data attivazione. <b>Lettura e cambio ID confermati su hardware; la scrittura del MAC è stata corretta e va riprovata.</b>",
     en:"SCP-3 controller config over BLE: name, brake setting, ID, MAC; reads firmware, version and activation date. <b>Reading and changing the ID are confirmed on hardware; writing the MAC has been fixed and needs retesting.</b>",
-    es:"Configuración del mando SCP-3 por BLE: nombre, ajuste de freno, ID, MAC; lee firmware, versión y fecha de activación. <b>Lectura y cambio de ID confirmados en hardware; la escritura del MAC se ha corregido y hay que volver a probarla.</b>"
+    es:"Configuración del mando SCP-3 por BLE: nombre, ajuste de freno, ID, MAC; lee firmware, versión y fecha de activación. <b>Lectura y cambio de ID confirmados en hardware; la escritura del MAC se ha corregido y hay que volver a probarla.</b>",
+    fr:"Configuration de la manette SCP-3 via BLE : nom, réglage du frein, ID, MAC ; lit le firmware, la version et la date d'activation. <b>Lecture et changement d'ID confirmés sur le matériel ; l'écriture du MAC a été corrigée et doit être réessayée.</b>",
+    de:"Konfiguration des Handreglers SCP-3 über BLE: Name, Bremseinstellung, ID, MAC; liest Firmware, Version und Aktivierungsdatum. <b>Lesen und Ändern der ID sind auf Hardware bestätigt; das Schreiben der MAC wurde korrigiert und muss erneut getestet werden.</b>"
   },
-  modesTitle:{it:"Guida rapida oXigen",en:"oXigen quick guide",es:"Guía rápida oXigen"},
+  modesTitle:{it:"Guida rapida oXigen",en:"oXigen quick guide",es:"Guía rápida oXigen",fr:"Guide rapide oXigen",de:"oXigen-Kurzanleitung"},
   modesDesc:{
     it:"Cosa fa ogni combinazione di tasti e cosa vuol dire ogni lampeggio: accensione, guida, LED, pairing e DFU di controller e chip auto. Si consulta col controller in mano.",
     en:"What every button combination does and what every blink means: power-on, driving, LEDs, pairing and DFU for the controller and car chip. Made to be read with the controller in your hand.",
-    es:"Qué hace cada combinación de botones y qué significa cada parpadeo: encendido, conducción, LED, emparejamiento y DFU del mando y del chip. Para consultar con el mando en la mano."
+    es:"Qué hace cada combinación de botones y qué significa cada parpadeo: encendido, conducción, LED, emparejamiento y DFU del mando y del chip. Para consultar con el mando en la mano.",
+    fr:"Ce que fait chaque combinaison de touches et ce que veut dire chaque clignotement : allumage, conduite, LED, appairage et DFU de la manette et de la puce de voiture. À consulter la manette en main.",
+    de:"Was jede Tastenkombination bewirkt und was jedes Blinken bedeutet: Einschalten, Fahren, LEDs, Pairing und DFU von Handregler und Fahrzeugchip. Zum Nachschlagen mit dem Handregler in der Hand."
   },
-  lapsTitle:{it:"Contagiri gara (chron02)",en:"Race lap counter (chron02)",es:"Cuentavueltas de carrera (chron02)"},
+  lapsTitle:{it:"Contagiri gara (chron02)",en:"Race lap counter (chron02)",es:"Cuentavueltas de carrera (chron02)",fr:"Compte-tours de course (chron02)",de:"Renn-Rundenzähler (chron02)"},
   lapsDesc:{
     it:"Gestione gara via dongle: classifica live, giri, tempi e pit dalla telemetria <code>rf_data_x</code>; start/pausa/stop e comandi per singola auto con <code>race_status</code>. <b>→ confluirà nel Cronometro web.</b>",
     en:"Race management over the dongle: live standings, laps, times and pit from <code>rf_data_x</code> telemetry; start/pause/stop and per-car commands with <code>race_status</code>. <b>→ will be folded into the Web lap timer.</b>",
-    es:"Gestión de carrera vía dongle: clasificación en vivo, vueltas, tiempos y pit desde la telemetría <code>rf_data_x</code>; start/pausa/stop y comandos por coche con <code>race_status</code>. <b>→ se integrará en el Cronómetro web.</b>"
+    es:"Gestión de carrera vía dongle: clasificación en vivo, vueltas, tiempos y pit desde la telemetría <code>rf_data_x</code>; start/pausa/stop y comandos por coche con <code>race_status</code>. <b>→ se integrará en el Cronómetro web.</b>",
+    fr:"Gestion de course via le dongle : classement en direct, tours, temps et stands depuis la télémétrie <code>rf_data_x</code> ; départ/pause/stop et commandes par voiture avec <code>race_status</code>. <b>→ sera intégré au Chronomètre web.</b>",
+    de:"Rennverwaltung über den Dongle: Live-Wertung, Runden, Zeiten und Box aus der Telemetrie <code>rf_data_x</code>; Start/Pause/Stop und Befehle pro Auto mit <code>race_status</code>. <b>→ wird in die Web-Zeitmessung übernommen.</b>"
   },
-  bootTitle:{it:"Configuratore dongle",en:"Dongle configurator",es:"Configurador del dongle"},
+  bootTitle:{it:"Configuratore dongle",en:"Dongle configurator",es:"Configurador del dongle",fr:"Configurateur du dongle",de:"Dongle-Konfigurator"},
   bootDesc:{
     it:"Configura via dongle il controller SCP-3 e il chip auto: <b>ID</b>, <b>abbinamento</b> dell'auto al suo controller, <b>velocità in corsia box</b> e <b>MAC O2</b> del controller. Legge versione e MAC del dongle, inoltra la <b>chiave di attivazione</b> ricevuta da Slot.it e ha una console a registri con i limiti di sicurezza.",
     en:"Configures the SCP-3 controller and the car chip through the dongle: <b>ID</b>, the car's <b>pairing</b> to its controller, <b>pit-lane speed</b> and the controller's <b>O2 MAC</b>. Reads the dongle's version and MAC, forwards the <b>activation key</b> received from Slot.it, and has a register console with safety limits.",
-    es:"Configura vía dongle el mando SCP-3 y el chip del coche: <b>ID</b>, la <b>vinculación</b> del coche a su mando, la <b>velocidad en el pit lane</b> y el <b>MAC O2</b> del mando. Lee la versión y el MAC del dongle, reenvía la <b>clave de activación</b> recibida de Slot.it y tiene una consola de registros con límites de seguridad."
+    es:"Configura vía dongle el mando SCP-3 y el chip del coche: <b>ID</b>, la <b>vinculación</b> del coche a su mando, la <b>velocidad en el pit lane</b> y el <b>MAC O2</b> del mando. Lee la versión y el MAC del dongle, reenvía la <b>clave de activación</b> recibida de Slot.it y tiene una consola de registros con límites de seguridad.",
+    fr:"Configure via le dongle la manette SCP-3 et la puce de voiture : <b>ID</b>, <b>appairage</b> de la voiture à sa manette, <b>vitesse dans la voie des stands</b> et <b>MAC O2</b> de la manette. Lit la version et le MAC du dongle, transmet la <b>clé d'activation</b> reçue de Slot.it et dispose d'une console de registres avec des limites de sécurité.",
+    de:"Konfiguriert über den Dongle den Handregler SCP-3 und den Fahrzeugchip: <b>ID</b>, <b>Kopplung</b> des Autos an seinen Handregler, <b>Geschwindigkeit in der Boxengasse</b> und <b>O2-MAC</b> des Handreglers. Liest Version und MAC des Dongles, leitet den von Slot.it erhaltenen <b>Aktivierungsschlüssel</b> weiter und hat eine Register-Konsole mit Sicherheitsgrenzen."
   },
-  dsTitle:{it:"Contagiri DS200 / DS300",en:"DS200 / DS300 lap counter",es:"Cuentavueltas DS200 / DS300"},
+  dsTitle:{it:"Contagiri DS200 / DS300",en:"DS200 / DS300 lap counter",es:"Cuentavueltas DS200 / DS300",fr:"Compte-tours DS200 / DS300",de:"Rundenzähler DS200 / DS300"},
   dsDesc:{
     it:"Legge la centralina via <b>RS-232</b> e mostra quello che trasmette: ogni frame decodificato campo per campo, giri e tempi per corsia, eventi, registro grezzo ed export CSV. Installabile e funziona offline. <b>La gara si gestisce dal Cronometro web</b>: questo resta lo strumento per leggere i frame.",
     en:"Reads the timer box over <b>RS-232</b> and shows what it sends: every frame decoded field by field, laps and times per lane, events, raw log and CSV export. Installable and works offline. <b>Races are run from the Web lap timer</b>: this stays the tool for reading the frames.",
-    es:"Lee la central por <b>RS-232</b> y muestra lo que transmite: cada trama decodificada campo por campo, vueltas y tiempos por carril, eventos, registro en crudo y exportación CSV. Instalable y funciona sin conexión. <b>La carrera se gestiona desde el Cronómetro web</b>: esta sigue siendo la herramienta para leer las tramas."
+    es:"Lee la central por <b>RS-232</b> y muestra lo que transmite: cada trama decodificada campo por campo, vueltas y tiempos por carril, eventos, registro en crudo y exportación CSV. Instalable y funciona sin conexión. <b>La carrera se gestiona desde el Cronómetro web</b>: esta sigue siendo la herramienta para leer las tramas.",
+    fr:"Lit la centrale via <b>RS-232</b> et montre ce qu'elle transmet : chaque trame décodée champ par champ, tours et temps par couloir, événements, journal brut et export CSV. Installable et fonctionne hors ligne. <b>La course se gère depuis le Chronomètre web</b> : celui-ci reste l'outil pour lire les trames.",
+    de:"Liest die Zentrale über <b>RS-232</b> und zeigt, was sie sendet: jeden Frame Feld für Feld dekodiert, Runden und Zeiten pro Spur, Ereignisse, Rohprotokoll und CSV-Export. Installierbar und funktioniert offline. <b>Das Rennen wird über die Web-Zeitmessung verwaltet</b>: Dies bleibt das Werkzeug zum Lesen der Frames."
   },
-  dsFlashTitle:{it:"Installer ESP32",en:"ESP32 installer",es:"Instalador ESP32"},
+  dsFlashTitle:{it:"Installer ESP32",en:"ESP32 installer",es:"Instalador ESP32",fr:"Installateur ESP32",de:"ESP32-Installer"},
   dsFlashDesc:{
     it:"Installa dal browser il firmware del <b>ponte ESP32</b> e configura il WiFi, senza toolchain. Il ponte legge la centralina DS200/DS300 e la porta senza cavo al <b>Cronometro web</b>, che serve per vedere la gara: in rete (pagina servita dal ponte, WebSocket) o via <b>Bluetooth</b>, e pubblica i dati su MQTT. <b>È la cosa più acerba del sito</b>: provalo solo se sai cosa stai facendo.",
     en:"Install the <b>ESP32 bridge</b> firmware straight from the browser and set up WiFi, no toolchain needed. The bridge reads the DS200/DS300 timer box and brings it, with no cable, to the <b>Web lap timer</b>, which you need to follow the race: over the network (page served by the bridge, WebSocket) or over <b>Bluetooth</b>; it also publishes the data on MQTT. <b>It is the roughest thing here</b>: only try it if you know what you are doing.",
-    es:"Instala desde el navegador el firmware del <b>puente ESP32</b> y configura el WiFi, sin toolchain. El puente lee la central DS200/DS300 y la lleva sin cable al <b>Cronómetro web</b>, que hace falta para seguir la carrera: por red (página servida por el puente, WebSocket) o por <b>Bluetooth</b>, y publica los datos por MQTT. <b>Es lo más verde del sitio</b>: pruébalo solo si sabes lo que haces."
+    es:"Instala desde el navegador el firmware del <b>puente ESP32</b> y configura el WiFi, sin toolchain. El puente lee la central DS200/DS300 y la lleva sin cable al <b>Cronómetro web</b>, que hace falta para seguir la carrera: por red (página servida por el puente, WebSocket) o por <b>Bluetooth</b>, y publica los datos por MQTT. <b>Es lo más verde del sitio</b>: pruébalo solo si sabes lo que haces.",
+    fr:"Installe depuis le navigateur le firmware du <b>pont ESP32</b> et configure le WiFi, sans toolchain. Le pont lit la centrale DS200/DS300 et l'amène sans câble au <b>Chronomètre web</b>, qui sert à suivre la course : en réseau (page servie par le pont, WebSocket) ou via <b>Bluetooth</b> ; il publie aussi les données sur MQTT. <b>C'est la partie la plus brute du site</b> : ne l'essaie que si tu sais ce que tu fais.",
+    de:"Installiert die Firmware der <b>ESP32-Brücke</b> direkt aus dem Browser und richtet das WLAN ein, ohne Toolchain. Die Brücke liest die Zentrale DS200/DS300 und bringt sie ohne Kabel zur <b>Web-Zeitmessung</b>, mit der du das Rennen verfolgst: übers Netzwerk (von der Brücke ausgelieferte Seite, WebSocket) oder über <b>Bluetooth</b>; außerdem veröffentlicht sie die Daten über MQTT. <b>Das ist das Unausgereifteste auf dieser Website</b>: Probier es nur aus, wenn du weißt, was du tust."
   },
-  footSite:{it:"sito v",en:"site v",es:"sitio v"},
-  footUpd:{it:"aggiornato",en:"updated",es:"actualizado"}
+  footSite:{it:"sito v",en:"site v",es:"sitio v",fr:"site v",de:"Website v"},
+  footUpd:{it:"aggiornato",en:"updated",es:"actualizado",fr:"mis à jour",de:"aktualisiert"}
 };
 </script>
 <script src="i18n.js"></script>
 <script>
-const SITE_VERSION="2.28.0";
+const SITE_VERSION="2.29.0";
 function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
 // Il selettore lingua sta in alto a sinistra su tutte le pagine (vedi i18n.js):
 // qui non serve nessuna eccezione, il nastro "Fork me on GitHub" è dall'altra parte.
@@ -303,7 +347,9 @@ function reloadFresh(){location.href=location.pathname+"?v="+Date.now();}
     return;
   }
   if(!navigator.bluetooth)document.getElementById("nobt").hidden=false;
-  if(!navigator.serial)document.getElementById("noser").hidden=false;
+  /* Senza Web Serial ma con il WebUSB (Chrome su Android) il dongle oXigen si apre
+     lo stesso (seriale.js): la fascia è per chi non ha né l'uno né l'altro. */
+  if(!navigator.serial&&!navigator.usb)document.getElementById("noser").hidden=false;
 })();
 // service worker network-first: sempre l'ultima versione (fix cache)
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});

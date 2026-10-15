@@ -23,7 +23,7 @@ L'utente è italiano: **rispondere in italiano**.
 - [ ] **Configuratore auto** (`car-config/`, BLE sul chip, v1.5.0) — targhetta **mai provata**.
       Da provare su un chip vero: «Leggi configurazione» deve arrivare in fondo (`0xA1`) e
       mostrare la versione (es. 4.14c); scrivi un nome corto e dopo il riavvio deve comparire
-      uguale nella lista Bluetooth e in rilettura; l'abbinamento al telecomando deve tenere dopo
+      uguale nella lista Bluetooth e in rilettura; l'abbinamento al controller deve tenere dopo
       il riavvio.
 - [ ] ⭐ **Configuratore controller** (`remote-config/`, BLE sull'SCP-3) — **TROVATO IL PERCHÉ
       il MAC non funzionava** (14/10/2026): l'app scriveva `0x90` e subito dopo `0x9f` come
@@ -32,7 +32,7 @@ L'utente è italiano: **rispondere in italiano**.
       **Da riprovare: il cambio MAC adesso dovrebbe tenere.**
 - [ ] **`remote-config` v1.5.0 sull'SCP-3**: «Leggi configurazione» completa con la versione;
       scrivi «Roberto Scp3 A» e rileggi dopo il riavvio (deve tornare «Roberto Scp3.A»: il
-      telecomando trasforma in punti gli spazi in posizione pari, contando da 0); modo freno 0 e 1 devono
+      controller trasforma in punti gli spazi in posizione pari, contando da 0); modo freno 0 e 1 devono
       restare dopo il riavvio. Dopo ogni scrittura aspetta un paio di secondi prima di spegnere.
 - [ ] ⭐ **`o2-bootloader` 1.7.0 — reset prima del BOOT**: apri `chron02`, chiudilo **senza
       staccare il dongle**, poi entra in boot da `o2-bootloader`. Nel registro deve comparire
@@ -52,12 +52,12 @@ L'utente è italiano: **rispondere in italiano**.
       «dongle v4.xx · agganciato» e le auto devono guidare subito (lo stato iniziale è la gara
       libera, non più STOP). Prova poi Avvia, Pausa, Stop e Gara libera: da Stop o Pausa, «Gara
       libera» deve rimettere le auto a velocità piena (passa 0,6 s in pace car, perché il
-      telecomando da solo le lascerebbe ferme).
+      controller da solo le lascerebbe ferme).
 - [ ] **Comandi per auto in `chron02`**: «una sola auto, ID 1», comando «Velocità in pit-lane»,
       un valore basso, «Invia» → l'auto deve rallentare in corsia box. Poi Stop e Avvia: il
       limite deve restare (l'app lo rimanda da sola).
 - [ ] **Velocità minima in `chron02`**: per tutte, valore 32 → il limite effettivo deve essere
-      128 (il telecomando moltiplica per 4, non per 2 come dice il PDF).
+      128 (il controller moltiplica per 4, non per 2 come dice il PDF).
 - [ ] **Fattore del tempo sul giro**: cronometra a mano 5-10 giri e confronta con i «conteggi»
       del log giri di `chron02`, per decidere fra 99,25 e 97,7 (si cambia nelle avanzate).
 - [ ] **Giri scartati in `chron02`**: dopo Stop passa sul traguardo → il giro non deve contare;
@@ -65,6 +65,12 @@ L'utente è italiano: **rispondere in italiano**.
       traguardo un attimo prima dello Stop deve contare.
 - [ ] **Riapertura senza staccare il dongle**: chiudi e riapri `chron02` senza staccare il
       dongle → deve comparire la fascia «non ha risposto alla richiesta di versione».
+- [ ] ⭐ **Dongle su Android** (nuovo, 15/10/2026, mai provato su un telefono): Chrome su
+      Android, dongle attaccato con un cavo **USB OTG**. «Connetti» in `chron02` deve aprire
+      la finestra dei dispositivi USB (non delle porte seriali), poi Android chiede il
+      permesso; dopo deve agganciarsi come su computer. In `o2-bootloader` prova un boot sul
+      dongle (`0c`): il dongle si riavvia, e la pagina deve ritrovarlo da sola. Se Android
+      chiede di nuovo il permesso dopo il riavvio, annotalo. Il registro dice «via WebUSB».
 
 **DS200 / DS300**
 - [ ] **Prova la voce nuova del DS200** — ora DS200 e DS300 sono due sistemi distinti: il
@@ -139,6 +145,13 @@ L'utente è italiano: **rispondere in italiano**.
       e colori di stato restavano quelli del tema scuro). Apri il selettore della lingua: le
       voci devono leggersi in chiaro e in scuro. Prova anche il tema forzato a 🌙 con il
       sistema in chiaro: deve essere scuro dappertutto, tendine comprese.
+- [ ] ⭐ **Togliere il disclaimer «progetto non ufficiale»** — decisione dell'utente: va tolto,
+      ma **solo dopo aver provato le app** (le voci oXigen qui sopra). Sta in `web/i18n.js`
+      (`SHARED.disclaimer`) e nei dizionari di cronometro e DS200 (`disclaimer`); da
+      riscrivere come dirà Slot.it, non da cancellare e basta (le note su marchi e garanzia).
+- [ ] **Francese e tedesco** (15/10/2026): tutte le app ora hanno 5 lingue, ma le traduzioni
+      nuove le ha scritte Claude. Se qualcuno di madrelingua può dare un'occhiata, è il
+      momento: i termini scelti sono «manette» e «Handregler» per il controller.
 - [ ] **Fascia «Aggiorna» nelle PWA**, alla prossima pubblicazione dopo questa: apri il
       Cronometro (o il DS200) che hai già installato; deve comparire la fascia «Nuova versione
       disponibile», e il pulsante deve portarti alla versione nuova (la leggi nel piè) entro
@@ -183,8 +196,8 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
       doppio slot (meno spazio per BLE+WiFi+TLS, e con il TLS il firmware è a 1,4 MB su 1,75
       che ne avanzerebbero) oppure tenersi l'aggiornamento via USB. **Decisione dell'utente.**
 - [ ] **L'installer ESP32 è solo in italiano** — non è passato per `i18n.js` come il resto.
-      (Era indicato come `flash.html`, un file che non esiste più: oggi è
-      `web/esp32-installer/index.html`.)
+      **È una bozza e resta così** (decisione dell'utente, 15/10/2026): si traduce quando
+      smette di esserlo. (Oggi è `web/esp32-installer/index.html`.)
 - [ ] **Dipendenza esterna da unpkg** in `web/esp32-installer/index.html` (esp-web-tools).
       Per un sito 100% autonomo va incorporata: serve un bundler, è un modulo ES con
       dipendenze sue. Finché resta, quella pagina **non funziona offline** — ed è l'unica.
@@ -294,6 +307,23 @@ e PWA ci sono già (`web/cronometro/`, v0.3.0). I sistemi veri arrivano uno alla
   o «ingegneria inversa») né nei testi delle app né nelle risposte. Si parla di *analisi del
   protocollo*, *studio*, *ipotesi da confermare*. Vale anche per il metodo JS `.reverse()`,
   che ovviamente resta: è codice, non prosa.
+- ⭐ **Cinque lingue ovunque: it, en, es, fr, de** (decisione dell'utente, 15/10/2026). Vale
+  per tutti e tre i motori, e `check-i18n.js` lo impone voce per voce. Unica eccezione,
+  voluta: l'installer ESP32, che è una bozza e resta in italiano.
+- ⭐ **«Controller», non «telecomando»** (decisione dell'utente, 15/10/2026): l'SCP-3 si
+  chiama controller in italiano e in inglese, «mando» in spagnolo, «manette» in francese,
+  «Handregler» in tedesco. Una parola per lingua, sempre quella: prima si alternavano
+  anche dentro la stessa pagina.
+- ⭐ **Compatibilità: cosa funziona davvero** (verificato a ottobre 2026), da scrivere uguale
+  in tutte le pagine:
+  - **Web Bluetooth**: Chrome/Edge su computer, Chrome su Android. Mai iOS né Firefox.
+  - **Dongle oXigen** (seriale USB standard, CDC): Web Serial su computer; su Android
+    **WebUSB**, con `web/seriale.js`, che fa da sé il lavoro del driver. Su Android si usa
+    il WebUSB anche se il Web Serial esiste, perché lì elenca il dongle solo sui pochi
+    telefoni che espongono le porte.
+  - **Cavi seriali** (DS200, Ninco: adattatori FTDI/Prolific/CH340…): solo Web Serial. Su
+    Android c'è da Chrome 148 con Android 17, e il cavo compare solo sui telefoni che
+    espongono le porte seriali. Per il DS200 da telefono c'è il ponte ESP32 via Bluetooth.
 
 ## Dove investire sulla grafica (decisione presa)
 
@@ -333,9 +363,9 @@ silenzio e pretende che il numero non si sia mosso.
   costringerebbe a scegliere, buttando via `prefers-color-scheme`, che per la maggior parte
   della gente è già la risposta giusta. In «auto» l'attributo `data-theme` si **toglie**, non
   si mette a "auto": così tornano a valere la media query e i valori di `:root`.
-  ⚠️ È un file a sé perché i motori di traduzione sono **due** (`web/i18n.js` a 3 lingue che
-  si disegna il selettore, e quelli di cronometro e DS200 a 5 lingue col selettore nel
-  markup): un pezzo che deve stare ovunque non può vivere dentro uno dei due.
+  ⚠️ È un file a sé perché i motori di traduzione sono **due** (`web/i18n.js`, che si
+  disegna il selettore, e quelli di cronometro e DS200, col selettore nel markup): un pezzo
+  che deve stare ovunque non può vivere dentro uno dei due.
 - **Bandierine nel selettore lingua.** ⚠️ Sono coppie di indicatori regionali: su Windows non
   esistono nel font di sistema e si vedono le due lettere (IT, EN…). Non è un difetto da
   correggere — per questo accanto resta scritto il **nome** della lingua.
@@ -405,8 +435,9 @@ node tools/test-cronometro.js                 # una gara simulata dentro il cron
 node tools/test-ninco-ui.js                   # contagiri Ninco con seriale simulata
 node tools/test-o2bootloader.js               # configuratore dongle: frame e blocchi di sicurezza
 node tools/test-chron02.js                    # contagiri oXigen: avvio con 0x06, aggancio, giri scartati
-node tools/test-ble-config.js                 # configuratori BLE auto e telecomando: frame e blocchi
+node tools/test-ble-config.js                 # configuratori BLE auto e controller: frame e blocchi
 node tools/test-ds200-ui.js                   # contagiri DS200: il numero NON avanza da solo
+node tools/test-seriale-usb.js                # dongle via WebUSB (Android): driver CDC, DTR, riavvio
 ```
 
 ## Da dove viene questa roba (storia, per capire il presente)
@@ -561,7 +592,7 @@ distinguibili e il giro veloce non è una lotteria. Il grande orologio resta a d
   (nessuno cambia lingua per leggere lo stato). Ri-disegna anche su `DOMContentLoaded`.
   Lo smoke test controlla le chiavi grezze su tutte le pagine — ma in una lingua sola. Per
   il resto c'è `tools/check-i18n.js`, senza browser: ogni chiave ha tutte le lingue del suo
-  motore (3 per `i18n.js`, 5 per cronometro e DS200), ogni chiave usata nel markup esiste, e
+  motore (le stesse 5 ovunque), ogni chiave usata nel markup esiste, e
   nelle pagine che traducono nessun `<option>`/`<summary>`/`<th>` ha testo senza
   `data-i18n` (le modalità del configuratore auto e il «Log» del controller restavano in
   italiano in ogni lingua). Eccezione motivata: `data-i18n-no="<perché>"` sull'elemento o su

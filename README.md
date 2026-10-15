@@ -47,8 +47,8 @@ La pagina iniziale (`web/index.html`) è un **indice** che porta a tutte le app.
 | [`cronometro/`](web/cronometro/) | **Cronometro web**: gestione gara su qualsiasi sistema — modalità *pratica* e *GP a giri*, guidatori con nome, classifica live, giro veloce, distacchi, annunci vocali, 5 lingue. Sistemi: **pista simulata** (niente hardware) e **DS200/DS300**. PWA, funziona offline | Web Serial (o niente) |
 | [`car-config/`](web/car-config/) | Configuratore del **chip auto** oXigen: nome, ID, modalità, velocità, freno, limiti, clone MAC, test motore/luci/sensore hall | Web Bluetooth |
 | [`remote-config/`](web/remote-config/) | Configuratore del **controller SCP-3**: nome, brake setting, ID, MAC; legge firmware e data di attivazione. *Lettura e cambio ID confermati su hardware, scrittura del MAC no* | Web Bluetooth |
-| [`chron02/`](web/chron02/) | **Contagiri e gestione gara** oXigen via dongle: classifica live, giri, tempi e pit dalla telemetria `rf_data_x[13]`; start/pausa/stop e comandi per singola auto con `race_status[10]` | Web Serial |
-| [`o2-bootloader/`](web/o2-bootloader/) | **Configuratore oXigen** via dongle: modalità boot su dongle/chip/controller, lettura info (versione firmware, MAC) e console a registri sperimentale | Web Serial |
+| [`chron02/`](web/chron02/) | **Contagiri e gestione gara** oXigen via dongle: classifica live, giri, tempi e pit dalla telemetria `rf_data_x[13]`; start/pausa/stop e comandi per singola auto con `race_status[10]` | Web Serial (WebUSB su Android) |
+| [`o2-bootloader/`](web/o2-bootloader/) | **Configuratore oXigen** via dongle: modalità boot su dongle/chip/controller, lettura info (versione firmware, MAC) e console a registri sperimentale | Web Serial (WebUSB su Android) |
 | [`guida-oxigen/`](web/guida-oxigen/) | **Guida rapida oXigen**: cosa fa ogni combinazione di tasti e cosa vuol dire ogni lampeggio — accensione, guida, LED, pairing e DFU, dai manuali. Con ricerca | niente, è statica |
 | [`ds200-ds300/`](web/ds200-ds300/) | **Contagiri DS200 / DS300**: giri, tempi, classifica live, giro veloce, annunci vocali, export CSV. Installabile come PWA, funziona offline | Web Serial |
 | [`esp32-installer/`](web/esp32-installer/) | **Installer ESP32** del ponte DS200/DS300 → WiFi/MQTT, con configurazione della rete dal browser. **La cosa più acerba del sito** | Web Serial |
@@ -128,8 +128,15 @@ Le API usate esistono solo su browser basati su Chromium:
 
 - **Web Bluetooth** (`car-config`, `remote-config`): Chrome/Edge su desktop, Chrome su
   Android. **Non** su Safari/iOS né Firefox.
-- **Web Serial** (`chron02`, `o2-bootloader`, `ds200`, `ninco`, `flash.html`): Chrome/Edge/Opera **solo su
-  desktop**. Non su Android né iOS. (Android potrebbe esser supportato in futuro, per iOS serve un esp32 "ponte")
+- **Dongle oXigen** (`chron02`, `o2-bootloader`): Web Serial con Chrome/Edge/Opera su
+  computer; su **Android** Chrome con il **WebUSB** (dongle attaccato con un cavo USB OTG):
+  il dongle è una seriale USB standard e la pagina la apre da sé (`web/seriale.js`).
+  **Non** su Safari/iOS né Firefox.
+- **Cavi seriali** (`ds200-ds300`, `ninco`, `cronometro` con il cavo, installer ESP32): Web
+  Serial con Chrome/Edge/Opera su computer. Su Android il Web Serial c'è da Chrome 148 con
+  Android 17, e il cavo compare solo sui telefoni che espongono le porte seriali. Per il
+  DS200 da telefono c'è il ponte ESP32: via Bluetooth da Android, via rete (la pagina
+  servita dal ponte) anche da iOS.
 
 Ogni pagina mostra un avviso se il browser non ha l'API che le serve.
 Il sito va servito in `https://` (o `http://localhost`): entrambe le API lo richiedono.
@@ -176,13 +183,14 @@ riporta il riepilogo della Action).
 web/                  → è QUESTA cartella che finisce su GitHub Pages
   index.html            landing: l'indice che punta a tutte le app
   ui.css                token dei colori e cornice condivisi da TUTTE le pagine
-  i18n.js               motore multilingua condiviso (IT/EN/ES) + disclaimer
+  i18n.js               motore multilingua condiviso (IT/EN/ES/FR/DE) + disclaimer
+  seriale.js            porta USB del dongle oXigen (Web Serial; WebUSB su Android)
   sw.js                 service worker network-first (evita le versioni vecchie in cache)
   version.json          versione del sito e delle singole app
   cronometro/           il cronometro: motore (race.js) + sistemi (sistemi/) + interfaccia
   guida-oxigen/         guida rapida tasti/LED/pairing (era modes/, che ora rimanda qui)
   car-config/ remote-config/ modes/                  app oXigen (Web Bluetooth + riferimento)
-  chron02/ o2-bootloader/                            app oXigen via dongle (Web Serial)
+  chron02/ o2-bootloader/                            app oXigen via dongle (Web Serial / WebUSB)
   ds200-ds300/          contagiri DS200/DS300 (PWA autonoma, i18n e sw propri)
   esp32-installer/      installer del firmware ESP32 (app a sé, molto acerba)
   ds200/                stub: rimanda a ds200-ds300/ e disinstalla il vecchio SW

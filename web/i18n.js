@@ -1,7 +1,7 @@
-/* i18n.js — lingua selezionabile (IT/EN/ES), autodetect dal browser + disclaimer condiviso.
+/* i18n.js — lingua selezionabile (IT/EN/ES/FR/DE), autodetect dal browser + disclaimer condiviso.
  *
  * USO nella pagina (PRIMA di caricare questo file):
- *   <script>window.I18N_STRINGS = { chiave:{it:"…",en:"…",es:"…"}, … };</script>
+ *   <script>window.I18N_STRINGS = { chiave:{it:"…",en:"…",es:"…",fr:"…",de:"…"}, … };</script>
  *   <script src="i18n.js"></script>        (dalla root)  oppure  "../i18n.js" (dalle sotto-app)
  *
  * Elementi statici:
@@ -17,13 +17,16 @@
  * dentro il <footer> della pagina se c'è, prima della versione).
  */
 (function () {
-  var LANGS = ["it", "en", "es"];
-  var NAMES = { it: "Italiano", en: "English", es: "Español" };
+  /* Le stesse cinque lingue del cronometro e del DS200, nello stesso ordine:
+     la lingua scelta è una sola per tutto il sito (chiave `lang`), e una pagina
+     che non la conosce ricadrebbe sull'inglese. */
+  var LANGS = ["it", "en", "es", "fr", "de"];
+  var NAMES = { it: "Italiano", en: "English", es: "Español", fr: "Français", de: "Deutsch" };
   /* ⚠️ Le bandierine sono coppie di "indicatori regionali": su Windows non
-     esistono nel font di sistema e si vedono le due lettere (IT, EN, ES). Non è
+     esistono nel font di sistema e si vedono le due lettere (IT, EN, ES, FR, DE). Non è
      un difetto da correggere — sono comunque leggibili, ed è il motivo per cui
      accanto resta scritto il NOME della lingua. */
-  var FLAGS = { it: "🇮🇹", en: "🇬🇧", es: "🇪🇸" };
+  var FLAGS = { it: "🇮🇹", en: "🇬🇧", es: "🇪🇸", fr: "🇫🇷", de: "🇩🇪" };
 
   // Stringhe CONDIVISE da tutte le app (tradotte una volta sola).
   var SHARED = {
@@ -48,9 +51,23 @@
         "respectivos propietarios, citadas únicamente con fines de interoperabilidad y descripción. El software se " +
         "proporciona «tal cual», <b>sin garantía</b> de ningún tipo, expresa o implícita. El autor <b>no asume " +
         "ninguna responsabilidad</b> por daños a dispositivos, datos o bienes derivados de su uso. Úsala únicamente " +
-        "en hardware de tu propiedad y <b>bajo tu propia responsabilidad</b>."
+        "en hardware de tu propiedad y <b>bajo tu propia responsabilidad</b>.",
+      fr: "<b>Projet indépendant et non officiel.</b> Cette application <b>n'est ni réalisée, ni approuvée, " +
+        "ni sponsorisée, ni soutenue par Slot.it / Galileo Engineering, DS Electronic ou Ninco</b>. « Slot.it », " +
+        "« oXigen », « DS Electronic », « DS200 », « DS300 » et « Ninco » sont des marques de leurs propriétaires " +
+        "respectifs, citées uniquement à des fins d'interopérabilité et de description. Le logiciel est fourni " +
+        "« tel quel », <b>sans aucune garantie</b> d'aucune sorte, expresse ou implicite. L'auteur <b>décline toute " +
+        "responsabilité</b> pour les dommages aux appareils, aux données ou aux biens découlant de son utilisation. " +
+        "Utilise-la uniquement sur du matériel qui t'appartient et <b>à tes propres risques</b>.",
+      de: "<b>Unabhängiges, inoffizielles Projekt.</b> Diese Anwendung wird <b>weder von Slot.it / Galileo " +
+        "Engineering noch von DS Electronic oder Ninco erstellt, gebilligt, gesponsert oder unterstützt</b>. " +
+        "„Slot.it“, „oXigen“, „DS Electronic“, „DS200“, „DS300“ und „Ninco“ sind Marken ihrer jeweiligen Inhaber " +
+        "und werden nur zur Beschreibung und für die Interoperabilität genannt. Die Software wird „wie besehen“ " +
+        "bereitgestellt, <b>ohne jede Gewährleistung</b>, weder ausdrücklich noch stillschweigend. Der Autor " +
+        "<b>übernimmt keine Haftung</b> für Schäden an Geräten, Daten oder Sachen, die aus der Nutzung entstehen. " +
+        "Nutze sie nur mit eigener Hardware und <b>auf eigenes Risiko</b>."
     },
-    langLabel: { it: "Lingua", en: "Language", es: "Idioma" },
+    langLabel: { it: "Lingua", en: "Language", es: "Idioma", fr: "Langue", de: "Sprache" },
     // Le app oXigen al momento non funzionano sull'hardware: meglio dirlo in cima
     // invece di lasciare che l'utente lo scopra provando.
     oxigenPartial: {
@@ -63,6 +80,12 @@
       es: "🔬 <b>Esta app funciona solo en parte.</b> La lectura y el cambio de ID están confirmados en " +
         "hardware real; la <b>escritura del MAC</b> se ha corregido y hay que volver a probarla. " +
         "Trátala como <b>herramienta de diagnóstico</b>, no como algo para usar en pista.",
+      fr: "🔬 <b>Cette app ne fonctionne qu'en partie.</b> La lecture et le changement d'ID sont confirmés sur " +
+        "du vrai matériel ; l'<b>écriture du MAC</b> a été corrigée et doit être réessayée. " +
+        "Considère-la comme un <b>outil de diagnostic</b>, pas comme quelque chose à utiliser sur la piste.",
+      de: "🔬 <b>Diese App funktioniert nur teilweise.</b> Lesen und Ändern der ID sind auf echter Hardware " +
+        "bestätigt; das <b>Schreiben der MAC</b> wurde korrigiert und muss erneut getestet werden. " +
+        "Betrachte sie als <b>Diagnosewerkzeug</b>, nicht als etwas für den Einsatz an der Bahn."
     },
     // Per le app oXigen rifatte sulla specifica del protocollo ma non ancora
     // provate su un dispositivo vero: è la targhetta gialla "mai provata".
@@ -75,32 +98,78 @@
         "page shows what was sent and what came back.",
       es: "🧪 <b>Rehecha según la especificación del protocolo, nunca probada en hardware real.</b> " +
         "Las tramas son correctas sobre el papel: si algo falla, el registro al final de la " +
-        "página muestra qué se envió y qué volvió."
+        "página muestra qué se envió y qué volvió.",
+      fr: "🧪 <b>Refaite d'après la spécification du protocole, jamais essayée sur du vrai matériel.</b> " +
+        "Les trames sont correctes sur le papier : si quelque chose ne va pas, le journal en bas de la " +
+        "page montre ce qui est parti et ce qui est revenu.",
+      de: "🧪 <b>Nach der Protokollspezifikation neu geschrieben, nie auf echter Hardware getestet.</b> " +
+        "Auf dem Papier stimmen die Frames: Wenn etwas nicht klappt, zeigt das Protokoll unten auf der " +
+        "Seite, was gesendet wurde und was zurückkam."
     },
 
     updateAvail: {
       it: "🔄 Nuova versione disponibile.",
       en: "🔄 A new version is available.",
-      es: "🔄 Hay una nueva versión disponible."
+      es: "🔄 Hay una nueva versión disponible.",
+      fr: "🔄 Une nouvelle version est disponible.",
+      de: "🔄 Eine neue Version ist verfügbar."
     },
-    updateBtn: { it: "Aggiorna", en: "Update", es: "Actualizar" },
-    // Banner compatibilità (Web Bluetooth): usato dalle app BLE.
+    updateBtn: { it: "Aggiorna", en: "Update", es: "Actualizar", fr: "Mettre à jour", de: "Aktualisieren" },
+    /* Fasce di compatibilità. Cosa funziona davvero (ottobre 2026):
+       - Web Bluetooth: Chrome/Edge su computer e Chrome su Android. Mai su iOS
+         (Safari non ce l'ha) né su Firefox.
+       - Web Serial: Chrome/Edge/Opera su computer. Su Android c'è solo da
+         Chrome 148 con Android 17, e le porte USB compaiono soltanto sui
+         telefoni configurati per esporle: sulla maggior parte resta vuota.
+       - WebUSB: Chrome su computer e su Android. È la strada per il dongle
+         oXigen su Android (seriale.js): il dongle è una seriale USB standard
+         (CDC) e la pagina la apre da sé. Un cavo con un adattatore seriale
+         (FTDI, Prolific, CH340…) invece no: ogni chip ha un protocollo suo. */
     noBt: {
       it: "⚠️ Questo browser <b>non supporta il Web Bluetooth</b>. Usa <b>Chrome</b> o <b>Edge</b> su computer, " +
         "oppure <b>Chrome su Android</b>. Safari/iOS e Firefox non sono supportati.",
       en: "⚠️ This browser <b>does not support Web Bluetooth</b>. Use <b>Chrome</b> or <b>Edge</b> on a computer, " +
         "or <b>Chrome on Android</b>. Safari/iOS and Firefox are not supported.",
       es: "⚠️ Este navegador <b>no admite Web Bluetooth</b>. Usa <b>Chrome</b> o <b>Edge</b> en un ordenador, " +
-        "o <b>Chrome en Android</b>. Safari/iOS y Firefox no son compatibles."
+        "o <b>Chrome en Android</b>. Safari/iOS y Firefox no son compatibles.",
+      fr: "⚠️ Ce navigateur <b>ne prend pas en charge le Web Bluetooth</b>. Utilise <b>Chrome</b> ou <b>Edge</b> " +
+        "sur ordinateur, ou <b>Chrome sur Android</b>. Safari/iOS et Firefox ne sont pas pris en charge.",
+      de: "⚠️ Dieser Browser <b>unterstützt kein Web Bluetooth</b>. Nutze <b>Chrome</b> oder <b>Edge</b> am " +
+        "Computer oder <b>Chrome auf Android</b>. Safari/iOS und Firefox werden nicht unterstützt."
     },
-    // Banner compatibilità (Web Serial): usato dall'app dongle.
+    // Il dongle oXigen: Web Serial su computer, WebUSB su Android (seriale.js).
+    noDongle: {
+      it: "⚠️ Questo browser <b>non può collegarsi al dongle USB</b>. Usa <b>Chrome</b> o <b>Edge</b> su computer, " +
+        "oppure <b>Chrome su Android</b> con un cavo USB OTG. Safari/iOS e Firefox non sono supportati.",
+      en: "⚠️ This browser <b>cannot connect to the USB dongle</b>. Use <b>Chrome</b> or <b>Edge</b> on a computer, " +
+        "or <b>Chrome on Android</b> with a USB OTG cable. Safari/iOS and Firefox are not supported.",
+      es: "⚠️ Este navegador <b>no puede conectarse al dongle USB</b>. Usa <b>Chrome</b> o <b>Edge</b> en un " +
+        "ordenador, o <b>Chrome en Android</b> con un cable USB OTG. Safari/iOS y Firefox no son compatibles.",
+      fr: "⚠️ Ce navigateur <b>ne peut pas se connecter au dongle USB</b>. Utilise <b>Chrome</b> ou <b>Edge</b> " +
+        "sur ordinateur, ou <b>Chrome sur Android</b> avec un câble USB OTG. Safari/iOS et Firefox ne sont pas " +
+        "pris en charge.",
+      de: "⚠️ Dieser Browser <b>kann sich nicht mit dem USB-Dongle verbinden</b>. Nutze <b>Chrome</b> oder " +
+        "<b>Edge</b> am Computer oder <b>Chrome auf Android</b> mit einem USB-OTG-Kabel. Safari/iOS und Firefox " +
+        "werden nicht unterstützt."
+    },
+    // Un cavo seriale (adattatore USB-seriale): solo Web Serial.
     noSerial: {
-      it: "⚠️ Questo browser <b>non supporta il Web Serial</b>. Usa <b>Chrome</b> o <b>Edge</b> su computer " +
-        "(desktop). Android, Safari/iOS e Firefox non sono supportati.",
-      en: "⚠️ This browser <b>does not support Web Serial</b>. Use <b>Chrome</b> or <b>Edge</b> on a desktop " +
-        "computer. Android, Safari/iOS and Firefox are not supported.",
-      es: "⚠️ Este navegador <b>no admite Web Serial</b>. Usa <b>Chrome</b> o <b>Edge</b> en un ordenador " +
-        "(escritorio). Android, Safari/iOS y Firefox no son compatibles."
+      it: "⚠️ Questo browser <b>non supporta il Web Serial</b>. Usa <b>Chrome</b> o <b>Edge</b> su computer. " +
+        "Su <b>Android</b> serve Chrome 148 o successivo con Android 17, e il cavo compare solo sui telefoni " +
+        "che espongono le porte seriali. Safari/iOS e Firefox non sono supportati.",
+      en: "⚠️ This browser <b>does not support Web Serial</b>. Use <b>Chrome</b> or <b>Edge</b> on a computer. " +
+        "On <b>Android</b> you need Chrome 148 or later with Android 17, and the cable only shows up on phones " +
+        "that expose serial ports. Safari/iOS and Firefox are not supported.",
+      es: "⚠️ Este navegador <b>no admite Web Serial</b>. Usa <b>Chrome</b> o <b>Edge</b> en un ordenador. " +
+        "En <b>Android</b> hace falta Chrome 148 o posterior con Android 17, y el cable solo aparece en los " +
+        "teléfonos que exponen los puertos serie. Safari/iOS y Firefox no son compatibles.",
+      fr: "⚠️ Ce navigateur <b>ne prend pas en charge le Web Serial</b>. Utilise <b>Chrome</b> ou <b>Edge</b> sur " +
+        "ordinateur. Sur <b>Android</b>, il faut Chrome 148 ou plus récent avec Android 17, et le câble " +
+        "n'apparaît que sur les téléphones qui exposent les ports série. Safari/iOS et Firefox ne sont pas " +
+        "pris en charge.",
+      de: "⚠️ Dieser Browser <b>unterstützt kein Web Serial</b>. Nutze <b>Chrome</b> oder <b>Edge</b> am Computer. " +
+        "Auf <b>Android</b> braucht es Chrome 148 oder neuer mit Android 17, und das Kabel erscheint nur auf " +
+        "Telefonen, die serielle Ports freigeben. Safari/iOS und Firefox werden nicht unterstützt."
     }
   };
 

@@ -34,8 +34,8 @@
 </style>
 </head>
 <body class="app">
-  <!-- `noser`, non `nobt`: è la fascia della Web Serial (il nome veniva dalle app Bluetooth). -->
-  <div id="noser" class="banner nope" hidden data-i18n-html="noSerial"></div>
+  <!-- `noser`, non `nobt`: è la fascia della porta USB (né Web Serial né WebUSB). -->
+  <div id="noser" class="banner nope" hidden data-i18n-html="noDongle"></div>
   <p class="note" id="portWarn" hidden></p>
   <div id="upd" class="banner upd" hidden><span data-i18n="updateAvail"></span> <button onclick="reloadFresh()" data-i18n="updateBtn"></button></div>
   <a class="back" href="../">← Slot Car Web Tools</a>
@@ -261,547 +261,713 @@
 
 <script>
 window.I18N_STRINGS = {
-  portNoId:{it:"porta senza identificativo USB",en:"port with no USB id",es:"puerto sin identificador USB"},
+  portNoId:{it:"porta senza identificativo USB",en:"port with no USB id",es:"puerto sin identificador USB",fr:"port sans identifiant USB",de:"Port ohne USB-Kennung"},
   portOk:{
     it:"Porta {id}: è il dongle oXigen atteso.",
     en:"Port {id}: this is the expected oXigen dongle.",
-    es:"Puerto {id}: es el dongle oXigen esperado."
+    es:"Puerto {id}: es el dongle oXigen esperado.",
+    fr:"Port {id} : c'est le dongle oXigen attendu.",
+    de:"Port {id}: Das ist der erwartete oXigen-Dongle."
   },
   portOther:{
     it:"⚠️ Porta {id}: non è il VID/PID del dongle oXigen (1fee/0002). Provo lo stesso — potrebbe essere un adattatore seriale in mezzo, o un dongle diverso. Se non risponde a BOOT, hai scelto la porta sbagliata.",
     en:"⚠️ Port {id}: this is not the oXigen dongle VID/PID (1fee/0002). Trying anyway — it may be a serial adapter in between, or a different dongle. If it does not answer BOOT, you picked the wrong port.",
-    es:"⚠️ Puerto {id}: no es el VID/PID del dongle oXigen (1fee/0002). Lo intento igualmente — puede ser un adaptador serie por medio, o un dongle distinto. Si no responde a BOOT, has elegido el puerto equivocado."
+    es:"⚠️ Puerto {id}: no es el VID/PID del dongle oXigen (1fee/0002). Lo intento igualmente — puede ser un adaptador serie por medio, o un dongle distinto. Si no responde a BOOT, has elegido el puerto equivocado.",
+    fr:"⚠️ Port {id} : ce n'est pas le VID/PID du dongle oXigen (1fee/0002). J'essaie quand même — il y a peut-être un adaptateur série entre les deux, ou c'est un autre dongle. S'il ne répond pas à BOOT, tu as choisi le mauvais port.",
+    de:"⚠️ Port {id}: Das ist nicht die VID/PID des oXigen-Dongles (1fee/0002). Ich versuche es trotzdem — vielleicht steckt ein serieller Adapter dazwischen, oder es ist ein anderer Dongle. Wenn er nicht auf BOOT antwortet, hast du den falschen Port gewählt."
   },
 
   sub:{
-    it:"Riprende una parte delle funzioni di <b>configurazione</b> del programma ufficiale per Windows. Parla col dongle oXigen via <b>USB seriale</b> (Web Serial, VID 1FEE/PID 0002), mette in modalità boot il dongle, un chip auto o un controller SCP-3, ne legge le informazioni e cambia i campi documentati: <b>ID</b>, <b>abbinamento</b> dell'auto, <b>velocità in pit lane</b> e <b>MAC O2</b> del controller. Se il dongle non è attivato, inoltra la chiave che ti ha dato Slot.it. <b>Non aggiorna il firmware.</b> <b>Solo su hardware tuo.</b>",
-    en:"Covers part of the <b>configuration</b> features of the official Windows program. It talks to the oXigen dongle over <b>USB serial</b> (Web Serial, VID 1FEE/PID 0002), puts the dongle, a car chip or an SCP-3 controller into boot mode, reads their information and changes the documented fields: <b>ID</b>, the car's <b>pairing</b>, the controller's <b>pit-lane speed</b> and <b>O2 MAC</b>. If the dongle is not activated, it forwards the key Slot.it gave you. <b>It does not update firmware.</b> <b>Only on your own hardware.</b>",
-    es:"Cubre parte de las funciones de <b>configuración</b> del programa oficial para Windows. Habla con el dongle oXigen por <b>USB serie</b> (Web Serial, VID 1FEE/PID 0002), pone en modo boot el dongle, un chip de coche o un mando SCP-3, lee su información y cambia los campos documentados: <b>ID</b>, la <b>vinculación</b> del coche, la <b>velocidad en el pit lane</b> y el <b>MAC O2</b> del mando. Si el dongle no está activado, reenvía la clave que te ha dado Slot.it. <b>No actualiza el firmware.</b> <b>Solo en tu propio hardware.</b>"
+    it:"Riprende una parte delle funzioni di <b>configurazione</b> del programma ufficiale per Windows. Parla col dongle oXigen via <b>USB seriale</b> (Web Serial, su Android WebUSB; VID 1FEE/PID 0002), mette in modalità boot il dongle, un chip auto o un controller SCP-3, ne legge le informazioni e cambia i campi documentati: <b>ID</b>, <b>abbinamento</b> dell'auto, <b>velocità in pit lane</b> e <b>MAC O2</b> del controller. Se il dongle non è attivato, inoltra la chiave che ti ha dato Slot.it. <b>Non aggiorna il firmware.</b> <b>Solo su hardware tuo.</b>",
+    en:"Covers part of the <b>configuration</b> features of the official Windows program. It talks to the oXigen dongle over <b>USB serial</b> (Web Serial, WebUSB on Android; VID 1FEE/PID 0002), puts the dongle, a car chip or an SCP-3 controller into boot mode, reads their information and changes the documented fields: <b>ID</b>, the car's <b>pairing</b>, the controller's <b>pit-lane speed</b> and <b>O2 MAC</b>. If the dongle is not activated, it forwards the key Slot.it gave you. <b>It does not update firmware.</b> <b>Only on your own hardware.</b>",
+    es:"Cubre parte de las funciones de <b>configuración</b> del programa oficial para Windows. Habla con el dongle oXigen por <b>USB serie</b> (Web Serial, en Android WebUSB; VID 1FEE/PID 0002), pone en modo boot el dongle, un chip de coche o un mando SCP-3, lee su información y cambia los campos documentados: <b>ID</b>, la <b>vinculación</b> del coche, la <b>velocidad en el pit lane</b> y el <b>MAC O2</b> del mando. Si el dongle no está activado, reenvía la clave que te ha dado Slot.it. <b>No actualiza el firmware.</b> <b>Solo en tu propio hardware.</b>",
+    fr:"Cette app reprend une partie des fonctions de <b>configuration</b> du programme officiel pour Windows. Elle dialogue avec le dongle oXigen en <b>USB série</b> (Web Serial, WebUSB sur Android ; VID 1FEE/PID 0002), met en mode boot le dongle, une puce de voiture ou une manette SCP-3, lit leurs informations et modifie les champs documentés : <b>ID</b>, <b>appairage</b> de la voiture, <b>vitesse dans la voie des stands</b> et <b>MAC O2</b> de la manette. Si le dongle n'est pas activé, elle transmet la clé que Slot.it t'a donnée. <b>Elle ne met pas à jour le firmware.</b> <b>Uniquement sur ton propre matériel.</b>",
+    de:"Diese App übernimmt einen Teil der <b>Konfigurationsfunktionen</b> des offiziellen Windows-Programms. Sie spricht mit dem oXigen-Dongle über <b>USB seriell</b> (Web Serial, auf Android WebUSB; VID 1FEE/PID 0002), versetzt den Dongle, einen Auto-Chip oder einen SCP-3-Handregler in den Boot-Modus, liest ihre Informationen aus und ändert die dokumentierten Felder: <b>ID</b>, <b>Kopplung</b> des Autos, <b>Geschwindigkeit in der Boxengasse</b> und <b>O2-MAC</b> des Handreglers. Ist der Dongle nicht aktiviert, leitet sie den Schlüssel weiter, den du von Slot.it bekommen hast. <b>Sie aktualisiert keine Firmware.</b> <b>Nur an deiner eigenen Hardware.</b>"
   },
-  h1title:{it:"Configuratore dongle",en:"Dongle configurator",es:"Configurador del dongle"},
-  btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle"},
-  btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
+  h1title:{it:"Configuratore dongle",en:"Dongle configurator",es:"Configurador del dongle",fr:"Configurateur du dongle",de:"Dongle-Konfigurator"},
+  btnConnectDongle:{it:"🔌 Connetti dongle",en:"🔌 Connect dongle",es:"🔌 Conectar dongle",fr:"🔌 Connecter le dongle",de:"🔌 Dongle verbinden"},
+  btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar",fr:"Déconnecter",de:"Trennen"},
   connHint:{
     it:"La porta si apre a <b>9600 8N1</b> con il segnale <b>DTR</b> attivo, come fa il programma ufficiale. Sul dongle è una COM virtuale: il baud è nominale, il DTR invece serve (senza, il dongle non legge e non scrive). Il dongle si riavvia spesso — a ogni ingresso e uscita dal boot — e la porta cade: l'app aspetta che ricompaia e la riapre da sola, senza chiederti di nuovo il permesso. Una porta sola per volta: se hai aperto il <a href=\"../chron02/\">contagiri</a> su questo dongle, chiudilo prima.",
     en:"The port opens at <b>9600 8N1</b> with the <b>DTR</b> signal on, as the official program does. On the dongle this is a virtual COM port: the baud rate is nominal, but DTR is required (without it the dongle neither reads nor writes). The dongle reboots often — every time it enters or leaves boot mode — and the port drops: the app waits for it to come back and reopens it by itself, without asking for permission again. One port at a time: if you have the <a href=\"../chron02/\">lap counter</a> open on this dongle, close it first.",
-    es:"El puerto se abre a <b>9600 8N1</b> con la señal <b>DTR</b> activa, como hace el programa oficial. En el dongle es un COM virtual: el baudrate es nominal, pero el DTR es necesario (sin él, el dongle no lee ni escribe). El dongle se reinicia a menudo — cada vez que entra o sale del modo boot — y el puerto se cae: la app espera a que reaparezca y lo vuelve a abrir sola, sin pedirte de nuevo el permiso. Un puerto a la vez: si tienes abierto el <a href=\"../chron02/\">cuentavueltas</a> en este dongle, ciérralo antes."
+    es:"El puerto se abre a <b>9600 8N1</b> con la señal <b>DTR</b> activa, como hace el programa oficial. En el dongle es un COM virtual: el baudrate es nominal, pero el DTR es necesario (sin él, el dongle no lee ni escribe). El dongle se reinicia a menudo — cada vez que entra o sale del modo boot — y el puerto se cae: la app espera a que reaparezca y lo vuelve a abrir sola, sin pedirte de nuevo el permiso. Un puerto a la vez: si tienes abierto el <a href=\"../chron02/\">cuentavueltas</a> en este dongle, ciérralo antes.",
+    fr:"Le port s'ouvre à <b>9600 8N1</b> avec le signal <b>DTR</b> actif, comme le fait le programme officiel. Sur le dongle, c'est un port COM virtuel : le débit est nominal, mais le DTR est indispensable (sans lui, le dongle ne lit ni n'écrit rien). Le dongle redémarre souvent — à chaque entrée et sortie du mode boot — et le port disparaît : l'app attend qu'il réapparaisse et le rouvre toute seule, sans te redemander l'autorisation. Un seul port à la fois : si tu as ouvert le <a href=\"../chron02/\">compte-tours</a> sur ce dongle, ferme-le d'abord.",
+    de:"Der Port wird mit <b>9600 8N1</b> und aktivem <b>DTR</b>-Signal geöffnet, wie es das offizielle Programm tut. Am Dongle ist das ein virtueller COM-Port: Die Baudrate ist nur nominell, DTR dagegen ist nötig (ohne DTR liest und schreibt der Dongle nichts). Der Dongle startet oft neu — bei jedem Wechsel in den Boot-Modus und wieder hinaus — und der Port verschwindet: Die App wartet, bis er wieder auftaucht, und öffnet ihn von selbst erneut, ohne dich noch einmal um Erlaubnis zu fragen. Immer nur ein Port: Wenn du den <a href=\"../chron02/\">Rundenzähler</a> mit diesem Dongle geöffnet hast, schließe ihn vorher."
   },
 
   /* ---- attivazione ---- */
-  titleAct:{it:"Attivazione del dongle",en:"Dongle activation",es:"Activación del dongle"},
+  titleAct:{it:"Attivazione del dongle",en:"Dongle activation",es:"Activación del dongle",fr:"Activation du dongle",de:"Dongle-Aktivierung"},
   actIntro:{
     it:"Un dongle <b>non attivato</b>, appena si apre la porta, manda <code>ACTIVENOT</code> e accetta solo i comandi di attivazione: la radio di gara resta spenta e il boot non funziona. La chiave la fornisce <b>Slot.it</b> per il MAC del tuo dongle: leggi il MAC qui sotto, comunicalo a Slot.it e scrivi la chiave che ti manda. L'app la <b>inoltra</b> al dongle e basta: non la calcola, non la suggerisce e non la salva.",
     en:"A dongle that is <b>not activated</b> sends <code>ACTIVENOT</code> as soon as the port opens and only accepts the activation commands: the race radio stays off and boot mode does not work. The key is supplied by <b>Slot.it</b> for your dongle's MAC: read the MAC below, give it to Slot.it and type in the key they send you. The app only <b>forwards</b> it to the dongle: it does not compute it, suggest it or store it.",
-    es:"Un dongle <b>no activado</b>, en cuanto se abre el puerto, envía <code>ACTIVENOT</code> y solo acepta los comandos de activación: la radio de carrera queda apagada y el modo boot no funciona. La clave la proporciona <b>Slot.it</b> para el MAC de tu dongle: lee el MAC aquí abajo, comunícalo a Slot.it y escribe la clave que te envíe. La app solo la <b>reenvía</b> al dongle: no la calcula, no la sugiere y no la guarda."
+    es:"Un dongle <b>no activado</b>, en cuanto se abre el puerto, envía <code>ACTIVENOT</code> y solo acepta los comandos de activación: la radio de carrera queda apagada y el modo boot no funciona. La clave la proporciona <b>Slot.it</b> para el MAC de tu dongle: lee el MAC aquí abajo, comunícalo a Slot.it y escribe la clave que te envíe. La app solo la <b>reenvía</b> al dongle: no la calcula, no la sugiere y no la guarda.",
+    fr:"Un dongle <b>non activé</b> envoie <code>ACTIVENOT</code> dès l'ouverture du port et n'accepte que les commandes d'activation : la radio de course reste éteinte et le mode boot ne fonctionne pas. La clé est fournie par <b>Slot.it</b> pour le MAC de ton dongle : lis le MAC ci-dessous, communique-le à Slot.it et saisis la clé que Slot.it t'envoie. L'app se contente de la <b>transmettre</b> au dongle : elle ne la calcule pas, ne la suggère pas et ne l'enregistre pas.",
+    de:"Ein <b>nicht aktivierter</b> Dongle sendet <code>ACTIVENOT</code>, sobald der Port geöffnet wird, und akzeptiert nur die Aktivierungsbefehle: Der Funk für das Rennen bleibt aus, und der Boot-Modus funktioniert nicht. Den Schlüssel liefert <b>Slot.it</b> passend zur MAC deines Dongles: Lies unten die MAC aus, teile sie Slot.it mit und gib den Schlüssel ein, den du zurückbekommst. Die App <b>leitet</b> ihn nur an den Dongle <b>weiter</b>: Sie berechnet ihn nicht, schlägt ihn nicht vor und speichert ihn nicht."
   },
-  btnActRead:{it:"Leggi il MAC (READACTIV)",en:"Read the MAC (READACTIV)",es:"Leer el MAC (READACTIV)"},
-  lblActKey:{it:"Chiave di Slot.it",en:"Key from Slot.it",es:"Clave de Slot.it"},
-  btnActSend:{it:"Invia la chiave",en:"Send the key",es:"Enviar la clave"},
+  btnActRead:{it:"Leggi il MAC (READACTIV)",en:"Read the MAC (READACTIV)",es:"Leer el MAC (READACTIV)",fr:"Lire le MAC (READACTIV)",de:"MAC lesen (READACTIV)"},
+  lblActKey:{it:"Chiave di Slot.it",en:"Key from Slot.it",es:"Clave de Slot.it",fr:"Clé de Slot.it",de:"Schlüssel von Slot.it"},
+  btnActSend:{it:"Invia la chiave",en:"Send the key",es:"Enviar la clave",fr:"Envoyer la clé",de:"Schlüssel senden"},
   actNote:{
     it:"Dopo <code>READACTIV</code> il dongle prende come chiave <b>qualunque</b> messaggio che non sia un altro <code>READACTIV</code>: per questo, finché non arriva l'esito, gli altri comandi dell'app restano spenti. Esiti: <code>ACTIVDONE</code> = attivato, la chiave resta nel dongle; <code>ACTIVFAKE</code> = la chiave non vale per questo dongle, e puoi riprovare. Un dongle già attivato a <code>READACTIV</code> non risponde: il silenzio vuol dire «attivo». Prima di <code>READACTIV</code> l'app manda <code>STOPBOOT</code>, come prima di ogni boot: un dongle non attivato risponde <code>ACTIVENOT</code>, uno attivato si riavvia.",
     en:"After <code>READACTIV</code> the dongle takes <b>any</b> message other than another <code>READACTIV</code> as the key: that is why the app's other commands stay off until the outcome arrives. Outcomes: <code>ACTIVDONE</code> = activated, the key stays in the dongle; <code>ACTIVFAKE</code> = the key is not valid for this dongle, and you can try again. An already activated dongle does not answer <code>READACTIV</code>: silence means “active”. Before <code>READACTIV</code> the app sends <code>STOPBOOT</code>, as before every boot: a dongle that is not activated answers <code>ACTIVENOT</code>, an activated one reboots.",
-    es:"Tras <code>READACTIV</code> el dongle toma como clave <b>cualquier</b> mensaje que no sea otro <code>READACTIV</code>: por eso, hasta que llega el resultado, los demás comandos de la app quedan desactivados. Resultados: <code>ACTIVDONE</code> = activado, la clave queda en el dongle; <code>ACTIVFAKE</code> = la clave no vale para este dongle, y puedes volver a intentarlo. Un dongle ya activado no responde a <code>READACTIV</code>: el silencio significa «activo». Antes de <code>READACTIV</code> la app envía <code>STOPBOOT</code>, como antes de cada boot: un dongle no activado responde <code>ACTIVENOT</code>, uno activado se reinicia."
+    es:"Tras <code>READACTIV</code> el dongle toma como clave <b>cualquier</b> mensaje que no sea otro <code>READACTIV</code>: por eso, hasta que llega el resultado, los demás comandos de la app quedan desactivados. Resultados: <code>ACTIVDONE</code> = activado, la clave queda en el dongle; <code>ACTIVFAKE</code> = la clave no vale para este dongle, y puedes volver a intentarlo. Un dongle ya activado no responde a <code>READACTIV</code>: el silencio significa «activo». Antes de <code>READACTIV</code> la app envía <code>STOPBOOT</code>, como antes de cada boot: un dongle no activado responde <code>ACTIVENOT</code>, uno activado se reinicia.",
+    fr:"Après <code>READACTIV</code>, le dongle prend pour clé <b>n'importe quel</b> message autre qu'un nouveau <code>READACTIV</code> : c'est pourquoi les autres commandes de l'app restent désactivées tant que le résultat n'est pas arrivé. Résultats : <code>ACTIVDONE</code> = activé, la clé reste dans le dongle ; <code>ACTIVFAKE</code> = la clé n'est pas valable pour ce dongle, et tu peux réessayer. Un dongle déjà activé ne répond pas à <code>READACTIV</code> : le silence veut dire « actif ». Avant <code>READACTIV</code>, l'app envoie <code>STOPBOOT</code>, comme avant chaque passage en mode boot : un dongle non activé répond <code>ACTIVENOT</code>, un dongle activé redémarre.",
+    de:"Nach <code>READACTIV</code> nimmt der Dongle <b>jede</b> Nachricht als Schlüssel, die kein weiteres <code>READACTIV</code> ist: Deshalb bleiben die anderen Befehle der App gesperrt, bis das Ergebnis da ist. Ergebnisse: <code>ACTIVDONE</code> = aktiviert, der Schlüssel bleibt im Dongle; <code>ACTIVFAKE</code> = der Schlüssel gilt nicht für diesen Dongle, und du kannst es noch einmal versuchen. Ein bereits aktivierter Dongle antwortet nicht auf <code>READACTIV</code>: Stille bedeutet „aktiv“. Vor <code>READACTIV</code> sendet die App <code>STOPBOOT</code>, wie vor jedem Wechsel in den Boot-Modus: Ein nicht aktivierter Dongle antwortet mit <code>ACTIVENOT</code>, ein aktivierter startet neu."
   },
-  actStUnknown:{it:"da verificare",en:"not checked",es:"sin comprobar"},
-  actStNot:{it:"non attivato",en:"not activated",es:"no activado"},
-  actStWait:{it:"aspetta la chiave",en:"waiting for the key",es:"esperando la clave"},
-  actStYes:{it:"attivato",en:"activated",es:"activado"},
+  actStUnknown:{it:"da verificare",en:"not checked",es:"sin comprobar",fr:"à vérifier",de:"ungeprüft"},
+  actStNot:{it:"non attivato",en:"not activated",es:"no activado",fr:"non activé",de:"nicht aktiviert"},
+  actStWait:{it:"aspetta la chiave",en:"waiting for the key",es:"esperando la clave",fr:"attend la clé",de:"wartet auf den Schlüssel"},
+  actStYes:{it:"attivato",en:"activated",es:"activado",fr:"activé",de:"aktiviert"},
   actMacOut:{
     it:"MAC del dongle: <b>{mac}</b> — è quello da comunicare a Slot.it per avere la chiave. Ora il dongle aspetta la chiave.",
     en:"Dongle MAC: <b>{mac}</b> — this is the one to give Slot.it to get the key. The dongle is now waiting for the key.",
-    es:"MAC del dongle: <b>{mac}</b> — es el que hay que comunicar a Slot.it para obtener la clave. Ahora el dongle espera la clave."
+    es:"MAC del dongle: <b>{mac}</b> — es el que hay que comunicar a Slot.it para obtener la clave. Ahora el dongle espera la clave.",
+    fr:"MAC du dongle : <b>{mac}</b> — c'est celui qu'il faut communiquer à Slot.it pour obtenir la clé. Le dongle attend maintenant la clé.",
+    de:"MAC des Dongles: <b>{mac}</b> — diese teilst du Slot.it mit, um den Schlüssel zu bekommen. Der Dongle wartet jetzt auf den Schlüssel."
   },
   actAlready:{
     it:"Nessuna risposta a READACTIV: il dongle è già attivato.",
     en:"No answer to READACTIV: the dongle is already activated.",
-    es:"Sin respuesta a READACTIV: el dongle ya está activado."
+    es:"Sin respuesta a READACTIV: el dongle ya está activado.",
+    fr:"Pas de réponse à READACTIV : le dongle est déjà activé.",
+    de:"Keine Antwort auf READACTIV: Der Dongle ist bereits aktiviert."
   },
   actDone:{
     it:"ACTIVDONE: dongle attivato ✓. La chiave è salvata nel dongle; ora puoi entrare in boot.",
     en:"ACTIVDONE: dongle activated ✓. The key is stored in the dongle; you can now enter boot mode.",
-    es:"ACTIVDONE: dongle activado ✓. La clave queda guardada en el dongle; ahora puedes entrar en boot."
+    es:"ACTIVDONE: dongle activado ✓. La clave queda guardada en el dongle; ahora puedes entrar en boot.",
+    fr:"ACTIVDONE : dongle activé ✓. La clé est enregistrée dans le dongle ; tu peux maintenant passer en mode boot.",
+    de:"ACTIVDONE: Dongle aktiviert ✓. Der Schlüssel ist im Dongle gespeichert; jetzt kannst du in den Boot-Modus wechseln."
   },
   actFake:{
     it:"ACTIVFAKE: la chiave non vale per questo dongle. Controlla di averla copiata giusta (è legata al MAC qui sopra) e riprova: il dongle aspetta ancora una chiave.",
     en:"ACTIVFAKE: the key is not valid for this dongle. Check you copied it correctly (it is tied to the MAC above) and try again: the dongle is still waiting for a key.",
-    es:"ACTIVFAKE: la clave no vale para este dongle. Comprueba que la has copiado bien (está ligada al MAC de arriba) y vuelve a intentarlo: el dongle sigue esperando una clave."
+    es:"ACTIVFAKE: la clave no vale para este dongle. Comprueba que la has copiado bien (está ligada al MAC de arriba) y vuelve a intentarlo: el dongle sigue esperando una clave.",
+    fr:"ACTIVFAKE : la clé n'est pas valable pour ce dongle. Vérifie que tu l'as bien recopiée (elle est liée au MAC ci-dessus) et réessaie : le dongle attend toujours une clé.",
+    de:"ACTIVFAKE: Der Schlüssel gilt nicht für diesen Dongle. Prüfe, ob du ihn richtig abgeschrieben hast (er gehört zur MAC oben), und versuche es noch einmal: Der Dongle wartet weiterhin auf einen Schlüssel."
   },
-  actNoReply:{it:"Nessuna risposta alla chiave: riprova.",en:"No answer to the key: try again.",es:"Sin respuesta a la clave: vuelve a intentarlo."},
-  actOdd:{it:"Risposta inattesa: {r}",en:"Unexpected reply: {r}",es:"Respuesta inesperada: {r}"},
+  actNoReply:{it:"Nessuna risposta alla chiave: riprova.",en:"No answer to the key: try again.",es:"Sin respuesta a la clave: vuelve a intentarlo.",fr:"Pas de réponse à la clé : réessaie.",de:"Keine Antwort auf den Schlüssel: Versuche es noch einmal."},
+  actOdd:{it:"Risposta inattesa: {r}",en:"Unexpected reply: {r}",es:"Respuesta inesperada: {r}",fr:"Réponse inattendue : {r}",de:"Unerwartete Antwort: {r}"},
   hActNeedRead:{
     it:"Prima premi «Leggi il MAC»: il dongle accetta la chiave solo subito dopo READACTIV.",
     en:"Press “Read the MAC” first: the dongle only accepts the key right after READACTIV.",
-    es:"Pulsa antes «Leer el MAC»: el dongle solo acepta la clave justo después de READACTIV."
+    es:"Pulsa antes «Leer el MAC»: el dongle solo acepta la clave justo después de READACTIV.",
+    fr:"Appuie d'abord sur « Lire le MAC » : le dongle n'accepte la clé que juste après READACTIV.",
+    de:"Drücke zuerst „MAC lesen“: Der Dongle akzeptiert den Schlüssel nur direkt nach READACTIV."
   },
   hActBadKey:{
     it:"La chiave sono 6 byte: 12 cifre esadecimali, a coppie separate da due punti, come te la manda Slot.it.",
     en:"The key is 6 bytes: 12 hex digits, in pairs separated by colons, as Slot.it sends it.",
-    es:"La clave son 6 bytes: 12 cifras hexadecimales, por pares separados por dos puntos, como te la envía Slot.it."
+    es:"La clave son 6 bytes: 12 cifras hexadecimales, por pares separados por dos puntos, como te la envía Slot.it.",
+    fr:"La clé fait 6 octets : 12 chiffres hexadécimaux, par paires séparées par deux-points, telle que Slot.it te l'envoie.",
+    de:"Der Schlüssel besteht aus 6 Byte: 12 Hexadezimalziffern, paarweise durch Doppelpunkte getrennt, so wie Slot.it ihn dir schickt."
   },
   hActInBoot:{
     it:"Esci prima dal boot: l'attivazione si fa a dongle appena aperto.",
     en:"Leave boot mode first: activation is done with the port freshly opened.",
-    es:"Sal antes del modo boot: la activación se hace con el puerto recién abierto."
+    es:"Sal antes del modo boot: la activación se hace con el puerto recién abierto.",
+    fr:"Quitte d'abord le mode boot : l'activation se fait juste après l'ouverture du port.",
+    de:"Verlasse zuerst den Boot-Modus: Die Aktivierung erfolgt direkt nach dem Öffnen des Ports."
   },
-  hActYes:{it:"Il dongle è attivato: non serve una chiave.",en:"The dongle is activated: no key is needed.",es:"El dongle está activado: no hace falta clave."},
+  hActYes:{it:"Il dongle è attivato: non serve una chiave.",en:"The dongle is activated: no key is needed.",es:"El dongle está activado: no hace falta clave.",fr:"Le dongle est activé : pas besoin de clé.",de:"Der Dongle ist aktiviert: Es ist kein Schlüssel nötig."},
 
   /* ---- dispositivo e boot ---- */
-  titleTarget:{it:"Dispositivo e modalità boot",en:"Device and boot mode",es:"Dispositivo y modo boot"},
-  lblTarget:{it:"Dispositivo",en:"Device",es:"Dispositivo"},
-  optDongle:{it:"Dongle — 0c",en:"Dongle — 0c",es:"Dongle — 0c"},
-  optChip:{it:"Chip auto — 0a",en:"Car chip — 0a",es:"Chip del coche — 0a"},
-  optController:{it:"Controller SCP-3 — 09",en:"SCP-3 controller — 09",es:"Mando SCP-3 — 09"},
-  btnEnterBoot:{it:"Entra in boot",en:"Enter boot",es:"Entrar en boot"},
-  btnExitBoot:{it:"Esci (STOPBOOT)",en:"Exit (STOPBOOT)",es:"Salir (STOPBOOT)"},
+  titleTarget:{it:"Dispositivo e modalità boot",en:"Device and boot mode",es:"Dispositivo y modo boot",fr:"Appareil et mode boot",de:"Gerät und Boot-Modus"},
+  lblTarget:{it:"Dispositivo",en:"Device",es:"Dispositivo",fr:"Appareil",de:"Gerät"},
+  optDongle:{it:"Dongle — 0c",en:"Dongle — 0c",es:"Dongle — 0c",fr:"Dongle — 0c",de:"Dongle — 0c"},
+  optChip:{it:"Chip auto — 0a",en:"Car chip — 0a",es:"Chip del coche — 0a",fr:"Puce de la voiture — 0a",de:"Auto-Chip — 0a"},
+  optController:{it:"Controller SCP-3 — 09",en:"SCP-3 controller — 09",es:"Mando SCP-3 — 09",fr:"Manette SCP-3 — 09",de:"SCP-3-Handregler — 09"},
+  btnEnterBoot:{it:"Entra in boot",en:"Enter boot",es:"Entrar en boot",fr:"Entrer en mode boot",de:"Boot-Modus starten"},
+  btnExitBoot:{it:"Esci (STOPBOOT)",en:"Exit (STOPBOOT)",es:"Salir (STOPBOOT)",fr:"Quitter (STOPBOOT)",de:"Beenden (STOPBOOT)"},
   bootHow:{
     it:"Il byte dopo <code>BOOT</code> sceglie il dispositivo ed è lo stesso prefisso dei frame a registri: <b>controller SCP-3</b> = <code>09</code>, <b>chip auto</b> = <code>0a</code>, <b>dongle</b> = <code>BOOT 05</code> e poi <code>BOOT 0c</code>. ⚠️ È la numerazione del dongle: sul Bluetooth i due numeri sono scambiati. <code>BOOT</code> vale solo come <b>primo messaggio</b> dopo l'apertura della porta, e se la porta è stata riaperta senza staccare il dongle (per esempio dopo il contagiri) quel messaggio viene letto anche come comando di gara. Per questo l'app prima manda <code>STOPBOOT</code> (il dongle si riavvia), aspetta che ricompaia, riapre la porta e solo allora manda <code>BOOT</code>. Il dispositivo risponde <code>BOOTOK</code>; «Esci» manda <code>STOPBOOT</code>, che riavvia il dongle.",
     en:"The byte after <code>BOOT</code> selects the device and is the same prefix used in the register frames: <b>SCP-3 controller</b> = <code>09</code>, <b>car chip</b> = <code>0a</code>, <b>dongle</b> = <code>BOOT 05</code> then <code>BOOT 0c</code>. ⚠️ This is the dongle's numbering: over Bluetooth the two numbers are swapped. <code>BOOT</code> only works as the <b>first message</b> after the port opens, and if the port was reopened without unplugging the dongle (for example after the lap counter) that message is also read as a race command. That is why the app first sends <code>STOPBOOT</code> (the dongle reboots), waits for it to come back, reopens the port and only then sends <code>BOOT</code>. The device answers <code>BOOTOK</code>; “Exit” sends <code>STOPBOOT</code>, which reboots the dongle.",
-    es:"El byte tras <code>BOOT</code> elige el dispositivo y es el mismo prefijo de las tramas de registros: <b>mando SCP-3</b> = <code>09</code>, <b>chip del coche</b> = <code>0a</code>, <b>dongle</b> = <code>BOOT 05</code> y luego <code>BOOT 0c</code>. ⚠️ Es la numeración del dongle: en Bluetooth los dos números están intercambiados. <code>BOOT</code> solo vale como <b>primer mensaje</b> tras abrir el puerto, y si el puerto se ha vuelto a abrir sin desconectar el dongle (por ejemplo después del cuentavueltas) ese mensaje se lee también como comando de carrera. Por eso la app primero envía <code>STOPBOOT</code> (el dongle se reinicia), espera a que reaparezca, vuelve a abrir el puerto y solo entonces envía <code>BOOT</code>. El dispositivo responde <code>BOOTOK</code>; «Salir» envía <code>STOPBOOT</code>, que reinicia el dongle."
+    es:"El byte tras <code>BOOT</code> elige el dispositivo y es el mismo prefijo de las tramas de registros: <b>mando SCP-3</b> = <code>09</code>, <b>chip del coche</b> = <code>0a</code>, <b>dongle</b> = <code>BOOT 05</code> y luego <code>BOOT 0c</code>. ⚠️ Es la numeración del dongle: en Bluetooth los dos números están intercambiados. <code>BOOT</code> solo vale como <b>primer mensaje</b> tras abrir el puerto, y si el puerto se ha vuelto a abrir sin desconectar el dongle (por ejemplo después del cuentavueltas) ese mensaje se lee también como comando de carrera. Por eso la app primero envía <code>STOPBOOT</code> (el dongle se reinicia), espera a que reaparezca, vuelve a abrir el puerto y solo entonces envía <code>BOOT</code>. El dispositivo responde <code>BOOTOK</code>; «Salir» envía <code>STOPBOOT</code>, que reinicia el dongle.",
+    fr:"L'octet qui suit <code>BOOT</code> choisit l'appareil et c'est le même préfixe que dans les trames de registres : <b>manette SCP-3</b> = <code>09</code>, <b>puce de la voiture</b> = <code>0a</code>, <b>dongle</b> = <code>BOOT 05</code> puis <code>BOOT 0c</code>. ⚠️ C'est la numérotation du dongle : en Bluetooth, les deux numéros sont inversés. <code>BOOT</code> ne vaut que comme <b>premier message</b> après l'ouverture du port, et si le port a été rouvert sans débrancher le dongle (par exemple après le compte-tours), ce message est aussi lu comme une commande de course. C'est pourquoi l'app envoie d'abord <code>STOPBOOT</code> (le dongle redémarre), attend qu'il réapparaisse, rouvre le port et n'envoie <code>BOOT</code> qu'ensuite. L'appareil répond <code>BOOTOK</code> ; « Quitter » envoie <code>STOPBOOT</code>, qui fait redémarrer le dongle.",
+    de:"Das Byte nach <code>BOOT</code> wählt das Gerät und ist dasselbe Präfix wie in den Register-Frames: <b>SCP-3-Handregler</b> = <code>09</code>, <b>Auto-Chip</b> = <code>0a</code>, <b>Dongle</b> = <code>BOOT 05</code> und dann <code>BOOT 0c</code>. ⚠️ Das ist die Nummerierung des Dongles: Über Bluetooth sind die beiden Nummern vertauscht. <code>BOOT</code> gilt nur als <b>erste Nachricht</b> nach dem Öffnen des Ports, und wenn der Port erneut geöffnet wurde, ohne den Dongle abzuziehen (zum Beispiel nach dem Rundenzähler), wird diese Nachricht auch als Rennbefehl gelesen. Deshalb sendet die App zuerst <code>STOPBOOT</code> (der Dongle startet neu), wartet, bis er wieder auftaucht, öffnet den Port erneut und sendet erst dann <code>BOOT</code>. Das Gerät antwortet mit <code>BOOTOK</code>; „Beenden“ sendet <code>STOPBOOT</code>, wodurch der Dongle neu startet."
   },
   bootWarn:{
     it:"⚠️ Chip auto e controller rispondono <b>via radio</b>, attraverso il dongle, e solo in <b>modalità programmazione</b>: il controller SCP-3 si accende tenendo premuti freccia su e freno, a grilletto rilasciato (il display mostra «U», vedi la <a href=\"../guida-oxigen/\">guida</a>); l'auto va alimentata con il suo controller <b>spento</b>. Se il dispositivo non risponde entro circa un secondo, il dongle si riavvia da solo e la porta cade: l'app la riapre e puoi riprovare.",
     en:"⚠️ The car chip and the controller answer <b>over the radio</b>, through the dongle, and only in <b>programming mode</b>: the SCP-3 controller is powered on holding the up arrow and the brake, trigger released (the display shows “U”, see the <a href=\"../guida-oxigen/\">guide</a>); the car must be powered with its controller <b>switched off</b>. If the device does not answer within about a second, the dongle reboots by itself and the port drops: the app reopens it and you can try again.",
-    es:"⚠️ El chip del coche y el mando responden <b>por radio</b>, a través del dongle, y solo en <b>modo programación</b>: el mando SCP-3 se enciende manteniendo pulsadas la flecha arriba y el freno, con el gatillo suelto (la pantalla muestra «U», mira la <a href=\"../guida-oxigen/\">guía</a>); el coche debe alimentarse con su mando <b>apagado</b>. Si el dispositivo no responde en un segundo más o menos, el dongle se reinicia solo y el puerto se cae: la app lo vuelve a abrir y puedes reintentarlo."
+    es:"⚠️ El chip del coche y el mando responden <b>por radio</b>, a través del dongle, y solo en <b>modo programación</b>: el mando SCP-3 se enciende manteniendo pulsadas la flecha arriba y el freno, con el gatillo suelto (la pantalla muestra «U», mira la <a href=\"../guida-oxigen/\">guía</a>); el coche debe alimentarse con su mando <b>apagado</b>. Si el dispositivo no responde en un segundo más o menos, el dongle se reinicia solo y el puerto se cae: la app lo vuelve a abrir y puedes reintentarlo.",
+    fr:"⚠️ La puce de la voiture et la manette répondent <b>par radio</b>, à travers le dongle, et seulement en <b>mode programmation</b> : la manette SCP-3 s'allume en maintenant appuyés la flèche haut et le frein, gâchette relâchée (l'écran affiche « U », voir le <a href=\"../guida-oxigen/\">guide</a>) ; la voiture doit être alimentée avec sa manette <b>éteinte</b>. Si l'appareil ne répond pas en une seconde environ, le dongle redémarre tout seul et le port disparaît : l'app le rouvre et tu peux réessayer.",
+    de:"⚠️ Auto-Chip und Handregler antworten <b>per Funk</b> über den Dongle, und nur im <b>Programmiermodus</b>: Den SCP-3-Handregler schaltest du mit gedrückter Pfeil-hoch- und Bremstaste bei losgelassenem Abzug ein (das Display zeigt „U“, siehe die <a href=\"../guida-oxigen/\">Anleitung</a>); das Auto muss Strom bekommen, während sein Handregler <b>ausgeschaltet</b> ist. Antwortet das Gerät nicht innerhalb von etwa einer Sekunde, startet der Dongle von selbst neu und der Port verschwindet: Die App öffnet ihn wieder, und du kannst es erneut versuchen."
   },
 
   /* ---- info ---- */
-  titleInfo:{it:"Info dispositivo (sola lettura)",en:"Device info (read-only)",es:"Info del dispositivo (solo lectura)"},
-  btnFw:{it:"Versione firmware",en:"Firmware version",es:"Versión de firmware"},
-  btnMac:{it:"Leggi MAC (dongle)",en:"Read MAC (dongle)",es:"Leer MAC (dongle)"},
+  titleInfo:{it:"Info dispositivo (sola lettura)",en:"Device info (read-only)",es:"Info del dispositivo (solo lectura)",fr:"Infos de l'appareil (lecture seule)",de:"Geräteinfo (nur lesen)"},
+  btnFw:{it:"Versione firmware",en:"Firmware version",es:"Versión de firmware",fr:"Version du firmware",de:"Firmware-Version"},
+  btnMac:{it:"Leggi MAC (dongle)",en:"Read MAC (dongle)",es:"Leer MAC (dongle)",fr:"Lire le MAC (dongle)",de:"MAC lesen (Dongle)"},
   infoNote:{
     it:"Solo letture. La versione si legge con lo stesso frame del programma ufficiale: sul dongle <code>0c 11 00 00 02</code>, su chip auto e controller la lettura in flash del registro <code>0x80</code> (<code>&lt;prefisso&gt; 11 00 80 02</code>). I due byte sono versione principale e secondaria in decimale (<code>04 0e</code> = 4.14). Il MAC si legge solo in boot sul <b>dongle</b> (<code>READMACVL</code>) e arriva già nell'ordine del programma ufficiale, byte più significativo per primo: si mostra così com'è.",
     en:"Reads only. The version is read with the same frame the official program uses: <code>0c 11 00 00 02</code> on the dongle, and on the car chip and the controller the flash read of register <code>0x80</code> (<code>&lt;prefix&gt; 11 00 80 02</code>). The two bytes are major and minor version in decimal (<code>04 0e</code> = 4.14). The MAC can only be read in boot mode on the <b>dongle</b> (<code>READMACVL</code>) and already comes in the official program's order, most significant byte first: it is shown as it is.",
-    es:"Solo lecturas. La versión se lee con la misma trama que usa el programa oficial: en el dongle <code>0c 11 00 00 02</code>, en el chip del coche y en el mando la lectura en flash del registro <code>0x80</code> (<code>&lt;prefijo&gt; 11 00 80 02</code>). Los dos bytes son versión principal y secundaria en decimal (<code>04 0e</code> = 4.14). El MAC solo se lee en boot en el <b>dongle</b> (<code>READMACVL</code>) y llega ya en el orden del programa oficial, byte más significativo primero: se muestra tal cual."
+    es:"Solo lecturas. La versión se lee con la misma trama que usa el programa oficial: en el dongle <code>0c 11 00 00 02</code>, en el chip del coche y en el mando la lectura en flash del registro <code>0x80</code> (<code>&lt;prefijo&gt; 11 00 80 02</code>). Los dos bytes son versión principal y secundaria en decimal (<code>04 0e</code> = 4.14). El MAC solo se lee en boot en el <b>dongle</b> (<code>READMACVL</code>) y llega ya en el orden del programa oficial, byte más significativo primero: se muestra tal cual.",
+    fr:"Lectures uniquement. La version se lit avec la même trame que le programme officiel : <code>0c 11 00 00 02</code> sur le dongle ; sur la puce de la voiture et la manette, la lecture en flash du registre <code>0x80</code> (<code>&lt;préfixe&gt; 11 00 80 02</code>). Les deux octets sont la version majeure et la version mineure en décimal (<code>04 0e</code> = 4.14). Le MAC ne se lit qu'en mode boot sur le <b>dongle</b> (<code>READMACVL</code>) et arrive déjà dans l'ordre du programme officiel, octet de poids fort en premier : il est affiché tel quel.",
+    de:"Nur Lesezugriffe. Die Version wird mit demselben Frame gelesen wie im offiziellen Programm: am Dongle <code>0c 11 00 00 02</code>, an Auto-Chip und Handregler per Flash-Lesezugriff auf Register <code>0x80</code> (<code>&lt;Präfix&gt; 11 00 80 02</code>). Die beiden Bytes sind Haupt- und Nebenversion in Dezimal (<code>04 0e</code> = 4.14). Die MAC lässt sich nur im Boot-Modus am <b>Dongle</b> lesen (<code>READMACVL</code>) und kommt bereits in der Reihenfolge des offiziellen Programms, höchstwertiges Byte zuerst: Sie wird unverändert angezeigt."
   },
 
   /* ---- campi con un significato documentato ---- */
-  titleFields:{it:"Campi noti",en:"Known fields",es:"Campos conocidos"},
+  titleFields:{it:"Campi noti",en:"Known fields",es:"Campos conocidos",fr:"Champs connus",de:"Bekannte Felder"},
   fieldsIntro:{
     it:"Campi con un significato documentato; la forma dei frame è quella delle catture del programma ufficiale. Il dispositivo è quello scelto sopra, e devi essere in boot proprio su quello. Le scritture hanno effetto dal <b>riavvio successivo</b> del dispositivo, e sono confermate solo se il dispositivo risponde <code>DO</code> ai dati.",
     en:"Fields with a documented meaning; the frame shape is the one in the official program's captures. The device is the one selected above, and you must be in boot mode on that very device. Writes take effect from the device's <b>next restart</b>, and are confirmed only if the device answers <code>DO</code> to the data.",
-    es:"Campos con un significado documentado; la forma de las tramas es la de las capturas del programa oficial. El dispositivo es el elegido arriba, y tienes que estar en boot justo en ese. Las escrituras tienen efecto desde el <b>siguiente reinicio</b> del dispositivo, y solo se confirman si el dispositivo responde <code>DO</code> a los datos."
+    es:"Campos con un significado documentado; la forma de las tramas es la de las capturas del programa oficial. El dispositivo es el elegido arriba, y tienes que estar en boot justo en ese. Las escrituras tienen efecto desde el <b>siguiente reinicio</b> del dispositivo, y solo se confirman si el dispositivo responde <code>DO</code> a los datos.",
+    fr:"Champs dont la signification est documentée ; la forme des trames est celle des captures du programme officiel. L'appareil est celui choisi ci-dessus, et tu dois être en mode boot précisément sur celui-là. Les écritures prennent effet au <b>redémarrage suivant</b> de l'appareil, et ne sont confirmées que si l'appareil répond <code>DO</code> aux données.",
+    de:"Felder mit dokumentierter Bedeutung; die Form der Frames entspricht den Mitschnitten des offiziellen Programms. Das Gerät ist das oben gewählte, und du musst genau auf diesem im Boot-Modus sein. Schreibvorgänge wirken ab dem <b>nächsten Neustart</b> des Geräts und gelten nur dann als bestätigt, wenn das Gerät auf die Daten mit <code>DO</code> antwortet."
   },
-  btnGoChip:{it:"Vai al chip auto",en:"Go to the car chip",es:"Ir al chip del coche"},
-  btnGoCtrl:{it:"Vai al controller",en:"Go to the controller",es:"Ir al mando"},
+  btnGoChip:{it:"Vai al chip auto",en:"Go to the car chip",es:"Ir al chip del coche",fr:"Aller à la puce de la voiture",de:"Zum Auto-Chip"},
+  btnGoCtrl:{it:"Vai al controller",en:"Go to the controller",es:"Ir al mando",fr:"Aller à la manette",de:"Zum Handregler"},
   fldPickChip:{
     it:"Questi campi stanno sul <b>chip auto</b> e sul <b>controller SCP-3</b>. Scegli uno dei due qui sopra: sul dongle non esistono.",
     en:"These fields live on the <b>car chip</b> and the <b>SCP-3 controller</b>. Pick one of the two above: they do not exist on the dongle.",
-    es:"Estos campos están en el <b>chip del coche</b> y en el <b>mando SCP-3</b>. Elige uno de los dos arriba: en el dongle no existen."
+    es:"Estos campos están en el <b>chip del coche</b> y en el <b>mando SCP-3</b>. Elige uno de los dos arriba: en el dongle no existen.",
+    fr:"Ces champs se trouvent sur la <b>puce de la voiture</b> et sur la <b>manette SCP-3</b>. Choisis l'une des deux ci-dessus : sur le dongle, ils n'existent pas.",
+    de:"Diese Felder liegen auf dem <b>Auto-Chip</b> und dem <b>SCP-3-Handregler</b>. Wähle oben eines der beiden Geräte: Auf dem Dongle gibt es sie nicht."
   },
-  lblCarId:{it:"ID auto (1–20)",en:"Car ID (1–20)",es:"ID del coche (1–20)"},
-  lblCtrlId:{it:"ID controller (1–20)",en:"Controller ID (1–20)",es:"ID del mando (1–20)"},
+  lblCarId:{it:"ID auto (1–20)",en:"Car ID (1–20)",es:"ID del coche (1–20)",fr:"ID de la voiture (1–20)",de:"Auto-ID (1–20)"},
+  lblCtrlId:{it:"ID controller (1–20)",en:"Controller ID (1–20)",es:"ID del mando (1–20)",fr:"ID de la manette (1–20)",de:"Handregler-ID (1–20)"},
   lblPair:{
     it:"Abbinamento: MAC del controller a cui risponde (2 byte)",
     en:"Pairing: MAC of the controller it answers to (2 bytes)",
-    es:"Vinculación: MAC del mando al que responde (2 bytes)"
+    es:"Vinculación: MAC del mando al que responde (2 bytes)",
+    fr:"Appairage : MAC de la manette à laquelle elle répond (2 octets)",
+    de:"Kopplung: MAC des Handreglers, auf den es antwortet (2 Byte)"
   },
-  lblPit:{it:"Velocità in pit lane (0–255)",en:"Pit-lane speed (0–255)",es:"Velocidad en el pit lane (0–255)"},
-  lblMacCtrl:{it:"MAC O2 del controller (2 byte)",en:"Controller O2 MAC (2 bytes)",es:"MAC O2 del mando (2 bytes)"},
-  btnFldRead:{it:"Leggi",en:"Read",es:"Leer"},
-  btnFldWrite:{it:"Scrivi",en:"Write",es:"Escribir"},
+  lblPit:{it:"Velocità in pit lane (0–255)",en:"Pit-lane speed (0–255)",es:"Velocidad en el pit lane (0–255)",fr:"Vitesse dans la voie des stands (0–255)",de:"Geschwindigkeit in der Boxengasse (0–255)"},
+  lblMacCtrl:{it:"MAC O2 del controller (2 byte)",en:"Controller O2 MAC (2 bytes)",es:"MAC O2 del mando (2 bytes)",fr:"MAC O2 de la manette (2 octets)",de:"O2-MAC des Handreglers (2 Byte)"},
+  btnFldRead:{it:"Leggi",en:"Read",es:"Leer",fr:"Lire",de:"Lesen"},
+  btnFldWrite:{it:"Scrivi",en:"Write",es:"Escribir",fr:"Écrire",de:"Schreiben"},
   pairWarn:{
     it:"⚠️ <b>Sul chip auto il registro <code>0x20</code> è l'abbinamento</b>: i 2 byte del MAC del controller a cui l'auto risponde. Riscriverlo la stacca dal suo controller e la lega a quello con il MAC scritto qui. Leggi e annota il valore attuale prima di cambiarlo: per tornare indietro si riscrive quel valore.",
     en:"⚠️ <b>On the car chip, register <code>0x20</code> is the pairing</b>: the 2 bytes of the MAC of the controller the car answers to. Rewriting it detaches the car from its controller and ties it to the one with the MAC written here. Read and write down the current value before changing it: to go back, write that value again.",
-    es:"⚠️ <b>En el chip del coche el registro <code>0x20</code> es la vinculación</b>: los 2 bytes del MAC del mando al que responde el coche. Reescribirlo lo separa de su mando y lo une al que tiene el MAC escrito aquí. Lee y anota el valor actual antes de cambiarlo: para volver atrás se reescribe ese valor."
+    es:"⚠️ <b>En el chip del coche el registro <code>0x20</code> es la vinculación</b>: los 2 bytes del MAC del mando al que responde el coche. Reescribirlo lo separa de su mando y lo une al que tiene el MAC escrito aquí. Lee y anota el valor actual antes de cambiarlo: para volver atrás se reescribe ese valor.",
+    fr:"⚠️ <b>Sur la puce de la voiture, le registre <code>0x20</code> est l'appairage</b> : les 2 octets du MAC de la manette à laquelle la voiture répond. Le réécrire détache la voiture de sa manette et la lie à celle dont le MAC est écrit ici. Lis et note la valeur actuelle avant de la changer : pour revenir en arrière, on réécrit cette valeur.",
+    de:"⚠️ <b>Auf dem Auto-Chip ist Register <code>0x20</code> die Kopplung</b>: die 2 Byte der MAC des Handreglers, auf den das Auto antwortet. Schreibst du es neu, löst sich das Auto von seinem Handregler und wird an den Handregler mit der hier eingetragenen MAC gebunden. Lies den aktuellen Wert aus und notiere ihn, bevor du ihn änderst: Um zurückzukehren, schreibst du diesen Wert wieder hinein."
   },
   macWarn:{
     it:"⚠️ <b>Sul controller il registro <code>0x20</code> è il suo MAC O2</b>, cioè l'indirizzo radio con cui parla alle auto: ogni auto risponde al controller il cui MAC ha nell'abbinamento. Cambiandolo, le auto abbinate a questo controller non gli rispondono più; con lo stesso MAC di un altro controller, i due usano lo stesso indirizzo e le auto abbinate all'uno rispondono anche all'altro (è la funzione «clone» del programma ufficiale). Leggi e annota il valore attuale prima di cambiarlo: per tornare al MAC originale si riscrive <code>0x20</code> con quel valore. Il registro <code>0x70</code> non serve allo scopo: è una copia del MAC che il controller riscrive da solo a ogni accensione.",
     en:"⚠️ <b>On the controller, register <code>0x20</code> is its O2 MAC</b>, that is the radio address it uses to talk to the cars: each car answers the controller whose MAC is in its pairing. If you change it, the cars paired with this controller stop answering it; with the same MAC as another controller, the two use the same address and the cars paired with one also answer the other (this is the official program's “clone” feature). Read and write down the current value before changing it: to go back to the original MAC, write <code>0x20</code> again with that value. Register <code>0x70</code> is no use for this: it is a copy of the MAC that the controller rewrites by itself at every power-on.",
-    es:"⚠️ <b>En el mando el registro <code>0x20</code> es su MAC O2</b>, es decir, la dirección de radio con la que habla con los coches: cada coche responde al mando cuyo MAC tiene en su vinculación. Si lo cambias, los coches vinculados a este mando dejan de responderle; con el mismo MAC que otro mando, los dos usan la misma dirección y los coches vinculados a uno responden también al otro (es la función «clone» del programa oficial). Lee y anota el valor actual antes de cambiarlo: para volver al MAC original se reescribe <code>0x20</code> con ese valor. El registro <code>0x70</code> no sirve para esto: es una copia del MAC que el mando reescribe solo en cada encendido."
+    es:"⚠️ <b>En el mando el registro <code>0x20</code> es su MAC O2</b>, es decir, la dirección de radio con la que habla con los coches: cada coche responde al mando cuyo MAC tiene en su vinculación. Si lo cambias, los coches vinculados a este mando dejan de responderle; con el mismo MAC que otro mando, los dos usan la misma dirección y los coches vinculados a uno responden también al otro (es la función «clone» del programa oficial). Lee y anota el valor actual antes de cambiarlo: para volver al MAC original se reescribe <code>0x20</code> con ese valor. El registro <code>0x70</code> no sirve para esto: es una copia del MAC que el mando reescribe solo en cada encendido.",
+    fr:"⚠️ <b>Sur la manette, le registre <code>0x20</code> est son MAC O2</b>, c'est-à-dire l'adresse radio avec laquelle elle parle aux voitures : chaque voiture répond à la manette dont le MAC figure dans son appairage. Si tu le changes, les voitures appairées à cette manette ne lui répondent plus ; avec le même MAC qu'une autre manette, les deux utilisent la même adresse et les voitures appairées à l'une répondent aussi à l'autre (c'est la fonction « clone » du programme officiel). Lis et note la valeur actuelle avant de la changer : pour revenir au MAC d'origine, on réécrit <code>0x20</code> avec cette valeur. Le registre <code>0x70</code> ne sert à rien pour cela : c'est une copie du MAC que la manette réécrit d'elle-même à chaque mise sous tension.",
+    de:"⚠️ <b>Auf dem Handregler ist Register <code>0x20</code> seine O2-MAC</b>, also die Funkadresse, mit der er mit den Autos spricht: Jedes Auto antwortet dem Handregler, dessen MAC in seiner Kopplung steht. Änderst du sie, antworten ihm die mit diesem Handregler gekoppelten Autos nicht mehr; mit derselben MAC wie ein anderer Handregler benutzen beide dieselbe Adresse, und die mit dem einen gekoppelten Autos antworten auch dem anderen (das ist die „Clone“-Funktion des offiziellen Programms). Lies den aktuellen Wert aus und notiere ihn, bevor du ihn änderst: Um zur ursprünglichen MAC zurückzukehren, schreibst du <code>0x20</code> erneut mit diesem Wert. Register <code>0x70</code> hilft dabei nicht: Es ist eine Kopie der MAC, die der Handregler bei jedem Einschalten selbst neu schreibt."
   },
   fieldsNote:{
     it:"Del MAC O2 passano da qui 2 byte, come nel programma ufficiale: sono gli stessi che sul Bluetooth stanno sotto un altro numero di registro. La velocità in pit lane è un'impostazione del <b>controller</b>: il chip auto accetta la scrittura dello stesso registro e risponde <code>DO</code>, ma la ignora — per questo sull'auto il campo non c'è.",
     en:"2 bytes of the O2 MAC go through here, as in the official program: they are the same ones that sit under a different register number on Bluetooth. Pit-lane speed is a <b>controller</b> setting: the car chip accepts a write to the same register and answers <code>DO</code>, but ignores it — that is why the field is not offered on the car.",
-    es:"Del MAC O2 pasan por aquí 2 bytes, como en el programa oficial: son los mismos que en Bluetooth están bajo otro número de registro. La velocidad en el pit lane es un ajuste del <b>mando</b>: el chip del coche acepta la escritura del mismo registro y responde <code>DO</code>, pero la ignora — por eso en el coche el campo no está."
+    es:"Del MAC O2 pasan por aquí 2 bytes, como en el programa oficial: son los mismos que en Bluetooth están bajo otro número de registro. La velocidad en el pit lane es un ajuste del <b>mando</b>: el chip del coche acepta la escritura del mismo registro y responde <code>DO</code>, pero la ignora — por eso en el coche el campo no está.",
+    fr:"Du MAC O2, 2 octets passent par ici, comme dans le programme officiel : ce sont les mêmes qui, en Bluetooth, se trouvent sous un autre numéro de registre. La vitesse dans la voie des stands est un réglage de la <b>manette</b> : la puce de la voiture accepte l'écriture du même registre et répond <code>DO</code>, mais l'ignore — c'est pourquoi le champ n'existe pas pour la voiture.",
+    de:"Von der O2-MAC laufen hier 2 Byte durch, wie im offiziellen Programm: Es sind dieselben, die über Bluetooth unter einer anderen Registernummer liegen. Die Geschwindigkeit in der Boxengasse ist eine Einstellung des <b>Handreglers</b>: Der Auto-Chip akzeptiert das Schreiben desselben Registers und antwortet mit <code>DO</code>, ignoriert es aber — deshalb gibt es das Feld beim Auto nicht."
   },
-  fldRead:{it:"letto",en:"read",es:"leído"},
-  fldBadVal:{it:"valore non valido",en:"invalid value",es:"valor no válido"},
-  fldBadRead:{it:"risposta di lunghezza inattesa: {m} byte invece di {n}",en:"reply of unexpected length: {m} bytes instead of {n}",es:"respuesta de longitud inesperada: {m} bytes en vez de {n}"},
-  fldRejected:{it:"AB: il dispositivo ha rifiutato il comando",en:"AB: the device rejected the command",es:"AB: el dispositivo ha rechazado el comando"},
+  fldRead:{it:"letto",en:"read",es:"leído",fr:"lu",de:"gelesen"},
+  fldBadVal:{it:"valore non valido",en:"invalid value",es:"valor no válido",fr:"valeur non valide",de:"ungültiger Wert"},
+  fldBadRead:{it:"risposta di lunghezza inattesa: {m} byte invece di {n}",en:"reply of unexpected length: {m} bytes instead of {n}",es:"respuesta de longitud inesperada: {m} bytes en vez de {n}",fr:"réponse de longueur inattendue : {m} octets au lieu de {n}",de:"Antwort mit unerwarteter Länge: {m} Byte statt {n}"},
+  fldRejected:{it:"AB: il dispositivo ha rifiutato il comando",en:"AB: the device rejected the command",es:"AB: el dispositivo ha rechazado el comando",fr:"AB : l'appareil a refusé la commande",de:"AB: Das Gerät hat den Befehl abgelehnt"},
   confirmPair:{
     it:"Stai per cambiare l'abbinamento di questa auto in {new}: dal prossimo riavvio risponderà al controller con quel MAC e non più al suo. {cur} Procedo?",
     en:"You are about to change this car's pairing to {new}: from the next restart it will answer the controller with that MAC and no longer its own. {cur} Proceed?",
-    es:"Vas a cambiar la vinculación de este coche a {new}: desde el siguiente reinicio responderá al mando con ese MAC y ya no al suyo. {cur} ¿Continúo?"
+    es:"Vas a cambiar la vinculación de este coche a {new}: desde el siguiente reinicio responderá al mando con ese MAC y ya no al suyo. {cur} ¿Continúo?",
+    fr:"Tu vas changer l'appairage de cette voiture en {new} : dès le prochain redémarrage, elle répondra à la manette qui a ce MAC et plus à la sienne. {cur} Je continue ?",
+    de:"Du bist dabei, die Kopplung dieses Autos auf {new} zu ändern: Ab dem nächsten Neustart antwortet es dem Handregler mit dieser MAC und nicht mehr seinem eigenen. {cur} Fortfahren?"
   },
   confirmMac:{
     it:"Stai per cambiare il MAC O2 di questo controller in {new}: dal prossimo riavvio le auto abbinate a lui non gli risponderanno più, finché non rimetti il valore originale. {cur} Procedo?",
     en:"You are about to change this controller's O2 MAC to {new}: from the next restart the cars paired with it will no longer answer it, until you put the original value back. {cur} Proceed?",
-    es:"Vas a cambiar el MAC O2 de este mando a {new}: desde el siguiente reinicio los coches vinculados a él dejarán de responderle, hasta que vuelvas a poner el valor original. {cur} ¿Continúo?"
+    es:"Vas a cambiar el MAC O2 de este mando a {new}: desde el siguiente reinicio los coches vinculados a él dejarán de responderle, hasta que vuelvas a poner el valor original. {cur} ¿Continúo?",
+    fr:"Tu vas changer le MAC O2 de cette manette en {new} : dès le prochain redémarrage, les voitures qui lui sont appairées ne lui répondront plus, tant que tu n'auras pas remis la valeur d'origine. {cur} Je continue ?",
+    de:"Du bist dabei, die O2-MAC dieses Handreglers auf {new} zu ändern: Ab dem nächsten Neustart antworten ihm die mit ihm gekoppelten Autos nicht mehr, bis du den ursprünglichen Wert zurückschreibst. {cur} Fortfahren?"
   },
-  curRead:{it:"Valore attuale letto: {v} — annotalo.",en:"Current value read: {v} — write it down.",es:"Valor actual leído: {v} — anótalo."},
+  curRead:{it:"Valore attuale letto: {v} — annotalo.",en:"Current value read: {v} — write it down.",es:"Valor actual leído: {v} — anótalo.",fr:"Valeur actuelle lue : {v} — note-la.",de:"Aktueller Wert gelesen: {v} — notiere ihn."},
   curNone:{
     it:"Non hai ancora letto il valore attuale: annulla, premi «Leggi» e annotalo.",
     en:"You have not read the current value yet: cancel, press “Read” and write it down.",
-    es:"Todavía no has leído el valor actual: cancela, pulsa «Leer» y anótalo."
+    es:"Todavía no has leído el valor actual: cancela, pulsa «Leer» y anótalo.",
+    fr:"Tu n'as pas encore lu la valeur actuelle : annule, appuie sur « Lire » et note-la.",
+    de:"Du hast den aktuellen Wert noch nicht gelesen: Brich ab, drücke „Lesen“ und notiere ihn."
   },
 
   /* ---- esito di una scrittura: conta SOLO la risposta ai dati ---- */
   wrOk:{
     it:"scritto ✓ — DO all'intestazione e ai dati. Vale dal prossimo riavvio del dispositivo.",
     en:"written ✓ — DO to the header and to the data. Takes effect from the device's next restart.",
-    es:"escrito ✓ — DO a la cabecera y a los datos. Vale desde el siguiente reinicio del dispositivo."
+    es:"escrito ✓ — DO a la cabecera y a los datos. Vale desde el siguiente reinicio del dispositivo.",
+    fr:"écrit ✓ — DO à l'en-tête et aux données. Prend effet au prochain redémarrage de l'appareil.",
+    de:"geschrieben ✓ — DO auf Header und Daten. Gilt ab dem nächsten Neustart des Geräts."
   },
   wrHdrAb:{
     it:"intestazione rifiutata (AB): i dati non sono stati mandati, niente è cambiato.",
     en:"header rejected (AB): the data was not sent, nothing changed.",
-    es:"cabecera rechazada (AB): los datos no se han enviado, no ha cambiado nada."
+    es:"cabecera rechazada (AB): los datos no se han enviado, no ha cambiado nada.",
+    fr:"en-tête refusé (AB) : les données n'ont pas été envoyées, rien n'a changé.",
+    de:"Header abgelehnt (AB): Die Daten wurden nicht gesendet, nichts hat sich geändert."
   },
   wrHdrNone:{
     it:"nessun DO all'intestazione: i dati non sono stati mandati. Se il dispositivo non risponde il dongle resta in attesa: esci con STOPBOOT e riprova.",
     en:"no DO to the header: the data was not sent. If the device does not answer, the dongle keeps waiting: leave with STOPBOOT and try again.",
-    es:"sin DO a la cabecera: los datos no se han enviado. Si el dispositivo no responde, el dongle se queda esperando: sal con STOPBOOT y vuelve a intentarlo."
+    es:"sin DO a la cabecera: los datos no se han enviado. Si el dispositivo no responde, el dongle se queda esperando: sal con STOPBOOT y vuelve a intentarlo.",
+    fr:"pas de DO à l'en-tête : les données n'ont pas été envoyées. Si l'appareil ne répond pas, le dongle reste en attente : quitte avec STOPBOOT et réessaie.",
+    de:"kein DO auf den Header: Die Daten wurden nicht gesendet. Antwortet das Gerät nicht, bleibt der Dongle im Wartezustand: Beende mit STOPBOOT und versuche es noch einmal."
   },
   wrHdrOther:{
     it:"risposta inattesa all'intestazione ({r}): i dati non sono stati mandati.",
     en:"unexpected reply to the header ({r}): the data was not sent.",
-    es:"respuesta inesperada a la cabecera ({r}): los datos no se han enviado."
+    es:"respuesta inesperada a la cabecera ({r}): los datos no se han enviado.",
+    fr:"réponse inattendue à l'en-tête ({r}) : les données n'ont pas été envoyées.",
+    de:"unerwartete Antwort auf den Header ({r}): Die Daten wurden nicht gesendet."
   },
   wrDataAb:{
     it:"il dispositivo ha rifiutato i dati (AB): scrittura NON eseguita.",
     en:"the device rejected the data (AB): write NOT done.",
-    es:"el dispositivo ha rechazado los datos (AB): escritura NO realizada."
+    es:"el dispositivo ha rechazado los datos (AB): escritura NO realizada.",
+    fr:"l'appareil a refusé les données (AB) : écriture NON effectuée.",
+    de:"das Gerät hat die Daten abgelehnt (AB): Schreiben NICHT ausgeführt."
   },
   wrDataNone:{
     it:"nessuna conferma ai dati: scrittura non confermata.",
     en:"no acknowledgement to the data: write not confirmed.",
-    es:"sin confirmación a los datos: escritura no confirmada."
+    es:"sin confirmación a los datos: escritura no confirmada.",
+    fr:"aucune confirmation pour les données : écriture non confirmée.",
+    de:"keine Bestätigung für die Daten: Schreiben nicht bestätigt."
   },
   wrDataOther:{
     it:"risposta inattesa ai dati ({r}): scrittura non confermata.",
     en:"unexpected reply to the data ({r}): write not confirmed.",
-    es:"respuesta inesperada a los datos ({r}): escritura no confirmada."
+    es:"respuesta inesperada a los datos ({r}): escritura no confirmada.",
+    fr:"réponse inattendue aux données ({r}) : écriture non confirmée.",
+    de:"unerwartete Antwort auf die Daten ({r}): Schreiben nicht bestätigt."
   },
 
   /* ---- console registri ---- */
-  titleReg:{it:"Console registri",en:"Register console",es:"Consola de registros"},
-  expLabel:{it:"sperimentale",en:"experimental",es:"experimental"},
+  titleReg:{it:"Console registri",en:"Register console",es:"Consola de registros",fr:"Console des registres",de:"Register-Konsole"},
+  expLabel:{it:"sperimentale",en:"experimental",es:"experimental",fr:"expérimental",de:"experimentell"},
   regTargetHint:{
     it:"Il dispositivo è quello in boot, e ne decide il prefisso: <b>controller SCP-3</b> → <code>09</code>, <b>chip auto</b> → <code>0a</code>, <b>dongle</b> → <code>0c</code>. Valgono le lunghezze della tabella qui sotto: l'app non manda i frame che non le rispettano, e dice perché.",
     en:"The device is the one in boot mode, and it decides the prefix: <b>SCP-3 controller</b> → <code>09</code>, <b>car chip</b> → <code>0a</code>, <b>dongle</b> → <code>0c</code>. The lengths in the table below apply: the app does not send frames that break them, and says why.",
-    es:"El dispositivo es el que está en boot, y decide el prefijo: <b>mando SCP-3</b> → <code>09</code>, <b>chip del coche</b> → <code>0a</code>, <b>dongle</b> → <code>0c</code>. Valen las longitudes de la tabla de abajo: la app no envía las tramas que no las respetan, y dice por qué."
+    es:"El dispositivo es el que está en boot, y decide el prefijo: <b>mando SCP-3</b> → <code>09</code>, <b>chip del coche</b> → <code>0a</code>, <b>dongle</b> → <code>0c</code>. Valen las longitudes de la tabla de abajo: la app no envía las tramas que no las respetan, y dice por qué.",
+    fr:"L'appareil est celui qui est en mode boot, et c'est lui qui détermine le préfixe : <b>manette SCP-3</b> → <code>09</code>, <b>puce de la voiture</b> → <code>0a</code>, <b>dongle</b> → <code>0c</code>. Les longueurs du tableau ci-dessous s'appliquent : l'app n'envoie pas les trames qui ne les respectent pas, et dit pourquoi.",
+    de:"Das Gerät ist das im Boot-Modus, und es bestimmt das Präfix: <b>SCP-3-Handregler</b> → <code>09</code>, <b>Auto-Chip</b> → <code>0a</code>, <b>Dongle</b> → <code>0c</code>. Es gelten die Längen aus der Tabelle unten: Frames, die sie nicht einhalten, sendet die App nicht, und sie sagt, warum."
   },
-  lblReg:{it:"registro (hex)",en:"register (hex)",es:"registro (hex)"},
-  lblOp:{it:"op lettura",en:"read op",es:"op de lectura"},
-  optOp12:{it:"0x12 — impostazioni",en:"0x12 — settings",es:"0x12 — ajustes"},
-  optOp11:{it:"0x11 — flash",en:"0x11 — flash",es:"0x11 — flash"},
+  lblReg:{it:"registro (hex)",en:"register (hex)",es:"registro (hex)",fr:"registre (hex)",de:"Register (hex)"},
+  lblOp:{it:"op lettura",en:"read op",es:"op de lectura",fr:"op de lecture",de:"Lese-Op"},
+  optOp12:{it:"0x12 — impostazioni",en:"0x12 — settings",es:"0x12 — ajustes",fr:"0x12 — réglages",de:"0x12 — Einstellungen"},
+  optOp11:{it:"0x11 — flash",en:"0x11 — flash",es:"0x11 — flash",fr:"0x11 — flash",de:"0x11 — Flash"},
   opHint:{
     it:"<code>0x12</code> legge le <b>impostazioni</b>, <code>0x11</code> la <b>flash</b>: sono due spazi diversi. In flash ci sono solo <code>0x80</code> (versione firmware) e <code>0x82</code> (codice applicazione); gli altri registri restituiscono l'eco del comando. Le impostazioni si scrivono con <code>0x02</code>.",
     en:"<code>0x12</code> reads the <b>settings</b>, <code>0x11</code> the <b>flash</b>: two different spaces. In flash there are only <code>0x80</code> (firmware version) and <code>0x82</code> (application code); other registers return the echo of the command. Settings are written with <code>0x02</code>.",
-    es:"<code>0x12</code> lee los <b>ajustes</b>, <code>0x11</code> la <b>flash</b>: son dos espacios distintos. En flash solo están <code>0x80</code> (versión de firmware) y <code>0x82</code> (código de aplicación); los demás registros devuelven el eco del comando. Los ajustes se escriben con <code>0x02</code>."
+    es:"<code>0x12</code> lee los <b>ajustes</b>, <code>0x11</code> la <b>flash</b>: son dos espacios distintos. En flash solo están <code>0x80</code> (versión de firmware) y <code>0x82</code> (código de aplicación); los demás registros devuelven el eco del comando. Los ajustes se escriben con <code>0x02</code>.",
+    fr:"<code>0x12</code> lit les <b>réglages</b>, <code>0x11</code> la <b>flash</b> : ce sont deux espaces différents. En flash, il n'y a que <code>0x80</code> (version du firmware) et <code>0x82</code> (code de l'application) ; les autres registres renvoient l'écho de la commande. Les réglages s'écrivent avec <code>0x02</code>.",
+    de:"<code>0x12</code> liest die <b>Einstellungen</b>, <code>0x11</code> den <b>Flash</b>: Das sind zwei verschiedene Bereiche. Im Flash gibt es nur <code>0x80</code> (Firmware-Version) und <code>0x82</code> (Anwendungscode); die anderen Register liefern das Echo des Befehls. Einstellungen werden mit <code>0x02</code> geschrieben."
   },
   conDongle:{
     it:"Sul <b>dongle</b> esistono solo due letture: <code>0c 11 00 00 02</code> (versione) e <code>0c 12 00 40 01</code> (<code>ff</code> = nessun aggiornamento in corso). A ogni altro <code>0c</code> il dongle ripete la risposta precedente, che sembrerebbe una lettura vera: l'app non li manda. Niente scritture.",
     en:"On the <b>dongle</b> there are only two reads: <code>0c 11 00 00 02</code> (version) and <code>0c 12 00 40 01</code> (<code>ff</code> = no update in progress). To any other <code>0c</code> the dongle repeats its previous reply, which would look like a real read: the app does not send them. No writes.",
-    es:"En el <b>dongle</b> solo hay dos lecturas: <code>0c 11 00 00 02</code> (versión) y <code>0c 12 00 40 01</code> (<code>ff</code> = ninguna actualización en curso). A cualquier otro <code>0c</code> el dongle repite la respuesta anterior, que parecería una lectura de verdad: la app no los envía. Sin escrituras."
+    es:"En el <b>dongle</b> solo hay dos lecturas: <code>0c 11 00 00 02</code> (versión) y <code>0c 12 00 40 01</code> (<code>ff</code> = ninguna actualización en curso). A cualquier otro <code>0c</code> el dongle repite la respuesta anterior, que parecería una lectura de verdad: la app no los envía. Sin escrituras.",
+    fr:"Sur le <b>dongle</b>, il n'existe que deux lectures : <code>0c 11 00 00 02</code> (version) et <code>0c 12 00 40 01</code> (<code>ff</code> = aucune mise à jour en cours). À toute autre trame <code>0c</code>, le dongle répète sa réponse précédente, qui aurait l'air d'une vraie lecture : l'app ne les envoie pas. Pas d'écriture.",
+    de:"Am <b>Dongle</b> gibt es nur zwei Lesezugriffe: <code>0c 11 00 00 02</code> (Version) und <code>0c 12 00 40 01</code> (<code>ff</code> = kein Update im Gange). Auf jeden anderen <code>0c</code>-Frame wiederholt der Dongle seine vorige Antwort, die wie ein echter Lesezugriff aussähe: Die App sendet solche Frames nicht. Keine Schreibzugriffe."
   },
-  lblLen:{it:"byte da leggere",en:"bytes to read",es:"bytes a leer"},
-  lblVal:{it:"valore (hex)",en:"value (hex)",es:"valor (hex)"},
-  phVal:{it:"es. 05 05 05",en:"e.g. 05 05 05",es:"p. ej. 05 05 05"},
-  btnReadReg:{it:"Leggi",en:"Read",es:"Leer"},
-  btnWriteReg:{it:"Scrivi",en:"Write",es:"Escribir"},
-  lblPreview:{it:"frame che verrà inviato",en:"frame that will be sent",es:"trama que se enviará"},
+  lblLen:{it:"byte da leggere",en:"bytes to read",es:"bytes a leer",fr:"octets à lire",de:"zu lesende Bytes"},
+  lblVal:{it:"valore (hex)",en:"value (hex)",es:"valor (hex)",fr:"valeur (hex)",de:"Wert (hex)"},
+  phVal:{it:"es. 05 05 05",en:"e.g. 05 05 05",es:"p. ej. 05 05 05",fr:"ex. 05 05 05",de:"z. B. 05 05 05"},
+  btnReadReg:{it:"Leggi",en:"Read",es:"Leer",fr:"Lire",de:"Lesen"},
+  btnWriteReg:{it:"Scrivi",en:"Write",es:"Escribir",fr:"Écrire",de:"Schreiben"},
+  lblPreview:{it:"frame che verrà inviato",en:"frame that will be sent",es:"trama que se enviará",fr:"trame qui sera envoyée",de:"Frame, der gesendet wird"},
   regWriteWarn:{
     it:"⚠️ La scrittura è confermata solo se il dispositivo risponde <code>DO</code> ai <b>dati</b>: un <code>AB</code> vuol dire che non è stata eseguita. L'app scrive solo i registri che il dispositivo in boot gestisce davvero, con la loro lunghezza: sugli altri risponderebbe <code>DO</code> senza cambiare niente. Solo su hardware tuo.",
     en:"⚠️ A write is confirmed only if the device answers <code>DO</code> to the <b>data</b>: an <code>AB</code> means it was not done. The app only writes registers that the device in boot mode really handles, with their length: on the others it would answer <code>DO</code> without changing anything. Only on your own hardware.",
-    es:"⚠️ La escritura solo se confirma si el dispositivo responde <code>DO</code> a los <b>datos</b>: un <code>AB</code> significa que no se ha hecho. La app solo escribe los registros que el dispositivo en boot gestiona de verdad, con su longitud: en los demás respondería <code>DO</code> sin cambiar nada. Solo en tu propio hardware."
+    es:"⚠️ La escritura solo se confirma si el dispositivo responde <code>DO</code> a los <b>datos</b>: un <code>AB</code> significa que no se ha hecho. La app solo escribe los registros que el dispositivo en boot gestiona de verdad, con su longitud: en los demás respondería <code>DO</code> sin cambiar nada. Solo en tu propio hardware.",
+    fr:"⚠️ L'écriture n'est confirmée que si l'appareil répond <code>DO</code> aux <b>données</b> : un <code>AB</code> veut dire qu'elle n'a pas été effectuée. L'app n'écrit que les registres que l'appareil en mode boot gère réellement, avec leur longueur : sur les autres, il répondrait <code>DO</code> sans rien changer. Uniquement sur ton propre matériel.",
+    de:"⚠️ Ein Schreibvorgang ist nur dann bestätigt, wenn das Gerät auf die <b>Daten</b> mit <code>DO</code> antwortet: Ein <code>AB</code> bedeutet, dass er nicht ausgeführt wurde. Die App schreibt nur die Register, die das Gerät im Boot-Modus wirklich verarbeitet, und zwar mit ihrer Länge: Bei den anderen würde es <code>DO</code> antworten, ohne etwas zu ändern. Nur an deiner eigenen Hardware."
   },
 
-  titleRules:{it:"Regole del frame",en:"Frame rules",es:"Reglas de la trama"},
+  titleRules:{it:"Regole del frame",en:"Frame rules",es:"Reglas de la trama",fr:"Règles des trames",de:"Frame-Regeln"},
   rulesBody:{
     it:"<b>Lettura</b> <code>&lt;prefisso&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: l'ultimo byte è il numero di byte da leggere, e la risposta ha quella lunghezza.<br><b>Scrittura</b>, in <b>due</b> messaggi: prima l'intestazione <code>&lt;prefisso&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, a cui il dongle risponde <code>DO</code> quando il dispositivo l'ha ricevuta (<code>AB</code> se l'eco non coincide); <b>solo dopo quel <code>DO</code></b> si mandano gli <code>&lt;n&gt;</code> byte di dati, e il dispositivo risponde <code>DO</code> (scritto) o <code>AB</code> (rifiutato). Il messaggio dei dati c'è sempre, anche con un byte solo; il <b>checksum</b> è la somma a 8 bit dei dati.<br><b>Dati ripetuti</b>: il programma ufficiale manda l'ID come <code>id id id</code> (<code>n</code>=3) e il MAC come <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). Il dispositivo usa solo il primo byte (il 1° e il 5° per il MAC), ma il checksum li copre tutti. In lettura il MAC torna come <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> è <code>12:34</code>.<br><b>Limiti</b>: al massimo 32 byte per messaggio USB (oltre, il dongle smette di seguire il PC finché non riapri la porta). I comandi verso chip auto e controller sono di 5 o 6 byte, e i dispositivi non controllano la lunghezza di quello che ricevono: un messaggio più lungo al posto di un comando può bloccarli. Per questo, in boot su auto o controller, la console grezza manda solo letture.",
     en:"<b>Read</b> <code>&lt;prefix&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: the last byte is the number of bytes to read, and the reply has that length.<br><b>Write</b>, in <b>two</b> messages: first the header <code>&lt;prefix&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, to which the dongle answers <code>DO</code> once the device has received it (<code>AB</code> if the echo does not match); <b>only after that <code>DO</code></b> are the <code>&lt;n&gt;</code> data bytes sent, and the device answers <code>DO</code> (written) or <code>AB</code> (rejected). The data message is always there, even with a single byte; the <b>checksum</b> is the 8-bit sum of the data.<br><b>Repeated data</b>: the official program sends the ID as <code>id id id</code> (<code>n</code>=3) and the MAC as <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). The device only uses the first byte (the 1st and 5th for the MAC), but the checksum covers them all. When read back, the MAC comes as <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> is <code>12:34</code>.<br><b>Limits</b>: at most 32 bytes per USB message (beyond that the dongle stops following the PC until you reopen the port). Commands to the car chip and the controller are 5 or 6 bytes long, and the devices do not check the length of what they receive: a longer message in place of a command can hang them. That is why, in boot mode on a car or controller, the raw console only sends reads.",
-    es:"<b>Lectura</b> <code>&lt;prefijo&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: el último byte es el número de bytes a leer, y la respuesta tiene esa longitud.<br><b>Escritura</b>, en <b>dos</b> mensajes: primero la cabecera <code>&lt;prefijo&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, a la que el dongle responde <code>DO</code> cuando el dispositivo la ha recibido (<code>AB</code> si el eco no coincide); <b>solo después de ese <code>DO</code></b> se envían los <code>&lt;n&gt;</code> bytes de datos, y el dispositivo responde <code>DO</code> (escrito) o <code>AB</code> (rechazado). El mensaje de datos siempre está, incluso con un solo byte; el <b>checksum</b> es la suma de 8 bits de los datos.<br><b>Datos repetidos</b>: el programa oficial envía el ID como <code>id id id</code> (<code>n</code>=3) y el MAC como <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). El dispositivo solo usa el primer byte (el 1.º y el 5.º para el MAC), pero el checksum los cubre todos. Al leerlo, el MAC llega como <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> es <code>12:34</code>.<br><b>Límites</b>: como máximo 32 bytes por mensaje USB (más allá, el dongle deja de seguir al PC hasta que vuelvas a abrir el puerto). Los comandos al chip del coche y al mando son de 5 o 6 bytes, y los dispositivos no comprueban la longitud de lo que reciben: un mensaje más largo en lugar de un comando puede bloquearlos. Por eso, en boot en un coche o un mando, la consola en bruto solo envía lecturas."
+    es:"<b>Lectura</b> <code>&lt;prefijo&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: el último byte es el número de bytes a leer, y la respuesta tiene esa longitud.<br><b>Escritura</b>, en <b>dos</b> mensajes: primero la cabecera <code>&lt;prefijo&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, a la que el dongle responde <code>DO</code> cuando el dispositivo la ha recibido (<code>AB</code> si el eco no coincide); <b>solo después de ese <code>DO</code></b> se envían los <code>&lt;n&gt;</code> bytes de datos, y el dispositivo responde <code>DO</code> (escrito) o <code>AB</code> (rechazado). El mensaje de datos siempre está, incluso con un solo byte; el <b>checksum</b> es la suma de 8 bits de los datos.<br><b>Datos repetidos</b>: el programa oficial envía el ID como <code>id id id</code> (<code>n</code>=3) y el MAC como <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). El dispositivo solo usa el primer byte (el 1.º y el 5.º para el MAC), pero el checksum los cubre todos. Al leerlo, el MAC llega como <code>hi hi hi ff lo</code>: <code>12 12 12 ff 34</code> es <code>12:34</code>.<br><b>Límites</b>: como máximo 32 bytes por mensaje USB (más allá, el dongle deja de seguir al PC hasta que vuelvas a abrir el puerto). Los comandos al chip del coche y al mando son de 5 o 6 bytes, y los dispositivos no comprueban la longitud de lo que reciben: un mensaje más largo en lugar de un comando puede bloquearlos. Por eso, en boot en un coche o un mando, la consola en bruto solo envía lecturas.",
+    fr:"<b>Lecture</b> <code>&lt;préfixe&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code> : le dernier octet est le nombre d'octets à lire, et la réponse a cette longueur.<br><b>Écriture</b>, en <b>deux</b> messages : d'abord l'en-tête <code>&lt;préfixe&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, auquel le dongle répond <code>DO</code> quand l'appareil l'a reçu (<code>AB</code> si l'écho ne correspond pas) ; <b>seulement après ce <code>DO</code></b>, on envoie les <code>&lt;n&gt;</code> octets de données, et l'appareil répond <code>DO</code> (écrit) ou <code>AB</code> (refusé). Le message des données est toujours là, même avec un seul octet ; le <b>checksum</b> est la somme sur 8 bits des données.<br><b>Données répétées</b> : le programme officiel envoie l'ID sous la forme <code>id id id</code> (<code>n</code>=3) et le MAC sous la forme <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). L'appareil n'utilise que le premier octet (le 1er et le 5e pour le MAC), mais le checksum les couvre tous. En lecture, le MAC revient sous la forme <code>hi hi hi ff lo</code> : <code>12 12 12 ff 34</code> correspond à <code>12:34</code>.<br><b>Limites</b> : 32 octets au maximum par message USB (au-delà, le dongle cesse de suivre le PC jusqu'à ce que tu rouvres le port). Les commandes vers la puce de la voiture et la manette font 5 ou 6 octets, et les appareils ne vérifient pas la longueur de ce qu'ils reçoivent : un message plus long à la place d'une commande peut les bloquer. C'est pourquoi, en mode boot sur une voiture ou une manette, la console brute n'envoie que des lectures.",
+    de:"<b>Lesen</b> <code>&lt;Präfix&gt; &lt;op&gt; 00 &lt;reg&gt; &lt;n&gt;</code>: Das letzte Byte ist die Anzahl der zu lesenden Bytes, und die Antwort hat genau diese Länge.<br><b>Schreiben</b>, in <b>zwei</b> Nachrichten: zuerst der Header <code>&lt;Präfix&gt; 02 00 &lt;reg&gt; &lt;n&gt; &lt;checksum&gt;</code>, auf den der Dongle mit <code>DO</code> antwortet, sobald das Gerät ihn empfangen hat (<code>AB</code>, wenn das Echo nicht übereinstimmt); <b>erst nach diesem <code>DO</code></b> werden die <code>&lt;n&gt;</code> Datenbytes gesendet, und das Gerät antwortet mit <code>DO</code> (geschrieben) oder <code>AB</code> (abgelehnt). Die Datennachricht gibt es immer, auch bei nur einem Byte; die <b>Checksumme</b> ist die 8-Bit-Summe der Daten.<br><b>Wiederholte Daten</b>: Das offizielle Programm sendet die ID als <code>id id id</code> (<code>n</code>=3) und die MAC als <code>hi hi hi ff lo lo lo ff</code> (<code>n</code>=8). Das Gerät verwendet nur das erste Byte (bei der MAC das 1. und das 5.), aber die Checksumme deckt alle ab. Beim Lesen kommt die MAC als <code>hi hi hi ff lo</code> zurück: <code>12 12 12 ff 34</code> ist <code>12:34</code>.<br><b>Grenzen</b>: höchstens 32 Byte pro USB-Nachricht (darüber hinaus folgt der Dongle dem PC nicht mehr, bis du den Port neu öffnest). Befehle an Auto-Chip und Handregler sind 5 oder 6 Byte lang, und die Geräte prüfen die Länge des Empfangenen nicht: Eine längere Nachricht anstelle eines Befehls kann sie aufhängen. Deshalb sendet die Rohkonsole im Boot-Modus auf einem Auto oder Handregler nur Lesebefehle."
   },
 
-  titleRegTable:{it:"Registri via dongle",en:"Registers through the dongle",es:"Registros a través del dongle"},
+  titleRegTable:{it:"Registri via dongle",en:"Registers through the dongle",es:"Registros a través del dongle",fr:"Registres via le dongle",de:"Register über den Dongle"},
   regTableIntro:{
     it:"Numerazione del canale USB: sul Bluetooth gli stessi campi hanno numeri diversi. «In cattura» vuol dire visto nelle catture USB del programma ufficiale; le altre righe vengono dall'analisi del protocollo e vanno ancora provate. Byte = quanti se ne leggono (op <code>0x12</code>) / quanti se ne scrivono.",
     en:"USB channel numbering: over Bluetooth the same fields have different numbers. “In capture” means seen in the official program's USB captures; the other rows come from the protocol analysis and still need testing. Bytes = how many are read (op <code>0x12</code>) / how many are written.",
-    es:"Numeración del canal USB: en Bluetooth los mismos campos tienen números distintos. «En captura» significa visto en las capturas USB del programa oficial; las demás filas vienen del análisis del protocolo y aún hay que probarlas. Bytes = cuántos se leen (op <code>0x12</code>) / cuántos se escriben."
+    es:"Numeración del canal USB: en Bluetooth los mismos campos tienen números distintos. «En captura» significa visto en las capturas USB del programa oficial; las demás filas vienen del análisis del protocolo y aún hay que probarlas. Bytes = cuántos se leen (op <code>0x12</code>) / cuántos se escriben.",
+    fr:"Numérotation du canal USB : en Bluetooth, les mêmes champs ont des numéros différents. « En capture » veut dire vu dans les captures USB du programme officiel ; les autres lignes viennent de l'analyse du protocole et restent à tester. Octets = combien on en lit (op <code>0x12</code>) / combien on en écrit.",
+    de:"Nummerierung des USB-Kanals: Über Bluetooth haben dieselben Felder andere Nummern. „Im Mitschnitt“ bedeutet: in den USB-Mitschnitten des offiziellen Programms gesehen; die übrigen Zeilen stammen aus der Analyse des Protokolls und müssen noch getestet werden. Bytes = wie viele gelesen werden (op <code>0x12</code>) / wie viele geschrieben werden."
   },
-  thReg:{it:"reg",en:"reg",es:"reg"},
-  thMeaning:{it:"contenuto",en:"content",es:"contenido"},
-  thCar:{it:"chip auto (0a)",en:"car chip (0a)",es:"chip del coche (0a)"},
-  thCtrl:{it:"controller (09)",en:"controller (09)",es:"mando (09)"},
-  thLen:{it:"byte L / S",en:"bytes R / W",es:"bytes L / E"},
-  thCap:{it:"verifica",en:"check",es:"verificación"},
-  cRW:{it:"lettura e scrittura",en:"read and write",es:"lectura y escritura"},
-  cR:{it:"sola lettura",en:"read-only",es:"solo lectura"},
-  cW:{it:"sola scrittura",en:"write-only",es:"solo escritura"},
-  cIgn:{it:"accettato ma ignorato: risponde DO",en:"accepted but ignored: answers DO",es:"aceptado pero ignorado: responde DO"},
-  cNone:{it:"non gestito",en:"not handled",es:"no gestionado"},
-  cDfu:{it:"scrittura = aggiornamento firmware: bloccata",en:"write = firmware update: blocked",es:"escritura = actualización de firmware: bloqueada"},
-  tagConf:{it:"in cattura",en:"in capture",es:"en captura"},
-  tagTodo:{it:"da provare",en:"to be tested",es:"por probar"},
-  orWord:{it:" o ",en:" or ",es:" o "},
-  rgVer:{it:"versione firmware, <code>principale secondaria</code>",en:"firmware version, <code>major minor</code>",es:"versión de firmware, <code>principal secundaria</code>"},
-  rgId:{it:"ID, da 1 a 20",en:"ID, 1 to 20",es:"ID, de 1 a 20"},
-  rgPit:{it:"velocità in pit lane",en:"pit-lane speed",es:"velocidad en el pit lane"},
-  rgFreq:{it:"frequenza / canale radio",en:"radio frequency / channel",es:"frecuencia / canal de radio"},
-  rgTrack:{it:"track call",en:"track call",es:"track call"},
-  rgIr:{it:"modo IR / codifica dell'ID",en:"IR mode / ID encoding",es:"modo IR / codificación del ID"},
-  rgArc:{it:"configurazione dei pulsanti ARC",en:"ARC button configuration",es:"configuración de los botones ARC"},
+  thReg:{it:"reg",en:"reg",es:"reg",fr:"reg",de:"Reg"},
+  thMeaning:{it:"contenuto",en:"content",es:"contenido",fr:"contenu",de:"Inhalt"},
+  thCar:{it:"chip auto (0a)",en:"car chip (0a)",es:"chip del coche (0a)",fr:"puce de la voiture (0a)",de:"Auto-Chip (0a)"},
+  thCtrl:{it:"controller (09)",en:"controller (09)",es:"mando (09)",fr:"manette (09)",de:"Handregler (09)"},
+  thLen:{it:"byte L / S",en:"bytes R / W",es:"bytes L / E",fr:"octets L / É",de:"Bytes L / S"},
+  thCap:{it:"verifica",en:"check",es:"verificación",fr:"vérification",de:"Prüfung"},
+  cRW:{it:"lettura e scrittura",en:"read and write",es:"lectura y escritura",fr:"lecture et écriture",de:"Lesen und Schreiben"},
+  cR:{it:"sola lettura",en:"read-only",es:"solo lectura",fr:"lecture seule",de:"nur Lesen"},
+  cW:{it:"sola scrittura",en:"write-only",es:"solo escritura",fr:"écriture seule",de:"nur Schreiben"},
+  cIgn:{it:"accettato ma ignorato: risponde DO",en:"accepted but ignored: answers DO",es:"aceptado pero ignorado: responde DO",fr:"accepté mais ignoré : répond DO",de:"angenommen, aber ignoriert: antwortet DO"},
+  cNone:{it:"non gestito",en:"not handled",es:"no gestionado",fr:"non géré",de:"nicht unterstützt"},
+  cDfu:{it:"scrittura = aggiornamento firmware: bloccata",en:"write = firmware update: blocked",es:"escritura = actualización de firmware: bloqueada",fr:"écriture = mise à jour du firmware : bloquée",de:"Schreiben = Firmware-Update: gesperrt"},
+  tagConf:{it:"in cattura",en:"in capture",es:"en captura",fr:"en capture",de:"im Mitschnitt"},
+  tagTodo:{it:"da provare",en:"to be tested",es:"por probar",fr:"à tester",de:"zu testen"},
+  orWord:{it:" o ",en:" or ",es:" o ",fr:" ou ",de:" oder "},
+  rgVer:{it:"versione firmware, <code>principale secondaria</code>",en:"firmware version, <code>major minor</code>",es:"versión de firmware, <code>principal secundaria</code>",fr:"version du firmware, <code>majeure mineure</code>",de:"Firmware-Version, <code>Hauptversion Nebenversion</code>"},
+  rgId:{it:"ID, da 1 a 20",en:"ID, 1 to 20",es:"ID, de 1 a 20",fr:"ID, de 1 à 20",de:"ID, 1 bis 20"},
+  rgPit:{it:"velocità in pit lane",en:"pit-lane speed",es:"velocidad en el pit lane",fr:"vitesse dans la voie des stands",de:"Geschwindigkeit in der Boxengasse"},
+  rgFreq:{it:"frequenza / canale radio",en:"radio frequency / channel",es:"frecuencia / canal de radio",fr:"fréquence / canal radio",de:"Funkfrequenz / Funkkanal"},
+  rgTrack:{it:"track call",en:"track call",es:"track call",fr:"track call",de:"Track Call"},
+  rgIr:{it:"modo IR / codifica dell'ID",en:"IR mode / ID encoding",es:"modo IR / codificación del ID",fr:"mode IR / codage de l'ID",de:"IR-Modus / Kodierung der ID"},
+  rgArc:{it:"configurazione dei pulsanti ARC",en:"ARC button configuration",es:"configuración de los botones ARC",fr:"configuration des boutons ARC",de:"Konfiguration der ARC-Tasten"},
   rgMac:{
     it:"chip auto: <b>abbinamento</b>, i 2 byte del MAC del controller a cui risponde. Controller: il suo <b>MAC O2</b>, cioè l'indirizzo radio",
     en:"car chip: <b>pairing</b>, the 2 bytes of the MAC of the controller it answers to. Controller: its <b>O2 MAC</b>, that is the radio address",
-    es:"chip del coche: <b>vinculación</b>, los 2 bytes del MAC del mando al que responde. Mando: su <b>MAC O2</b>, es decir, la dirección de radio"
+    es:"chip del coche: <b>vinculación</b>, los 2 bytes del MAC del mando al que responde. Mando: su <b>MAC O2</b>, es decir, la dirección de radio",
+    fr:"puce de la voiture : <b>appairage</b>, les 2 octets du MAC de la manette à laquelle elle répond. Manette : son <b>MAC O2</b>, c'est-à-dire l'adresse radio",
+    de:"Auto-Chip: <b>Kopplung</b>, die 2 Byte der MAC des Handreglers, auf den er antwortet. Handregler: seine <b>O2-MAC</b>, also die Funkadresse"
   },
-  rgChk:{it:"byte di controllo, sempre <code>ff ff</code>",en:"check byte, always <code>ff ff</code>",es:"byte de control, siempre <code>ff ff</code>"},
+  rgChk:{it:"byte di controllo, sempre <code>ff ff</code>",en:"check byte, always <code>ff ff</code>",es:"byte de control, siempre <code>ff ff</code>",fr:"octet de contrôle, toujours <code>ff ff</code>",de:"Prüfbyte, immer <code>ff ff</code>"},
   rgCopy:{
     it:"controller: copia del MAC O2 (2 byte, non ripetuti) che lui riscrive a ogni accensione — <b>non</b> riporta il MAC originale, per quello si riscrive <code>0x20</code>. Chip auto: in lettura torna l'eco del comando",
     en:"controller: copy of the O2 MAC (2 bytes, not repeated) that it rewrites at every power-on — it does <b>not</b> restore the original MAC; for that, write <code>0x20</code> again. Car chip: a read returns the echo of the command",
-    es:"mando: copia del MAC O2 (2 bytes, sin repetir) que él reescribe en cada encendido — <b>no</b> devuelve el MAC original; para eso se reescribe <code>0x20</code>. Chip del coche: al leerlo vuelve el eco del comando"
+    es:"mando: copia del MAC O2 (2 bytes, sin repetir) que él reescribe en cada encendido — <b>no</b> devuelve el MAC original; para eso se reescribe <code>0x20</code>. Chip del coche: al leerlo vuelve el eco del comando",
+    fr:"manette : copie du MAC O2 (2 octets, non répétés) qu'elle réécrit à chaque mise sous tension — elle ne rétablit <b>pas</b> le MAC d'origine ; pour cela, on réécrit <code>0x20</code>. Puce de la voiture : en lecture, renvoie l'écho de la commande",
+    de:"Handregler: Kopie der O2-MAC (2 Byte, nicht wiederholt), die er bei jedem Einschalten neu schreibt — sie stellt die ursprüngliche MAC <b>nicht</b> wieder her, dafür schreibt man <code>0x20</code> neu. Auto-Chip: Beim Lesen kommt das Echo des Befehls zurück"
   },
-  rgDfu:{it:"ingresso nell'aggiornamento firmware (DFU)",en:"entry into the firmware update (DFU)",es:"entrada en la actualización de firmware (DFU)"},
+  rgDfu:{it:"ingresso nell'aggiornamento firmware (DFU)",en:"entry into the firmware update (DFU)",es:"entrada en la actualización de firmware (DFU)",fr:"entrée dans la mise à jour du firmware (DFU)",de:"Einstieg in das Firmware-Update (DFU)"},
   regTableFoot:{
     it:"<b>Registri che non sono in tabella</b>: in lettura delle impostazioni rispondono <code>ff…</code>; in scrittura il dispositivo risponde <code>DO</code> ma non cambia nulla, per questo la console non li scrive. <b>Lettura flash</b> (<code>0x11</code>): <code>0x80</code> = versione, <code>0x82</code> = codice applicazione, gli altri restituiscono l'eco del comando.",
     en:"<b>Registers not in the table</b>: settings reads return <code>ff…</code>; on a write the device answers <code>DO</code> but changes nothing, which is why the console does not write them. <b>Flash read</b> (<code>0x11</code>): <code>0x80</code> = version, <code>0x82</code> = application code, the others return the echo of the command.",
-    es:"<b>Registros que no están en la tabla</b>: en lectura de ajustes responden <code>ff…</code>; en escritura el dispositivo responde <code>DO</code> pero no cambia nada, por eso la consola no los escribe. <b>Lectura de flash</b> (<code>0x11</code>): <code>0x80</code> = versión, <code>0x82</code> = código de aplicación, los demás devuelven el eco del comando."
+    es:"<b>Registros que no están en la tabla</b>: en lectura de ajustes responden <code>ff…</code>; en escritura el dispositivo responde <code>DO</code> pero no cambia nada, por eso la consola no los escribe. <b>Lectura de flash</b> (<code>0x11</code>): <code>0x80</code> = versión, <code>0x82</code> = código de aplicación, los demás devuelven el eco del comando.",
+    fr:"<b>Registres absents du tableau</b> : en lecture des réglages, ils répondent <code>ff…</code> ; en écriture, l'appareil répond <code>DO</code> mais ne change rien, c'est pourquoi la console ne les écrit pas. <b>Lecture flash</b> (<code>0x11</code>) : <code>0x80</code> = version, <code>0x82</code> = code de l'application, les autres renvoient l'écho de la commande.",
+    de:"<b>Register, die nicht in der Tabelle stehen</b>: Beim Lesen der Einstellungen antworten sie mit <code>ff…</code>; beim Schreiben antwortet das Gerät mit <code>DO</code>, ändert aber nichts, deshalb schreibt die Konsole sie nicht. <b>Flash-Lesen</b> (<code>0x11</code>): <code>0x80</code> = Version, <code>0x82</code> = Anwendungscode, die anderen liefern das Echo des Befehls."
   },
   helpNote:{
     it:"<b>Vuoi aiutare a confermare le righe «da provare»?</b> È così che sono stati chiusi ID, MAC e velocità in pit lane: una cattura per campo, con <b>un solo</b> campo cambiato e l'azione scritta nel nome del file. Qui: entra in boot, leggi il registro, cambia quel campo dal programma ufficiale, rileggilo e scrivi nel riquadro «Annota» che cosa hai cambiato. Poi scarica il registro qui sotto.",
     en:"<b>Want to help confirm the rows marked “to be tested”?</b> This is how the ID, the MAC and the pit-lane speed were closed: one capture per field, with <b>one single</b> field changed and the action written in the file name. Here: enter boot, read the register, change that field in the official program, read it again and write in the “Note” box what you changed. Then download the log below.",
-    es:"<b>¿Quieres ayudar a confirmar las filas «por probar»?</b> Así se cerraron el ID, el MAC y la velocidad del pit lane: una captura por campo, con <b>un solo</b> campo cambiado y la acción escrita en el nombre del archivo. Aquí: entra en boot, lee el registro, cambia ese campo en el programa oficial, vuelve a leerlo y escribe en el recuadro «Anota» qué has cambiado. Luego descarga el registro de abajo."
+    es:"<b>¿Quieres ayudar a confirmar las filas «por probar»?</b> Así se cerraron el ID, el MAC y la velocidad del pit lane: una captura por campo, con <b>un solo</b> campo cambiado y la acción escrita en el nombre del archivo. Aquí: entra en boot, lee el registro, cambia ese campo en el programa oficial, vuelve a leerlo y escribe en el recuadro «Anota» qué has cambiado. Luego descarga el registro de abajo.",
+    fr:"<b>Tu veux aider à confirmer les lignes « à tester » ?</b> C'est comme ça qu'ont été confirmés l'ID, le MAC et la vitesse dans la voie des stands : une capture par champ, avec <b>un seul</b> champ modifié et l'action écrite dans le nom du fichier. Ici : entre en mode boot, lis le registre, change ce champ depuis le programme officiel, relis-le et écris dans la case « Noter » ce que tu as changé. Puis télécharge le journal ci-dessous.",
+    de:"<b>Willst du helfen, die Zeilen „zu testen“ zu bestätigen?</b> So wurden ID, MAC und Geschwindigkeit in der Boxengasse geklärt: ein Mitschnitt pro Feld, mit <b>nur einem</b> geänderten Feld und der Aktion im Dateinamen. Hier: Wechsle in den Boot-Modus, lies das Register, ändere dieses Feld im offiziellen Programm, lies es erneut und schreib ins Feld „Notieren“, was du geändert hast. Lade dann unten das Protokoll herunter."
   },
 
   /* ---- limiti ---- */
-  titleLimits:{it:"Cosa questa app non fa (e perché)",en:"What this app does not do (and why)",es:"Lo que esta app no hace (y por qué)"},
+  titleLimits:{it:"Cosa questa app non fa (e perché)",en:"What this app does not do (and why)",es:"Lo que esta app no hace (y por qué)",fr:"Ce que cette app ne fait pas (et pourquoi)",de:"Was diese App nicht kann (und warum)"},
   limFlash:{
     it:"<b>Non aggiorna il firmware.</b> Via dongle, chip auto e controller attuali non accettano la scrittura del firmware (rispondono <code>AB</code>): si aggiornano via Bluetooth. Un pulsante «aggiorna» qui non farebbe niente di utile.",
     en:"<b>It does not update firmware.</b> Through the dongle, current car chips and controllers do not accept a firmware write (they answer <code>AB</code>): they are updated over Bluetooth. An “update” button here would do nothing useful.",
-    es:"<b>No actualiza el firmware.</b> A través del dongle, los chips de coche y los mandos actuales no aceptan la escritura del firmware (responden <code>AB</code>): se actualizan por Bluetooth. Un botón «actualizar» aquí no haría nada útil."
+    es:"<b>No actualiza el firmware.</b> A través del dongle, los chips de coche y los mandos actuales no aceptan la escritura del firmware (responden <code>AB</code>): se actualizan por Bluetooth. Un botón «actualizar» aquí no haría nada útil.",
+    fr:"<b>Elle ne met pas à jour le firmware.</b> Via le dongle, les puces de voiture et les manettes actuelles n'acceptent pas l'écriture du firmware (elles répondent <code>AB</code>) : elles se mettent à jour par Bluetooth. Un bouton « mettre à jour » ici ne servirait à rien.",
+    de:"<b>Sie aktualisiert keine Firmware.</b> Über den Dongle nehmen aktuelle Auto-Chips und Handregler kein Schreiben der Firmware an (sie antworten mit <code>AB</code>): Sie werden per Bluetooth aktualisiert. Ein „Aktualisieren“-Knopf hier würde nichts Sinnvolles tun."
   },
   limDfu:{
     it:"<b>Niente comandi di aggiornamento forzato o di reset come pulsanti.</b> Senza un bootloader pronto a raccogliere il dispositivo lo lasciano inutilizzabile. Per lo stesso motivo la console rifiuta la <b>scrittura</b> del registro <code>0x80</code> di chip auto e controller, anche scritta a mano in esadecimale: avvia proprio quella procedura. La versione si legge sempre da <code>0x80</code>, ma in flash (op <code>0x11</code>), ed è innocua.",
     en:"<b>No forced-update or reset commands as buttons.</b> Without a bootloader ready to catch the device they leave it unusable. For the same reason the console refuses <b>writes</b> to register <code>0x80</code> on the car chip and the controller, even typed by hand in hex: they start exactly that procedure. The version is still read from <code>0x80</code>, but in flash (op <code>0x11</code>), which is harmless.",
-    es:"<b>Ningún comando de actualización forzada o de reinicio como botón.</b> Sin un bootloader listo para recoger el dispositivo lo dejan inservible. Por lo mismo, la consola rechaza la <b>escritura</b> del registro <code>0x80</code> del chip del coche y del mando, aunque se escriba a mano en hexadecimal: inicia justamente ese proceso. La versión se sigue leyendo de <code>0x80</code>, pero en flash (op <code>0x11</code>), que es inofensivo."
+    es:"<b>Ningún comando de actualización forzada o de reinicio como botón.</b> Sin un bootloader listo para recoger el dispositivo lo dejan inservible. Por lo mismo, la consola rechaza la <b>escritura</b> del registro <code>0x80</code> del chip del coche y del mando, aunque se escriba a mano en hexadecimal: inicia justamente ese proceso. La versión se sigue leyendo de <code>0x80</code>, pero en flash (op <code>0x11</code>), que es inofensivo.",
+    fr:"<b>Aucune commande de mise à jour forcée ou de réinitialisation sous forme de bouton.</b> Sans un bootloader prêt à prendre le relais, elles rendent l'appareil inutilisable. Pour la même raison, la console refuse l'<b>écriture</b> du registre <code>0x80</code> de la puce de la voiture et de la manette, même tapée à la main en hexadécimal : elle lance justement cette procédure. La version se lit toujours depuis <code>0x80</code>, mais en flash (op <code>0x11</code>), et c'est sans danger.",
+    de:"<b>Keine Befehle für erzwungenes Update oder Reset als Knöpfe.</b> Ohne einen Bootloader, der das Gerät auffängt, machen sie es unbrauchbar. Aus demselben Grund verweigert die Konsole das <b>Schreiben</b> von Register <code>0x80</code> auf Auto-Chip und Handregler, auch wenn es von Hand in Hex eingegeben wird: Es startet genau diesen Vorgang. Die Version wird weiterhin aus <code>0x80</code> gelesen, aber im Flash (op <code>0x11</code>), und das ist harmlos."
   },
   limAct:{
     it:"<b>Non calcola né suggerisce la chiave di attivazione.</b> La fornisce Slot.it per il MAC del dongle; l'app la inoltra soltanto, e non usa i comandi che leggono o cancellano la licenza.",
     en:"<b>It does not compute or suggest the activation key.</b> Slot.it supplies it for the dongle's MAC; the app only forwards it, and does not use the commands that read or clear the licence.",
-    es:"<b>No calcula ni sugiere la clave de activación.</b> La proporciona Slot.it para el MAC del dongle; la app solo la reenvía, y no usa los comandos que leen o borran la licencia."
+    es:"<b>No calcula ni sugiere la clave de activación.</b> La proporciona Slot.it para el MAC del dongle; la app solo la reenvía, y no usa los comandos que leen o borran la licencia.",
+    fr:"<b>Elle ne calcule ni ne suggère la clé d'activation.</b> C'est Slot.it qui la fournit pour le MAC du dongle ; l'app se contente de la transmettre, et n'utilise pas les commandes qui lisent ou effacent la licence.",
+    de:"<b>Sie berechnet den Aktivierungsschlüssel nicht und schlägt ihn nicht vor.</b> Slot.it liefert ihn passend zur MAC des Dongles; die App leitet ihn nur weiter und verwendet nicht die Befehle, die die Lizenz lesen oder löschen."
   },
   limConfig:{
     it:"<b>Non ha un campo per ogni impostazione.</b> Ci sono ID, abbinamento, velocità in pit lane e MAC O2. Frequenza (<code>0x11</code>), modo IR (<code>0x16</code>), track call (<code>0x12</code>) e pulsanti ARC (<code>0x17</code>) si raggiungono dalla console, ma il significato dei singoli valori non è documentato: un campo con un nome vorrebbe dire tirare a indovinare sulla configurazione del tuo hardware.",
     en:"<b>It does not have a field for every setting.</b> The ID, the pairing, the pit-lane speed and the O2 MAC are here. Frequency (<code>0x11</code>), IR mode (<code>0x16</code>), track call (<code>0x12</code>) and ARC buttons (<code>0x17</code>) can be reached from the console, but the meaning of the individual values is not documented: a named field would mean guessing at your hardware's configuration.",
-    es:"<b>No tiene un campo para cada ajuste.</b> Están el ID, la vinculación, la velocidad en el pit lane y el MAC O2. Frecuencia (<code>0x11</code>), modo IR (<code>0x16</code>), track call (<code>0x12</code>) y botones ARC (<code>0x17</code>) se alcanzan desde la consola, pero el significado de cada valor no está documentado: un campo con nombre sería adivinar sobre la configuración de tu hardware."
+    es:"<b>No tiene un campo para cada ajuste.</b> Están el ID, la vinculación, la velocidad en el pit lane y el MAC O2. Frecuencia (<code>0x11</code>), modo IR (<code>0x16</code>), track call (<code>0x12</code>) y botones ARC (<code>0x17</code>) se alcanzan desde la consola, pero el significado de cada valor no está documentado: un campo con nombre sería adivinar sobre la configuración de tu hardware.",
+    fr:"<b>Elle n'a pas un champ pour chaque réglage.</b> Il y a l'ID, l'appairage, la vitesse dans la voie des stands et le MAC O2. Fréquence (<code>0x11</code>), mode IR (<code>0x16</code>), track call (<code>0x12</code>) et boutons ARC (<code>0x17</code>) sont accessibles depuis la console, mais la signification des différentes valeurs n'est pas documentée : un champ avec un nom reviendrait à deviner la configuration de ton matériel.",
+    de:"<b>Sie hat nicht für jede Einstellung ein Feld.</b> Vorhanden sind ID, Kopplung, Geschwindigkeit in der Boxengasse und O2-MAC. Frequenz (<code>0x11</code>), IR-Modus (<code>0x16</code>), Track Call (<code>0x12</code>) und ARC-Tasten (<code>0x17</code>) erreichst du über die Konsole, aber die Bedeutung der einzelnen Werte ist nicht dokumentiert: Ein Feld mit Namen hieße, bei der Konfiguration deiner Hardware zu raten."
   },
   limRace:{
     it:"<b>Non gestisce la gara.</b> Sulla stessa porta viaggiano anche i comandi di gara e la telemetria, ma stanno nel <a href=\"../chron02/\">contagiri</a>: qui c'è solo la configurazione.",
     en:"<b>It does not manage the race.</b> Race commands and telemetry travel on the same port, but they live in the <a href=\"../chron02/\">lap counter</a>: this page is configuration only.",
-    es:"<b>No gestiona la carrera.</b> Por el mismo puerto viajan también los comandos de carrera y la telemetría, pero están en el <a href=\"../chron02/\">cuentavueltas</a>: aquí solo hay configuración."
+    es:"<b>No gestiona la carrera.</b> Por el mismo puerto viajan también los comandos de carrera y la telemetría, pero están en el <a href=\"../chron02/\">cuentavueltas</a>: aquí solo hay configuración.",
+    fr:"<b>Elle ne gère pas la course.</b> Les commandes de course et la télémétrie passent par le même port, mais elles se trouvent dans le <a href=\"../chron02/\">compte-tours</a> : ici, il n'y a que la configuration.",
+    de:"<b>Sie steuert kein Rennen.</b> Über denselben Port laufen auch Rennbefehle und Telemetrie, aber die gehören in den <a href=\"../chron02/\">Rundenzähler</a>: Hier gibt es nur die Konfiguration."
   },
 
   /* ---- dati grezzi e registro ---- */
-  sumRawLog:{it:"Dati grezzi e registro",en:"Raw data and log",es:"Datos crudos y registro"},
-  lblSendRaw:{it:"Invia (hex o testo)",en:"Send (hex or text)",es:"Enviar (hex o texto)"},
-  btnSend:{it:"Invia",en:"Send",es:"Enviar"},
+  sumRawLog:{it:"Dati grezzi e registro",en:"Raw data and log",es:"Datos crudos y registro",fr:"Données brutes et journal",de:"Rohdaten und Protokoll"},
+  lblSendRaw:{it:"Invia (hex o testo)",en:"Send (hex or text)",es:"Enviar (hex o texto)",fr:"Envoyer (hex ou texte)",de:"Senden (Hex oder Text)"},
+  btnSend:{it:"Invia",en:"Send",es:"Enviar",fr:"Envoyer",de:"Senden"},
   rawHint:{
     it:"In boot su chip auto o controller: solo letture (<code>&lt;prefisso&gt; 11|12 00 &lt;reg&gt; &lt;n&gt;</code>). Sul dongle: le due letture e <code>READMACVL</code>. Per scrivere usa la console registri; <code>BOOT</code> e <code>STOPBOOT</code> stanno nei pulsanti.",
     en:"In boot mode on a car chip or controller: reads only (<code>&lt;prefix&gt; 11|12 00 &lt;reg&gt; &lt;n&gt;</code>). On the dongle: the two reads and <code>READMACVL</code>. To write, use the register console; <code>BOOT</code> and <code>STOPBOOT</code> are on the buttons.",
-    es:"En boot en un chip de coche o un mando: solo lecturas (<code>&lt;prefijo&gt; 11|12 00 &lt;reg&gt; &lt;n&gt;</code>). En el dongle: las dos lecturas y <code>READMACVL</code>. Para escribir usa la consola de registros; <code>BOOT</code> y <code>STOPBOOT</code> están en los botones."
+    es:"En boot en un chip de coche o un mando: solo lecturas (<code>&lt;prefijo&gt; 11|12 00 &lt;reg&gt; &lt;n&gt;</code>). En el dongle: las dos lecturas y <code>READMACVL</code>. Para escribir usa la consola de registros; <code>BOOT</code> y <code>STOPBOOT</code> están en los botones.",
+    fr:"En mode boot sur une puce de voiture ou une manette : lectures uniquement (<code>&lt;préfixe&gt; 11|12 00 &lt;reg&gt; &lt;n&gt;</code>). Sur le dongle : les deux lectures et <code>READMACVL</code>. Pour écrire, utilise la console des registres ; <code>BOOT</code> et <code>STOPBOOT</code> sont sur les boutons.",
+    de:"Im Boot-Modus auf einem Auto-Chip oder Handregler: nur Lesezugriffe (<code>&lt;Präfix&gt; 11|12 00 &lt;reg&gt; &lt;n&gt;</code>). Am Dongle: die beiden Lesezugriffe und <code>READMACVL</code>. Zum Schreiben nutze die Register-Konsole; <code>BOOT</code> und <code>STOPBOOT</code> liegen auf den Knöpfen."
   },
-  lblNote:{it:"Annota cosa stai facendo",en:"Note what you are doing",es:"Anota lo que estás haciendo"},
-  phNote:{it:"es. cambiato l'ID del controller da 4 a 5",en:"e.g. changed the controller ID from 4 to 5",es:"p. ej. cambiado el ID del mando de 4 a 5"},
-  btnNote:{it:"Annota",en:"Note",es:"Anotar"},
-  btnSaveLog:{it:"Scarica registro",en:"Download log",es:"Descargar registro"},
+  lblNote:{it:"Annota cosa stai facendo",en:"Note what you are doing",es:"Anota lo que estás haciendo",fr:"Note ce que tu fais",de:"Notiere, was du tust"},
+  phNote:{it:"es. cambiato l'ID del controller da 4 a 5",en:"e.g. changed the controller ID from 4 to 5",es:"p. ej. cambiado el ID del mando de 4 a 5",fr:"ex. changé l'ID de la manette de 4 à 5",de:"z. B. ID des Handreglers von 4 auf 5 geändert"},
+  btnNote:{it:"Annota",en:"Note",es:"Anotar",fr:"Noter",de:"Notieren"},
+  btnSaveLog:{it:"Scarica registro",en:"Download log",es:"Descargar registro",fr:"Télécharger le journal",de:"Protokoll herunterladen"},
 
   /* ---- stringhe dinamiche (JS) ---- */
-  stConnected:{it:"connesso",en:"connected",es:"conectado"},
-  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
-  stReopening:{it:"riapro la porta…",en:"reopening the port…",es:"reabriendo el puerto…"},
-  devDongle:{it:"dongle",en:"dongle",es:"dongle"},
-  devCar:{it:"chip auto",en:"car chip",es:"chip del coche"},
-  devCtrl:{it:"controller SCP-3",en:"SCP-3 controller",es:"mando SCP-3"},
-  logConnected:{it:"[connesso]",en:"[connected]",es:"[conectado]"},
-  logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]"},
+  stConnected:{it:"connesso",en:"connected",es:"conectado",fr:"connecté",de:"verbunden"},
+  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado",fr:"non connecté",de:"nicht verbunden"},
+  stReopening:{it:"riapro la porta…",en:"reopening the port…",es:"reabriendo el puerto…",fr:"réouverture du port…",de:"Port wird neu geöffnet…"},
+  devDongle:{it:"dongle",en:"dongle",es:"dongle",fr:"dongle",de:"Dongle"},
+  devCar:{it:"chip auto",en:"car chip",es:"chip del coche",fr:"puce de la voiture",de:"Auto-Chip"},
+  devCtrl:{it:"controller SCP-3",en:"SCP-3 controller",es:"mando SCP-3",fr:"manette SCP-3",de:"SCP-3-Handregler"},
+  logConnected:{it:"[connesso]",en:"[connected]",es:"[conectado]",fr:"[connecté]",de:"[verbunden]"},
+  logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]",fr:"[déconnecté]",de:"[getrennt]"},
   logLost:{
     it:"[porta USB persa: di solito è il dongle che si è riavviato]",
     en:"[USB port lost: usually the dongle rebooted]",
-    es:"[puerto USB perdido: normalmente el dongle se ha reiniciado]"
+    es:"[puerto USB perdido: normalmente el dongle se ha reiniciado]",
+    fr:"[port USB perdu : en général, c'est le dongle qui a redémarré]",
+    de:"[USB-Port verloren: Meist hat der Dongle neu gestartet]"
   },
-  logWaitBack:{it:"[aspetto che il dongle ricompaia…]",en:"[waiting for the dongle to come back…]",es:"[esperando a que reaparezca el dongle…]"},
-  logBack:{it:"[dongle di nuovo collegato: porta riaperta]",en:"[dongle back: port reopened]",es:"[dongle conectado de nuevo: puerto reabierto]"},
+  logWaitBack:{it:"[aspetto che il dongle ricompaia…]",en:"[waiting for the dongle to come back…]",es:"[esperando a que reaparezca el dongle…]",fr:"[j'attends que le dongle réapparaisse…]",de:"[warte, bis der Dongle wieder auftaucht…]"},
+  logBack:{it:"[dongle di nuovo collegato: porta riaperta]",en:"[dongle back: port reopened]",es:"[dongle conectado de nuevo: puerto reabierto]",fr:"[dongle de nouveau branché : port rouvert]",de:"[Dongle wieder da: Port neu geöffnet]"},
   logNotBack:{
     it:"[il dongle non è ricomparso: ricollegalo e premi «Connetti dongle»]",
     en:"[the dongle did not come back: plug it in again and press “Connect dongle”]",
-    es:"[el dongle no ha reaparecido: vuelve a conectarlo y pulsa «Conectar dongle»]"
+    es:"[el dongle no ha reaparecido: vuelve a conectarlo y pulsa «Conectar dongle»]",
+    fr:"[le dongle n'est pas réapparu : rebranche-le et appuie sur « Connecter le dongle »]",
+    de:"[der Dongle ist nicht wieder aufgetaucht: Steck ihn wieder ein und drücke „Dongle verbinden“]"
   },
   logMultiPorts:{
     it:"[ci sono più porte 1fee/0002: se hai due dongle collegati, lascia solo quello che usi]",
     en:"[there are several 1fee/0002 ports: if two dongles are plugged in, leave only the one you are using]",
-    es:"[hay varios puertos 1fee/0002: si tienes dos dongles conectados, deja solo el que usas]"
+    es:"[hay varios puertos 1fee/0002: si tienes dos dongles conectados, deja solo el que usas]",
+    fr:"[il y a plusieurs ports 1fee/0002 : si deux dongles sont branchés, ne laisse que celui que tu utilises]",
+    de:"[es gibt mehrere 1fee/0002-Ports: Wenn zwei Dongles eingesteckt sind, lass nur den eingesteckt, den du benutzt]"
   },
-  logDtrFail:{it:"DTR non impostato",en:"DTR not set",es:"DTR no establecido"},
+  logDtrFail:{it:"DTR non impostato",en:"DTR not set",es:"DTR no establecido",fr:"DTR non activé",de:"DTR nicht gesetzt"},
   logReopenFirst:{
     it:"[riapro la porta: STOPBOOT deve essere il primo messaggio]",
     en:"[reopening the port: STOPBOOT must be the first message]",
-    es:"[reabro el puerto: STOPBOOT debe ser el primer mensaje]"
+    es:"[reabro el puerto: STOPBOOT debe ser el primer mensaje]",
+    fr:"[réouverture du port : STOPBOOT doit être le premier message]",
+    de:"[öffne den Port neu: STOPBOOT muss die erste Nachricht sein]"
   },
   logResetStart:{
     it:"[STOPBOOT come primo messaggio: il dongle si riavvia]",
     en:"[STOPBOOT as the first message: the dongle reboots]",
-    es:"[STOPBOOT como primer mensaje: el dongle se reinicia]"
+    es:"[STOPBOOT como primer mensaje: el dongle se reinicia]",
+    fr:"[STOPBOOT comme premier message : le dongle redémarre]",
+    de:"[STOPBOOT als erste Nachricht: Der Dongle startet neu]"
   },
   logNoReset:{
     it:"[il dongle non si è riavviato dopo STOPBOOT: staccalo, riattaccalo e premi «Connetti dongle»]",
     en:"[the dongle did not reboot after STOPBOOT: unplug it, plug it back in and press “Connect dongle”]",
-    es:"[el dongle no se ha reiniciado tras STOPBOOT: desconéctalo, vuelve a conectarlo y pulsa «Conectar dongle»]"
+    es:"[el dongle no se ha reiniciado tras STOPBOOT: desconéctalo, vuelve a conectarlo y pulsa «Conectar dongle»]",
+    fr:"[le dongle n'a pas redémarré après STOPBOOT : débranche-le, rebranche-le et appuie sur « Connecter le dongle »]",
+    de:"[der Dongle hat nach STOPBOOT nicht neu gestartet: Zieh ihn ab, steck ihn wieder ein und drücke „Dongle verbinden“]"
   },
   logActNot:{
     it:"[ACTIVENOT: il dongle non è attivato — vedi «Attivazione del dongle»]",
     en:"[ACTIVENOT: the dongle is not activated — see “Dongle activation”]",
-    es:"[ACTIVENOT: el dongle no está activado — mira «Activación del dongle»]"
+    es:"[ACTIVENOT: el dongle no está activado — mira «Activación del dongle»]",
+    fr:"[ACTIVENOT : le dongle n'est pas activé — voir « Activation du dongle »]",
+    de:"[ACTIVENOT: Der Dongle ist nicht aktiviert — siehe „Dongle-Aktivierung“]"
   },
   logKeySent:{
     it:"-> [chiave di attivazione, 6 byte: non riportata nel registro]",
     en:"-> [activation key, 6 bytes: not written to the log]",
-    es:"-> [clave de activación, 6 bytes: no se escribe en el registro]"
+    es:"-> [clave de activación, 6 bytes: no se escribe en el registro]",
+    fr:"-> [clé d'activation, 6 octets : non reportée dans le journal]",
+    de:"-> [Aktivierungsschlüssel, 6 Byte: nicht im Protokoll vermerkt]"
   },
-  errWord:{it:"errore",en:"error",es:"error"},
-  errNoPort:{it:"porta non aperta",en:"port not open",es:"puerto no abierto"},
-  noSerialLog:{
-    it:"[!] Web Serial non supportato: usa Chrome/Edge su computer.",
-    en:"[!] Web Serial not supported: use Chrome/Edge on a computer.",
-    es:"[!] Web Serial no compatible: usa Chrome/Edge en un ordenador."
+  errWord:{it:"errore",en:"error",es:"error",fr:"erreur",de:"Fehler"},
+  errNoPort:{it:"porta non aperta",en:"port not open",es:"puerto no abierto",fr:"port non ouvert",de:"Port nicht geöffnet"},
+  noDongleLog:{
+    it:"[!] Né Web Serial né WebUSB: usa Chrome/Edge su computer o Chrome su Android.",
+    en:"[!] Neither Web Serial nor WebUSB: use Chrome/Edge on a computer or Chrome on Android.",
+    es:"[!] Ni Web Serial ni WebUSB: usa Chrome/Edge en un ordenador o Chrome en Android.",
+    fr:"[!] Ni Web Serial ni WebUSB : utilise Chrome/Edge sur ordinateur ou Chrome sur Android.",
+    de:"[!] Weder Web Serial noch WebUSB: Nutze Chrome/Edge am Computer oder Chrome auf Android."
   },
-  bootOkMsg:{it:"BOOTOK ricevuto — in boot su",en:"BOOTOK received — in boot on",es:"BOOTOK recibido — en boot en"},
-  bootNoOkMsg:{it:"nessun BOOTOK (risposta:",en:"no BOOTOK (reply:",es:"sin BOOTOK (respuesta:"},
+  logViaUsb:{
+    it:"[via WebUSB: la pagina fa da driver del dongle, come serve su Android]",
+    en:"[via WebUSB: the page acts as the dongle's driver, as needed on Android]",
+    es:"[vía WebUSB: la página hace de driver del dongle, como hace falta en Android]",
+    fr:"[via WebUSB : la page fait office de pilote du dongle, comme il le faut sur Android]",
+    de:"[über WebUSB: Die Seite ist selbst der Treiber des Dongles, wie auf Android nötig]"
+  },
+  bootOkMsg:{it:"BOOTOK ricevuto — in boot su",en:"BOOTOK received — in boot on",es:"BOOTOK recibido — en boot en",fr:"BOOTOK reçu — en mode boot :",de:"BOOTOK empfangen — im Boot-Modus:"},
+  bootNoOkMsg:{it:"nessun BOOTOK (risposta:",en:"no BOOTOK (reply:",es:"sin BOOTOK (respuesta:",fr:"pas de BOOTOK (réponse :",de:"kein BOOTOK (Antwort:"},
   bootDropMsg:{
     it:"[il dispositivo non ha risposto a BOOT e il dongle si è riavviato da solo: è in modalità programmazione, ed è vicino?]",
     en:"[the device did not answer BOOT and the dongle rebooted by itself: is it in programming mode, and nearby?]",
-    es:"[el dispositivo no ha respondido a BOOT y el dongle se ha reiniciado solo: ¿está en modo programación, y cerca?]"
+    es:"[el dispositivo no ha respondido a BOOT y el dongle se ha reiniciado solo: ¿está en modo programación, y cerca?]",
+    fr:"[l'appareil n'a pas répondu à BOOT et le dongle a redémarré tout seul : est-il en mode programmation, et à proximité ?]",
+    de:"[das Gerät hat nicht auf BOOT geantwortet, und der Dongle hat von selbst neu gestartet: Ist es im Programmiermodus und in der Nähe?]"
   },
-  bootExitMsg:{it:"[STOPBOOT inviato: il dongle si riavvia]",en:"[STOPBOOT sent: the dongle reboots]",es:"[STOPBOOT enviado: el dongle se reinicia]"},
-  bootStOn:{it:"in boot",en:"in boot",es:"en boot"},
-  bootStOff:{it:"non in boot",en:"not in boot",es:"fuera de boot"},
-  dtResponse:{it:"risposta",en:"reply",es:"respuesta"},
+  bootExitMsg:{it:"[STOPBOOT inviato: il dongle si riavvia]",en:"[STOPBOOT sent: the dongle reboots]",es:"[STOPBOOT enviado: el dongle se reinicia]",fr:"[STOPBOOT envoyé : le dongle redémarre]",de:"[STOPBOOT gesendet: Der Dongle startet neu]"},
+  bootStOn:{it:"in boot",en:"in boot",es:"en boot",fr:"en mode boot",de:"im Boot-Modus"},
+  bootStOff:{it:"non in boot",en:"not in boot",es:"fuera de boot",fr:"hors mode boot",de:"nicht im Boot-Modus"},
+  dtResponse:{it:"risposta",en:"reply",es:"respuesta",fr:"réponse",de:"Antwort"},
   dtEmpty:{
     it:"nessuna risposta — il dongle non ha detto niente entro il tempo d'attesa",
     en:"no answer — the dongle said nothing within the wait window",
-    es:"sin respuesta — el dongle no ha dicho nada dentro del tiempo de espera"
+    es:"sin respuesta — el dongle no ha dicho nada dentro del tiempo de espera",
+    fr:"aucune réponse — le dongle n'a rien dit dans le délai d'attente",
+    de:"keine Antwort — der Dongle hat innerhalb der Wartezeit nichts gesagt"
   },
   needBootMsg:{
     it:"⚠️ Prima entra in boot. Fuori dal boot il dongle non risponde ai comandi a registri: il frame partirebbe e non tornerebbe niente. Scegli il dispositivo e premi «Entra in boot»: quando risponde BOOTOK i comandi si accendono.",
     en:"⚠️ Enter boot first. Outside boot mode the dongle does not answer register commands: the frame would go out and nothing would come back. Pick the device and press “Enter boot”: the commands light up when it replies BOOTOK.",
-    es:"⚠️ Entra primero en boot. Fuera del modo boot el dongle no responde a los comandos de registros: la trama saldría y no volvería nada. Elige el dispositivo y pulsa «Entrar en boot»: los comandos se activan cuando responde BOOTOK."
+    es:"⚠️ Entra primero en boot. Fuera del modo boot el dongle no responde a los comandos de registros: la trama saldría y no volvería nada. Elige el dispositivo y pulsa «Entrar en boot»: los comandos se activan cuando responde BOOTOK.",
+    fr:"⚠️ Passe d'abord en mode boot. Hors du mode boot, le dongle ne répond pas aux commandes de registres : la trame partirait et rien ne reviendrait. Choisis l'appareil et appuie sur « Entrer en mode boot » : les commandes s'activent quand il répond BOOTOK.",
+    de:"⚠️ Wechsle zuerst in den Boot-Modus. Außerhalb des Boot-Modus antwortet der Dongle nicht auf Register-Befehle: Der Frame ginge hinaus, und nichts käme zurück. Wähle das Gerät und drücke „Boot-Modus starten“: Sobald es mit BOOTOK antwortet, werden die Befehle aktiv."
   },
   hActNot:{
     it:"⚠️ Il dongle non è attivato (ha mandato ACTIVENOT): finché non lo attivi accetta solo i comandi di attivazione. Vedi «Attivazione del dongle» qui sopra.",
     en:"⚠️ The dongle is not activated (it sent ACTIVENOT): until you activate it, it only accepts the activation commands. See “Dongle activation” above.",
-    es:"⚠️ El dongle no está activado (ha enviado ACTIVENOT): hasta que lo actives solo acepta los comandos de activación. Mira «Activación del dongle» arriba."
+    es:"⚠️ El dongle no está activado (ha enviado ACTIVENOT): hasta que lo actives solo acepta los comandos de activación. Mira «Activación del dongle» arriba.",
+    fr:"⚠️ Le dongle n'est pas activé (il a envoyé ACTIVENOT) : tant que tu ne l'as pas activé, il n'accepte que les commandes d'activation. Voir « Activation du dongle » ci-dessus.",
+    de:"⚠️ Der Dongle ist nicht aktiviert (er hat ACTIVENOT gesendet): Bis du ihn aktivierst, akzeptiert er nur die Aktivierungsbefehle. Siehe „Dongle-Aktivierung“ oben."
   },
   hWaitKey:{
     it:"⚠️ Il dongle aspetta la chiave di attivazione e prenderebbe come chiave qualunque altro messaggio: gli altri comandi restano spenti finché non mandi la chiave.",
     en:"⚠️ The dongle is waiting for the activation key and would take any other message as the key: the other commands stay off until you send the key.",
-    es:"⚠️ El dongle espera la clave de activación y tomaría como clave cualquier otro mensaje: los demás comandos quedan desactivados hasta que envíes la clave."
+    es:"⚠️ El dongle espera la clave de activación y tomaría como clave cualquier otro mensaje: los demás comandos quedan desactivados hasta que envíes la clave.",
+    fr:"⚠️ Le dongle attend la clé d'activation et prendrait n'importe quel autre message pour la clé : les autres commandes restent désactivées tant que tu n'as pas envoyé la clé.",
+    de:"⚠️ Der Dongle wartet auf den Aktivierungsschlüssel und würde jede andere Nachricht als Schlüssel nehmen: Die anderen Befehle bleiben gesperrt, bis du den Schlüssel sendest."
   },
   hOtherTarget:{
     it:"⚠️ Sei in boot sul {cur}. Per parlare con il {sel} premi di nuovo «Entra in boot»: l'app riavvia il dongle e rientra sul dispositivo scelto.",
     en:"⚠️ You are in boot mode on the {cur}. To talk to the {sel}, press “Enter boot” again: the app reboots the dongle and re-enters on the selected device.",
-    es:"⚠️ Estás en boot en el {cur}. Para hablar con el {sel} pulsa otra vez «Entrar en boot»: la app reinicia el dongle y vuelve a entrar en el dispositivo elegido."
+    es:"⚠️ Estás en boot en el {cur}. Para hablar con el {sel} pulsa otra vez «Entrar en boot»: la app reinicia el dongle y vuelve a entrar en el dispositivo elegido.",
+    fr:"⚠️ Tu es en mode boot sur « {cur} ». Pour parler à « {sel} », appuie de nouveau sur « Entrer en mode boot » : l'app redémarre le dongle et repasse en mode boot sur l'appareil choisi.",
+    de:"⚠️ Du bist im Boot-Modus auf dem {cur}. Um mit dem {sel} zu sprechen, drücke noch einmal „Boot-Modus starten“: Die App startet den Dongle neu und wechselt auf das gewählte Gerät."
   },
   hReopening:{
     it:"Il dongle si sta riavviando: aspetta che la porta venga riaperta.",
     en:"The dongle is rebooting: wait for the port to be reopened.",
-    es:"El dongle se está reiniciando: espera a que se vuelva a abrir el puerto."
+    es:"El dongle se está reiniciando: espera a que se vuelva a abrir el puerto.",
+    fr:"Le dongle redémarre : attends que le port soit rouvert.",
+    de:"Der Dongle startet neu: Warte, bis der Port wieder geöffnet ist."
   },
-  fwOut:{it:"versione firmware",en:"firmware version",es:"versión de firmware"},
-  macOut:{it:"MAC del dongle",en:"dongle MAC",es:"MAC del dongle"},
-  regReadOut:{it:"lettura",en:"read",es:"lectura"},
-  regWriteOut:{it:"scrittura",en:"write",es:"escritura"},
-  regNoResp:{it:"nessuna risposta",en:"no reply",es:"sin respuesta"},
-  lenOk:{it:"lunghezza attesa ✓",en:"expected length ✓",es:"longitud esperada ✓"},
-  lenBad:{it:"attesi {n} byte, ricevuti {m}",en:"expected {n} bytes, got {m}",es:"esperados {n} bytes, recibidos {m}"},
-  tripleHint:{it:"dati ripetuti → valore {v}",en:"repeated data → value {v}",es:"datos repetidos → valor {v}"},
-  badHex:{it:"valore hex non valido",en:"invalid hex value",es:"valor hex no válido"},
+  fwOut:{it:"versione firmware",en:"firmware version",es:"versión de firmware",fr:"version du firmware",de:"Firmware-Version"},
+  macOut:{it:"MAC del dongle",en:"dongle MAC",es:"MAC del dongle",fr:"MAC du dongle",de:"MAC des Dongles"},
+  regReadOut:{it:"lettura",en:"read",es:"lectura",fr:"lecture",de:"Lesen"},
+  regWriteOut:{it:"scrittura",en:"write",es:"escritura",fr:"écriture",de:"Schreiben"},
+  regNoResp:{it:"nessuna risposta",en:"no reply",es:"sin respuesta",fr:"aucune réponse",de:"keine Antwort"},
+  lenOk:{it:"lunghezza attesa ✓",en:"expected length ✓",es:"longitud esperada ✓",fr:"longueur attendue ✓",de:"erwartete Länge ✓"},
+  lenBad:{it:"attesi {n} byte, ricevuti {m}",en:"expected {n} bytes, got {m}",es:"esperados {n} bytes, recibidos {m}",fr:"{n} octets attendus, {m} reçus",de:"{n} Byte erwartet, {m} empfangen"},
+  tripleHint:{it:"dati ripetuti → valore {v}",en:"repeated data → value {v}",es:"datos repetidos → valor {v}",fr:"données répétées → valeur {v}",de:"wiederholte Daten → Wert {v}"},
+  badHex:{it:"valore hex non valido",en:"invalid hex value",es:"valor hex no válido",fr:"valeur hex non valide",de:"ungültiger Hex-Wert"},
   confirmWrite:{
     it:"Scrittura del registro {reg} sul {dev}: cambia una sua impostazione. Hai annotato il valore attuale? Procedo?",
     en:"Writing register {reg} on the {dev}: it changes one of its settings. Have you written down the current value? Proceed?",
-    es:"Escritura del registro {reg} en el {dev}: cambia uno de sus ajustes. ¿Has anotado el valor actual? ¿Continúo?"
+    es:"Escritura del registro {reg} en el {dev}: cambia uno de sus ajustes. ¿Has anotado el valor actual? ¿Continúo?",
+    fr:"Écriture du registre {reg} sur « {dev} » : cela modifie un de ses réglages. As-tu noté la valeur actuelle ? Je continue ?",
+    de:"Schreiben von Register {reg} auf dem {dev}: Das ändert eine seiner Einstellungen. Hast du den aktuellen Wert notiert? Fortfahren?"
   },
 
   /* ---- frame rifiutati prima di partire ---- */
   ckDongleOnly2:{
     it:"Non inviato: il dongle risponde solo a <code>0c 11 00 00 02</code> (versione) e <code>0c 12 00 40 01</code> (stato aggiornamento). A ogni altro <code>0c</code> ripete la risposta precedente, che sembrerebbe una lettura vera.",
     en:"Not sent: the dongle only answers <code>0c 11 00 00 02</code> (version) and <code>0c 12 00 40 01</code> (update status). To any other <code>0c</code> it repeats its previous reply, which would look like a real read.",
-    es:"No enviado: el dongle solo responde a <code>0c 11 00 00 02</code> (versión) y <code>0c 12 00 40 01</code> (estado de actualización). A cualquier otro <code>0c</code> repite la respuesta anterior, que parecería una lectura de verdad."
+    es:"No enviado: el dongle solo responde a <code>0c 11 00 00 02</code> (versión) y <code>0c 12 00 40 01</code> (estado de actualización). A cualquier otro <code>0c</code> repite la respuesta anterior, que parecería una lectura de verdad.",
+    fr:"Non envoyé : le dongle ne répond qu'à <code>0c 11 00 00 02</code> (version) et à <code>0c 12 00 40 01</code> (état de la mise à jour). À toute autre trame <code>0c</code>, il répète sa réponse précédente, qui aurait l'air d'une vraie lecture.",
+    de:"Nicht gesendet: Der Dongle antwortet nur auf <code>0c 11 00 00 02</code> (Version) und <code>0c 12 00 40 01</code> (Update-Status). Auf jeden anderen <code>0c</code>-Frame wiederholt er seine vorige Antwort, die wie ein echter Lesezugriff aussähe."
   },
-  ckReadLen:{it:"Non inviato: il registro {reg} si legge con al massimo {n} byte.",en:"Not sent: register {reg} is read with at most {n} bytes.",es:"No enviado: el registro {reg} se lee con {n} bytes como máximo."},
-  ckReadLenMax:{it:"Non inviato: da 1 a 8 byte per lettura.",en:"Not sent: 1 to 8 bytes per read.",es:"No enviado: de 1 a 8 bytes por lectura."},
+  ckReadLen:{it:"Non inviato: il registro {reg} si legge con al massimo {n} byte.",en:"Not sent: register {reg} is read with at most {n} bytes.",es:"No enviado: el registro {reg} se lee con {n} bytes como máximo.",fr:"Non envoyé : le registre {reg} se lit avec {n} octets au maximum.",de:"Nicht gesendet: Register {reg} wird mit höchstens {n} Byte gelesen."},
+  ckReadLenMax:{it:"Non inviato: da 1 a 8 byte per lettura.",en:"Not sent: 1 to 8 bytes per read.",es:"No enviado: de 1 a 8 bytes por lectura.",fr:"Non envoyé : de 1 à 8 octets par lecture.",de:"Nicht gesendet: 1 bis 8 Byte pro Lesezugriff."},
   ckRead80:{
     it:"Non inviato: <code>0x80</code> non è un'impostazione. La versione firmware si legge in flash, con op <code>0x11</code>: <code>{pfx} 11 00 80 02</code>.",
     en:"Not sent: <code>0x80</code> is not a setting. The firmware version is read from flash, with op <code>0x11</code>: <code>{pfx} 11 00 80 02</code>.",
-    es:"No enviado: <code>0x80</code> no es un ajuste. La versión de firmware se lee en flash, con op <code>0x11</code>: <code>{pfx} 11 00 80 02</code>."
+    es:"No enviado: <code>0x80</code> no es un ajuste. La versión de firmware se lee en flash, con op <code>0x11</code>: <code>{pfx} 11 00 80 02</code>.",
+    fr:"Non envoyé : <code>0x80</code> n'est pas un réglage. La version du firmware se lit en flash, avec l'op <code>0x11</code> : <code>{pfx} 11 00 80 02</code>.",
+    de:"Nicht gesendet: <code>0x80</code> ist keine Einstellung. Die Firmware-Version wird aus dem Flash gelesen, mit op <code>0x11</code>: <code>{pfx} 11 00 80 02</code>."
   },
   ckBadOp:{
     it:"Non inviato: le letture usano l'op 0x12 (impostazioni) o 0x11 (flash).",
     en:"Not sent: reads use op 0x12 (settings) or 0x11 (flash).",
-    es:"No enviado: las lecturas usan la op 0x12 (ajustes) o 0x11 (flash)."
+    es:"No enviado: las lecturas usan la op 0x12 (ajustes) o 0x11 (flash).",
+    fr:"Non envoyé : les lectures utilisent l'op 0x12 (réglages) ou 0x11 (flash).",
+    de:"Nicht gesendet: Lesezugriffe verwenden op 0x12 (Einstellungen) oder 0x11 (Flash)."
   },
   blockedDfuReg:{
     it:"Scrittura non consentita: su chip auto e controller il registro 0x80 avvia l'aggiornamento firmware e lascia il dispositivo inutilizzabile se non c'è un bootloader pronto. La versione si legge da 0x80 in flash (op 0x11).",
     en:"Write not allowed: on the car chip and the controller, register 0x80 starts the firmware update and leaves the device unusable if no bootloader is ready. The version is read from 0x80 in flash (op 0x11).",
-    es:"Escritura no permitida: en el chip del coche y el mando, el registro 0x80 inicia la actualización de firmware y deja el dispositivo inservible si no hay un bootloader listo. La versión se lee de 0x80 en flash (op 0x11)."
+    es:"Escritura no permitida: en el chip del coche y el mando, el registro 0x80 inicia la actualización de firmware y deja el dispositivo inservible si no hay un bootloader listo. La versión se lee de 0x80 en flash (op 0x11).",
+    fr:"Écriture non autorisée : sur la puce de la voiture et la manette, le registre 0x80 lance la mise à jour du firmware et rend l'appareil inutilisable s'il n'y a pas de bootloader prêt. La version se lit depuis 0x80 en flash (op 0x11).",
+    de:"Schreiben nicht erlaubt: Auf Auto-Chip und Handregler startet Register 0x80 das Firmware-Update und macht das Gerät unbrauchbar, wenn kein Bootloader bereitsteht. Die Version wird aus 0x80 im Flash gelesen (op 0x11)."
   },
-  ckNoDongleWrite:{it:"Il dongle non ha registri da scrivere da qui.",en:"The dongle has no registers to write from here.",es:"El dongle no tiene registros que escribir desde aquí."},
+  ckNoDongleWrite:{it:"Il dongle non ha registri da scrivere da qui.",en:"The dongle has no registers to write from here.",es:"El dongle no tiene registros que escribir desde aquí.",fr:"Le dongle n'a pas de registres à écrire d'ici.",de:"Der Dongle hat keine Register, die sich von hier aus schreiben lassen."},
   ckWriteUnknown:{
     it:"Non inviato: il {dev} non gestisce il registro {reg}. Risponderebbe DO senza cambiare nulla.",
     en:"Not sent: the {dev} does not handle register {reg}. It would answer DO without changing anything.",
-    es:"No enviado: el {dev} no gestiona el registro {reg}. Respondería DO sin cambiar nada."
+    es:"No enviado: el {dev} no gestiona el registro {reg}. Respondería DO sin cambiar nada.",
+    fr:"Non envoyé : l'appareil « {dev} » ne gère pas le registre {reg}. Il répondrait DO sans rien changer.",
+    de:"Nicht gesendet: Der {dev} verarbeitet Register {reg} nicht. Er würde DO antworten, ohne etwas zu ändern."
   },
-  ckWriteRO:{it:"Non inviato: il registro {reg} è in sola lettura.",en:"Not sent: register {reg} is read-only.",es:"No enviado: el registro {reg} es de solo lectura."},
+  ckWriteRO:{it:"Non inviato: il registro {reg} è in sola lettura.",en:"Not sent: register {reg} is read-only.",es:"No enviado: el registro {reg} es de solo lectura.",fr:"Non envoyé : le registre {reg} est en lecture seule.",de:"Nicht gesendet: Register {reg} ist schreibgeschützt."},
   ckWriteIgnored:{
     it:"Non inviato: il {dev} ignora il registro {reg} (risponde DO ma non cambia nulla). Vale solo sul controller.",
     en:"Not sent: the {dev} ignores register {reg} (it answers DO but changes nothing). It only applies to the controller.",
-    es:"No enviado: el {dev} ignora el registro {reg} (responde DO pero no cambia nada). Solo vale en el mando."
+    es:"No enviado: el {dev} ignora el registro {reg} (responde DO pero no cambia nada). Solo vale en el mando.",
+    fr:"Non envoyé : l'appareil « {dev} » ignore le registre {reg} (il répond DO mais ne change rien). Il ne vaut que sur la manette.",
+    de:"Nicht gesendet: Der {dev} ignoriert Register {reg} (er antwortet DO, ändert aber nichts). Es gilt nur auf dem Handregler."
   },
   ckWriteLen:{
     it:"Non inviato: il registro {reg} vuole {n} byte di dati (ne hai scritti {m}).",
     en:"Not sent: register {reg} takes {n} data bytes (you wrote {m}).",
-    es:"No enviado: el registro {reg} lleva {n} bytes de datos (has escrito {m})."
+    es:"No enviado: el registro {reg} lleva {n} bytes de datos (has escrito {m}).",
+    fr:"Non envoyé : le registre {reg} attend {n} octets de données (tu en as écrit {m}).",
+    de:"Nicht gesendet: Register {reg} erwartet {n} Datenbytes (du hast {m} eingegeben)."
   },
   ckTooLong:{
     it:"Non inviato: al massimo 32 byte per messaggio (oltre, il dongle smette di seguire il PC finché non riapri la porta).",
     en:"Not sent: at most 32 bytes per message (beyond that the dongle stops following the PC until you reopen the port).",
-    es:"No enviado: como máximo 32 bytes por mensaje (más allá, el dongle deja de seguir al PC hasta que vuelvas a abrir el puerto)."
+    es:"No enviado: como máximo 32 bytes por mensaje (más allá, el dongle deja de seguir al PC hasta que vuelvas a abrir el puerto).",
+    fr:"Non envoyé : 32 octets au maximum par message (au-delà, le dongle cesse de suivre le PC jusqu'à ce que tu rouvres le port).",
+    de:"Nicht gesendet: höchstens 32 Byte pro Nachricht (darüber hinaus folgt der Dongle dem PC nicht mehr, bis du den Port neu öffnest)."
   },
   ckUseButtons:{
     it:"Non inviato: BOOT e STOPBOOT si mandano dai pulsanti, che prima riavviano il dongle. Come primo messaggio dopo una riapertura, BOOT verrebbe letto anche come comando di gara.",
     en:"Not sent: BOOT and STOPBOOT are sent from the buttons, which reboot the dongle first. As the first message after a reopening, BOOT would also be read as a race command.",
-    es:"No enviado: BOOT y STOPBOOT se envían desde los botones, que antes reinician el dongle. Como primer mensaje tras una reapertura, BOOT se leería también como comando de carrera."
+    es:"No enviado: BOOT y STOPBOOT se envían desde los botones, que antes reinician el dongle. Como primer mensaje tras una reapertura, BOOT se leería también como comando de carrera.",
+    fr:"Non envoyé : BOOT et STOPBOOT s'envoient avec les boutons, qui redémarrent d'abord le dongle. Comme premier message après une réouverture, BOOT serait aussi lu comme une commande de course.",
+    de:"Nicht gesendet: BOOT und STOPBOOT werden über die Knöpfe gesendet, die den Dongle vorher neu starten. Als erste Nachricht nach einem erneuten Öffnen würde BOOT auch als Rennbefehl gelesen."
   },
   blockedRaw:{
     it:"Non inviato: riguarda aggiornamento forzato, reset, attivazione o licenza — questa app non li manda da qui.",
     en:"Not sent: it concerns forced update, reset, activation or licence — this app does not send those from here.",
-    es:"No enviado: se refiere a actualización forzada, reinicio, activación o licencia — esta app no los envía desde aquí."
+    es:"No enviado: se refiere a actualización forzada, reinicio, activación o licencia — esta app no los envía desde aquí.",
+    fr:"Non envoyé : cela concerne une mise à jour forcée, une réinitialisation, l'activation ou la licence — cette app ne les envoie pas d'ici.",
+    de:"Nicht gesendet: Es geht um erzwungenes Update, Reset, Aktivierung oder Lizenz — so etwas sendet diese App nicht von hier aus."
   },
   ckRawPfx:{
     it:"Non inviato: in boot sul {dev} il primo byte deve essere {pfx}.",
     en:"Not sent: in boot mode on the {dev} the first byte must be {pfx}.",
-    es:"No enviado: en boot en el {dev} el primer byte debe ser {pfx}."
+    es:"No enviado: en boot en el {dev} el primer byte debe ser {pfx}.",
+    fr:"Non envoyé : en mode boot sur « {dev} », le premier octet doit être {pfx}.",
+    de:"Nicht gesendet: Im Boot-Modus auf dem {dev} muss das erste Byte {pfx} sein."
   },
   ckRawUseWrite:{
     it:"Non inviato: per scrivere usa «Scrivi» della console registri, che manda l'intestazione, aspetta DO e solo allora i dati.",
     en:"Not sent: to write, use “Write” in the register console, which sends the header, waits for DO and only then sends the data.",
-    es:"No enviado: para escribir usa «Escribir» de la consola de registros, que envía la cabecera, espera el DO y solo entonces los datos."
+    es:"No enviado: para escribir usa «Escribir» de la consola de registros, que envía la cabecera, espera el DO y solo entonces los datos.",
+    fr:"Non envoyé : pour écrire, utilise « Écrire » dans la console des registres, qui envoie l'en-tête, attend DO et seulement ensuite les données.",
+    de:"Nicht gesendet: Zum Schreiben nutze „Schreiben“ in der Register-Konsole, die den Header sendet, auf DO wartet und erst dann die Daten schickt."
   },
   ckRawOnlyReads:{
     it:"Non inviato: in boot su chip auto o controller la console grezza manda solo letture di 5 byte (prefisso, 11 o 12, 00, registro, lunghezza).",
     en:"Not sent: in boot mode on a car chip or controller the raw console only sends 5-byte reads (prefix, 11 or 12, 00, register, length).",
-    es:"No enviado: en boot en un chip de coche o un mando la consola en bruto solo envía lecturas de 5 bytes (prefijo, 11 o 12, 00, registro, longitud)."
+    es:"No enviado: en boot en un chip de coche o un mando la consola en bruto solo envía lecturas de 5 bytes (prefijo, 11 o 12, 00, registro, longitud).",
+    fr:"Non envoyé : en mode boot sur une puce de voiture ou une manette, la console brute n'envoie que des lectures de 5 octets (préfixe, 11 ou 12, 00, registre, longueur).",
+    de:"Nicht gesendet: Im Boot-Modus auf einem Auto-Chip oder Handregler sendet die Rohkonsole nur Lesebefehle mit 5 Byte (Präfix, 11 oder 12, 00, Register, Länge)."
   },
   ckWaitKey:{
     it:"Non inviato: il dongle aspetta la chiave di attivazione e prenderebbe questo messaggio come chiave.",
     en:"Not sent: the dongle is waiting for the activation key and would take this message as the key.",
-    es:"No enviado: el dongle espera la clave de activación y tomaría este mensaje como clave."
+    es:"No enviado: el dongle espera la clave de activación y tomaría este mensaje como clave.",
+    fr:"Non envoyé : le dongle attend la clé d'activation et prendrait ce message pour la clé.",
+    de:"Nicht gesendet: Der Dongle wartet auf den Aktivierungsschlüssel und würde diese Nachricht als Schlüssel nehmen."
   },
-  noteMark:{it:"nota",en:"note",es:"nota"}
+  noteMark:{it:"nota",en:"note",es:"nota",fr:"note",de:"Notiz"}
 };
 </script>
 <script src="../i18n.js"></script>
+<script src="../seriale.js"></script>
 <script>
-const APP="o2-bootloader",APP_VERSION="1.7.1";
+const APP="o2-bootloader",APP_VERSION="1.8.0";
 const VID=0x1fee,PID=0x0002;
 /* Il programma ufficiale apre la COM a 9600 8N1 (visto nelle catture USB). Sul
    dongle è una COM virtuale, quindi il valore è nominale — ma se un giorno in
@@ -952,7 +1118,7 @@ async function waitForDongle(ms){
   while(performance.now()-start<ms){
     if(!connState)return false;     // l'utente ha premuto «Disconnetti» nel frattempo
     let ports=[];
-    try{ports=await navigator.serial.getPorts();}catch(e){}
+    try{ports=await Seriale.concesse();}catch(e){}
     const c=ports.filter(p=>{const i=p.getInfo?p.getInfo():{};
       return i.usbVendorId===ids.vid&&i.usbProductId===ids.pid&&p.connected!==false;});
     if(c.length>1&&!warned){warned=true;log(I18N.t("logMultiPorts"));}
@@ -1023,7 +1189,8 @@ async function connect(){
   /* ⚠️ NIENTE filtro sul selettore delle porte: `requestPort({filters})` impone, non
      suggerisce, e con un VID/PID diverso la finestra esce vuota. Mostriamo tutte le
      porte e poi diciamo se quella scelta ha l'aria giusta — un avviso, non un divieto. */
-  try{p=await navigator.serial.requestPort();}
+  /* La porta la dà seriale.js: Web Serial su computer, WebUSB su Android. */
+  try{p=await Seriale.richiedi();}
   catch(e){log("["+I18N.t("errWord")+": "+e+"]");return;}
   await run(async()=>{
     const i=p.getInfo?p.getInfo():{};
@@ -1036,6 +1203,7 @@ async function connect(){
       :I18N.t("portNoId");
     $("devname").textContent=idtxt+" · "+BAUD+" 8N1 · DTR";
     setConn(true);log(I18N.t("logConnected"));
+    if(Seriale.via==="usb")log(I18N.t("logViaUsb"));
     log(atteso?I18N.t("portOk",{id:idtxt}):I18N.t("portOther",{id:idtxt}));
     $("portWarn").hidden=atteso;if(!atteso)$("portWarn").textContent=I18N.t("portOther",{id:idtxt});
     await sleep(400);   // un dongle non attivato si presenta da solo con ACTIVENOT
@@ -1468,7 +1636,7 @@ function syncUi(){
   const actBlock=activation==="not"||activation==="waitKey";
   const t=tgt();
   const ready=idle&&inBoot&&bootTarget===t&&!actBlock;
-  $("btnConn").disabled=connState||busy||!navigator.serial;
+  $("btnConn").disabled=connState||busy||!Seriale.via;
   $("btnDisc").disabled=!connState||busy;
   $("btnBoot").disabled=!idle||actBlock;
   $("btnStop").disabled=!idle||!inBoot;
@@ -1512,8 +1680,7 @@ for(const k in BTN){
 }
 
 /* Il browser annuncia una porta che ricompare: sveglia chi la sta aspettando. */
-if(navigator.serial&&navigator.serial.addEventListener)
-  navigator.serial.addEventListener("connect",()=>{if(wakeUp){const f=wakeUp;wakeUp=null;f();}});
+Seriale.on("connect",()=>{if(wakeUp){const f=wakeUp;wakeUp=null;f();}});
 
 $("btnNote").onclick=()=>{const s=$("noteIn").value.trim();if(!s)return;
   log("## "+I18N.t("noteMark")+": "+s);$("noteIn").value="";};
@@ -1531,10 +1698,10 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 renderAll();
 
 /* compat + sw + versione */
-if(!navigator.serial){$("noser").hidden=false;$("btnConn").disabled=true;
+if(!Seriale.via){$("noser").hidden=false;$("btnConn").disabled=true;
   /* Il messaggio va nel registro solo a dizionario pronto: i18n.js lo costruisce
      su DOMContentLoaded, e scritto adesso nel registro finiva la chiave grezza. */
-  const avvisa=()=>log(I18N.t("noSerialLog"));
+  const avvisa=()=>log(I18N.t("noDongleLog"));
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",avvisa);else avvisa();}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});
 /* versione: nel piè, e la fascia «Aggiorna» se quella pubblicata è un'altra */

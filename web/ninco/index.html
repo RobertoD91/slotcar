@@ -111,70 +111,82 @@ window.I18N_STRINGS = {
   untestedNote:{
     it:"🧪 <b>Mai provata su una power base vera.</b> La decodifica segue la documentazione pubblica del protocollo ed è provata solo con pacchetti costruiti a tavolino: se qualcosa non torna, il riquadro «Dati grezzi» mostra le righe arrivate così come sono, e si possono esportare.",
     en:"🧪 <b>Never tried on a real power base.</b> The decoding follows the public protocol documentation and has only been tested with hand-built packets: if something looks wrong, the «Raw data» box shows the lines exactly as they arrived, and you can export them.",
-    es:"🧪 <b>Nunca probada con una power base real.</b> La decodificación sigue la documentación pública del protocolo y solo se ha probado con paquetes construidos a mano: si algo no cuadra, el recuadro «Datos en crudo» muestra las líneas tal como llegaron, y se pueden exportar."
+    es:"🧪 <b>Nunca probada con una power base real.</b> La decodificación sigue la documentación pública del protocolo y solo se ha probado con paquetes construidos a mano: si algo no cuadra, el recuadro «Datos en crudo» muestra las líneas tal como llegaron, y se pueden exportar.",
+    fr:"🧪 <b>Jamais essayée sur une vraie power base.</b> Le décodage suit la documentation publique du protocole et n'a été testé qu'avec des paquets construits à la main : si quelque chose cloche, le cadre « Données brutes » montre les lignes telles qu'elles sont arrivées, et tu peux les exporter.",
+    de:"🧪 <b>Nie an einer echten Power Base getestet.</b> Die Dekodierung folgt der öffentlichen Protokolldokumentation und wurde nur mit von Hand gebauten Paketen getestet: Wenn etwas nicht stimmt, zeigt der Kasten „Rohdaten“ die Zeilen genau so, wie sie angekommen sind, und du kannst sie exportieren."
   },
-  h1:{it:"Contagiri Ninco Digital",en:"Ninco Digital lap counter",es:"Cuentavueltas Ninco Digital"},
+  h1:{it:"Contagiri Ninco Digital",en:"Ninco Digital lap counter",es:"Cuentavueltas Ninco Digital",fr:"Compte-tours Ninco Digital",de:"Rundenzähler Ninco Digital"},
   sub:{
     it:"Legge la <b>power base Ninco N-Digital</b> dalla seriale e mostra posizioni, giri, benzina e tempi. Serve Chrome/Edge su computer.",
     en:"Reads the <b>Ninco N-Digital power base</b> over serial and shows positions, laps, fuel and times. Needs Chrome/Edge on a desktop.",
-    es:"Lee la <b>power base Ninco N-Digital</b> por el puerto serie y muestra posiciones, vueltas, combustible y tiempos. Necesita Chrome/Edge en un ordenador."
+    es:"Lee la <b>power base Ninco N-Digital</b> por el puerto serie y muestra posiciones, vueltas, combustible y tiempos. Necesita Chrome/Edge en un ordenador.",
+    fr:"Lit la <b>power base Ninco N-Digital</b> par la liaison série et affiche positions, tours, carburant et temps. Il faut Chrome/Edge sur ordinateur.",
+    de:"Liest die <b>Ninco N-Digital Power Base</b> über die serielle Schnittstelle und zeigt Positionen, Runden, Sprit und Zeiten. Braucht Chrome/Edge am Computer."
   },
-  titleConn:{it:"Connessione",en:"Connection",es:"Conexión"},
-  btnConnect:{it:"🔌 Connetti",en:"🔌 Connect",es:"🔌 Conectar"},
-  btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
-  advanced:{it:"Impostazioni avanzate",en:"Advanced settings",es:"Ajustes avanzados"},
-  lblBaud:{it:"Baud",en:"Baud",es:"Baudios"},
-  lblBits:{it:"Bit di dati",en:"Data bits",es:"Bits de datos"},
-  lblSwap8:{it:"auto 8: cifre benzina invertite",en:"car 8: fuel digits swapped",es:"coche 8: dígitos de combustible invertidos"},
+  titleConn:{it:"Connessione",en:"Connection",es:"Conexión",fr:"Connexion",de:"Verbindung"},
+  btnConnect:{it:"🔌 Connetti",en:"🔌 Connect",es:"🔌 Conectar",fr:"🔌 Connecter",de:"🔌 Verbinden"},
+  btnDisconnect:{it:"Disconnetti",en:"Disconnect",es:"Desconectar",fr:"Déconnecter",de:"Trennen"},
+  advanced:{it:"Impostazioni avanzate",en:"Advanced settings",es:"Ajustes avanzados",fr:"Réglages avancés",de:"Erweiterte Einstellungen"},
+  lblBaud:{it:"Baud",en:"Baud",es:"Baudios",fr:"Bauds",de:"Baud"},
+  lblBits:{it:"Bit di dati",en:"Data bits",es:"Bits de datos",fr:"Bits de données",de:"Datenbits"},
+  lblSwap8:{it:"auto 8: cifre benzina invertite",en:"car 8: fuel digits swapped",es:"coche 8: dígitos de combustible invertidos",fr:"voiture 8 : chiffres du carburant inversés",de:"Auto 8: Sprit-Ziffern vertauscht"},
   advNote:{
     it:"La specifica dice <b>1200 baud, 7 bit, senza parità, 1 stop</b>: cambiali solo se la tua power base si comporta diversamente. L'inversione delle cifre della benzina sull'auto 8 è documentata, ma chi l'ha scritta non sa dire se valga per tutte le power base — se i valori dell'ottava auto sembrano sbagliati, togli la spunta.",
     en:"The spec says <b>1200 baud, 7 bits, no parity, 1 stop</b>: change these only if your power base behaves differently. The swapped fuel digits on car 8 are documented, but the author could not say whether it applies to every power base — if car 8's values look wrong, untick it.",
-    es:"La especificación dice <b>1200 baudios, 7 bits, sin paridad, 1 stop</b>: cámbialos solo si tu power base se comporta de otro modo. La inversión de los dígitos de combustible del coche 8 está documentada, pero su autor no pudo confirmar si aplica a todas las power base — si los valores del coche 8 parecen erróneos, desmárcalo."
+    es:"La especificación dice <b>1200 baudios, 7 bits, sin paridad, 1 stop</b>: cámbialos solo si tu power base se comporta de otro modo. La inversión de los dígitos de combustible del coche 8 está documentada, pero su autor no pudo confirmar si aplica a todas las power base — si los valores del coche 8 parecen erróneos, desmárcalo.",
+    fr:"La spécification indique <b>1200 bauds, 7 bits, sans parité, 1 stop</b> : ne les change que si ta power base se comporte autrement. L'inversion des chiffres du carburant sur la voiture 8 est documentée, mais son auteur ne sait pas dire si elle vaut pour toutes les power base — si les valeurs de la huitième voiture semblent fausses, décoche la case.",
+    de:"Laut Spezifikation <b>1200 Baud, 7 Bit, keine Parität, 1 Stoppbit</b>: Ändere das nur, wenn sich deine Power Base anders verhält. Die vertauschten Sprit-Ziffern bei Auto 8 sind dokumentiert, aber der Autor konnte nicht sagen, ob das für alle Power Bases gilt — wenn die Werte des achten Autos falsch aussehen, nimm das Häkchen weg."
   },
-  titleRace:{it:"Gara",en:"Race",es:"Carrera"},
-  colPos:{it:"Pos",en:"Pos",es:"Pos"},
-  colCar:{it:"Auto",en:"Car",es:"Coche"},
-  colLaps:{it:"Giri",en:"Laps",es:"Vueltas"},
-  colFuel:{it:"Benzina",en:"Fuel",es:"Combustible"},
-  colLast:{it:"Ultimo giro",en:"Last lap",es:"Última vuelta"},
-  colBest:{it:"Migliore",en:"Best",es:"Mejor"},
-  colState:{it:"Stato",en:"State",es:"Estado"},
-  btnReset:{it:"Azzera gara",en:"Reset race",es:"Reiniciar carrera"},
-  titleRaw:{it:"Dati grezzi",en:"Raw data",es:"Datos en crudo"},
-  btnClear:{it:"Pulisci",en:"Clear",es:"Limpiar"},
-  btnExport:{it:"⬇ Esporta",en:"⬇ Export",es:"⬇ Exportar"},
-  titleWiring:{it:"Cablaggio",en:"Wiring",es:"Cableado"},
+  titleRace:{it:"Gara",en:"Race",es:"Carrera",fr:"Course",de:"Rennen"},
+  colPos:{it:"Pos",en:"Pos",es:"Pos",fr:"Pos",de:"Pos"},
+  colCar:{it:"Auto",en:"Car",es:"Coche",fr:"Voiture",de:"Auto"},
+  colLaps:{it:"Giri",en:"Laps",es:"Vueltas",fr:"Tours",de:"Runden"},
+  colFuel:{it:"Benzina",en:"Fuel",es:"Combustible",fr:"Carburant",de:"Sprit"},
+  colLast:{it:"Ultimo giro",en:"Last lap",es:"Última vuelta",fr:"Dernier tour",de:"Letzte Runde"},
+  colBest:{it:"Migliore",en:"Best",es:"Mejor",fr:"Meilleur",de:"Schnellste"},
+  colState:{it:"Stato",en:"State",es:"Estado",fr:"État",de:"Status"},
+  btnReset:{it:"Azzera gara",en:"Reset race",es:"Reiniciar carrera",fr:"Réinitialiser la course",de:"Rennen zurücksetzen"},
+  titleRaw:{it:"Dati grezzi",en:"Raw data",es:"Datos en crudo",fr:"Données brutes",de:"Rohdaten"},
+  btnClear:{it:"Pulisci",en:"Clear",es:"Limpiar",fr:"Effacer",de:"Leeren"},
+  btnExport:{it:"⬇ Esporta",en:"⬇ Export",es:"⬇ Exportar",fr:"⬇ Exporter",de:"⬇ Exportieren"},
+  titleWiring:{it:"Cablaggio",en:"Wiring",es:"Cableado",fr:"Câblage",de:"Verkabelung"},
   wiringIntro:{
     it:"La presa <b>Out</b> della power base è un <b>Mini-DIN 6</b> con segnali <b>RS-232 veri</b>. Rx e Tx vanno incrociati:",
     en:"The power base's <b>Out</b> socket is a <b>Mini-DIN 6</b> carrying <b>real RS-232</b> signals. Rx and Tx must be crossed:",
-    es:"La toma <b>Out</b> de la power base es un <b>Mini-DIN 6</b> con señales <b>RS-232 reales</b>. Rx y Tx van cruzados:"
+    es:"La toma <b>Out</b> de la power base es un <b>Mini-DIN 6</b> con señales <b>RS-232 reales</b>. Rx y Tx van cruzados:",
+    fr:"La prise <b>Out</b> de la power base est une <b>Mini-DIN 6</b> qui porte de <b>vrais signaux RS-232</b>. Rx et Tx doivent être croisés :",
+    de:"Die Buchse <b>Out</b> der Power Base ist vom Typ <b>Mini-DIN 6</b> und führt <b>echte RS-232-Signale</b>. Rx und Tx müssen gekreuzt werden:"
   },
-  wA:{it:"(dati dalla base al PC)",en:"(data from the base to the PC)",es:"(datos de la base al PC)"},
-  wB:{it:"(dati dal PC alla base — cablato ma non usato)",en:"(data from the PC to the base — wired but unused)",es:"(datos del PC a la base — cableado pero sin uso)"},
-  wC:{it:"(massa)",en:"(ground)",es:"(masa)"},
+  wA:{it:"(dati dalla base al PC)",en:"(data from the base to the PC)",es:"(datos de la base al PC)",fr:"(données de la base vers le PC)",de:"(Daten von der Basis zum PC)"},
+  wB:{it:"(dati dal PC alla base — cablato ma non usato)",en:"(data from the PC to the base — wired but unused)",es:"(datos del PC a la base — cableado pero sin uso)",fr:"(données du PC vers la base — câblé mais inutilisé)",de:"(Daten vom PC zur Basis — verdrahtet, aber ungenutzt)"},
+  wC:{it:"(massa)",en:"(ground)",es:"(masa)",fr:"(masse)",de:"(Masse)"},
   wiringNote:{
     it:"Su un computer moderno serve un <b>adattatore USB↔seriale</b>. ⚠️ I livelli RS-232 sono <b>±12 V</b>: se il tuo adattatore è a livelli TTL (3,3/5 V) ci vuole in mezzo un convertitore tipo MAX3232, altrimenti lo danneggi.",
     en:"On a modern computer you also need a <b>USB↔serial adapter</b>. ⚠️ RS-232 levels are <b>±12 V</b>: if your adapter is TTL level (3.3/5 V) put a MAX3232-style converter in between, or you will damage it.",
-    es:"En un ordenador moderno hace falta un <b>adaptador USB↔serie</b>. ⚠️ Los niveles RS-232 son <b>±12 V</b>: si tu adaptador es de nivel TTL (3,3/5 V) pon en medio un convertidor tipo MAX3232, o lo dañarás."
+    es:"En un ordenador moderno hace falta un <b>adaptador USB↔serie</b>. ⚠️ Los niveles RS-232 son <b>±12 V</b>: si tu adaptador es de nivel TTL (3,3/5 V) pon en medio un convertidor tipo MAX3232, o lo dañarás.",
+    fr:"Sur un ordinateur moderne, il faut un <b>adaptateur USB↔série</b>. ⚠️ Les niveaux RS-232 sont de <b>±12 V</b> : si ton adaptateur est en niveaux TTL (3,3/5 V), il faut intercaler un convertisseur de type MAX3232, sinon tu l'abîmes.",
+    de:"An einem modernen Computer brauchst du einen <b>USB↔Seriell-Adapter</b>. ⚠️ RS-232-Pegel liegen bei <b>±12 V</b>: Wenn dein Adapter mit TTL-Pegeln arbeitet (3,3/5 V), gehört ein Wandler wie der MAX3232 dazwischen, sonst beschädigst du ihn."
   },
   noTimes:{
     it:"⏱️ <b>Nessun tempo sul giro finora.</b> La power base li manda solo dalla <b>versione firmware 1.08</b> in poi (pacchetto <code>D</code> ad ogni passaggio). Con firmware precedenti arrivano solo posizioni, giri e benzina — e i tempi si vedono solo a fine gara, chiedendoli con i tasti sulla base.",
     en:"⏱️ <b>No lap times so far.</b> The power base only sends them from <b>firmware 1.08</b> onwards (a <code>D</code> packet on every crossing). With earlier firmware you only get positions, laps and fuel — times appear only at the end of the race, by asking for them with the buttons on the base.",
-    es:"⏱️ <b>Aún no hay tiempos por vuelta.</b> La power base solo los envía desde el <b>firmware 1.08</b> (paquete <code>D</code> en cada paso). Con firmware anteriores solo llegan posiciones, vueltas y combustible — los tiempos aparecen solo al final, pidiéndolos con los botones de la base."
+    es:"⏱️ <b>Aún no hay tiempos por vuelta.</b> La power base solo los envía desde el <b>firmware 1.08</b> (paquete <code>D</code> en cada paso). Con firmware anteriores solo llegan posiciones, vueltas y combustible — los tiempos aparecen solo al final, pidiéndolos con los botones de la base.",
+    fr:"⏱️ <b>Aucun temps au tour pour l'instant.</b> La power base ne les envoie qu'à partir du <b>firmware 1.08</b> (paquet <code>D</code> à chaque passage). Avec un firmware plus ancien, seuls les positions, les tours et le carburant arrivent — et les temps n'apparaissent qu'en fin de course, en les demandant avec les touches de la base.",
+    de:"⏱️ <b>Bisher keine Rundenzeiten.</b> Die Power Base sendet sie erst ab <b>Firmware 1.08</b> (ein <code>D</code>-Paket bei jeder Durchfahrt). Mit älterer Firmware kommen nur Positionen, Runden und Sprit — die Zeiten gibt es erst am Rennende, wenn du sie mit den Tasten an der Basis abrufst."
   },
-  stConn:{it:"connesso",en:"connected",es:"conectado"},
-  stDisc:{it:"non connesso",en:"not connected",es:"sin conexión"},
-  mAma:{it:"amatore",en:"amateur",es:"amateur"},
-  mPro:{it:"professionale",en:"professional",es:"profesional"},
-  mLights:{it:"luci",en:"lights",es:"luces"},
-  sStop:{it:"ferma / box",en:"stopped / pit",es:"parado / boxes"},
-  sSlow:{it:"rallentata",en:"slowed",es:"ralentizado"},
-  sFree:{it:"libera",en:"clear",es:"libre"},
-  sOut:{it:"non in gara",en:"not racing",es:"fuera"},
-  sRes:{it:"riserva",en:"reserve",es:"reserva"},
-  leaderLaps:{it:"giri del capofila:",en:"leader laps:",es:"vueltas del líder:"},
-  pkts:{it:"pacchetti",en:"packets",es:"paquetes"},
-  errOpen:{it:"Non riesco ad aprire la porta: ",en:"Cannot open the port: ",es:"No puedo abrir el puerto: "}
+  stConn:{it:"connesso",en:"connected",es:"conectado",fr:"connecté",de:"verbunden"},
+  stDisc:{it:"non connesso",en:"not connected",es:"sin conexión",fr:"non connecté",de:"nicht verbunden"},
+  mAma:{it:"amatore",en:"amateur",es:"amateur",fr:"amateur",de:"Amateur"},
+  mPro:{it:"professionale",en:"professional",es:"profesional",fr:"professionnel",de:"Profi"},
+  mLights:{it:"luci",en:"lights",es:"luces",fr:"feux",de:"Licht"},
+  sStop:{it:"ferma / box",en:"stopped / pit",es:"parado / boxes",fr:"arrêtée / stand",de:"steht / Box"},
+  sSlow:{it:"rallentata",en:"slowed",es:"ralentizado",fr:"ralentie",de:"verlangsamt"},
+  sFree:{it:"libera",en:"clear",es:"libre",fr:"libre",de:"frei"},
+  sOut:{it:"non in gara",en:"not racing",es:"fuera",fr:"hors course",de:"nicht im Rennen"},
+  sRes:{it:"riserva",en:"reserve",es:"reserva",fr:"réserve",de:"Reserve"},
+  leaderLaps:{it:"giri del capofila:",en:"leader laps:",es:"vueltas del líder:",fr:"tours du leader :",de:"Runden des Führenden:"},
+  pkts:{it:"pacchetti",en:"packets",es:"paquetes",fr:"paquets",de:"Pakete"},
+  errOpen:{it:"Non riesco ad aprire la porta: ",en:"Cannot open the port: ",es:"No puedo abrir el puerto: ",fr:"Impossible d'ouvrir le port : ",de:"Port lässt sich nicht öffnen: "}
 };
 </script>
 <script src="../i18n.js"></script>
@@ -184,7 +196,7 @@ window.I18N_STRINGS = {
 /* La versione dichiarata qui deve essere quella di version.json: lo controlla
    check-versions.js. Prima la pagina non ne aveva una, quindi non sapeva dire
    se quella aperta fosse vecchia. */
-const APP="ninco",APP_VERSION="1.1.0";
+const APP="ninco",APP_VERSION="1.2.0";
 const $ = (id) => document.getElementById(id);
 const T = (k) => (window.I18N ? I18N.t(k) : k);
 

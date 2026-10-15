@@ -9,9 +9,9 @@
  * del configuratore controller e l'intestazione «reg» delle tabelle restavano
  * in italiano in tutte e tre le lingue.
  *
- * I motori di traduzione sono tre, con due numeri di lingue diversi:
- *   - web/i18n.js (it/en/es): le stringhe condivise (SHARED) più quelle di ogni
- *     pagina che lo carica (window.I18N_STRINGS);
+ * I motori di traduzione sono tre, tutti con le stesse cinque lingue:
+ *   - web/i18n.js (it/en/es/fr/de): le stringhe condivise (SHARED) più quelle
+ *     di ogni pagina che lo carica (window.I18N_STRINGS);
  *   - web/cronometro/i18n.js e web/ds200-ds300/i18n.js (it/en/es/fr/de): un
  *     dizionario per lingua.
  *
@@ -114,12 +114,12 @@ function testoNonTradotto(html, dove) {
   }
 }
 
-/* ---- motore web/i18n.js (it/en/es) --------------------------------------- */
-const L3 = ['it', 'en', 'es'];
+/* ---- motore web/i18n.js (it/en/es/fr/de) ---------------------------------- */
+const L5 = ['it', 'en', 'es', 'fr', 'de'];
 const SHARED = valuta(leggi('i18n.js'), /var SHARED = (\{[\s\S]*?\n {2}\});/, 'i18n.js');
-if (SHARED) controllaLingue(SHARED, L3, 'i18n.js (condivise)');
+if (SHARED) controllaLingue(SHARED, L5, 'i18n.js (condivise)');
 
-/* ---- motori a 5 lingue ---------------------------------------------------- */
+/* ---- motori con un dizionario per lingua (cronometro, DS200) -------------- */
 const MOTORI5 = {};
 for (const app of ['cronometro', 'ds200-ds300']) {
   const src = leggi(app + '/i18n.js');
@@ -152,11 +152,11 @@ for (const rel of html.sort()) {
   const app = rel.split(path.sep)[0];
   let definite;
   if (/<script[^>]+src="(?:\.\.\/)?i18n\.js"/.test(testo) && !MOTORI5[app]) {
-    /* Pagina del motore a 3 lingue. */
+    /* Pagina del motore di web/i18n.js. */
     const proprie = /window\.I18N_STRINGS\s*=/.test(testo)
       ? valuta(testo, /window\.I18N_STRINGS\s*=\s*(\{[\s\S]*?\n\});/, rel) : {};
     if (!proprie) continue;
-    controllaLingue(proprie, L3, rel);
+    controllaLingue(proprie, L5, rel);
     definite = new Set([...Object.keys(SHARED || {}), ...Object.keys(proprie)]);
   } else if (MOTORI5[app] && /i18n\.js/.test(testo)) {
     definite = new Set(Object.keys(MOTORI5[app]));

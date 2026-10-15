@@ -82,7 +82,7 @@
     <div class="row"><label data-i18n="lblMac"></label><input id="cMac" size="6" inputmode="latin" autocomplete="off" spellcheck="false" placeholder="1A2B" aria-describedby="macHint">
       <button class="warn cfg" data-fn="clone" disabled data-i18n="btnClone"></button>
       <button class="sec cfg" data-fn="rstmac" disabled data-i18n="btnRstMac"></button></div>
-    <div class="warnbox" data-i18n-html="cloneWarn"></div>
+    <div id="macHint" class="warnbox" data-i18n-html="cloneWarn"></div>
   </div>
 
   <!-- ===== Avanzato ===== -->
@@ -108,179 +108,221 @@ window.I18N_STRINGS = {
   sub:{
     it:"Legge/scrive i registri del controller SCP-3 via BLE (NUS a registri). Chrome/Edge desktop o Chrome Android. <b>Solo su hardware tuo.</b>",
     en:"Reads/writes the SCP-3 controller registers over BLE (register-based NUS). Chrome/Edge desktop or Chrome Android. <b>Only on your own hardware.</b>",
-    es:"Lee/escribe los registros del mando SCP-3 por BLE (NUS por registros). Chrome/Edge escritorio o Chrome Android. <b>Solo en tu propio hardware.</b>"
+    es:"Lee/escribe los registros del mando SCP-3 por BLE (NUS por registros). Chrome/Edge escritorio o Chrome Android. <b>Solo en tu propio hardware.</b>",
+    fr:"Lit/écrit les registres de la manette SCP-3 via BLE (NUS à registres). Chrome/Edge sur ordinateur ou Chrome sur Android. <b>Uniquement sur ton propre matériel.</b>",
+    de:"Liest/schreibt die Register des Handreglers SCP-3 über BLE (registerbasiertes NUS). Chrome/Edge am Computer oder Chrome auf Android. <b>Nur mit eigener Hardware.</b>"
   },
-  btnConn:{it:"🔵 Connetti",en:"🔵 Connect",es:"🔵 Conectar"},
-  btnDisc:{it:"Disconnetti",en:"Disconnect",es:"Desconectar"},
-  ctrlHeading:{it:"Configuratore controller BLE",en:"Controller configurator BLE",es:"Configurador del mando BLE"},
-  cardInfo:{it:"Informazioni (sola lettura)",en:"Information (read-only)",es:"Información (solo lectura)"},
-  btnReadAll:{it:"↺ Leggi configurazione",en:"↺ Read configuration",es:"↺ Leer configuración"},
+  btnConn:{it:"🔵 Connetti",en:"🔵 Connect",es:"🔵 Conectar",fr:"🔵 Connecter",de:"🔵 Verbinden"},
+  btnDisc:{it:"Disconnetti",en:"Disconnect",es:"Desconectar",fr:"Déconnecter",de:"Trennen"},
+  ctrlHeading:{it:"Configuratore controller BLE",en:"Controller configurator BLE",es:"Configurador del mando BLE",fr:"Configurateur de manette BLE",de:"Handregler-Konfigurator BLE"},
+  cardInfo:{it:"Informazioni (sola lettura)",en:"Information (read-only)",es:"Información (solo lectura)",fr:"Informations (lecture seule)",de:"Informationen (nur lesbar)"},
+  btnReadAll:{it:"↺ Leggi configurazione",en:"↺ Read configuration",es:"↺ Leer configuración",fr:"↺ Lire la configuration",de:"↺ Konfiguration lesen"},
   readAllHint:{
     it:"← premi qui per primo: popola i campi e mostra i dati sotto",
     en:"← press this first: it fills the fields and shows the data below",
-    es:"← pulsa aquí primero: rellena los campos y muestra los datos abajo"
+    es:"← pulsa aquí primero: rellena los campos y muestra los datos abajo",
+    fr:"← appuie ici en premier : ça remplit les champs et affiche les données ci-dessous",
+    de:"← drück zuerst hier: Das füllt die Felder und zeigt die Daten darunter"
   },
-  fldFw:{it:"Firmware",en:"Firmware",es:"Firmware"},
-  fldType:{it:"Tipo Chip",en:"Chip type",es:"Tipo de chip"},
-  fldVer:{it:"Versione",en:"Version",es:"Versión"},
-  fldDate:{it:"Data attivazione",en:"Activation date",es:"Fecha de activación"},
-  cardConfig:{it:"Configurazione",en:"Configuration",es:"Configuración"},
+  fldFw:{it:"Firmware",en:"Firmware",es:"Firmware",fr:"Firmware",de:"Firmware"},
+  fldType:{it:"Tipo Chip",en:"Chip type",es:"Tipo de chip",fr:"Type de puce",de:"Chip-Typ"},
+  fldVer:{it:"Versione",en:"Version",es:"Versión",fr:"Version",de:"Version"},
+  fldDate:{it:"Data attivazione",en:"Activation date",es:"Fecha de activación",fr:"Date d'activation",de:"Aktivierungsdatum"},
+  cardConfig:{it:"Configurazione",en:"Configuration",es:"Configuración",fr:"Configuration",de:"Konfiguration"},
   rebootHint:{
-    it:"Ogni scrittura viene salvata, ma il telecomando la <b>applica dal prossimo riavvio</b>. Il «DO» arriva <b>prima</b> che il telecomando salvi in memoria: dopo una scrittura aspetta un paio di secondi prima di spegnerlo.",
-    en:"Every write is saved, but the handset <b>applies it from the next restart</b>. The \"DO\" arrives <b>before</b> the handset saves to memory: after a write, wait a couple of seconds before switching it off.",
-    es:"Cada escritura se guarda, pero el mando la <b>aplica desde el próximo reinicio</b>. El «DO» llega <b>antes</b> de que el mando guarde en memoria: después de una escritura espera un par de segundos antes de apagarlo."
+    it:"Ogni scrittura viene salvata, ma il controller la <b>applica dal prossimo riavvio</b>. Il «DO» arriva <b>prima</b> che il controller salvi in memoria: dopo una scrittura aspetta un paio di secondi prima di spegnerlo.",
+    en:"Every write is saved, but the controller <b>applies it from the next restart</b>. The \"DO\" arrives <b>before</b> the controller saves to memory: after a write, wait a couple of seconds before switching it off.",
+    es:"Cada escritura se guarda, pero el mando la <b>aplica desde el próximo reinicio</b>. El «DO» llega <b>antes</b> de que el mando guarde en memoria: después de una escritura espera un par de segundos antes de apagarlo.",
+    fr:"Chaque écriture est enregistrée, mais la manette ne l'<b>applique qu'au prochain redémarrage</b>. Le « DO » arrive <b>avant</b> que la manette n'enregistre en mémoire : après une écriture, attends quelques secondes avant de l'éteindre.",
+    de:"Jeder Schreibvorgang wird gespeichert, aber der Handregler <b>übernimmt ihn erst beim nächsten Neustart</b>. Das „DO“ kommt, <b>bevor</b> der Handregler in den Speicher schreibt: Warte nach einem Schreibvorgang ein paar Sekunden, bevor du ihn ausschaltest."
   },
-  lblName:{it:"Nome dispositivo",en:"Device name",es:"Nombre del dispositivo"},
-  phName:{it:"es. Il mio controller",en:"e.g. My controller",es:"p. ej. Mi mando"},
+  lblName:{it:"Nome dispositivo",en:"Device name",es:"Nombre del dispositivo",fr:"Nom de l'appareil",de:"Gerätename"},
+  phName:{it:"es. Il mio controller",en:"e.g. My controller",es:"p. ej. Mi mando",fr:"ex. Ma manette",de:"z. B. Mein Handregler"},
   nameHint:{
-    it:"Registro <code>0x83</code>: <b>14 caratteri ASCII</b> esatti, il resto si completa con spazi; le lettere accentate perdono l'accento e gli altri simboli non ASCII si scartano. ⚠️ Il telecomando trasforma in <b>«.»</b> gli spazi in 1ª, 3ª, 5ª… posizione, compresi quelli di riempimento: «Roberto Scp3 A» diventa «Roberto Scp3.A» e un nome corto finisce con «. . .». In rilettura il nome può quindi essere diverso da quello scritto; per evitarlo usa tutti e 14 i caratteri, senza spazi in quelle posizioni.",
-    en:"Register <code>0x83</code>: exactly <b>14 ASCII characters</b>, padded with spaces; accented letters lose the accent and other non-ASCII symbols are dropped. ⚠️ The handset turns the spaces in the 1st, 3rd, 5th… position into <b>\".\"</b>, padding included: \"Roberto Scp3 A\" becomes \"Roberto Scp3.A\" and a short name ends with \". . .\". When read back the name may therefore differ from what you wrote; to avoid it, use all 14 characters with no spaces in those positions.",
-    es:"Registro <code>0x83</code>: exactamente <b>14 caracteres ASCII</b>, completados con espacios; las letras acentuadas pierden el acento y los demás símbolos no ASCII se descartan. ⚠️ El mando convierte en <b>«.»</b> los espacios en 1.ª, 3.ª, 5.ª… posición, incluidos los de relleno: «Roberto Scp3 A» se convierte en «Roberto Scp3.A» y un nombre corto termina en «. . .». Al releerlo el nombre puede ser distinto del escrito; para evitarlo usa los 14 caracteres, sin espacios en esas posiciones."
+    it:"Registro <code>0x83</code>: <b>14 caratteri ASCII</b> esatti, il resto si completa con spazi; le lettere accentate perdono l'accento e gli altri simboli non ASCII si scartano. ⚠️ Il controller trasforma in <b>«.»</b> gli spazi in 1ª, 3ª, 5ª… posizione, compresi quelli di riempimento: «Roberto Scp3 A» diventa «Roberto Scp3.A» e un nome corto finisce con «. . .». In rilettura il nome può quindi essere diverso da quello scritto; per evitarlo usa tutti e 14 i caratteri, senza spazi in quelle posizioni.",
+    en:"Register <code>0x83</code>: exactly <b>14 ASCII characters</b>, padded with spaces; accented letters lose the accent and other non-ASCII symbols are dropped. ⚠️ The controller turns the spaces in the 1st, 3rd, 5th… position into <b>\".\"</b>, padding included: \"Roberto Scp3 A\" becomes \"Roberto Scp3.A\" and a short name ends with \". . .\". When read back the name may therefore differ from what you wrote; to avoid it, use all 14 characters with no spaces in those positions.",
+    es:"Registro <code>0x83</code>: exactamente <b>14 caracteres ASCII</b>, completados con espacios; las letras acentuadas pierden el acento y los demás símbolos no ASCII se descartan. ⚠️ El mando convierte en <b>«.»</b> los espacios en 1.ª, 3.ª, 5.ª… posición, incluidos los de relleno: «Roberto Scp3 A» se convierte en «Roberto Scp3.A» y un nombre corto termina en «. . .». Al releerlo el nombre puede ser distinto del escrito; para evitarlo usa los 14 caracteres, sin espacios en esas posiciones.",
+    fr:"Registre <code>0x83</code> : exactement <b>14 caractères ASCII</b>, complétés par des espaces ; les lettres accentuées perdent leur accent et les autres symboles non ASCII sont ignorés. ⚠️ La manette transforme en <b>« . »</b> les espaces en 1re, 3e, 5e… position, y compris ceux de remplissage : « Roberto Scp3 A » devient « Roberto Scp3.A » et un nom court se termine par « . . . ». À la relecture, le nom peut donc différer de celui que tu as écrit ; pour l'éviter, utilise les 14 caractères, sans espace à ces positions.",
+    de:"Register <code>0x83</code>: genau <b>14 ASCII-Zeichen</b>, der Rest wird mit Leerzeichen aufgefüllt; Buchstaben mit Akzent oder Umlaut verlieren ihn, andere Nicht-ASCII-Zeichen werden verworfen. ⚠️ Der Handregler macht aus den Leerzeichen an 1., 3., 5. … Stelle einen <b>„.“</b>, auch aus den Füllzeichen: „Roberto Scp3 A“ wird zu „Roberto Scp3.A“, und ein kurzer Name endet mit „. . .“. Beim Zurücklesen kann der Name daher vom geschriebenen abweichen; um das zu vermeiden, nutze alle 14 Zeichen ohne Leerzeichen an diesen Stellen."
   },
-  lblBrake:{it:"Impostazione freno",en:"Brake setting",es:"Ajuste de freno"},
-  brakeNone:{it:"— (leggi configurazione)",en:"— (read configuration)",es:"— (leer configuración)"},
-  brakeDefault:{it:"Default",en:"Default",es:"Predeterminado"},
-  brakeLinear:{it:"Manopola (trimmer)",en:"Knob (trimmer)",es:"Mando (trimmer)"},
-  btnWrite:{it:"Scrivi (Nome + Freno)",en:"Write (Name + Brake)",es:"Escribir (Nombre + Freno)"},
+  lblBrake:{it:"Impostazione freno",en:"Brake setting",es:"Ajuste de freno",fr:"Réglage du frein",de:"Bremseinstellung"},
+  brakeNone:{it:"— (leggi configurazione)",en:"— (read configuration)",es:"— (leer configuración)",fr:"— (lire la configuration)",de:"— (Konfiguration lesen)"},
+  brakeDefault:{it:"Default",en:"Default",es:"Predeterminado",fr:"Par défaut",de:"Standard"},
+  brakeLinear:{it:"Manopola (trimmer)",en:"Knob (trimmer)",es:"Potenciómetro (trimmer)",fr:"Molette (trimmer)",de:"Drehknopf (Trimmer)"},
+  btnWrite:{it:"Scrivi (Nome + Freno)",en:"Write (Name + Brake)",es:"Escribir (Nombre + Freno)",fr:"Écrire (Nom + Frein)",de:"Schreiben (Name + Bremse)"},
   writeHint:{
     it:"come il tasto <b>Scrivi</b> dell'app: scrive Nome (0x83, se non è vuoto) e Impostazione freno (0x8c). Il modo freno 2 (Sweep) non è offerto: non si rilegge e si perde al riavvio",
     en:"like the app's <b>Write</b> button: writes Name (0x83, if not empty) and Brake setting (0x8c). Brake mode 2 (Sweep) is not offered: it does not read back and is lost on restart",
-    es:"como el botón <b>Escribir</b> de la app: escribe Nombre (0x83, si no está vacío) y Ajuste de freno (0x8c). El modo de freno 2 (Sweep) no se ofrece: no se relee y se pierde al reiniciar"
+    es:"como el botón <b>Escribir</b> de la app: escribe Nombre (0x83, si no está vacío) y Ajuste de freno (0x8c). El modo de freno 2 (Sweep) no se ofrece: no se relee y se pierde al reiniciar",
+    fr:"comme le bouton <b>Écrire</b> de l'app : écrit le Nom (0x83, s'il n'est pas vide) et le Réglage du frein (0x8c). Le mode de frein 2 (Sweep) n'est pas proposé : il ne se relit pas et se perd au redémarrage",
+    de:"wie die Taste <b>Schreiben</b> der App: schreibt Name (0x83, wenn nicht leer) und Bremseinstellung (0x8c). Bremsmodus 2 (Sweep) wird nicht angeboten: Er lässt sich nicht zurücklesen und geht beim Neustart verloren"
   },
-  cardId:{it:"ID controller",en:"Controller ID",es:"ID del mando"},
-  btnSetId:{it:"Imposta ID",en:"Set ID",es:"Establecer ID"},
-  cardClone:{it:"Identità radio O2 (registro 0x90)",en:"O2 radio identity (register 0x90)",es:"Identidad de radio O2 (registro 0x90)"},
-  lblMac:{it:"O2 MAC (2 byte)",en:"O2 MAC (2 bytes)",es:"O2 MAC (2 bytes)"},
-  btnClone:{it:"Scrivi MAC O2",en:"Write O2 MAC",es:"Escribir MAC O2"},
-  btnRstMac:{it:"Ripristina di fabbrica",en:"Restore factory value",es:"Restaurar de fábrica"},
+  cardId:{it:"ID controller",en:"Controller ID",es:"ID del mando",fr:"ID de la manette",de:"Handregler-ID"},
+  btnSetId:{it:"Imposta ID",en:"Set ID",es:"Establecer ID",fr:"Définir l'ID",de:"ID setzen"},
+  cardClone:{it:"Identità radio O2 (registro 0x90)",en:"O2 radio identity (register 0x90)",es:"Identidad de radio O2 (registro 0x90)",fr:"Identité radio O2 (registre 0x90)",de:"O2-Funkidentität (Register 0x90)"},
+  lblMac:{it:"O2 MAC (2 byte)",en:"O2 MAC (2 bytes)",es:"O2 MAC (2 bytes)",fr:"MAC O2 (2 octets)",de:"O2-MAC (2 Bytes)"},
+  btnClone:{it:"Scrivi MAC O2",en:"Write O2 MAC",es:"Escribir MAC O2",fr:"Écrire le MAC O2",de:"O2-MAC schreiben"},
+  btnRstMac:{it:"Ripristina di fabbrica",en:"Restore factory value",es:"Restaurar de fábrica",fr:"Rétablir la valeur d'usine",de:"Werkseinstellung wiederherstellen"},
   confirmRstMac:{
-    it:"Ripristinare l'identità radio O2 di fabbrica (registro 0x9F)? Il telecomando torna ai 2 byte ricavati dal MAC del proprio chip. Ha effetto dal prossimo riavvio.",
-    en:"Restore the factory O2 radio identity (register 0x9F)? The handset goes back to the 2 bytes derived from its own chip MAC. Takes effect from the next restart.",
-    es:"¿Restaurar la identidad de radio O2 de fábrica (registro 0x9F)? El mando vuelve a los 2 bytes derivados del MAC de su propio chip. Tiene efecto desde el próximo reinicio."
+    it:"Ripristinare l'identità radio O2 di fabbrica (registro 0x9F)? Il controller torna ai 2 byte ricavati dal MAC del proprio chip. Ha effetto dal prossimo riavvio.",
+    en:"Restore the factory O2 radio identity (register 0x9F)? The controller goes back to the 2 bytes derived from its own chip MAC. Takes effect from the next restart.",
+    es:"¿Restaurar la identidad de radio O2 de fábrica (registro 0x9F)? El mando vuelve a los 2 bytes derivados del MAC de su propio chip. Tiene efecto desde el próximo reinicio.",
+    fr:"Rétablir l'identité radio O2 d'usine (registre 0x9F) ? La manette revient aux 2 octets tirés du MAC de sa propre puce. Prend effet au prochain redémarrage.",
+    de:"O2-Funkidentität ab Werk wiederherstellen (Register 0x9F)? Der Handregler kehrt zu den 2 Bytes zurück, die aus der MAC seines eigenen Chips abgeleitet sind. Wirkt ab dem nächsten Neustart."
   },
   cloneWarn:{
-    it:"⚠️ Il registro <code>0x90</code> contiene i <b>2 byte dell'identità radio O2</b> del telecomando (prima il byte alto, poi il basso): da questi si ricava l'indirizzo con cui parla alle auto, e le auto abbinate rispondono a quei 2 byte. <b>Due telecomandi con gli stessi 2 byte comandano le stesse auto.</b> C'è una conferma, e si scrive <b>solo</b> <code>0x90</code>. <b>Ripristina di fabbrica</b> scrive <code>0x9F</code>, che rimette i 2 byte ricavati dal MAC del chip: per questo non va mai mandato subito dopo una scrittura di <code>0x90</code>, la annullerebbe. (<code>0x80</code>, l'aggiornamento firmware, non è esposto qui apposta.)",
-    en:"⚠️ Register <code>0x90</code> holds the <b>2 bytes of the handset's O2 radio identity</b> (high byte first, then low): the address it uses to talk to the cars is derived from them, and the bound cars answer to those 2 bytes. <b>Two handsets with the same 2 bytes control the same cars.</b> There is a confirmation, and <b>only</b> <code>0x90</code> is written. <b>Restore factory value</b> writes <code>0x9F</code>, which puts back the 2 bytes derived from the chip MAC: that is why it must never be sent right after a write of <code>0x90</code>, it would undo it. (<code>0x80</code>, the firmware update, is deliberately not exposed here.)",
-    es:"⚠️ El registro <code>0x90</code> contiene los <b>2 bytes de la identidad de radio O2</b> del mando (primero el byte alto, luego el bajo): de ellos se obtiene la dirección con la que habla a los coches, y los coches vinculados responden a esos 2 bytes. <b>Dos mandos con los mismos 2 bytes controlan los mismos coches.</b> Hay una confirmación, y se escribe <b>solo</b> <code>0x90</code>. <b>Restaurar de fábrica</b> escribe <code>0x9F</code>, que devuelve los 2 bytes derivados del MAC del chip: por eso nunca debe enviarse justo después de una escritura de <code>0x90</code>, la anularía. (<code>0x80</code>, la actualización de firmware, no se expone aquí a propósito.)"
+    it:"⚠️ Il registro <code>0x90</code> contiene i <b>2 byte dell'identità radio O2</b> del controller (prima il byte alto, poi il basso): da questi si ricava l'indirizzo con cui parla alle auto, e le auto abbinate rispondono a quei 2 byte. <b>Due controller con gli stessi 2 byte comandano le stesse auto.</b> C'è una conferma, e si scrive <b>solo</b> <code>0x90</code>. <b>Ripristina di fabbrica</b> scrive <code>0x9F</code>, che rimette i 2 byte ricavati dal MAC del chip: per questo non va mai mandato subito dopo una scrittura di <code>0x90</code>, la annullerebbe. (<code>0x80</code>, l'aggiornamento firmware, non è esposto qui apposta.)",
+    en:"⚠️ Register <code>0x90</code> holds the <b>2 bytes of the controller's O2 radio identity</b> (high byte first, then low): the address it uses to talk to the cars is derived from them, and the bound cars answer to those 2 bytes. <b>Two controllers with the same 2 bytes control the same cars.</b> There is a confirmation, and <b>only</b> <code>0x90</code> is written. <b>Restore factory value</b> writes <code>0x9F</code>, which puts back the 2 bytes derived from the chip MAC: that is why it must never be sent right after a write of <code>0x90</code>, it would undo it. (<code>0x80</code>, the firmware update, is deliberately not exposed here.)",
+    es:"⚠️ El registro <code>0x90</code> contiene los <b>2 bytes de la identidad de radio O2</b> del mando (primero el byte alto, luego el bajo): de ellos se obtiene la dirección con la que habla a los coches, y los coches vinculados responden a esos 2 bytes. <b>Dos mandos con los mismos 2 bytes controlan los mismos coches.</b> Hay una confirmación, y se escribe <b>solo</b> <code>0x90</code>. <b>Restaurar de fábrica</b> escribe <code>0x9F</code>, que devuelve los 2 bytes derivados del MAC del chip: por eso nunca debe enviarse justo después de una escritura de <code>0x90</code>, la anularía. (<code>0x80</code>, la actualización de firmware, no se expone aquí a propósito.)",
+    fr:"⚠️ Le registre <code>0x90</code> contient les <b>2 octets de l'identité radio O2</b> de la manette (d'abord l'octet haut, puis le bas) : c'est d'eux que l'on tire l'adresse avec laquelle elle parle aux voitures, et les voitures appairées répondent à ces 2 octets. <b>Deux manettes avec les mêmes 2 octets commandent les mêmes voitures.</b> Il y a une confirmation, et on écrit <b>seulement</b> <code>0x90</code>. <b>Rétablir la valeur d'usine</b> écrit <code>0x9F</code>, qui remet les 2 octets tirés du MAC de la puce : c'est pourquoi il ne faut jamais l'envoyer juste après une écriture de <code>0x90</code>, il l'annulerait. (<code>0x80</code>, la mise à jour du firmware, n'est volontairement pas proposé ici.)",
+    de:"⚠️ Register <code>0x90</code> enthält die <b>2 Bytes der O2-Funkidentität</b> des Handreglers (zuerst das hohe Byte, dann das niedrige): Daraus ergibt sich die Adresse, mit der er zu den Autos spricht, und die gekoppelten Autos antworten auf diese 2 Bytes. <b>Zwei Handregler mit denselben 2 Bytes steuern dieselben Autos.</b> Es gibt eine Bestätigung, und geschrieben wird <b>nur</b> <code>0x90</code>. <b>Werkseinstellung wiederherstellen</b> schreibt <code>0x9F</code>, das die aus der MAC des Chips abgeleiteten 2 Bytes zurückholt: Deshalb darf es nie direkt nach einem Schreiben von <code>0x90</code> gesendet werden, es würde den Schreibvorgang aufheben. (<code>0x80</code>, das Firmware-Update, wird hier absichtlich nicht angeboten.)"
   },
-  advSummary:{it:"Avanzato — registri grezzi",en:"Advanced — raw registers",es:"Avanzado — registros en bruto"},
+  advSummary:{it:"Avanzato — registri grezzi",en:"Advanced — raw registers",es:"Avanzado — registros en bruto",fr:"Avancé — registres bruts",de:"Erweitert — Rohregister"},
   rawHint:{
-    it:"La console accetta solo i registri della tabella, con il numero di byte giusto per ciascuno. Il motivo: a un registro che non gestisce il telecomando risponde <b>«DO»</b> lo stesso, senza aver scritto niente — e dopo una lettura o scrittura del freno (<code>0x8B</code>/<code>0x8C</code>) quella scrittura finisce nel valore del freno. Valori in esadecimale (<code>32</code>, <code>1a 2b</code>); per <code>0x83</code> si scrive il nome in chiaro. Bloccati apposta anche <code>0x80</code> (aggiornamento firmware), i registri di attivazione <code>0x81</code>/<code>0x82</code> e il modo freno 2.",
-    en:"The console only accepts the registers in the table, with the right number of bytes for each one. The reason: the handset answers <b>\"DO\"</b> even to a register it does not handle, without writing anything — and after a brake read or write (<code>0x8B</code>/<code>0x8C</code>) that write ends up in the brake value. Values in hex (<code>32</code>, <code>1a 2b</code>); for <code>0x83</code> type the name as plain text. Also blocked on purpose: <code>0x80</code> (firmware update), the activation registers <code>0x81</code>/<code>0x82</code> and brake mode 2.",
-    es:"La consola solo acepta los registros de la tabla, con el número de bytes correcto para cada uno. El motivo: a un registro que no gestiona el mando responde <b>«DO»</b> igualmente, sin haber escrito nada — y después de una lectura o escritura del freno (<code>0x8B</code>/<code>0x8C</code>) esa escritura acaba en el valor del freno. Valores en hexadecimal (<code>32</code>, <code>1a 2b</code>); para <code>0x83</code> se escribe el nombre en claro. Bloqueados a propósito también <code>0x80</code> (actualización de firmware), los registros de activación <code>0x81</code>/<code>0x82</code> y el modo de freno 2."
+    it:"La console accetta solo i registri della tabella, con il numero di byte giusto per ciascuno. Il motivo: a un registro che non gestisce il controller risponde <b>«DO»</b> lo stesso, senza aver scritto niente — e dopo una lettura o scrittura del freno (<code>0x8B</code>/<code>0x8C</code>) quella scrittura finisce nel valore del freno. Valori in esadecimale (<code>32</code>, <code>1a 2b</code>); per <code>0x83</code> si scrive il nome in chiaro. Bloccati apposta anche <code>0x80</code> (aggiornamento firmware), i registri di attivazione <code>0x81</code>/<code>0x82</code> e il modo freno 2.",
+    en:"The console only accepts the registers in the table, with the right number of bytes for each one. The reason: the controller answers <b>\"DO\"</b> even to a register it does not handle, without writing anything — and after a brake read or write (<code>0x8B</code>/<code>0x8C</code>) that write ends up in the brake value. Values in hex (<code>32</code>, <code>1a 2b</code>); for <code>0x83</code> type the name as plain text. Also blocked on purpose: <code>0x80</code> (firmware update), the activation registers <code>0x81</code>/<code>0x82</code> and brake mode 2.",
+    es:"La consola solo acepta los registros de la tabla, con el número de bytes correcto para cada uno. El motivo: a un registro que no gestiona el mando responde <b>«DO»</b> igualmente, sin haber escrito nada — y después de una lectura o escritura del freno (<code>0x8B</code>/<code>0x8C</code>) esa escritura acaba en el valor del freno. Valores en hexadecimal (<code>32</code>, <code>1a 2b</code>); para <code>0x83</code> se escribe el nombre en claro. Bloqueados a propósito también <code>0x80</code> (actualización de firmware), los registros de activación <code>0x81</code>/<code>0x82</code> y el modo de freno 2.",
+    fr:"La console n'accepte que les registres du tableau, avec le bon nombre d'octets pour chacun. La raison : à un registre qu'elle ne gère pas, la manette répond quand même <b>« DO »</b>, sans rien avoir écrit — et après une lecture ou une écriture du frein (<code>0x8B</code>/<code>0x8C</code>), cette écriture finit dans la valeur du frein. Valeurs en hexadécimal (<code>32</code>, <code>1a 2b</code>) ; pour <code>0x83</code>, on écrit le nom en clair. Bloqués exprès aussi : <code>0x80</code> (mise à jour du firmware), les registres d'activation <code>0x81</code>/<code>0x82</code> et le mode de frein 2.",
+    de:"Die Konsole nimmt nur die Register aus der Tabelle an, jeweils mit der richtigen Anzahl Bytes. Der Grund: Auf ein Register, das er nicht verarbeitet, antwortet der Handregler trotzdem <b>„DO“</b>, ohne etwas geschrieben zu haben — und nach einem Lesen oder Schreiben der Bremse (<code>0x8B</code>/<code>0x8C</code>) landet dieser Schreibvorgang im Bremswert. Werte hexadezimal (<code>32</code>, <code>1a 2b</code>); für <code>0x83</code> schreibt man den Namen im Klartext. Ebenfalls absichtlich gesperrt: <code>0x80</code> (Firmware-Update), die Aktivierungsregister <code>0x81</code>/<code>0x82</code> und Bremsmodus 2."
   },
-  lblRawRead:{it:"Leggi reg",en:"Read reg",es:"Leer reg"},
-  btnRawRead:{it:"Leggi",en:"Read",es:"Leer"},
-  lblRawWrite:{it:"Scrivi reg",en:"Write reg",es:"Escribir reg"},
-  phRawWrite:{it:"01 / 1a2b / nome per 0x83",en:"01 / 1a2b / name for 0x83",es:"01 / 1a2b / nombre para 0x83"},
-  btnRawWrite:{it:"Scrivi",en:"Write",es:"Escribir"},
-  thName:{it:"nome",en:"name",es:"nombre"},
-  thValue:{it:"valore",en:"value",es:"valor"},
-  regReadBtn:{it:"leggi",en:"read",es:"leer"},
+  lblRawRead:{it:"Leggi reg",en:"Read reg",es:"Leer reg",fr:"Lire reg",de:"Reg lesen"},
+  btnRawRead:{it:"Leggi",en:"Read",es:"Leer",fr:"Lire",de:"Lesen"},
+  lblRawWrite:{it:"Scrivi reg",en:"Write reg",es:"Escribir reg",fr:"Écrire reg",de:"Reg schreiben"},
+  phRawWrite:{it:"01 / 1a2b / nome per 0x83",en:"01 / 1a2b / name for 0x83",es:"01 / 1a2b / nombre para 0x83",fr:"01 / 1a2b / nom pour 0x83",de:"01 / 1a2b / Name für 0x83"},
+  btnRawWrite:{it:"Scrivi",en:"Write",es:"Escribir",fr:"Écrire",de:"Schreiben"},
+  thName:{it:"nome",en:"name",es:"nombre",fr:"nom",de:"Name"},
+  thValue:{it:"valore",en:"value",es:"valor",fr:"valeur",de:"Wert"},
+  regReadBtn:{it:"leggi",en:"read",es:"leer",fr:"lire",de:"lesen"},
   // --- nomi dei registri (tabella) ---
-  rgVer:{it:"versione firmware (si legge con un frame da 5 byte)",en:"firmware version (read with a 5-byte frame)",es:"versión de firmware (se lee con una trama de 5 bytes)"},
-  rgChipMac:{it:"MAC del chip (sola lettura)",en:"chip MAC (read-only)",es:"MAC del chip (solo lectura)"},
-  rgActDate:{it:"data di attivazione (qui solo lettura)",en:"activation date (read-only here)",es:"fecha de activación (aquí solo lectura)"},
-  rgActLock:{it:"blocco di attivazione (qui solo lettura)",en:"activation lock (read-only here)",es:"bloqueo de activación (aquí solo lectura)"},
-  rgName:{it:"nome (14 caratteri ASCII; gli spazi in 1ª, 3ª… posizione diventano «.»)",en:"name (14 ASCII characters; spaces in the 1st, 3rd… position become \".\")",es:"nombre (14 caracteres ASCII; los espacios en 1.ª, 3.ª… posición se vuelven «.»)"},
-  rgSpdMode:{it:"modo velocità: senza effetto",en:"speed mode: no effect",es:"modo de velocidad: sin efecto"},
-  rgSpdMax:{it:"velocità massima: senza effetto",en:"max speed: no effect",es:"velocidad máxima: sin efecto"},
-  rgBrkVal:{it:"valore massimo del freno",en:"maximum brake value",es:"valor máximo del freno"},
-  rgBrkMode:{it:"modo freno: 0 default, 1 lineare (manopola)",en:"brake mode: 0 default, 1 linear (knob)",es:"modo de freno: 0 predeterminado, 1 lineal (mando)"},
-  rgCode:{it:"tipo di codifica: 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (torna a O2 all'avvio)",en:"coding type: 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (back to O2 at startup)",es:"tipo de codificación: 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (vuelve a O2 al arrancar)"},
-  rgId:{it:"ID (1–20)",en:"ID (1–20)",es:"ID (1–20)"},
-  rgIdent:{it:"identità radio O2 (alto, basso)",en:"O2 radio identity (high, low)",es:"identidad de radio O2 (alto, bajo)"},
-  rgSpdLim:{it:"limite velocità: non usato",en:"speed limit: not used",es:"límite de velocidad: no se usa"},
-  rgCurve:{it:"curva del grilletto [max, medio 2, medio 1, min, offset fine corsa]; valori non decrescenti forzano la ricalibrazione all'avvio",en:"trigger curve [max, mid 2, mid 1, min, end-of-travel offset]; non-decreasing values force a recalibration at startup",es:"curva del gatillo [máx, medio 2, medio 1, mín, offset fin de carrera]; valores no decrecientes fuerzan la recalibración al arrancar"},
-  rgRamp:{it:"soglia rampa: non usata",en:"ramp threshold: not used",es:"umbral de rampa: no se usa"},
-  rgRstId:{it:"ripristina identità di fabbrica (comando)",en:"restore factory identity (command)",es:"restaurar identidad de fábrica (comando)"},
+  rgVer:{it:"versione firmware (si legge con un frame da 5 byte)",en:"firmware version (read with a 5-byte frame)",es:"versión de firmware (se lee con una trama de 5 bytes)",fr:"version du firmware (se lit avec une trame de 5 octets)",de:"Firmware-Version (wird mit einem 5-Byte-Frame gelesen)"},
+  rgChipMac:{it:"MAC del chip (sola lettura)",en:"chip MAC (read-only)",es:"MAC del chip (solo lectura)",fr:"MAC de la puce (lecture seule)",de:"MAC des Chips (nur lesbar)"},
+  rgActDate:{it:"data di attivazione (qui solo lettura)",en:"activation date (read-only here)",es:"fecha de activación (aquí solo lectura)",fr:"date d'activation (ici en lecture seule)",de:"Aktivierungsdatum (hier nur lesbar)"},
+  rgActLock:{it:"blocco di attivazione (qui solo lettura)",en:"activation lock (read-only here)",es:"bloqueo de activación (aquí solo lectura)",fr:"verrou d'activation (ici en lecture seule)",de:"Aktivierungssperre (hier nur lesbar)"},
+  rgName:{it:"nome (14 caratteri ASCII; gli spazi in 1ª, 3ª… posizione diventano «.»)",en:"name (14 ASCII characters; spaces in the 1st, 3rd… position become \".\")",es:"nombre (14 caracteres ASCII; los espacios en 1.ª, 3.ª… posición se vuelven «.»)",fr:"nom (14 caractères ASCII ; les espaces en 1re, 3e… position deviennent « . »)",de:"Name (14 ASCII-Zeichen; Leerzeichen an 1., 3. … Stelle werden zu „.“)"},
+  rgSpdMode:{it:"modo velocità: senza effetto",en:"speed mode: no effect",es:"modo de velocidad: sin efecto",fr:"mode de vitesse : sans effet",de:"Geschwindigkeitsmodus: ohne Wirkung"},
+  rgSpdMax:{it:"velocità massima: senza effetto",en:"max speed: no effect",es:"velocidad máxima: sin efecto",fr:"vitesse maximale : sans effet",de:"Höchstgeschwindigkeit: ohne Wirkung"},
+  rgBrkVal:{it:"valore massimo del freno",en:"maximum brake value",es:"valor máximo del freno",fr:"valeur maximale du frein",de:"maximaler Bremswert"},
+  rgBrkMode:{it:"modo freno: 0 default, 1 lineare (manopola)",en:"brake mode: 0 default, 1 linear (knob)",es:"modo de freno: 0 predeterminado, 1 lineal (potenciómetro)",fr:"mode de frein : 0 par défaut, 1 linéaire (molette)",de:"Bremsmodus: 0 Standard, 1 linear (Drehknopf)"},
+  rgCode:{it:"tipo di codifica: 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (torna a O2 all'avvio)",en:"coding type: 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (back to O2 at startup)",es:"tipo de codificación: 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (vuelve a O2 al arrancar)",fr:"type de codage : 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (revient à O2 au démarrage)",de:"Codierungsart: 0 O2, 1 ARC, 2 DGT, 3 SSD, 4 D132 (beim Start wieder O2)"},
+  rgId:{it:"ID (1–20)",en:"ID (1–20)",es:"ID (1–20)",fr:"ID (1–20)",de:"ID (1–20)"},
+  rgIdent:{it:"identità radio O2 (alto, basso)",en:"O2 radio identity (high, low)",es:"identidad de radio O2 (alto, bajo)",fr:"identité radio O2 (haut, bas)",de:"O2-Funkidentität (hoch, niedrig)"},
+  rgSpdLim:{it:"limite velocità: non usato",en:"speed limit: not used",es:"límite de velocidad: no se usa",fr:"limite de vitesse : pas utilisée",de:"Geschwindigkeitsgrenze: nicht genutzt"},
+  rgCurve:{it:"curva del grilletto [max, medio 2, medio 1, min, offset fine corsa]; valori non decrescenti forzano la ricalibrazione all'avvio",en:"trigger curve [max, mid 2, mid 1, min, end-of-travel offset]; non-decreasing values force a recalibration at startup",es:"curva del gatillo [máx, medio 2, medio 1, mín, offset fin de carrera]; valores no decrecientes fuerzan la recalibración al arrancar",fr:"courbe de la gâchette [max, milieu 2, milieu 1, min, décalage de fin de course] ; des valeurs non décroissantes forcent le recalibrage au démarrage",de:"Abzugskurve [max, Mitte 2, Mitte 1, min, Offset am Anschlag]; nicht fallende Werte erzwingen beim Start eine Neukalibrierung"},
+  rgRamp:{it:"soglia rampa: non usata",en:"ramp threshold: not used",es:"umbral de rampa: no se usa",fr:"seuil de rampe : pas utilisé",de:"Rampenschwelle: nicht genutzt"},
+  rgRstId:{it:"ripristina identità di fabbrica (comando)",en:"restore factory identity (command)",es:"restaurar identidad de fábrica (comando)",fr:"rétablir l'identité d'usine (commande)",de:"Werksidentität wiederherstellen (Befehl)"},
   // --- motivi dei blocchi della console ---
-  blkBadReg:{it:"numero di registro non valido (es. 8f).",en:"invalid register number (e.g. 8f).",es:"número de registro no válido (p. ej. 8f)."},
-  blkBadVal:{it:"valore non valido: scrivi i byte in esadecimale (es. 01 oppure 1a 2b).",en:"invalid value: write the bytes in hex (e.g. 01 or 1a 2b).",es:"valor no válido: escribe los bytes en hexadecimal (p. ej. 01 o 1a 2b)."},
+  blkBadReg:{it:"numero di registro non valido (es. 8f).",en:"invalid register number (e.g. 8f).",es:"número de registro no válido (p. ej. 8f).",fr:"numéro de registre non valide (ex. 8f).",de:"Ungültige Registernummer (z. B. 8f)."},
+  blkBadVal:{it:"valore non valido: scrivi i byte in esadecimale (es. 01 oppure 1a 2b).",en:"invalid value: write the bytes in hex (e.g. 01 or 1a 2b).",es:"valor no válido: escribe los bytes en hexadecimal (p. ej. 01 o 1a 2b).",fr:"valeur non valide : écris les octets en hexadécimal (ex. 01 ou 1a 2b).",de:"Ungültiger Wert: Schreib die Bytes hexadezimal (z. B. 01 oder 1a 2b)."},
   blkUnknown:{
-    it:"registro fuori tabella, non lo mando: il telecomando risponderebbe «DO» senza scrivere niente, e dopo un accesso al freno (0x8B/0x8C) la scrittura finirebbe nel valore del freno.",
-    en:"register not in the table, not sent: the handset would answer \"DO\" without writing anything, and after a brake access (0x8B/0x8C) the write would end up in the brake value.",
-    es:"registro fuera de la tabla, no lo envío: el mando respondería «DO» sin escribir nada, y después de un acceso al freno (0x8B/0x8C) la escritura acabaría en el valor del freno."
+    it:"registro fuori tabella, non lo mando: il controller risponderebbe «DO» senza scrivere niente, e dopo un accesso al freno (0x8B/0x8C) la scrittura finirebbe nel valore del freno.",
+    en:"register not in the table, not sent: the controller would answer \"DO\" without writing anything, and after a brake access (0x8B/0x8C) the write would end up in the brake value.",
+    es:"registro fuera de la tabla, no lo envío: el mando respondería «DO» sin escribir nada, y después de un acceso al freno (0x8B/0x8C) la escritura acabaría en el valor del freno.",
+    fr:"registre hors du tableau, je ne l'envoie pas : la manette répondrait « DO » sans rien écrire, et après un accès au frein (0x8B/0x8C) l'écriture finirait dans la valeur du frein.",
+    de:"Register nicht in der Tabelle, wird nicht gesendet: Der Handregler würde „DO“ antworten, ohne etwas zu schreiben, und nach einem Zugriff auf die Bremse (0x8B/0x8C) würde der Schreibvorgang im Bremswert landen."
   },
   blkUnknownR:{
-    it:"registro fuori tabella, non lo leggo: a un registro che non gestisce il telecomando non risponde, e non è provato che la lettura sia innocua.",
-    en:"register not in the table, not read: the handset does not answer for a register it does not handle, and reading it has not been proven harmless.",
-    es:"registro fuera de la tabla, no lo leo: a un registro que no gestiona el mando no responde, y no está probado que leerlo sea inocuo."
+    it:"registro fuori tabella, non lo leggo: a un registro che non gestisce il controller non risponde, e non è provato che la lettura sia innocua.",
+    en:"register not in the table, not read: the controller does not answer for a register it does not handle, and reading it has not been proven harmless.",
+    es:"registro fuera de la tabla, no lo leo: a un registro que no gestiona el mando no responde, y no está probado que leerlo sea inocuo.",
+    fr:"registre hors du tableau, je ne le lis pas : la manette ne répond pas pour un registre qu'elle ne gère pas, et il n'est pas prouvé que la lecture soit sans danger.",
+    de:"Register nicht in der Tabelle, wird nicht gelesen: Auf ein Register, das er nicht verarbeitet, antwortet der Handregler nicht, und es ist nicht erwiesen, dass das Lesen harmlos ist."
   },
-  blkRO:{it:"registro di sola lettura.",en:"read-only register.",es:"registro de solo lectura."},
-  blkWO:{it:"è un comando, non un valore: si scrive soltanto.",en:"it is a command, not a value: it can only be written.",es:"es un comando, no un valor: solo se escribe."},
+  blkRO:{it:"registro di sola lettura.",en:"read-only register.",es:"registro de solo lectura.",fr:"registre en lecture seule.",de:"Nur lesbares Register."},
+  blkWO:{it:"è un comando, non un valore: si scrive soltanto.",en:"it is a command, not a value: it can only be written.",es:"es un comando, no un valor: solo se escribe.",fr:"c'est une commande, pas une valeur : on ne peut que l'écrire.",de:"Das ist ein Befehl, kein Wert: Er wird nur geschrieben."},
   blkDfu:{
-    it:"0x80 riguarda l'aggiornamento firmware: questa app non lo manda (sul telecomando si entra in aggiornamento dal menu pulsanti).",
-    en:"0x80 is about the firmware update: this app does not send it (on the handset the update mode is entered from the button menu).",
-    es:"0x80 tiene que ver con la actualización de firmware: esta app no lo envía (en el mando se entra en actualización desde el menú de botones)."
+    it:"0x80 riguarda l'aggiornamento firmware: questa app non lo manda (sul controller si entra in aggiornamento dal menu pulsanti).",
+    en:"0x80 is about the firmware update: this app does not send it (on the controller the update mode is entered from the button menu).",
+    es:"0x80 tiene que ver con la actualización de firmware: esta app no lo envía (en el mando se entra en actualización desde el menú de botones).",
+    fr:"0x80 concerne la mise à jour du firmware : cette app ne l'envoie pas (sur la manette, on entre en mise à jour depuis le menu des boutons).",
+    de:"0x80 betrifft das Firmware-Update: Diese App sendet es nicht (am Handregler startet man das Update über das Tastenmenü)."
   },
   blkAct:{
     it:"registro dell'attivazione: qui si legge soltanto.",
     en:"activation register: here it can only be read.",
-    es:"registro de activación: aquí solo se lee."
+    es:"registro de activación: aquí solo se lee.",
+    fr:"registre d'activation : ici, on ne peut que le lire.",
+    de:"Aktivierungsregister: Hier wird es nur gelesen."
   },
   blkSweep:{
     it:"il modo freno 2 (Sweep) non si rilegge e si perde al riavvio: usa 0 o 1.",
     en:"brake mode 2 (Sweep) does not read back and is lost on restart: use 0 or 1.",
-    es:"el modo de freno 2 (Sweep) no se relee y se pierde al reiniciar: usa 0 o 1."
+    es:"el modo de freno 2 (Sweep) no se relee y se pierde al reiniciar: usa 0 o 1.",
+    fr:"le mode de frein 2 (Sweep) ne se relit pas et se perd au redémarrage : utilise 0 ou 1.",
+    de:"Bremsmodus 2 (Sweep) lässt sich nicht zurücklesen und geht beim Neustart verloren: Nutze 0 oder 1."
   },
   blkLen:{
     it:"{reg} vuole {n} byte, ne hai dati {m}: con un frame di lunghezza diversa il dispositivo salva byte a caso.",
     en:"{reg} wants {n} bytes, you gave {m}: with a frame of a different length the device saves random bytes.",
-    es:"{reg} quiere {n} bytes, has dado {m}: con una trama de otra longitud el dispositivo guarda bytes al azar."
+    es:"{reg} quiere {n} bytes, has dado {m}: con una trama de otra longitud el dispositivo guarda bytes al azar.",
+    fr:"{reg} veut {n} octets, tu en as donné {m} : avec une trame d'une autre longueur, l'appareil enregistre des octets au hasard.",
+    de:"{reg} erwartet {n} Bytes, du hast {m} angegeben: Bei einem Frame anderer Länge speichert das Gerät zufällige Bytes."
   },
-  blkRange:{it:"valore fuori intervallo ({min}–{max}).",en:"value out of range ({min}–{max}).",es:"valor fuera de rango ({min}–{max})."},
-  advLog:{it:"Log",en:"Log",es:"Registro"},
-  thReg:{it:"reg",en:"reg",es:"reg"},
-  stConnected:{it:"connesso",en:"connected",es:"conectado"},
-  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado"},
+  blkRange:{it:"valore fuori intervallo ({min}–{max}).",en:"value out of range ({min}–{max}).",es:"valor fuera de rango ({min}–{max}).",fr:"valeur hors plage ({min}–{max}).",de:"Wert außerhalb des Bereichs ({min}–{max})."},
+  advLog:{it:"Log",en:"Log",es:"Registro",fr:"Journal",de:"Protokoll"},
+  thReg:{it:"reg",en:"reg",es:"reg",fr:"reg",de:"Reg"},
+  stConnected:{it:"connesso",en:"connected",es:"conectado",fr:"connecté",de:"verbunden"},
+  stDisconnected:{it:"non connesso",en:"not connected",es:"no conectado",fr:"non connecté",de:"nicht verbunden"},
   logNoBt1:{
     it:"[!] Web Bluetooth non supportato: usa Chrome/Edge desktop o Chrome Android.",
     en:"[!] Web Bluetooth not supported: use Chrome/Edge desktop or Chrome Android.",
-    es:"[!] Web Bluetooth no compatible: usa Chrome/Edge escritorio o Chrome Android."
+    es:"[!] Web Bluetooth no compatible: usa Chrome/Edge escritorio o Chrome Android.",
+    fr:"[!] Web Bluetooth non pris en charge : utilise Chrome/Edge sur ordinateur ou Chrome sur Android.",
+    de:"[!] Web Bluetooth wird nicht unterstützt: Nutze Chrome/Edge am Computer oder Chrome auf Android."
   },
   logNoBt2:{
     it:"[!] Web Bluetooth non supportato. Usa Chrome/Edge desktop o Chrome Android. NON iOS/Safari.",
     en:"[!] Web Bluetooth not supported. Use Chrome/Edge desktop or Chrome Android. NOT iOS/Safari.",
-    es:"[!] Web Bluetooth no compatible. Usa Chrome/Edge escritorio o Chrome Android. NO iOS/Safari."
+    es:"[!] Web Bluetooth no compatible. Usa Chrome/Edge escritorio o Chrome Android. NO iOS/Safari.",
+    fr:"[!] Web Bluetooth non pris en charge. Utilise Chrome/Edge sur ordinateur ou Chrome sur Android. PAS iOS/Safari.",
+    de:"[!] Web Bluetooth wird nicht unterstützt. Nutze Chrome/Edge am Computer oder Chrome auf Android. NICHT iOS/Safari."
   },
-  logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]"},
-  logConnPrefix:{it:"connesso a",en:"connected to",es:"conectado a"},
-  logErrorPrefix:{it:"errore:",en:"error:",es:"error:"},
-  logBlocked:{it:"non inviato",en:"not sent",es:"no enviado"},
-  logDo:{it:"(DO: frame accettato)",en:"(DO: frame accepted)",es:"(DO: trama aceptada)"},
-  logAb:{it:"(AB: frame rifiutato)",en:"(AB: frame rejected)",es:"(AB: trama rechazada)"},
+  logDisconnected:{it:"[disconnesso]",en:"[disconnected]",es:"[desconectado]",fr:"[déconnecté]",de:"[getrennt]"},
+  logConnPrefix:{it:"connesso a",en:"connected to",es:"conectado a",fr:"connecté à",de:"verbunden mit"},
+  logErrorPrefix:{it:"errore:",en:"error:",es:"error:",fr:"erreur :",de:"Fehler:"},
+  logBlocked:{it:"non inviato",en:"not sent",es:"no enviado",fr:"non envoyé",de:"nicht gesendet"},
+  logDo:{it:"(DO: frame accettato)",en:"(DO: frame accepted)",es:"(DO: trama aceptada)",fr:"(DO : trame acceptée)",de:"(DO: Frame angenommen)"},
+  logAb:{it:"(AB: frame rifiutato)",en:"(AB: frame rejected)",es:"(AB: trama rechazada)",fr:"(AB : trame refusée)",de:"(AB: Frame abgelehnt)"},
   logBrakeUnset:{
-    it:"[freno non impostato: scegli Default/Lineare o premi 'Leggi configurazione']",
-    en:"[brake not set: choose Default/Linear or press 'Read configuration']",
-    es:"[freno no establecido: elige Predeterminado/Lineal o pulsa 'Leer configuración']"
+    it:"[freno non impostato: scegli Default/Manopola o premi 'Leggi configurazione']",
+    en:"[brake not set: choose Default/Knob or press 'Read configuration']",
+    es:"[freno no establecido: elige Predeterminado/Potenciómetro o pulsa 'Leer configuración']",
+    fr:"[frein non défini : choisis Par défaut/Molette ou appuie sur « Lire la configuration »]",
+    de:"[Bremse nicht gesetzt: Wähle Standard/Drehknopf oder drück „Konfiguration lesen“]"
   },
   logBrakeOdd:{
     it:"[modo freno letto = {v}: non è 0 né 1. Il modo 2 (Sweep) non si rilegge in modo affidabile e si perde al riavvio: scegli Default o Manopola e scrivi]",
     en:"[brake mode read = {v}: it is neither 0 nor 1. Mode 2 (Sweep) does not read back reliably and is lost on restart: choose Default or Knob and write]",
-    es:"[modo de freno leído = {v}: no es 0 ni 1. El modo 2 (Sweep) no se relee de forma fiable y se pierde al reiniciar: elige Predeterminado o Mando y escribe]"
+    es:"[modo de freno leído = {v}: no es 0 ni 1. El modo 2 (Sweep) no se relee de forma fiable y se pierde al reiniciar: elige Predeterminado o Potenciómetro y escribe]",
+    fr:"[mode de frein lu = {v} : ni 0 ni 1. Le mode 2 (Sweep) ne se relit pas de façon fiable et se perd au redémarrage : choisis Par défaut ou Molette et écris]",
+    de:"[gelesener Bremsmodus = {v}: weder 0 noch 1. Modus 2 (Sweep) lässt sich nicht zuverlässig zurücklesen und geht beim Neustart verloren: Wähle Standard oder Drehknopf und schreib]"
   },
   logNameSkip:{
     it:"[nome vuoto: non lo scrivo]",
     en:"[empty name: not written]",
-    es:"[nombre vacío: no lo escribo]"
+    es:"[nombre vacío: no lo escribo]",
+    fr:"[nom vide : je ne l'écris pas]",
+    de:"[leerer Name: wird nicht geschrieben]"
   },
   alertMac:{
     it:"Servono 2 byte, cioè 4 cifre esadecimali (es. 1A2B).",
     en:"2 bytes are needed, i.e. 4 hex digits (e.g. 1A2B).",
-    es:"Hacen falta 2 bytes, es decir 4 cifras hexadecimales (p. ej. 1A2B)."
+    es:"Hacen falta 2 bytes, es decir 4 cifras hexadecimales (p. ej. 1A2B).",
+    fr:"Il faut 2 octets, soit 4 chiffres hexadécimaux (ex. 1A2B).",
+    de:"Es braucht 2 Bytes, also 4 Hexadezimalziffern (z. B. 1A2B)."
   },
   confirmClone:{
-    it:"Scrivo {mac} nel registro 0x90 (identità radio O2 del telecomando). Dal prossimo riavvio il telecomando comanderà le auto abbinate a questa identità, e non più quelle abbinate alla precedente. Procedo?",
-    en:"Write {mac} to register 0x90 (the handset's O2 radio identity)? From the next restart the handset will control the cars bound to this identity, and no longer those bound to the previous one. Proceed?",
-    es:"Escribo {mac} en el registro 0x90 (identidad de radio O2 del mando). Desde el próximo reinicio el mando controlará los coches vinculados a esta identidad, y ya no los vinculados a la anterior. ¿Continúo?"
+    it:"Scrivo {mac} nel registro 0x90 (identità radio O2 del controller). Dal prossimo riavvio il controller comanderà le auto abbinate a questa identità, e non più quelle abbinate alla precedente. Procedo?",
+    en:"Write {mac} to register 0x90 (the controller's O2 radio identity)? From the next restart the controller will drive the cars bound to this identity, and no longer those bound to the previous one. Proceed?",
+    es:"Escribo {mac} en el registro 0x90 (identidad de radio O2 del mando). Desde el próximo reinicio el mando controlará los coches vinculados a esta identidad, y ya no los vinculados a la anterior. ¿Continúo?",
+    fr:"J'écris {mac} dans le registre 0x90 (identité radio O2 de la manette). Dès le prochain redémarrage, la manette commandera les voitures appairées à cette identité, et plus celles appairées à la précédente. Je continue ?",
+    de:"{mac} in Register 0x90 schreiben (O2-Funkidentität des Handreglers)? Ab dem nächsten Neustart steuert der Handregler die Autos, die an diese Identität gekoppelt sind, und nicht mehr die an die vorherige gekoppelten. Fortfahren?"
   },
-  noResp:{it:"(nessuna risposta)",en:"(no response)",es:"(sin respuesta)"}
+  noResp:{it:"(nessuna risposta)",en:"(no response)",es:"(sin respuesta)",fr:"(pas de réponse)",de:"(keine Antwort)"}
 };
 </script>
 <script src="../i18n.js"></script>
 <script>
-const APP="remote-config",APP_VERSION="1.5.1";
+const APP="remote-config",APP_VERSION="1.6.0";
 const NUS="6e400001-b5a3-f393-e0a9-e50e24dcca9e",RX="6e400002-b5a3-f393-e0a9-e50e24dcca9e",TX="6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 const PFX=0x0a;                                  // byte del dispositivo in BLE: 0x0a = telecomando (l'auto usa 0x09)
 const TYPE_STR="SCP3 Handle", VER_STR="O2 / Analog";   // display fissi della schermata SCP3
